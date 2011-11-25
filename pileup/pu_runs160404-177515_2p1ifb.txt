@@ -1,0 +1,6 @@
+/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/PileUp/
+Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON_v3.pileup_v2.root
+Cert_165088-167913_7TeV_PromptReco_JSON.pileup_v2.root
+Cert_170249-172619_7TeV_ReReco5Aug_Collisions11_JSON_v2.pileup.root
+Cert_172620-173692_PromptReco_JSON.pileup_v2.root
+Cert_175832-177515_PromptReco_JSON.pileup_v2.root
