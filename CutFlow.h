@@ -2,32 +2,70 @@
 #ifndef CutFlow_h
 #define CutFlow_h
 
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <climits>
+#include <float.h>
+
 #include <TROOT.h>
 #include <map>
 #include <vector>
+
 
 using namespace std;
 
 
 class CutFlow {
 	private:
-		vector<string>* cutNames;
-		
-		map<string, double>* eventsBeforeCut;
-		map<string, double>* eventsAfterCut;
-		map<string, double>* eventsBeforeCutError;
-		map<string, double>* eventsAfterCutError;
-		map<string, float>* scaleFactors;
-		map<string, float>* scaleFactorsError;
+		vector<string>		cutNames;
+		map<string, float>	minThresholds;
+		map<string, float>	maxThresholds;
+
+		map<string, int>	thisCombosResults;
+		map<string, float>	passedCombosForSignal;
+		map<string, float>	passedCombosForQCD;
+		map<string, float>	passedEventsForSignal;
+		map<string, float>	passedEventsForQCD;
+
+		bool eventForSignalPassed;
+		bool eventForQCDPassed;
+
+		bool comboIsForSignal;
+		bool comboIsForQCD;		
+
+		int heaviestComboForSignal;
+		int heaviestComboForQCD;
+
+		bool OutOfRange(float, float, float);
 
 //*/
 	public :
 		// Default constructor
 		CutFlow();
+		CutFlow(string);
 		virtual ~CutFlow();
 
 		void Reset();
+		string cutsToApply;
 		string test;
+
+		void RegisterCut(string);
+		bool CheckCombo(string,float);
+		void EndOfCombo(pair<bool,bool>,int);
+		void EndOfEvent();
+
+		bool HaveGoodCombos();
+
+		bool EventForSignalPassed();
+		bool EventForQCDPassed();
+
+		int GetHeaviestComboForSignal();
+		int GetHeaviestComboForQCD();
+
+		int GetHeaviestCombo();
+		int GetHeaviestLSCombo();
 /*		
 		void AddEvents(string, long int, float iScaleFactor=1.0);
 		long int GetEventsBeforeCut(string);
@@ -47,6 +85,8 @@ class CutFlow {
 
 		CutFlow* Clone();
 */
+
+		pair<float,float> ExtractCutThresholds(string);
 //		ClassDef(CutFlow, 1);
 		
 };

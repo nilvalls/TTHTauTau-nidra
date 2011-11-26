@@ -16,8 +16,8 @@
 #pragma link C++ class Topology+;
 #pragma link C++ class TopoPack+;
 
-#pragma read source="histos" sourceClass="Topology" target="histos" targetClass="Topology" attributes="Owner";
-#pragma read source="histosLS" sourceClass="Topology" target="histosLS" targetClass="Topology" attributes="Owner";
+#pragma read source="histosForSignal" sourceClass="Topology" target="histosForSignal" targetClass="Topology" attributes="Owner";
+#pragma read source="histosForQCD" sourceClass="Topology" target="histosForQCD" targetClass="Topology" attributes="Owner";
 
 
 #endif

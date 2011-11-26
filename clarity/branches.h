@@ -16,7 +16,6 @@ vector<bool>*	Tau1_ZeMatched;
 vector<bool>*	Tau2_ZeMatched;
 
 
-vector<float>	*TauTrigger;
 vector<float>	*Tau1GenPt;
 vector<float>	*Tau2GenPt;
 vector<float>	*Tau1GenE;

@@ -8,7 +8,7 @@ int main(int argc, char **argv){
 
 	Initialize();
 
-	ReadConfig(string(argv[1]), argv);
+	ReadConfig(string(argv[1]));
 
 	Analyze();
 

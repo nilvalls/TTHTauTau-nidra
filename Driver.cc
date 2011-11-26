@@ -34,7 +34,7 @@ void Initialize(){
 }
 
 // Read in config file and set up parameters
-void ReadConfig(string iPath, char** envp){
+void ReadConfig(string iPath){
 
 	// Instatiate configuration parser and take the first argument as the config file
 	Config theConfig(iPath);
@@ -50,9 +50,10 @@ void ReadConfig(string iPath, char** envp){
 	SetParam(&theConfig, "bigDir"); ReMakeDir(GetParam("bigDir"));
 	SetParam(&theConfig, "ntuplesDir");
 	SetParam(&theConfig, "histoCfg");
+	SetParam(&theConfig, "cutsToApply");
 
 	// Copy original config file to output dir
-	BackUpConfigFile(string(envp[1]), GetParam("webDir")); 
+	BackUpConfigFile(iPath, GetParam("webDir")); 
 
 	// Print out some info about the output dirs, etc
 	cout << "\n\t"; PrintURL(GetParam("webDir"));
@@ -75,7 +76,6 @@ void Analyze(){
 
 	// Pass topopack to analyzer to analyze
 	analyzer->AnalyzeAll(topologies);
-	cout << "ANALyzed:? " << topologies->Analyzed() << endl;
 
 	// Save analyzed topopack to a root file
 	rootFileMaker.MakeFile(topologies, GetParam("topology_file"));
@@ -179,5 +179,34 @@ void NewSection(TStopwatch* iStopWatch){
 }
 
 void BuildTopoPack(TopoPack* iTopologies, Config *theConfig){
-	cout << "Building topopack" << endl;
+
+	// Loop over all the topologies in the config file
+	vector<pair<string,Config*> > topoConfigs = theConfig->getGroupsVec();
+	for(unsigned int t = 0; t < topoConfigs.size(); t++){
+		string shortName = ((topoConfigs.at(t)).first).substr(string("topology_").length());
+		Config* topoConfig = (topoConfigs.at(t)).second;
+
+		// Check to see if this is enambled here
+		if(SkipTopology(shortName)){ continue; }
+		print(CYAN, "\tWill analyze \"" + shortName + "\"");
+
+		// Pass subConfig to topology and let it build itself
+		Topology* topology = new Topology(shortName, topoConfig);
+		string type = topology->GetType();
+
+		// Add topology to the topopack according to its type
+			 if(type.compare("collisions")==0){		iTopologies->SetCollisions(topology);	}
+		else if(type.compare("qcd")==0){			iTopologies->SetQCD(topology);			}
+		else if(type.compare("mcBackground")==0){	iTopologies->AddMCbackground(topology);	}
+		else if(type.compare("signal")==0){			iTopologies->AddSignal(topology);		}
+		else{ cerr << "ERROR: topology type \"" << type << "\" invalid" << endl; exit(1);	}
+
+	}
 }
+
+bool SkipTopology(string iThisTopo){
+	string enabledTopos = " " + GetParam("enabledTopologies") + " ";
+	string thisTopo = " " + iThisTopo + " ";
+	return (enabledTopos.find(thisTopo) > enabledTopos.length());
+}
+

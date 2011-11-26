@@ -29,7 +29,14 @@ Stacker::~Stacker(){}
 // Function to make the plots
 void Stacker::MakePlots(TopoPack* iTopologies){
 
-	cout <<	(iTopologies->GetCollisions()->cutFlow).test << endl;
+//	cout <<	(iTopologies->GetCollisions()->cutFlow).test << endl;
+
+	vector<HistoWrapper*>* histos = iTopologies->GetCollisions()->GetHistosForSignal();
+	for(unsigned int h=0; h<histos->size(); h++){
+		cout << histos->at(h)->GetHisto()->GetName() << endl;	
+	}
+
+
 }
 
 THStack* Stacker::MakeStack(vector<TH1*>* iBackgrounds){

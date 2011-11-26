@@ -23,10 +23,10 @@ using namespace std;
 
 class TopoPack {
 	private:
-		Topology* collisions;
-		Topology* qcd;
-		vector<Topology*>* mcBackgrounds;
-		vector<Topology*>* signals;
+		Topology*			collisions;
+		Topology*			qcd;
+		vector<Topology*>*	mcBackgrounds;
+		vector<Topology*>*	signals;
 		
 		bool                analyzed;
 
@@ -42,11 +42,22 @@ class TopoPack {
 		TopoPack();
 		virtual ~TopoPack();
 
-		Topology* GetCollisions();
+		Topology*			GetCollisions();
+		Topology*			GetQCD();
+		vector<Topology*>*	GetMCbackgrounds();
+		vector<Topology*>*	GetSignals();
 
-		int GetOne() const;
-		int GetTwo();
+		void SetCollisions(Topology*);
+		void SetQCD(Topology*);
+		void AddMCbackground(Topology*);
+		void AddSignal(Topology*);
 
+		bool HaveCollisions();
+		bool HaveQCD();
+		bool HaveMCbackgrounds();
+		bool HaveSignals();
+
+		void BuildQCD();
 		bool Analyzed();
 		void SetAnalyzed();
 

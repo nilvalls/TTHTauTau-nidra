@@ -6,8 +6,6 @@
 	numInteractionsBXp1 = 0;
 
 	// Set object pointer
-   PDFWeights = 0;
-   TauTrigger = 0;
 	Tau1_MatchesGenHadronic = 0;
 	Tau2_MatchesGenHadronic = 0;
 	Tau1_ParentTauMatched = 0;

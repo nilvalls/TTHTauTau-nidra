@@ -18,20 +18,23 @@
 #include "CutFlow.h"
 #include "HistoWrapper.h"
 
+#include "configParser/config.h"
+
 using namespace std;
 //using namespace Common;
 
 
 class Topology {
 	private:
-		vector<HistoWrapper*> histos;
-		vector<HistoWrapper*> histosLS;
+		vector<HistoWrapper*> histosForSignal;
+		vector<HistoWrapper*> histosForQCD;
 
 		CutFlow cutFlowLS;
 
 		string shortName;
 		string niceName;
 		string labelForLegend;
+		string type;
 		int color;
 
 		float crossSection;
@@ -41,25 +44,35 @@ class Topology {
 		double NOEinPATuple;
 		double NOEinDS;
 
+		string ntuplePath;
+
 		bool normalized;
 		bool analyzed;
+		bool valid;
 
 	public :
 		// Default constructor
 		Topology();
+		Topology(string, Config*);
 		virtual ~Topology();
 		CutFlow cutFlow;
 
 		void SetAnalyzed();
 		bool Analyzed();
 
-		void SetHistos(vector<HistoWrapper*>*);
-		void SetHistosLS(vector<HistoWrapper*>*);
+		void SetHistosForSignal(vector<HistoWrapper*>*);
+		void SetHistosForQCD(vector<HistoWrapper*>*);
 		void SetCutFlow(CutFlow*);
 		void SetCutFlowLS(CutFlow*);
 
-		int GetOne();
-		int GetTwo();
+		string GetShortName();
+		string GetNtuplePath();
+		string GetType();
+
+		vector<HistoWrapper*>* GetHistosForSignal();
+		vector<HistoWrapper*>* GetHistosForQCD();
+
+		Topology* Clone();
 		
 		ClassDef(Topology, 1);
 };

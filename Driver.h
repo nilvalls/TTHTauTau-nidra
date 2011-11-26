@@ -38,7 +38,7 @@ using namespace std;
 	// ========== Function declarations ========== //
 
 	void Initialize();
-	void ReadConfig(string, char** envp = 0);
+	void ReadConfig(string);
 	void Analyze();
 	void PlotStacks();
 	void PlotStamps();
@@ -57,6 +57,7 @@ using namespace std;
 	void print(string, string);
 	void BackUpConfigFile(string, string);
 	void NewSection(TStopwatch*);
+	bool SkipTopology(string);
 	/*
 	bool DoThisAnalysis(string, string);
 	bool doTopology(string, string); //*/

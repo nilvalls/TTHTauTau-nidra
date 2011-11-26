@@ -13,6 +13,9 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iomanip>
+
+#include "configParser/config.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 
@@ -20,12 +23,9 @@ using namespace std;
 //using namespace Common;
 
 
-class HistoWrapper : public TH1 {
+class HistoWrapper{
 	private:
-		int a;	
-		TH1* test;
-		TH1F* histo1F;
-		TH2F* histo2F;
+		TH1* histo;
 		float xbins[100000];
 		float visibleXmin;
 		float visibleXmax;
@@ -48,10 +48,13 @@ class HistoWrapper : public TH1 {
 	public :
 		// Default constructor
 		HistoWrapper();
+		HistoWrapper(string, string, Config*);
 		virtual ~HistoWrapper();
 
-		int GetNum();
-		
+		TH1* GetHisto();
+		void SetHisto(TH1*);
+		HistoWrapper* Clone();
+
 		ClassDef(HistoWrapper, 1);
 };
 

@@ -4,10 +4,6 @@ fChain->SetBranchAddress("lumiBlock", &lumiBlock);
 fChain->SetBranchAddress("numInteractionsBXm1", &numInteractionsBXm1);
 fChain->SetBranchAddress("numInteractionsBX0", &numInteractionsBX0);
 fChain->SetBranchAddress("numInteractionsBXp1", &numInteractionsBXp1);
-fChain->SetBranchAddress("PDFWeights", &PDFWeights);
-fChain->SetBranchAddress("ISRGluonWeight", &ISRGluonWeight);
-fChain->SetBranchAddress("ISRGammaWeight", &ISRGammaWeight);
-fChain->SetBranchAddress("FSRWeight", &FSRWeight);
 fChain->SetBranchAddress("Tau1_MatchesGenHadronic", &Tau1_MatchesGenHadronic);
 fChain->SetBranchAddress("Tau2_MatchesGenHadronic", &Tau2_MatchesGenHadronic);
 fChain->SetBranchAddress("Tau1_ParentTauMatched", &Tau1_ParentTauMatched);
@@ -17,7 +13,6 @@ fChain->SetBranchAddress("Tau2_ZtauMatched", &Tau2_ZtauMatched);
 fChain->SetBranchAddress("Tau1_ZeMatched", &Tau1_ZeMatched);
 fChain->SetBranchAddress("Tau2_ZeMatched", &Tau2_ZeMatched);
 
-fChain->SetBranchAddress("TauTrigger", &TauTrigger);
 fChain->SetBranchAddress("Tau1GenPt", &Tau1GenPt);
 fChain->SetBranchAddress("Tau2GenPt", &Tau2GenPt);
 fChain->SetBranchAddress("Tau1GenE", &Tau1GenE);

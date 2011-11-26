@@ -73,6 +73,10 @@ class Config {
 			return groups;
 		}
 
+		inline vector<pair<string, Config*> >& getGroupsVec() {
+			return groupsVec;
+		}
+
 
 	private:
 		// private constructor for sub groups
@@ -94,6 +98,7 @@ class Config {
 
 		// config sub group map
 		map<string, Config*> groups;
+		vector<pair<string, Config*> > groupsVec;
 
 		// config template map
 		std::vector<pair<string, string> > templates;

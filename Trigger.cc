@@ -65,7 +65,7 @@ eduMuTauSS << "*" << lumiFractionPeriod4;
 eduMuTauSS << ")";
 
 string eduMuTauString=eduMuTauSS.str();
-cout << eduMuTauString << endl;
+//cout << eduMuTauString << endl;
 
 eduMuTau	= new TF1("eduMuTau", eduMuTauString.c_str(),0,10000);
 
