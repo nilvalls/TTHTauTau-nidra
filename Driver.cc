@@ -5,7 +5,10 @@
 using namespace std;
 
 // Perform some initialization tasks
-void Initialize(){
+void Initialize(int argc, char **argv){
+
+	inputArguments = "";
+	for(unsigned a = 0; a < argc; a++){ inputArguments += (string(argv[a]) + " "); }
 
 	// Clear paramater set
 	params.clear();
@@ -13,11 +16,9 @@ void Initialize(){
 	// Init root file maker
 	rootFileMaker = RootFileMaker();
 
-	// Init topologies
-	topologies = new TopoPack();
-
 	// Set up nice plot style
 	gROOT->Reset();
+
 	//gROOT->SetStyle("Plain");
 	setTDRStyle();
 
@@ -47,10 +48,16 @@ void ReadConfig(string iPath){
 	SetParam(&theConfig, "flags");
 	SetParam(&theConfig, "countMasses");
 	SetParam(&theConfig, "webDir"); ReMakeDir(GetParam("webDir"));
-	SetParam(&theConfig, "bigDir"); ReMakeDir(GetParam("bigDir"));
+	SetParam(&theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
 	SetParam(&theConfig, "ntuplesDir");
 	SetParam(&theConfig, "histoCfg");
 	SetParam(&theConfig, "cutsToApply");
+	SetParam(&theConfig, "osls");
+	SetParam(&theConfig, "QCDcolor");
+	SetParam(&theConfig, "xLegend");
+	SetParam(&theConfig, "yLegend");
+	SetParam(&theConfig, "dxLegend");
+	SetParam(&theConfig, "dyLegend");
 
 	// Copy original config file to output dir
 	BackUpConfigFile(iPath, GetParam("webDir")); 
@@ -63,9 +70,10 @@ void ReadConfig(string iPath){
 
 	// Set some additional internal parameters
 	SetParam("topology_file",string(GetParam("bigDir")+"topologies.root"));
+	SetParam("stacks_output",string(GetParam("webDir")+"stacks/")); ReMakeDir(GetParam("stacks_output"));
 
 	// Build the topopack from the info in the config file
-	BuildTopoPack(topologies, &theConfig);
+	topologies = BuildTopoPack(&theConfig);
 
 }
 
@@ -81,9 +89,14 @@ void Analyze(){
 	rootFileMaker.MakeFile(topologies, GetParam("topology_file"));
 }
 
+void CrunchNumbers(){
+	Cruncher cruncher = Cruncher(&params);
+//	cruncher.PrintCutEfficiencies();
+}
+
 void PlotStacks(){
 	// Read root file with topologies and make stacks
-	Stacker stacker = Stacker(new map<string,string>(params));
+	Stacker stacker = Stacker(&params);
 }
 
 void PlotStamps(){
@@ -178,7 +191,8 @@ void NewSection(TStopwatch* iStopWatch){
 		<< setw(7) << setfill(' ')  << cpuSecs << " CPUs) "  << string(50, '-') << NOCOLOR << endl;
 }
 
-void BuildTopoPack(TopoPack* iTopologies, Config *theConfig){
+TopoPack* BuildTopoPack(Config *theConfig){
+	TopoPack* result = new TopoPack(&params);
 
 	// Loop over all the topologies in the config file
 	vector<pair<string,Config*> > topoConfigs = theConfig->getGroupsVec();
@@ -186,27 +200,48 @@ void BuildTopoPack(TopoPack* iTopologies, Config *theConfig){
 		string shortName = ((topoConfigs.at(t)).first).substr(string("topology_").length());
 		Config* topoConfig = (topoConfigs.at(t)).second;
 
-		// Check to see if this is enambled here
-		if(SkipTopology(shortName)){ continue; }
-		print(CYAN, "\tWill analyze \"" + shortName + "\"");
-
 		// Pass subConfig to topology and let it build itself
 		Topology* topology = new Topology(shortName, topoConfig);
 		string type = topology->GetType();
 
 		// Add topology to the topopack according to its type
-			 if(type.compare("collisions")==0){		iTopologies->SetCollisions(topology);	}
-		else if(type.compare("qcd")==0){			iTopologies->SetQCD(topology);			}
-		else if(type.compare("mcBackground")==0){	iTopologies->AddMCbackground(topology);	}
-		else if(type.compare("signal")==0){			iTopologies->AddSignal(topology);		}
-		else{ cerr << "ERROR: topology type \"" << type << "\" invalid" << endl; exit(1);	}
-
+			 if(type.compare("collisions")==0){	
+			 										result->SetCollisions(topology);
+			 										result->PrepareCollisions(!SkipTopology("Collisions"));
+			 										result->PrepareQCD(!SkipTopology("QCD"));
+		}else if(type.compare("mcBackground")==0){
+													if(SkipTopology(shortName)){ continue; }
+													result->AddMCbackground(topology);	
+		}else if(type.compare("signal")==0){
+													if(SkipTopology(shortName)){ continue; }
+													result->AddSignal(topology);
+		}else{ cerr << "ERROR: topology type \"" << type << "\" invalid" << endl; exit(1);	}
 	}
+
+	return result;
 }
 
 bool SkipTopology(string iThisTopo){
-	string enabledTopos = " " + GetParam("enabledTopologies") + " ";
-	string thisTopo = " " + iThisTopo + " ";
-	return (enabledTopos.find(thisTopo) > enabledTopos.length());
+	string enabledTopologies = " " + GetParam("enabledTopologies") + " ";
+	string thisTopo			 = " " + iThisTopo + " ";
+
+	bool result = IsStringThere(thisTopo,enabledTopologies);
+
+	// Print to screen enabled topology
+	if(!result || ((iThisTopo.compare("QCD"))==0) ){ print(CYAN, "\tWill analyze \"" + iThisTopo + "\""); }
+
+	return result;
 }
 
+bool IsArgumentThere(string iArgument){ 
+return IsStringThere(iArgument,inputArguments); }
+
+bool IsStringThere(string iNeedle, string iHaystack){
+	string haystack = " " + iHaystack + " ";
+	string needle = " " + iNeedle + " ";
+
+	bool result = ((haystack.find(needle) < haystack.length()));
+
+	return result;
+
+}

@@ -27,12 +27,12 @@ class HistoWrapper{
 	private:
 		TH1* histo;
 		float xbins[100000];
-		float visibleXmin;
-		float visibleXmax;
-		float visibleYmin;
-		float visibleYmax;
-		float visibleZmin;
-		float visibleZmax;
+		float xMinVis;
+		float xMaxVis;
+		float yMinVis;
+		float yMaxVis;
+		float zMinVis;
+		float zMaxVis;
 		string xTitle;
 		string yTitle;
 		string zTitle;
@@ -49,11 +49,33 @@ class HistoWrapper{
 		// Default constructor
 		HistoWrapper();
 		HistoWrapper(string, string, Config*);
+		HistoWrapper* Clone();
 		virtual ~HistoWrapper();
 
-		TH1* GetHisto();
-		void SetHisto(TH1*);
-		HistoWrapper* Clone();
+		TH1*	GetHisto();
+		string	GetName();
+		float 	GetXminVis();
+		float 	GetXmaxVis();
+		float 	GetYminVis();
+		float 	GetYmaxVis();
+		string	GetXtitle();
+		string	GetYtitle();
+		string	GetZtitle();
+		bool	GetLogX();
+		bool	GetLogY();
+		bool	GetLogZ();
+
+		void	Draw(string);
+
+		void	SetHisto(TH1*);
+		void	Add(TH1*, double iFactor=1.0);
+		void	Add(HistoWrapper*, double iFactor=1.0);
+		void	NormalizeTo(double);
+		void	ScaleBy(double);
+		void	Positivize();
+
+		void	SetLineWidth(int,int iColor=0);
+		void	SetFillStyle(int,int iColor=0);
 
 		ClassDef(HistoWrapper, 1);
 };

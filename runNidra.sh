@@ -28,21 +28,28 @@ function echoSuc {
 }
 
 execFile=".nidra.exe"
+allArgs="$*"
 
 # Check that an input config file is passed and exits
-if [ "$1" == "-r" ] || [ "$2" == "-r" ]; then
+if [ "$1" == "-r" ] || [ "$2" == "-r" ] || [ "$1" == "-c" ] || [ "$2" == "-c" ]; then
 
-	if [ "$1" == "-r" ]; then
-		iConfig="$2"
-	elif [ "$2" == "-r" ]; then
-		iConfig="$1"
+	if [ "$1" == "-r" ] || [ "$1" == "-c" ]; then
+		iConfig="$2"; iOption="$1";
+	elif [ "$2" == "-r" ] || [ "$2" == "-c" ]; then
+		iConfig="$1"; iOption="$2";
+	fi
+	
+	if [ "$iOption" == "-c" ]; then
+		echoInf "Cleaning nidra..."
+		make clean &> /dev/null
+		if [ $? -eq 0 ]; then echoSuc "done!"; fi
 	fi
 
-	echoInf "Cleaning nidra..."
-	make clean &> /dev/null
-	if [ $? -eq 0 ]; then echoSuc "done!"; fi
-	echoInf "Compiling nidra..."
-	make all
+	if [ "$iOption" == "-r" ] || [ "$iOption" == "-c" ]; then
+		echoInf "Compiling nidra..."
+		make all
+		if [ $? -ne 0 ]; then echoErr "Error while compiling nidra"; exit 1; fi
+	fi
 
 else
 	iConfig="$1"
@@ -91,7 +98,8 @@ fi
 
 # If all the above check, run the plotter
 echoInf "Running $execFile with config file $iConfig..."
-./$execFile "$iConfig"
+./$execFile $iConfig $allArgs
+#./$execFile $allArgs
 
 # Notify of analysis end
 echoSuc "Analysis finished!"

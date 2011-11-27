@@ -18,6 +18,7 @@
 #include "TopoPack.h"
 #include "RootFileMaker.h"
 #include "Analyzer.h"
+#include "Cruncher.h"
 #include "Stacker.h"
 
 #include "configParser/config.h"
@@ -29,6 +30,7 @@
 using namespace std;
 
 
+	string					inputArguments;
 	TStopwatch*				stopwatch;
 	map<string, string> 	params;
 
@@ -37,9 +39,10 @@ using namespace std;
 
 	// ========== Function declarations ========== //
 
-	void Initialize();
+	void Initialize(int, char**);
 	void ReadConfig(string);
 	void Analyze();
+	void CrunchNumbers();
 	void PlotStacks();
 	void PlotStamps();
 	void Optimize();
@@ -47,7 +50,7 @@ using namespace std;
 
 	void SetParam(string, string);
 	void SetParam(Config*, string);
-	void BuildTopoPack(TopoPack*, Config*);
+	TopoPack* BuildTopoPack(Config*);
 	string GetParam(string);
 	void print(string,string);
 	void ReMakeDir(string);
@@ -58,6 +61,8 @@ using namespace std;
 	void BackUpConfigFile(string, string);
 	void NewSection(TStopwatch*);
 	bool SkipTopology(string);
+	bool IsArgumentThere(string);
+	bool IsStringThere(string,string);
 	/*
 	bool DoThisAnalysis(string, string);
 	bool doTopology(string, string); //*/

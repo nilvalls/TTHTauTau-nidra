@@ -74,11 +74,7 @@
    Tau2IsInTheCracks = 0;
    Tau1DecayMode = 0;
    Tau2DecayMode = 0;
-   Tau1SumPtIsoTracks = 0;
-   Tau2SumPtIsoTracks = 0;
-   Tau1SumPtIsoGammas = 0;
-   Tau2SumPtIsoGammas = 0;
-   mEt = 0;
+   MET = 0;
    TauTauVisibleMass = 0;
    TauTauVisPlusMetMass = 0;
    TauTauCollinearMetMass = 0;

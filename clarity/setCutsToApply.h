@@ -1,8 +1,7 @@
-																											cutFlow.RegisterCut("ReadFromDS");
-																											cutFlow.RegisterCut("skimming + PAT");
-																											cutFlow.RegisterCut("nTuple making");
-																											cutFlow.RegisterCut("User event limit");		
-
+																											cutFlow.RegisterPreCut("Read from DS");
+																											cutFlow.RegisterPreCut("skimming + PAT");
+																											cutFlow.RegisterPreCut("nTuple making");
+															if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.RegisterPreCut("User event limit"); }	
 	 if(ApplyThisCut("RunNumber"				)){ CutOn_RunNumber					= 	true; cutFlow.RegisterCut("RunNumber");					}
 	 if(ApplyThisCut("LumiSection"				)){ CutOn_LumiSection				= 	true; cutFlow.RegisterCut("LumiSection");				}
 	 if(ApplyThisCut("EventNumber"				)){ CutOn_EventNumber				= 	true; cutFlow.RegisterCut("EventNumber");				}
@@ -54,6 +53,7 @@ else if(ApplyThisCut("SL_VLooseIso"				)){ CutOn_SL_VLooseIso				= 	true; cutFlo
 	 if(ApplyThisCut("Btags"					)){ CutOn_Btags						= 	true; cutFlow.RegisterCut("Btags");						}
 	 //NEWCUT
 
-																					if(IsFlagThere("PUcorr")){ cutFlow.RegisterCut("Trigger"); }
-																					if(IsFlagThere("trigger")){ cutFlow.RegisterCut("PU reweighing"); }
-																				if(IsFlagThere("MCnormEnd")){	  cutFlow.RegisterCut("Lumi norm");		}
+																					if(IsFlagThere("PUcorr")){ cutFlow.RegisterPostCut("PU reweighing"); }
+																					if(IsFlagThere("trigger")){ cutFlow.RegisterPostCut("LL trigger"); }
+																					if(IsFlagThere("trigger")){ cutFlow.RegisterPostCut("SL trigger"); }
+																				if(IsFlagThere("MCnormEnd")){	  cutFlow.RegisterPostCut("Lumi norm");		}

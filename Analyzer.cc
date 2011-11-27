@@ -27,9 +27,7 @@ Analyzer::Analyzer(map<string,string>* iParams){
 
  	histoConfig			= new Config(params["histoCfg"]);
 	puCorrector			= new PUcorrector(params["puList"]);
-
 	tauTrigger			= new Trigger(4600);
-
 
 }
 
@@ -43,19 +41,28 @@ Analyzer::~Analyzer(){
 void Analyzer::Analyze(Topology* iTopology){
 
 	Reset();
+	cutFlow.SetPreCutForSignal("Read from DS", iTopology->GetNOEinDS());
+	cutFlow.SetPreCutForQCD("Read from DS", iTopology->GetNOEinDS());
+	cutFlow.SetPreCutForSignal("skimming + PAT", iTopology->GetNOEinPATuple());
+	cutFlow.SetPreCutForQCD("skimming + PAT", iTopology->GetNOEinPATuple());
+
+
+	applyTrigger		= (IsFlagThere("trigger") && iTopology->IsMC());
+	applyPUreweighing	= (IsFlagThere("PUcorr") && iTopology->IsMC());
 
 	BookHistos(&histosForSignal);
 	BookHistos(&histosForQCD);
 
 	Init(iTopology->GetNtuplePath());
 
-	Loop();
+	pair<double,double> loopResults = Loop();
+	iTopology->SetNOEinNtuple(loopResults.first);
+	iTopology->SetNOEanalyzed(loopResults.second);
 	MakeHistoWrapperVector(&histosForSignal);
 
 	iTopology->SetHistosForSignal(MakeHistoWrapperVector(&histosForSignal));
 	iTopology->SetHistosForQCD(MakeHistoWrapperVector(&histosForQCD));
-	iTopology->SetCutFlow(&cutFlow);
-	iTopology->SetAnalyzed();
+	iTopology->SetCutFlow(new CutFlow(cutFlow));
 }
 
 void Analyzer::Analyze(vector<Topology*>* iTopologies){
@@ -65,24 +72,32 @@ void Analyzer::Analyze(vector<Topology*>* iTopologies){
 void Analyzer::Reset(){
 	histosForSignal.clear();
 	histosForQCD.clear();
-//	cutFlow.Reset();
-//	cutFlowLS.Reset();
+	cutFlow.Zero();
 }
 
-void Analyzer::Loop(){
+pair<double,double> Analyzer::Loop(){
 
+	pair<double,double> result = make_pair(0,0);
 	int maxEvents = atoi((params["maxEvents"]).c_str());
 
 	cout << ">>> Starting loop... "; cout.flush();
 
-	if (fChain == 0){ cout << endl << "ERROR: empty TChain. Exiting."; return; }
+	if (fChain == 0){ cout << endl << "ERROR: empty TChain. Exiting."; return result; }
 
-	Long64_t nentries = fChain->GetEntries(); cout << " " << nentries << " entries available: ";
+	Long64_t nentries = fChain->GetEntries(); 
+	if(nentries == 0){ cout << "WARNING: this topology has zero events to read" << endl; return result; }
+	cout << " " << nentries << " entries available: ";
+	cutFlow.SetPreCutForSignal("nTuple making", nentries);
+	cutFlow.SetPreCutForQCD("nTuple making", nentries);
 	if(maxEvents <= 0 || maxEvents >= nentries){ cout << "Processing all of them..." << string(14,'.') << " "; }
 	else{ cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " "; }
 	cout.flush();
 
+	cutFlow.SetPreCutForSignal("User event limit", maxEvents);
+	cutFlow.SetPreCutForQCD("User event limit", maxEvents);
+
 	// Actual loop
+	double NOEanalyzed = 0;
 	for (Long64_t jentry=0; jentry<nentries; jentry++) {
 		// Keep user informed of the number of events processed and if there is a termination due to reaching of the limit
 		if ( maxEvents > 0 && jentry >= (unsigned int)(maxEvents)){ cout << "\n>>> INFO: Reached user-imposed event number limit (" << maxEvents << "), skipping the rest." << endl; break; }
@@ -98,6 +113,7 @@ void Analyzer::Loop(){
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
 		fChain->GetEntry(jentry);
+		cutFlow.StartOfEvent();
 
 		// Loop over all the combos
 		for (unsigned int combo = 0; combo < Tau1Pt->size(); combo++){
@@ -118,19 +134,41 @@ void Analyzer::Loop(){
 		// Inform cutFlow that we've checked all the combos
 		cutFlow.EndOfEvent();
 
-		// Fill histos for regular passed event
+		// Fill histos for passed event for signal analysis
 		if(cutFlow.EventForSignalPassed()){
 			int heaviestComboForSignal = cutFlow.GetHeaviestComboForSignal();
-			FillHistosForSignal(heaviestComboForSignal);
+
+			float puWeight			= GetPUweight(heaviestComboForSignal);
+			float tau1TriggerWeight	= GetTau1TriggerWeight(heaviestComboForSignal);
+			float tau2TriggerWeight	= GetTau2TriggerWeight(heaviestComboForSignal);
+
+			cutFlow.AddPostCutEventForSignal("PU reweighing", puWeight);
+			cutFlow.AddPostCutEventForSignal("LL trigger", puWeight*tau1TriggerWeight);
+			cutFlow.AddPostCutEventForSignal("SL trigger", puWeight*tau1TriggerWeight*tau2TriggerWeight);
+
+			FillHistosForSignal(heaviestComboForSignal, puWeight, tau1TriggerWeight, tau2TriggerWeight);
 		}
 
-		// Fill histos for LS passed event
+		// Fill histos for event for QCD analysis
 		if(cutFlow.EventForQCDPassed()){
 			int heaviestComboForQCD = cutFlow.GetHeaviestComboForQCD();
-			FillHistosForQCD(heaviestComboForQCD);
+
+			float puWeight			= GetPUweight(heaviestComboForQCD);
+			float tau1TriggerWeight	= GetTau1TriggerWeight(heaviestComboForQCD);
+			float tau2TriggerWeight	= GetTau2TriggerWeight(heaviestComboForQCD);
+
+			cutFlow.AddPostCutEventForQCD("PU reweighing", puWeight);
+			cutFlow.AddPostCutEventForQCD("LL trigger", puWeight*tau1TriggerWeight);
+			cutFlow.AddPostCutEventForQCD("SL trigger", puWeight*tau1TriggerWeight*tau2TriggerWeight);
+
+			FillHistosForQCD(heaviestComboForQCD, puWeight, tau1TriggerWeight, tau2TriggerWeight);
 		}
 
+		NOEanalyzed++;
 	}
+
+	result = make_pair(nentries, NOEanalyzed);
+	return result;
 }
 
 
@@ -138,27 +176,119 @@ void Analyzer::Loop(){
 pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 	///***/// LS QCD business, this is a bit tricky... ///***///
-
 	bool isLS = false;
 	bool satisfiesChargeProduct = false;
 
 	int chargeProduct = (Tau1Charge->at(iCombo))*(Tau2Charge->at(iCombo));
-	if(CutOn_ChargeProduct){
-		satisfiesChargeProduct = cutFlow.CheckCombo("ChargeProduct", chargeProduct);
-	}
+	if(CutOn_ChargeProduct){ satisfiesChargeProduct = cutFlow.CheckCombo("ChargeProduct", chargeProduct); }
 	isLS = (chargeProduct == 1);
 
 	bool isForSignal = ((!CutOn_ChargeProduct) || (satisfiesChargeProduct));
 	pair<bool,bool> result = make_pair(isForSignal, isLS);
-
 	///***/// 	End of LS/QCD business	 ///***///
 
 	// Transverse momentum
-	if(CutOn_LL_pT){ if(!cutFlow.CheckCombo("LL_pT",Tau1Pt->at(iCombo))){ return result; }; }
-	if(CutOn_SL_pT){ if(!cutFlow.CheckCombo("SL_pT",Tau2Pt->at(iCombo))){ return result; }; }
+	if(CutOn_LL_pT){ if(!cutFlow.CheckCombo("LL_pT",Tau1Pt->at(iCombo))){ return result; }}
+	if(CutOn_SL_pT){ if(!cutFlow.CheckCombo("SL_pT",Tau2Pt->at(iCombo))){ return result; }}
+
+	// Pseudorapidity
+	if(CutOn_LL_Eta){ if(!cutFlow.CheckCombo("LL_Eta",Tau1Eta->at(iCombo))){ return result; }}
+	if(CutOn_SL_Eta){ if(!cutFlow.CheckCombo("SL_Eta",Tau2Eta->at(iCombo))){ return result; }}
+
+	// Delta R
+	if(CutOn_DeltaR){ if(!cutFlow.CheckCombo("DeltaR",TauTauDeltaR->at(iCombo))){ return result; }}
 
 
-	// Return target
+	// ============================= Tau-ID Cuts ============================= //
+	
+	// Leading track transverse momentum
+	if(CutOn_LL_LTpT){ if(!cutFlow.CheckCombo("LL_LTpT",Tau1LTPt->at(iCombo))){ return result; }}
+	if(CutOn_SL_LTpT){ if(!cutFlow.CheckCombo("SL_LTpT",Tau2LTPt->at(iCombo))){ return result; }}
+
+	// Leading track number of hits
+	if(CutOn_LL_LTHits){ if(!cutFlow.CheckCombo("LL_LThits",Tau1LTValidHits->at(iCombo))){ return result; }}
+	if(CutOn_SL_LTHits){ if(!cutFlow.CheckCombo("SL_LThits",Tau2LTValidHits->at(iCombo))){ return result; }}
+
+	// Crack veto
+	if(CutOn_LL_InCracks){ if(!cutFlow.CheckCombo("LL_InCracks",Tau1IsInTheCracks->at(iCombo))){ return result; }}
+	if(CutOn_SL_InCracks){ if(!cutFlow.CheckCombo("SL_InCracks",Tau2IsInTheCracks->at(iCombo))){ return result; }}
+
+	// Against Electron
+	if( CutOn_LL_AgainstTightElectron ){ if(!cutFlow.CheckCombo("LL_AgainstTightElectron",
+		Tau1hpsPFTauDiscriminationAgainstTightElectron->at(iCombo))){ return result; }}
+	else if( CutOn_LL_AgainstMediumElectron ){ if(!cutFlow.CheckCombo("LL_AgainstMediumElectron",
+		Tau1hpsPFTauDiscriminationAgainstMediumElectron->at(iCombo))){ return result; }}
+	else if( CutOn_LL_AgainstLooseElectron ){ if(!cutFlow.CheckCombo("LL_AgainstLooseElectron",
+		Tau1hpsPFTauDiscriminationAgainstLooseElectron->at(iCombo))){ return result; }}
+	
+	if( CutOn_SL_AgainstTightElectron ){ if(!cutFlow.CheckCombo("SL_AgainstTightElectron",
+		Tau2hpsPFTauDiscriminationAgainstTightElectron->at(iCombo))){ return result; }}
+	else if( CutOn_SL_AgainstMediumElectron ){ if(!cutFlow.CheckCombo("SL_AgainstMediumElectron",
+		Tau2hpsPFTauDiscriminationAgainstMediumElectron->at(iCombo))){ return result; }}
+	else if( CutOn_SL_AgainstLooseElectron ){ if(!cutFlow.CheckCombo("SL_AgainstLooseElectron",
+		Tau2hpsPFTauDiscriminationAgainstLooseElectron->at(iCombo))){ return result; }}
+
+
+	// Against Muon
+	if( CutOn_LL_AgainstTightMuon ){ if(!cutFlow.CheckCombo("LL_AgainstTightMuon",
+		Tau1hpsPFTauDiscriminationAgainstTightMuon->at(iCombo))){ return result; }}
+	else if( CutOn_LL_AgainstLooseMuon ){ if(!cutFlow.CheckCombo("LL_AgainstLooseMuon",
+		Tau1hpsPFTauDiscriminationAgainstLooseMuon->at(iCombo))){ return result; }}
+
+	if( CutOn_SL_AgainstTightMuon ){ if(!cutFlow.CheckCombo("SL_AgainstTightMuon",
+		Tau2hpsPFTauDiscriminationAgainstTightMuon->at(iCombo))){ return result; }}
+	else if( CutOn_SL_AgainstLooseMuon ){ if(!cutFlow.CheckCombo("SL_AgainstLooseMuon",
+		Tau2hpsPFTauDiscriminationAgainstLooseMuon->at(iCombo))){ return result; }}
+
+
+	// Isolation
+	if( CutOn_LL_TightIso){ if(!cutFlow.CheckCombo("LL_TightIso",
+		Tau1hpsPFTauDiscriminationByTightIsolation->at(iCombo))){ return result; }}
+	else if( CutOn_LL_MediumIso){ if(!cutFlow.CheckCombo("LL_MediumIso",
+		Tau1hpsPFTauDiscriminationByMediumIsolation->at(iCombo))){ return result; }}
+	else if( CutOn_LL_LooseIso){ if(!cutFlow.CheckCombo("LL_LooseIso",
+		Tau1hpsPFTauDiscriminationByLooseIsolation->at(iCombo))){ return result; }}
+	else if( CutOn_LL_VLooseIso){ if(!cutFlow.CheckCombo("LL_VLooseIso",
+		Tau1hpsPFTauDiscriminationByVLooseIsolation->at(iCombo))){ return result; }}
+
+	if( CutOn_SL_TightIso){ if(!cutFlow.CheckCombo("SL_TightIso",
+		Tau2hpsPFTauDiscriminationByTightIsolation->at(iCombo))){ return result; }}
+	else if( CutOn_SL_MediumIso){ if(!cutFlow.CheckCombo("SL_MediumIso",
+		Tau2hpsPFTauDiscriminationByMediumIsolation->at(iCombo))){ return result; }}
+	else if( CutOn_SL_LooseIso){ if(!cutFlow.CheckCombo("SL_LooseIso",
+		Tau2hpsPFTauDiscriminationByLooseIsolation->at(iCombo))){ return result; }}
+	else if( CutOn_SL_VLooseIso){ if(!cutFlow.CheckCombo("SL_VLooseIso",
+		Tau2hpsPFTauDiscriminationByVLooseIsolation->at(iCombo))){ return result; }}
+
+
+	// Decay mode
+	if(CutOn_LL_DecayModeFinding){ if(!cutFlow.CheckCombo("LL_DecayModeFinding",Tau1hpsPFTauDiscriminationByDecayModeFinding->at(iCombo))){ return result; }}
+	if(CutOn_SL_DecayModeFinding){ if(!cutFlow.CheckCombo("SL_DecayModeFinding",Tau2hpsPFTauDiscriminationByDecayModeFinding->at(iCombo))){ return result; }}
+	if(CutOn_LL_DecayMode){ if(!cutFlow.CheckCombo("LL_DecayMode",Tau1DecayMode->at(iCombo))){ return result; }}
+	if(CutOn_SL_DecayMode){ if(!cutFlow.CheckCombo("SL_DecayMode",Tau2DecayMode->at(iCombo))){ return result; }}
+
+	// Signal track multiplicity
+	if(CutOn_LL_NumProngs){ if(!cutFlow.CheckCombo("LL_NumProngs",Tau1NProngs->at(iCombo))){ return result; }}
+	if(CutOn_SL_NumProngs){ if(!cutFlow.CheckCombo("SL_NumProngs",Tau2NProngs->at(iCombo))){ return result; }}
+
+	// ============================= Topological Cuts ============================= //
+
+	// Cosine Delta phi
+	if(CutOn_CosDeltaPhi){ if(!cutFlow.CheckCombo("CosDeltaPhi",TauTauCosDPhi->at(iCombo))){ return result; }}
+
+	// Missing transverse energy
+	if(CutOn_MET){ if(!cutFlow.CheckCombo("MET",MET->at(iCombo))){ return result; }}
+
+	// Zeta
+	if(CutOn_Zeta){ 
+		float zeta = TauTauPZeta->at(iCombo)-0.875*TauTauPZetaVis->at(iCombo);
+		if(!cutFlow.CheckCombo("Zeta",zeta)){ return result; }
+	}
+
+	// Btags
+	if(CutOn_Btags){ if(!cutFlow.CheckCombo("Btags",nBtagsHiEffTrkCnt->at(iCombo))){ return result; }}
+
+	// Return target, first element is for signal analysis, second is for QCD
 	return result;
 }
 
@@ -172,11 +302,15 @@ void Analyzer::SetCutsToApply(string iCutsToApply){
 }
 
 
-void Analyzer::FillHistosForSignal(int iCombo){ FillHistos(&histosForSignal, iCombo); }
+void Analyzer::FillHistosForSignal(int iCombo, double iPuWeight, double iTau1TriggerWeight, double iTau2TriggerWeight){ 
+	FillHistos(&histosForSignal,iCombo, iPuWeight, iTau1TriggerWeight, iTau2TriggerWeight);
+}
 
-void Analyzer::FillHistosForQCD(int iCombo){ FillHistos(&histosForQCD, iCombo); }
+void Analyzer::FillHistosForQCD(int iCombo, double iPuWeight, double iTau1TriggerWeight, double iTau2TriggerWeight){ 
+	FillHistos(&histosForQCD,iCombo, iPuWeight, iTau1TriggerWeight, iTau2TriggerWeight);
+}
 
-void Analyzer::FillHistos(map<string, HistoWrapper*>* iHistos, int iCombo){
+void Analyzer::FillHistos(map<string, HistoWrapper*>* iHistos, int iCombo, double iPuWeight, double iTau1TriggerWeight, double iTau2TriggerWeight){
 	#include "clarity/fillHistos.h"
 }
 
@@ -993,14 +1127,18 @@ unsigned int Analyzer::ParseCSV(const string& iS, char c, float iArray[]) {
 //*/
 
 void Analyzer::AnalyzeAll(TopoPack* iTopologies){
-	if(iTopologies->HaveCollisions()){		Analyze(iTopologies->GetCollisions());		}
-	if(iTopologies->HaveMCbackgrounds()){	Analyze(iTopologies->GetMCbackgrounds());	}
-	if(iTopologies->HaveQCD()){				iTopologies->BuildQCD();					}
-	if(iTopologies->HaveSignals()){			Analyze(iTopologies->GetSignals());			}
+
+	if(iTopologies->HaveCollisions()){									Analyze(iTopologies->GetCollisions());		}
+
+	if(iTopologies->HaveMCbackgrounds()){								Analyze(iTopologies->GetMCbackgrounds());	}
+	if(iTopologies->HaveSignals()){										Analyze(iTopologies->GetSignals());			}
+
 
 	// Set analyzed flag in topoPack to true
+	iTopologies->NormalizeToLumi();
+	iTopologies->BuildQCD();
 	iTopologies->SetAnalyzed();
-	
+
 }
 
 TChain* Analyzer::GetTChain(string iPath){
@@ -1060,7 +1198,6 @@ bool Analyzer::ApplyThisCut(string thisCut){
 	if ( 0 <= foundNDef && foundNDef <= length ){ result = true; }
 	else{ result = false; }
 
-
 	return result;
 
 }
@@ -1108,3 +1245,25 @@ void Analyzer::BookHistos(map<string, HistoWrapper*>* iHistos){
 	}
 
 }
+
+double Analyzer::GetPUweight(int iCombo){ 
+	if(!applyPUreweighing){ return 1.0; }
+	return puCorrector->GetWeight(numInteractionsBX0);
+}
+
+double Analyzer::GetTau1TriggerWeight(int iCombo){ 
+	if(!applyTrigger){ return 1.0; }
+	return tauTrigger->GetWeightFromFunc(Tau1Pt->at(iCombo));
+}
+
+double Analyzer::GetTau2TriggerWeight(int iCombo){ 
+	if(!applyTrigger){ return 1.0; }
+	return tauTrigger->GetWeightFromFunc(Tau2Pt->at(iCombo));
+}
+
+
+
+
+
+
+

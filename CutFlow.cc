@@ -23,9 +23,15 @@ CutFlow::~CutFlow(){}
 void CutFlow::Reset(){
 
 	cutNames.clear();
+	preCutNames.clear();
+	postCutNames.clear();
 	minThresholds.clear();
 	maxThresholds.clear();
+	
+	Zero();
+}
 
+void CutFlow::Zero(){
 	thisCombosResults.clear();
 
 	passedCombosForSignal.clear();
@@ -37,6 +43,10 @@ void CutFlow::Reset(){
 	heaviestComboForSignal	= -1;
 	heaviestComboForQCD		= -1;
 
+	passedEventsForSignalPreCuts.clear();
+	passedEventsForQCDPreCuts.clear();
+	passedEventsForSignalPostCuts.clear();
+	passedEventsForQCDPostCuts.clear();
 }
 
 void CutFlow::RegisterCut(string iName){
@@ -48,19 +58,44 @@ void CutFlow::RegisterCut(string iName){
 	pair<float,float> thresholds = ExtractCutThresholds(iName);
 	minThresholds[iName] = (thresholds.first);
 	maxThresholds[iName] = (thresholds.second);
+
 }
 
 
+void CutFlow::RegisterPreCut(string iName){ RegisterPreCut(iName, 0); }
+void CutFlow::RegisterPreCut(string iName, double iEvents){
+	preCutNames.push_back(iName);
+	passedEventsForSignalPreCuts[iName] = 0;
+	passedEventsForQCDPreCuts[iName] = 0;
+}
+
+void CutFlow::RegisterPostCut(string iName){ RegisterPostCut(iName, 0); }
+void CutFlow::RegisterPostCut(string iName, double iEvents){
+	postCutNames.push_back(iName);
+	passedEventsForSignalPostCuts[iName] = 0;
+	passedEventsForQCDPostCuts[iName] = 0;
+}
+
+void CutFlow::SetPreCutForSignal(string iName, double iEvents){ passedEventsForSignalPreCuts[iName] = iEvents; }
+void CutFlow::SetPreCutForQCD(string iName, double iEvents){ passedEventsForQCDPreCuts[iName] = iEvents; }
+void CutFlow::SetPostCutForSignal(string iName, double iEvents){ passedEventsForSignalPostCuts[iName] = iEvents; }
+void CutFlow::SetPostCutForQCD(string iName, double iEvents){ passedEventsForQCDPostCuts[iName] = iEvents; }
+
+
+void CutFlow::AddPreCutEventForSignal(string iName, double iWeight){	passedEventsForSignalPreCuts[iName]  += iWeight;	}
+void CutFlow::AddPreCutEventForQCD(string iName, double iWeight){		passedEventsForQCDPreCuts[iName] 	 += iWeight;	}
+void CutFlow::AddPostCutEventForSignal(string iName, double iWeight){	passedEventsForSignalPostCuts[iName] += iWeight;	}
+void CutFlow::AddPostCutEventForQCD(string iName, double iWeight){		passedEventsForQCDPostCuts[iName]	 += iWeight;	}
+
+
 bool CutFlow::CheckCombo(string iName, float iValue){
+	bool result = false;
 
-	// If the value relevant for this cut is within thresholds, increase counter
-	if( minThresholds[iName] <= iValue && iValue <= maxThresholds[iName] ){
-		thisCombosResults[iName]++;
-		
-		return true;
-	}
+	// If the value relevant for this cut is within thresholds, set results for this cut to true
+	if( minThresholds[iName] <= iValue && iValue <= maxThresholds[iName] ){ result = true; }
+	thisCombosResults[iName] = result;
 
-	return false;
+	return result;
 }
 
 // This function is intended to save time if we have already one good combo for signal and one for QCD. Since the heaviest combos come first, no need to check the rest. This will tell the analyzer it's time to move on.
@@ -74,6 +109,12 @@ void CutFlow::EndOfCombo(pair<bool,bool> iCombosTarget, int iComboNumber){
 	// At the end of the cutflow for this very combo, determine its target, and fill the signal/QCD combo counters accordingly
 	bool comboIsForSignal	= iCombosTarget.first;
 	bool comboIsForQCD		= iCombosTarget.second;
+
+	// Provided that the each target has not yet been satisfied by any combo, assume the first combo to do so is good
+	// Then assume that the first combo that satisfies the target is the heaviest. If there are registered cuts, they will change this if needed
+	if(comboIsForSignal	&& (heaviestComboForSignal < 0)){ eventForSignalPassed	= true;	heaviestComboForSignal  = iComboNumber; }
+	if(comboIsForQCD	&& (heaviestComboForQCD < 0)){	  eventForQCDPassed		= true;	heaviestComboForQCD  	= iComboNumber; }
+
 
 	// Loop over all the cuts this combo has gone through
 	for(unsigned int c=0; c<cutNames.size(); c++){
@@ -98,42 +139,61 @@ void CutFlow::EndOfCombo(pair<bool,bool> iCombosTarget, int iComboNumber){
 			// If no combo for QCD has yet passed all the cuts and this one passes all the cuts, store its combo number
 			if((heaviestComboForQCD < 0) && (c == cutNames.size()-1)){ heaviestComboForQCD = iComboNumber; }
 		}
-
-		// Reset the temporary combo counter
-		thisCombosResults[cutName] == 0;
 	}
+}
+
+// Reset counters relevant to the start of the event
+void CutFlow::StartOfEvent(){
+
+	heaviestComboForSignal	= -1;
+	heaviestComboForQCD		= -1;
+
+	eventForSignalPassed	= false;	
+	eventForQCDPassed		= false;	
+
+	for(unsigned int c=0; c<cutNames.size(); c++){
+		string cutName = cutNames.at(c);
+		passedCombosForSignal[cutName]	= 0;
+		passedCombosForQCD[cutName]		= 0;
+	}
+
 }
 
 // At the end of the event, loop over both combo counters (forSignal and forQCD) and check independently which combos have passed which cuts
 void CutFlow::EndOfEvent(){
 
-	eventForSignalPassed = false;	
-	eventForQCDPassed = false;	
-
 	// Loop over all the cuts
 	for(unsigned int c=0; c<cutNames.size(); c++){
+		string cutName = cutNames.at(c);
 
 		// If at least one combo for signal has passed this cut, increase the event count in the "forSignal" cut map FOR THAT CUT only
-		if(passedCombosForSignal[cutNames.at(c)] > 0){ passedEventsForSignal[cutNames.at(c)]++; }	
+		if(passedCombosForSignal[cutName] > 0){ passedEventsForSignal[cutName]++; }	
 
-		// If at least one combo for signal has made it all the way through all the cuts (i.e. if this is the last cut), then indicate we have a "good event for signal"
-		if((c == cutNames.size()-1) && passedCombosForSignal[cutNames.at(c)] > 0){ eventForSignalPassed = true; }
+		// Wait for the last registered cut to determine the outcome of the event
+		if(c == cutNames.size()-1){ eventForSignalPassed = (passedCombosForSignal[cutName] > 0); }
 
 		// If at least one combo for QCD has passed this cut, increase the event count in the "forQCD" cut map FOR THAT CUT only
-		if(passedCombosForSignal[cutNames.at(c)] > 0){ passedEventsForSignal[cutNames.at(c)]++; }	
+		if(passedCombosForSignal[cutName] > 0){ passedEventsForQCD[cutName]++; }	
 
-		// If at least one combo for QCD has made it all the way through all the cuts (i.e. if this is the last cut), then indicate we have a "good QCD event for QCD"
-		if((c == cutNames.size()-1) && passedCombosForQCD[cutNames.at(c)] > 0){ eventForQCDPassed = true; }
+		// Wait for the last registered cut to determine the outcome of the event
+		if(c == cutNames.size()-1){ eventForQCDPassed = (passedCombosForQCD[cutName] > 0); }
+
+		// Reset combo counter
+		passedCombosForSignal[cutName]	= 0;
+		passedCombosForQCD[cutName]		= 0;
 	}
 
-	// Clean up things to get them ready for next event
-	heaviestComboForSignal	= -1;
-	heaviestComboForQCD		= -1;
 }
 
-bool CutFlow::EventForSignalPassed(){ return eventForSignalPassed; }
+bool CutFlow::EventForSignalPassed(){ 
+	if(eventForSignalPassed && (heaviestComboForSignal==-1)){ cerr << "ERROR: about to return true EventForSignalPassed() but heaviestCombo is -1" << endl; exit(1); }
+	return eventForSignalPassed;
+}
 
-bool CutFlow::EventForQCDPassed(){ return eventForQCDPassed; }
+bool CutFlow::EventForQCDPassed(){
+	if(eventForQCDPassed && (heaviestComboForQCD==-1)){ cerr << "ERROR: about to return true EventForQCDPassed() but heaviestCombo is -1" << endl; exit(1); }
+	return eventForQCDPassed;
+}
 
 int CutFlow::GetHeaviestComboForSignal(){
 	if(!eventForSignalPassed){ cerr << "ERROR: trying to obtain highest combo in event for signal, but no event for signal has passed all the cuts" << endl; exit(1); }
@@ -146,6 +206,12 @@ int CutFlow::GetHeaviestComboForQCD(){
 }
 
 
+void CutFlow::PrintTest(){
+	
+	for(unsigned int c=0; c<preCutNames.size(); c++){	cout << preCutNames.at(c) << "\t" << passedEventsForSignalPreCuts[preCutNames.at(c)] << endl; }
+	for(unsigned int c=0; c<cutNames.size(); c++){		cout << cutNames.at(c) << "\t" << passedEventsForSignal[cutNames.at(c)] << endl; }
+	for(unsigned int c=0; c<postCutNames.size(); c++){	cout << postCutNames.at(c) << "\t" << passedEventsForSignalPostCuts[postCutNames.at(c)] << endl; }
+}
 
 
 /*
@@ -248,7 +314,7 @@ pair<float,float> CutFlow::ExtractCutThresholds(string iCutString){
 		thresholds = thresholds.substr(0,thresholds.find(" "));
 
 		if(thresholds.find(":") >= thresholds.length()){
-			cout << "ERROR: Cut named \"" << iCutString << "\" is missing a colon in its non-default threshold definition." << endl; exit(1);
+			cerr << "ERROR: Cut named \"" << iCutString << "\" is missing a colon in its non-default threshold definition." << endl; exit(1);
 		}
 
 		float min, max;
@@ -262,13 +328,13 @@ pair<float,float> CutFlow::ExtractCutThresholds(string iCutString){
 		else{ max = atof(smax.c_str()); }
 
 		if( min > max ){
-			cout << "ERROR: Min threshold in cut named \"" << iCutString << "\" has a greater value than the max." << endl; exit(1);
+			cerr << "ERROR: Min threshold in cut named \"" << iCutString << "\" has a greater value than the max." << endl; exit(1);
 		}
 
 		result = make_pair(min,max);
 
 	}else{
-			cout << "ERROR: Cut named \"" << iCutString << "\" is missing threshold definition." << endl; exit(1);
+			cerr << "ERROR: Cut named \"" << iCutString << "\" is missing threshold definition." << endl; exit(1);
 	}
 
 	return result;

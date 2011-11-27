@@ -29,7 +29,7 @@ class Topology {
 		vector<HistoWrapper*> histosForSignal;
 		vector<HistoWrapper*> histosForQCD;
 
-		CutFlow cutFlowLS;
+		CutFlow cutFlow;
 
 		string shortName;
 		string niceName;
@@ -41,36 +41,71 @@ class Topology {
 		float branchingRatio;
 		float otherScaleFactor;
 
-		double NOEinPATuple;
 		double NOEinDS;
+		double NOEinPATuple;
+		double NOEinNtuple;
+		double NOEanalyzed;
 
 		string ntuplePath;
 
-		bool normalized;
+		bool normalizedToLumi;
+		double lumiNorm;
 		bool analyzed;
 		bool valid;
+
+		void NormalizeTo(double);
 
 	public :
 		// Default constructor
 		Topology();
 		Topology(string, Config*);
 		virtual ~Topology();
-		CutFlow cutFlow;
 
+		int GetNOEinDS();
+		int GetNOEinPATuple();
+		int GetNOEinNtuple();
+		int GetNOEanalyzed();
+
+		void SetShortName(string);
+		void SetNiceName(string);
+		void SetLabelForLegend(string);
+		void SetColor(int);
+		void SetNOEanalyzed(double);
+		void SetNOEinNtuple(double);
+
+		void NormalizeToLumi(double);
+		void NormalizeToOne();
+		void ScaleBy(double);
 		void SetAnalyzed();
 		bool Analyzed();
 
 		void SetHistosForSignal(vector<HistoWrapper*>*);
 		void SetHistosForQCD(vector<HistoWrapper*>*);
 		void SetCutFlow(CutFlow*);
-		void SetCutFlowLS(CutFlow*);
+		CutFlow* GetCutFlow();
 
-		string GetShortName();
-		string GetNtuplePath();
-		string GetType();
+		int		GetColor();
+		string	GetShortName();
+		string	GetNiceName();
+		string	GetLabelForLegend();
+		string	GetNtuplePath();
+		string	GetType();
+		bool	IsMC();
 
 		vector<HistoWrapper*>* GetHistosForSignal();
 		vector<HistoWrapper*>* GetHistosForQCD();
+
+		HistoWrapper* GetAvailableHistoWrapper();
+		HistoWrapper* GetHistoForSignal(int);
+		HistoWrapper* GetHistoForQCD(int);
+
+		int GetNumberOfPlots();
+
+		void SetMarkerStyle(int);
+		void SetFillColor(int);
+		void SetFillStyle(int);
+		void SetLineColor(int);
+		void SetLineWidth(int);
 
 		Topology* Clone();
 		

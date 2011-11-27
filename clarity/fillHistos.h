@@ -1,48 +1,19 @@
 
-	// Event weights (trigger)
-	float eventWeight	= 1.0;
-	float tau1Weight	= 1.0;
-	float tau2Weight	= 1.0;
-	float triggerWeight = 1.0;
-	float PUweight		= 1.0;
-
-/*
-	if (isMC && IsFlagThere("triggerConf")){
-		tau1Weight		 = tauTrigger->GetWeightFromConf(Tau1Pt->at(iCombo), runNumber);
-		tau2Weight		 = tauTrigger->GetWeightFromConf(Tau2Pt->at(iCombo), runNumber);
-		triggerWeight	*= (tau1Weight*tau2Weight);
-	}else if (isMC && IsFlagThere("triggerFunc")){
-		tau1Weight 		 = tauTrigger->GetWeightFromFunc(Tau1Pt->at(iCombo));
-		tau2Weight 		 = tauTrigger->GetWeightFromFunc(Tau2Pt->at(iCombo));
-		triggerWeight	*= (tau1Weight*tau2Weight);
-	}else if (isMC && IsFlagThere("triggerFuncE")){
-		tau1Weight 		 = tauTrigger->GetWeightFromFuncE(Tau1Pt->at(iCombo));
-		tau2Weight 		 = tauTrigger->GetWeightFromFuncE(Tau2Pt->at(iCombo));
-		triggerWeight	*= (tau1Weight*tau2Weight);
-	}else if (isMC && IsFlagThere("triggerBins")){
-		tau1Weight		 = tauTrigger->GetWeightFromBins(Tau1Pt->at(iCombo));
-		tau2Weight		 = tauTrigger->GetWeightFromBins(Tau2Pt->at(iCombo));
-		triggerWeight	*= (tau1Weight*tau2Weight);
-	}
-
-	// Event weights (pileup)
-	if(isMC && IsFlagThere("PUcorr")){ 
-		PUweight	*= puCorrector->GetWeight(numInteractionsBX0);
-		tau1Weight	*= puCorrector->GetWeight(numInteractionsBX0);
-		tau2Weight	*= puCorrector->GetWeight(numInteractionsBX0);
-	}
+//void Analyzer::FillHistos(map<string, HistoWrapper*>* iHistos, int iCombo, double iPuWeight, double iTau1TriggerWeight, double iTau2TriggerWeight){
 
 
-	// Net event weight
-	eventWeight = triggerWeight * PUweight;
-
-	numEvPassing			+=1.0;
-	numEvPassingWithTrigger	+=triggerWeight;
-	numEvPassingWithPURW	+=(triggerWeight*PUweight);
-//*/
 
 	if(iHistos->find("NumPV_b4RW") != iHistos->end()){
 		(*(iHistos->find("NumPV_b4RW"))).second->GetHisto()->Fill(NumPV->at(iCombo));
+	}
+
+	if(iHistos->find("MET_M") != iHistos->end()){
+		(*(iHistos->find("MET_M"))).second->GetHisto()->Fill(MET->at(iCombo), iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight);
+	}
+
+
+	if(iHistos->find("Btags") != iHistos->end()){
+		(*(iHistos->find("Btags"))).second->GetHisto()->Fill(nBtagsHiEffTrkCnt->at(iCombo), iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight);
 	}
 
 	/*
@@ -84,9 +55,6 @@
 		(*(iHistos->find("VisibleMass_LS_forNote2"))).second->GetHisto()->Fill(TauTauVisibleMass->at(iCombo), eventWeight);
 	}
 
-	if(iHistos->find("MET_M") != iHistos->end()){
-		(*(iHistos->find("MET_M"))).second->GetHisto()->Fill(mEt->at(iCombo), eventWeight);
-	}
 
 	if(iHistos->find("MET_M_forNote") != iHistos->end()){
 		(*(iHistos->find("MET_M_forNote"))).second->GetHisto()->Fill(mEt->at(iCombo), eventWeight);

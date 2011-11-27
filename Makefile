@@ -30,10 +30,10 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 .nidra.exe: linkdefs.h libNidra.so libConfigParser.so \
 			.HistoWrapper.o .Topology.o .TopoPack.o .Driver.o .RootFileMaker.o \
-			.Analyzer.o .Trigger.o .CutFlow.o .Stacker.o .Plotter.o
+			.Analyzer.o .Trigger.o .CutFlow.o .Plotter.o .Stacker.o .Cruncher.o
 			$(LD) $(LDFLAGS) -o .nidra.exe libNidra.so configParser/libconfigParser.so \
 			.HistoWrapper.o .Topology.o .TopoPack.o .Driver.o .RootFileMaker.o \
-			.Analyzer.o .Trigger.o .CutFlow.o .Plotter.o .Stacker.o $(GLIBS)
+			.Analyzer.o .Trigger.o .CutFlow.o .Plotter.o .Stacker.o .Cruncher.o $(GLIBS)
 
 .NidraDict.cc: HistoWrapper.h Topology.h TopoPack.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
@@ -71,6 +71,9 @@ libConfigParser.so: configParser/config.h
 .Stacker.o: Stacker.cc Stacker.h
 	$(CXX) $(CXXFLAGS) -c Stacker.cc -o $@
 
+.Cruncher.o: Cruncher.cc Cruncher.h
+	$(CXX) $(CXXFLAGS) -c Cruncher.cc -o $@
+
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
 	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
 
@@ -79,11 +82,13 @@ libConfigParser.so: configParser/config.h
 
 all: .nidra.exe libNidra.so libConfigParser.so .CommonDefs.o \
 	.HistoWrapper.o .Topology.o .TopoPack.o .Driver.o .RootFileMaker.o \
-	.Analyzer.o .Trigger.o .CutFlow.o .Stacker.o .Plotter.o
+	.Analyzer.o .Trigger.o .CutFlow.o .Plotter.o .Stacker.o .Cruncher.o
 
+cleanDicts:
+	rm -r .*Dict.cc && rm -f *.so
 
 clean: 
-	rm -rf .*.o && rm -f *.so && rm -f .nidra.exe
+	rm -rf .*.o && rm -f .nidra.exe && make cleanDicts
 
 make ca:
 	make clean && make all

@@ -20,14 +20,21 @@ using namespace std;
 class CutFlow {
 	private:
 		vector<string>		cutNames;
+		vector<string>		preCutNames;
+		vector<string>		postCutNames;
 		map<string, float>	minThresholds;
 		map<string, float>	maxThresholds;
 
-		map<string, int>	thisCombosResults;
+		map<string, bool>	thisCombosResults;
 		map<string, float>	passedCombosForSignal;
 		map<string, float>	passedCombosForQCD;
 		map<string, float>	passedEventsForSignal;
 		map<string, float>	passedEventsForQCD;
+
+		map<string, float>	passedEventsForSignalPreCuts;
+		map<string, float>	passedEventsForQCDPreCuts;
+		map<string, float>	passedEventsForSignalPostCuts;
+		map<string, float>	passedEventsForQCDPostCuts;
 
 		bool eventForSignalPassed;
 		bool eventForQCDPassed;
@@ -48,12 +55,29 @@ class CutFlow {
 		virtual ~CutFlow();
 
 		void Reset();
+		void Zero();
 		string cutsToApply;
-		string test;
+
+		void PrintTest();
 
 		void RegisterCut(string);
+		void RegisterPreCut(string);
+		void RegisterPreCut(string, double);
+		void RegisterPostCut(string);
+		void RegisterPostCut(string, double);
+		void SetPreCutForSignal(string, double);
+		void SetPreCutForQCD(string, double);
+		void SetPostCutForSignal(string, double);
+		void SetPostCutForQCD(string, double);
+
+		void AddPreCutEventForSignal(string, double);
+		void AddPreCutEventForQCD(string, double);
+		void AddPostCutEventForSignal(string, double);
+		void AddPostCutEventForQCD(string, double);
+
 		bool CheckCombo(string,float);
 		void EndOfCombo(pair<bool,bool>,int);
+		void StartOfEvent();
 		void EndOfEvent();
 
 		bool HaveGoodCombos();
@@ -64,8 +88,6 @@ class CutFlow {
 		int GetHeaviestComboForSignal();
 		int GetHeaviestComboForQCD();
 
-		int GetHeaviestCombo();
-		int GetHeaviestLSCombo();
 /*		
 		void AddEvents(string, long int, float iScaleFactor=1.0);
 		long int GetEventsBeforeCut(string);

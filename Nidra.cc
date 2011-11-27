@@ -6,11 +6,14 @@ using namespace std;
 
 int main(int argc, char **argv){
 
-	Initialize();
+
+	Initialize(argc,argv);
 
 	ReadConfig(string(argv[1]));
+	
+	if(IsArgumentThere("-a")){ Analyze(); }
 
-	Analyze();
+	CrunchNumbers();
 
 	PlotStacks();
 

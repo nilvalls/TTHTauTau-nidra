@@ -10,6 +10,8 @@
 
 #include "Plotter.h"
 #include "THStack.h"
+#include "TCanvas.h"
+#include "TSystem.h"
 
 using namespace std;
 
@@ -21,12 +23,16 @@ class Stacker : public Plotter {
 		void MakePlots(TopoPack*);
 
 	private: 
+		map<string,string> params;
+
 		TH1*			collisions;
 		vector<TH1*>*	backgrounds;
 		vector<TH1*>*	signals;
 		THStack*		stack;
 
-		THStack* MakeStack(vector<TH1*>*);
+		void		SaveCanvas(TCanvas*, string);
+		void		SaveCanvasLog(TCanvas*, string, HistoWrapper*);
+		TLegend*	GetLegend(TopoPack*);
 		
 
 };

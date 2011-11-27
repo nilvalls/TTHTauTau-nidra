@@ -20,14 +20,14 @@ Plotter::Plotter(){}
 TopoPack* Plotter::GetTopologies(string iInputFile) {
 
 	TFile* file = new TFile(iInputFile.c_str());
-	TopoPack* topologies = new TopoPack();
+	TopoPack* topologies = NULL;
 
 	TTree* tree = (TTree*)file->Get("nidraTree");
 	tree->SetBranchAddress("topologies", &topologies);
 	tree->GetEntry(0);
 
 	// Make sure topologies have been analyzed
-	if(!topologies->Analyzed()){ cerr << "ERROR: topologies not analyzed" << endl; exit(1); }
+	if(!topologies->Analyzed()){ cerr << "ERROR: plotter trying to use TopoPack but it's not yet analyzed" << endl; exit(1); }
 
 	return topologies;
 

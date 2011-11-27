@@ -37,6 +37,14 @@ class Analyzer {
 		map<string, HistoWrapper*>	histosForQCD;
 		CutFlow						cutFlow;
 
+		bool applyPUreweighing;
+		bool applyTrigger;
+
+		double GetPUweight(int);
+		double GetTau1TriggerWeight(int);
+		double GetTau2TriggerWeight(int);
+
+
 
 		#include "clarity/cuts.h"
 		#include "clarity/branches.h"
@@ -49,7 +57,7 @@ class Analyzer {
 		void					Analyze(vector<Topology*>*);
 		void					AnalyzeAll(TopoPack*);
 		void					Reset();
-		void					Loop();
+		pair<double,double>		Loop();
 		void					Init(string);
 		Long64_t				LoadTree(Long64_t entry);
 		TChain*					GetTChain(string);
@@ -57,9 +65,9 @@ class Analyzer {
 		void					SetCutsToApply(string);
 		bool					ApplyThisCut(string);
 		bool					IsFlagThere(string);
-		void					FillHistosForSignal(int);
-		void					FillHistosForQCD(int);
-		void					FillHistos(map<string,HistoWrapper*>*, int);
+		void					FillHistosForSignal(int, double, double, double);
+		void					FillHistosForQCD(int, double, double, double);
+		void					FillHistos(map<string,HistoWrapper*>*, int, double, double, double);
 		vector<HistoWrapper*>*	MakeHistoWrapperVector(map<string, HistoWrapper*>*);
 		void					BookHistos(map<string, HistoWrapper*>*);
 

@@ -12,6 +12,7 @@
 
 //#pragma link C++ class CutFlow+;
 #pragma link C++ class HistoWrapper+;
+#pragma link C++ class CutFlow+;
 #pragma link C++ class std::vector<HistoWrapper*>+;
 #pragma link C++ class Topology+;
 #pragma link C++ class TopoPack+;
