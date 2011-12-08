@@ -14,42 +14,51 @@ using namespace std;
 #define AT __LINE__
 
 // Default constructor
-Stacker::Stacker(map<string,string>* iParams){
+Stacker::Stacker(map<string,string> const & iParams){
 
-	params = *iParams;
+	params = iParams;
 
-	TopoPack* topologies = GetTopologies(params["topology_file"]);	
+	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
+	file->cd();
 
-	MakePlots(topologies);
+	ProPack* proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+	MakePlots(proPack);
 
+	file->Close();
+	delete file;
 }
 
 // Default destructor
 Stacker::~Stacker(){}
 
 
-// Function to make the plots
-void Stacker::MakePlots(TopoPack* iTopologies){
 
-	cout << "Making plots..." << endl;
+// Function to make the plots
+void Stacker::MakePlots(ProPack const * iProPack) const {
 
 	// Draw horizontal error bars
  	gStyle->SetErrorX(0.5);
 
 
 	// Figure out what we have and what we don't
-	bool haveCollisions		= iTopologies->PrepareCollisions();	
-	bool haveQCD			= iTopologies->PrepareQCD();
-	bool haveMCbackgrounds	= iTopologies->HaveMCbackgrounds();
-	bool haveSignals		= iTopologies->HaveSignals();
+	bool haveCollisions		= iProPack->PrepareCollisions();	
+	bool haveQCD			= iProPack->PrepareQCD();
+	bool haveMCbackgrounds	= iProPack->PrepareMCbackgrounds();
+	bool haveSignals		= iProPack->PrepareSignals();
 
-	// Loop over all the HistoWrappers and plot each
-	for(unsigned int p=0; p<iTopologies->GetNumberOfPlots(); p++){
+	// Loop over all the HWrappers and plot each
+	vector<string> plotNames = iProPack->GetAvailableProcess().GetHContainerForSignal()->GetNames();
+	/*
+	for(unsigned int p=0; p<plotNames.size(); p++){
+		string name = plotNames.at(p);
+
+		// If the plot will be empty, skip it
+		if(iProPack->GetMaxIntegral(name) <= 0){ continue; }
 
 		// Get some generic information
-		double maxY = iTopologies->GetMaxY(p);
-		HistoWrapper* baseHisto = iTopologies->GetAvailableHistoWrapper();
-		string plotName = iTopologies->GetAvailableTopology()->GetHistoForSignal(p)->GetName();
+		double maxY = iProPack->GetMaxY(name);
+		HWrapper* baseHisto = iProPack->GetAvailableHWrapper();
+		string plotName = iProPack->GetAvailableProcess()->GetHistoForSignal(p)->GetName();
 
 		// Plot a base histogram with only the axis
 		TCanvas* canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
@@ -58,13 +67,13 @@ void Stacker::MakePlots(TopoPack* iTopologies){
 
 		// If we have backgrounds, make the stack and plot them first
 		if(haveQCD || haveMCbackgrounds){
-			THStack* stack = iTopologies->GetBackgroundStack(p);
+			THStack* stack = iProPack->GetBackgroundStack(p);
 			stack->Draw("HISTsame");
 		} 
 
 		// Then, if we have signals, plot them next
 		if(haveSignals){ 
-			vector<HistoWrapper*>* signals = iTopologies->GetSignals(p);
+			vector<HWrapper*>* signals = iProPack->GetSignals(p);
 			for(unsigned int s = 0; s < signals->size(); s++){
 				signals->at(s)->SetFillStyle(0);	
 				signals->at(s)->SetLineWidth(3);	
@@ -76,8 +85,8 @@ void Stacker::MakePlots(TopoPack* iTopologies){
 		
 		// Finally plot the collisions if we have them
 		if(haveCollisions){ 
-			TH1* temp = iTopologies->GetCollisions()->GetHistoForSignal(p)->GetHisto();
-			iTopologies->GetCollisions()->SetMarkerStyle(20);
+			TH1* temp = iProPack->GetCollisions()->GetHistoForSignal(p)->GetHisto();
+			iProPack->GetCollisions()->SetMarkerStyle(20);
 			temp->Draw("EPsame");
 		}	
 
@@ -85,42 +94,14 @@ void Stacker::MakePlots(TopoPack* iTopologies){
 		baseHisto->Draw("AXISsame");
 
 		// Take care of the legend
-		GetLegend(iTopologies)->Draw();
+		GetLegend(iProPack)->Draw();
 
 		// Save canvas
-		SaveCanvas(canvas, plotName);
+		SaveCanvas(canvas, params["stacks_output"], plotName);
 
 		// Do we want a log version?
-		SaveCanvasLog(canvas, plotName, baseHisto);
+		SaveCanvasLog(canvas, params["stacks_output"], plotName, baseHisto->GetLogX(), baseHisto->GetLogY(), baseHisto->GetLogZ());
 
-	}
-
-}
-
-// Check to see if we want this a copy of a plot with some log scales
-void Stacker::SaveCanvasLog(TCanvas* iCanvas, string iPlotName, HistoWrapper* iRefHisto){
-	bool logx = iRefHisto->GetLogX();
-	bool logy = iRefHisto->GetLogY();
-	bool logz = iRefHisto->GetLogZ();
-
-	if(logx || logy || logz ){
-		iCanvas->SetLogx(logx); 
-		iCanvas->SetLogy(logy); 
-		iCanvas->SetLogz(logz); 
-		SaveCanvas(iCanvas, string(iPlotName+"_log"));
-		iCanvas->SetLogx(0);
-		iCanvas->SetLogy(0);
-		iCanvas->SetLogz(0);
-	}   
-}
-
-
-
-
-// Save canvas
-void Stacker::SaveCanvas(TCanvas* canvas, string filename){
-
-	string dir = params["stacks_output"];
 	string lastSavedPlotName = "";
 
 	if(lastSavedPlotName.length()>0){
@@ -128,24 +109,18 @@ void Stacker::SaveCanvas(TCanvas* canvas, string filename){
 		cout << string(lastSavedPlotName.length(),' '); cout.flush();
 		cout << string(lastSavedPlotName.length(),'\b'); cout.flush(); 
 	}
-	cout << filename; cout.flush();
+	cout << filename; cout.flush(); 
 
-	// Create output dir if it doesn't exists already
-	TString sysCommand = "if [ ! -d " + dir + " ]; then mkdir -p " + dir + "; fi";
-	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir for plots " << dir << endl; exit(1); }// exit(0);
 
-	// Loop over all file format extensions choosen and save canvas
-	vector<string> extension; extension.push_back(".png");
-	for( unsigned int ext = 0; ext < extension.size(); ext++){
-		canvas->SaveAs( (dir + filename + extension.at(ext)).c_str() );
 	}
 
-	lastSavedPlotName = filename;
-
+//*/
 }
 
+/*
 
-TLegend* Stacker::GetLegend(TopoPack* iTopologies){
+
+TLegend* Stacker::GetLegend(ProPack* iProPack){
 
 	float xLegend	= atof((params["xLegend"]).c_str());
 	float yLegend	= atof((params["yLegend"]).c_str());
@@ -155,28 +130,28 @@ TLegend* Stacker::GetLegend(TopoPack* iTopologies){
 
 
 	// Collisions come first
-	if(iTopologies->PrepareCollisions()){
-		TH1* temp = iTopologies->GetCollisions()->GetAvailableHistoWrapper()->GetHisto();
-		result->AddEntry(temp,(iTopologies->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
+	if(iProPack->PrepareCollisions()){
+		TH1* temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
+		result->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
 	}
 
 	// QCD comes next
-	if(iTopologies->PrepareQCD()){
-		TH1* temp = iTopologies->GetQCD()->GetAvailableHistoWrapper()->GetHisto();
-		result->AddEntry(temp,(iTopologies->GetQCD()->GetLabelForLegend()).c_str(),"f");
+	if(iProPack->PrepareQCD()){
+		TH1* temp = iProPack->GetQCD()->GetAvailableHWrapper()->GetHisto();
+		result->AddEntry(temp,(iProPack->GetQCD()->GetLabelForLegend()).c_str(),"f");
 	}
 
 	// Then MC backgrounds in reverse order as in the vector
-	for(int b = iTopologies->GetMCbackgrounds()->size()-1; b >= 0; b--){
-		TH1* temp = iTopologies->GetMCbackgrounds()->at(b)->GetAvailableHistoWrapper()->GetHisto();
-		result->AddEntry(temp,(iTopologies->GetMCbackgrounds()->at(b)->GetLabelForLegend()).c_str(),"f");
+	for(int b = iProPack->GetMCbackgrounds()->size()-1; b >= 0; b--){
+		TH1* temp = iProPack->GetMCbackgrounds()->at(b)->GetAvailableHWrapper()->GetHisto();
+		result->AddEntry(temp,(iProPack->GetMCbackgrounds()->at(b)->GetLabelForLegend()).c_str(),"f");
 	
 	}
 
 	// Finally signals also in reverse order as in the vector
-	for(int s = iTopologies->GetSignals()->size()-1; s >= 0; s--){
-		TH1* temp = iTopologies->GetSignals()->at(s)->GetAvailableHistoWrapper()->GetHisto();
-		result->AddEntry(temp,(iTopologies->GetSignals()->at(s)->GetLabelForLegend()).c_str(),"l");
+	for(int s = iProPack->GetSignals()->size()-1; s >= 0; s--){
+		TH1* temp = iProPack->GetSignals()->at(s)->GetAvailableHWrapper()->GetHisto();
+		result->AddEntry(temp,(iProPack->GetSignals()->at(s)->GetLabelForLegend()).c_str(),"l");
 	}
 
 	result->SetBorderSize(1);
@@ -187,7 +162,7 @@ TLegend* Stacker::GetLegend(TopoPack* iTopologies){
 
 }
 
-
+//*/
 
 
 

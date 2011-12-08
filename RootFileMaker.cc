@@ -6,21 +6,22 @@ using namespace std;
 
 RootFileMaker::RootFileMaker(){}
 
+RootFileMaker::RootFileMaker(map<string,string> const & iParams){
+	params = iParams;
+}
+
 RootFileMaker::~RootFileMaker(){}
 
-void RootFileMaker::MakeFile(TopoPack* iTopologies, string iOutputFile){
+void RootFileMaker::MakeFile(ProPack* iProPack, string iOutputFile){
 
 	TFile* file = new TFile(iOutputFile.c_str(), "RECREATE");
 	file->cd();
 
-	TTree *tree = new TTree("nidraTree","nidraTree");
+	iProPack->Write((params["propack_name"]).c_str());
 
-	tree->Branch("topologies","TopoPack", &iTopologies);
-
-	tree->Fill();
-	tree->Write();
 	file->Close();
 
+	delete file;
 }
 
 

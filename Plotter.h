@@ -29,9 +29,12 @@
 #include <iomanip>
 #include <utility>
 #include <stdlib.h>
-#include "HistoWrapper.h"
-#include "Topology.h"
-#include "TopoPack.h"
+#include "Analyzer.h"
+#include "HWrapper.h"
+#include "DitauBranches.h"
+#include "Process.h"
+#include "ProPack.h"
+#include "configParser/config.h"
 
 
 using namespace std;
@@ -40,12 +43,29 @@ class Plotter {
 
 	public:
 		Plotter();
+		Plotter(map<string,string> const &);
 		virtual ~Plotter();
 
-		TopoPack* GetTopologies(string);
-		virtual void MakePlots(TopoPack*);
+		ProPack* GetTopologies(string);
+		virtual void MakePlots(ProPack*);
+		virtual void MakePlots(Process*);
+		virtual void MakePlots(vector<Process>*);
+		virtual void SaveCanvas(TCanvas*, string, string);
+		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
 
 	private:
+		void						BookHistos(HContainer*);
+		void						FillHistos(HContainer*, DitauBranches*);
+
+		/*
+		double const				GetMaxY(string const) const;
+		double const				GetMaxIntegral(string const) const;
+		//*/
+
+
+
+	protected:
+		map<string,string> params;
 					
 
 };

@@ -1,7 +1,8 @@
-//#include "CutFlow.h"
-#include "HistoWrapper.h"
-#include "Topology.h"
-#include "TopoPack.h"
+#include "HWrapper.h"
+#include "HContainer.h"
+#include "CutFlow.h"
+#include "Process.h"
+#include "ProPack.h"
 
 #ifdef __CINT__
 
@@ -10,15 +11,16 @@
 #pragma link off all structs;
 #pragma link off all functions;
 
-//#pragma link C++ class CutFlow+;
-#pragma link C++ class HistoWrapper+;
+#pragma link C++ class HWrapper+;
+#pragma link C++ class HContainer+;
+#pragma link C++ class std::map<std::string, HWrapper>+;
 #pragma link C++ class CutFlow+;
-#pragma link C++ class std::vector<HistoWrapper*>+;
-#pragma link C++ class Topology+;
-#pragma link C++ class TopoPack+;
-
-#pragma read source="histosForSignal" sourceClass="Topology" target="histosForSignal" targetClass="Topology" attributes="Owner";
-#pragma read source="histosForQCD" sourceClass="Topology" target="histosForQCD" targetClass="Topology" attributes="Owner";
+#pragma link C++ class Process+;
+#pragma link C++ class ProPack+;
 
 
+
+//#pragma read source="runNumber" sourceClass="DitauBranches" target="runNumber" targetClass="DitauBranches" attributes="Owner";
+
+//*/
 #endif

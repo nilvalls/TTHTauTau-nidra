@@ -11,9 +11,9 @@
 #include <fstream>
 #include <iomanip>
 #include <stdlib.h>
-#include "HistoWrapper.h"
-#include "Topology.h"
-#include "TopoPack.h"
+#include "HWrapper.h"
+#include "Process.h"
+#include "ProPack.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -24,12 +24,14 @@ using namespace std;
 
 class RootFileMaker {
 	private :
+		map<string,string> params;
 
 	public :
 		// Default constructor
 		RootFileMaker();
+		RootFileMaker(map<string,string> const &);
 		virtual ~RootFileMaker();
-		virtual void MakeFile(TopoPack*, string);
+		void MakeFile(ProPack*, string);
 };
 
 #endif

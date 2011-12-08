@@ -18,14 +18,14 @@ class Cruncher : public Plotter {
 	public:
 		Cruncher(map<string,string>*);
 		virtual ~Cruncher();
-		void PrintCutEfficiencies();
+//		void PrintCutEfficiencies();
 
 	private: 
-		map<string,string>* params;
+//		map<string,string>* params;
 
-		CutFlow*			collisions;
-		vector<CutFlow*>*	mcBackgrounds;
-		vector<CutFlow*>*	signals;
+//		CutFlow*			collisions;
+//		vector<CutFlow*>*	mcBackgrounds;
+//		vector<CutFlow*>*	signals;
 
 };
 

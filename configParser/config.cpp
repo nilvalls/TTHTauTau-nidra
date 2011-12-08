@@ -7,6 +7,11 @@ using namespace std;
 
 #include "log.h"
 
+Config::Config(string name, int i){
+	cout << " EHAHAHA" << endl;
+}
+
+
 Config::Config(string name, string parentDebugInfo) {
 	debugInfo = parentDebugInfo + ", " + name;
 }
@@ -139,8 +144,8 @@ void Config::symbolExpand(map<string, string>& symbols, string& s) {
 	} while (expanded);
 }
 
-string Config::pString(string name) {
-	map<string, string>::iterator i = symbols.find(name);
+string Config::pString(string name) const {
+	map<string, string>::const_iterator i = symbols.find(name);
 	if (i == symbols.end()) {
 		//logError(cout << "access of missing property '" << name << "' (" << debugInfo << ")" << endl);
 		//exit(4);
@@ -165,7 +170,7 @@ vector<pair<string, string> >& Config::getTemplates(string prefix) {
 }
 
 
-bool Config::pBool(string name) {
+bool Config::pBool(string name) const {
 	string val = pString(name);
 
 	if ( (val == "yes") ||
@@ -182,14 +187,16 @@ bool Config::pBool(string name) {
 	return false;
 }
 
-double Config::pDouble(string name) {
+double Config::pDouble(string name) const {
 	string val = pString(name);
 
 	return atof(val.c_str());
 }
 
-int Config::pInt(string name) {
+int Config::pInt(string name) const {
 	string val = pString(name);
 
 	return atoi(val.c_str());
 }
+
+

@@ -7,17 +7,15 @@ using namespace std;
 // Perform some initialization tasks
 void Initialize(int argc, char **argv){
 
+	proPack = NULL;
 	inputArguments = "";
 	for(unsigned a = 0; a < argc; a++){ inputArguments += (string(argv[a]) + " "); }
 
 	// Clear paramater set
 	params.clear();
 
-	// Init root file maker
-	rootFileMaker = RootFileMaker();
-
 	// Set up nice plot style
-	gROOT->Reset();
+//	gROOT->Reset();
 
 	//gROOT->SetStyle("Plain");
 	setTDRStyle();
@@ -26,11 +24,11 @@ void Initialize(int argc, char **argv){
 	gErrorIgnoreLevel = kError;
 
 	// Keep track of how long things take
-	TDatime clock;
-	stopwatch = new TStopwatch();
+	//TDatime clock;
+	stopwatch = TStopwatch();
 
-	print(CYAN, ">>> Starting analysis...");
-	stopwatch->Start();
+	Print(CYAN, ">>> Starting analysis...");
+	stopwatch.Start();
 
 }
 
@@ -40,24 +38,25 @@ void ReadConfig(string iPath){
 	// Instatiate configuration parser and take the first argument as the config file
 	Config theConfig(iPath);
 
-	SetParam(&theConfig, "maxEvents");
-	SetParam(&theConfig, "luminosity");
-	SetParam(&theConfig, "puList");
-	SetParam(&theConfig, "toDo");
-	SetParam(&theConfig, "enabledTopologies");
-	SetParam(&theConfig, "flags");
-	SetParam(&theConfig, "countMasses");
-	SetParam(&theConfig, "webDir"); ReMakeDir(GetParam("webDir"));
-	SetParam(&theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
-	SetParam(&theConfig, "ntuplesDir");
-	SetParam(&theConfig, "histoCfg");
-	SetParam(&theConfig, "cutsToApply");
-	SetParam(&theConfig, "osls");
-	SetParam(&theConfig, "QCDcolor");
-	SetParam(&theConfig, "xLegend");
-	SetParam(&theConfig, "yLegend");
-	SetParam(&theConfig, "dxLegend");
-	SetParam(&theConfig, "dyLegend");
+	SetParam(theConfig, "maxEvents");
+	SetParam(theConfig, "luminosity");
+	SetParam(theConfig, "puList");
+	SetParam(theConfig, "toDo");
+	SetParam(theConfig, "enabledTopologies");
+	SetParam(theConfig, "flags");
+	SetParam(theConfig, "countMasses");
+	SetParam(theConfig, "webDir"); ReMakeDir(GetParam("webDir"));
+	SetParam(theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
+	SetParam(theConfig, "ntuplesDir");
+	SetParam(theConfig, "treeName");
+	SetParam(theConfig, "histoCfg");
+	SetParam(theConfig, "cutsToApply");
+	SetParam(theConfig, "osls");
+	SetParam(theConfig, "QCDcolor");
+	SetParam(theConfig, "xLegend");
+	SetParam(theConfig, "yLegend");
+	SetParam(theConfig, "dxLegend");
+	SetParam(theConfig, "dyLegend");
 
 	// Copy original config file to output dir
 	BackUpConfigFile(iPath, GetParam("webDir")); 
@@ -69,34 +68,48 @@ void ReadConfig(string iPath){
 	cout << "\n\tUsing the following flags: " << GREEN << GetParam("flags") << NOCOLOR << "\n" << endl;
 
 	// Set some additional internal parameters
-	SetParam("topology_file",string(GetParam("bigDir")+"topologies.root"));
+	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
+	SetParam("goodEvents_file",string(GetParam("bigDir")+"goodEvents.root"));
 	SetParam("stacks_output",string(GetParam("webDir")+"stacks/")); ReMakeDir(GetParam("stacks_output"));
+	SetParam("optimization_output",string(GetParam("webDir")+"optimization/")); ReMakeDir(GetParam("optimization_output"));
+	SetParam("propack_name","HtoTauTau");
 
 	// Build the topopack from the info in the config file
-	topologies = BuildTopoPack(&theConfig);
+	proPack = new ProPack(params);
+	BuildProPack(*proPack, theConfig);
+
+	// Init root file maker
+	rootFileMaker = RootFileMaker(params);
 
 }
 
 void Analyze(){
 
 	// Set up analyzer with global paramaters
-	Analyzer* analyzer = new Analyzer(new map<string,string>(params));	
+	Analyzer analyzer(params);	
 
 	// Pass topopack to analyzer to analyze
-	analyzer->AnalyzeAll(topologies);
+	analyzer.AnalyzeAll(*proPack);
 
-	// Save analyzed topopack to a root file
-	rootFileMaker.MakeFile(topologies, GetParam("topology_file"));
+	// Save analyzed ProPack to a root file
+	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
 }
 
 void CrunchNumbers(){
+/*
 	Cruncher cruncher = Cruncher(&params);
 //	cruncher.PrintCutEfficiencies();
+//*/
+}
+
+void PreparePlots(){
+	// Book histos and fill them with good events
+	Plotter plotter = Plotter(params);
 }
 
 void PlotStacks(){
 	// Read root file with topologies and make stacks
-	Stacker stacker = Stacker(&params);
+	Stacker stacker = Stacker(params);
 }
 
 void PlotStamps(){
@@ -106,7 +119,7 @@ void PlotStamps(){
 
 void Optimize(){
 	// Read root file with topologies and make optimization plots
-	//Optimizer optimizer = Optimizer(new map<string,string>(params));
+	//Optimizer optimizer = Optimizer(&params);
 }
 
 void Finalize(){
@@ -116,38 +129,42 @@ void Finalize(){
 	PrintURL(GetParam("webDir"));
 	PrintLocal(GetParam("bigDir"));
 	cout << "\n" << endl;
+
+	if(proPack != NULL){ delete proPack; proPack = NULL; }
 }
 
 
+// ======================================================================== //
 
 void SetParam(string iParam, string iValue){
-	params[iParam] = iValue;
+	params.insert(make_pair(iParam, iValue));
 }
 
-void SetParam(Config *theConfig, string iParam){
-	params[iParam] = theConfig->pString(iParam);
+void SetParam(Config const & iConfig, string iParam){
+	SetParam(iParam, iConfig.pString(iParam));
 }
 
 string GetParam(string iParam){
 	return (params[iParam]);
 }
 
-void print(string color, string iString){
+void Print(string color, string iString){
 	cout << color << iString << NOCOLOR << endl;
 }
-
 
 void ReMakeDir(string iPath){
 	TString sysCommand;
 
-	if(iPath.substr(iPath.length()-1).compare("/")!=0){
-		iPath = iPath.substr(0,iPath.rfind("/"));
+	string path = iPath;
+
+	if(path.substr(path.length()-1).compare("/")!=0){
+		path = path.substr(0,path.rfind("/"));
 	}
 
-	sysCommand = "rm -rf " + iPath;
-	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem deleting \"" << iPath << "\" -- Check permissions." << endl; exit(1); }
-	sysCommand = "if [ ! -d " + iPath + " ]; then mkdir -p " + iPath + "; fi";
-	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir \"" << iPath << "\" -- Check input path and permissions." << endl; exit(1); }
+	sysCommand = "rm -rf " + path;
+	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem deleting \"" << path << "\" -- Check permissions." << endl; exit(1); }
+	sysCommand = "if [ ! -d " + path + " ]; then mkdir -p " + path + "; fi";
+	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir \"" << path << "\" -- Check input path and permissions." << endl; exit(1); }
 }
 
 
@@ -165,7 +182,6 @@ void CheckAndRemove(string iPath){
 	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem deleting \"" << iPath << "\" -- Check permissions." << endl; exit(1); }
 }
 
-
 void PrintURL(string iPath){
 	TString sysCommand;
 	cout << "Web dir: " << ORANGE; cout.flush();
@@ -176,14 +192,14 @@ void PrintURL(string iPath){
 
 void PrintLocal(string iPath){
 	cout << "Big dir: ";
-	print(ORANGE, iPath);
+	Print(ORANGE, iPath);
 }
 
-void NewSection(TStopwatch* iStopWatch){
+void NewSection(TStopwatch & iStopWatch){
 
-	float realSecs = iStopWatch->RealTime();
-	float cpuSecs = iStopWatch->CpuTime();
-	iStopWatch->Continue();
+	const float realSecs = iStopWatch.RealTime();
+	const float cpuSecs = iStopWatch.CpuTime();
+	iStopWatch.Continue();
 
 	TDatime clock;
 
@@ -191,57 +207,62 @@ void NewSection(TStopwatch* iStopWatch){
 		<< setw(7) << setfill(' ')  << cpuSecs << " CPUs) "  << string(50, '-') << NOCOLOR << endl;
 }
 
-TopoPack* BuildTopoPack(Config *theConfig){
-	TopoPack* result = new TopoPack(&params);
+
+void BuildProPack(ProPack& iProPack, Config const & theConfig){
 
 	// Loop over all the topologies in the config file
-	vector<pair<string,Config*> > topoConfigs = theConfig->getGroupsVec();
+	vector<pair<string,Config*> > topoConfigs = theConfig.getGroupsVec();
 	for(unsigned int t = 0; t < topoConfigs.size(); t++){
-		string shortName = ((topoConfigs.at(t)).first).substr(string("topology_").length());
+		string shortName = ((topoConfigs.at(t)).first).substr(string("process_").length()+1);
 		Config* topoConfig = (topoConfigs.at(t)).second;
 
-		// Pass subConfig to topology and let it build itself
-		Topology* topology = new Topology(shortName, topoConfig);
-		string type = topology->GetType();
+		// Pass subConfig to process and let it build itself
+		Process process(shortName, params, *topoConfig);
+		string type = process.GetType();
 
-		// Add topology to the topopack according to its type
+		// Add process to the topopack according to its type
 			 if(type.compare("collisions")==0){	
-			 										result->SetCollisions(topology);
-			 										result->PrepareCollisions(!SkipTopology("Collisions"));
-			 										result->PrepareQCD(!SkipTopology("QCD"));
+			 										iProPack.SetCollisions(process);
+			 										iProPack.PrepareCollisions(!SkipProcess("Collisions"));
+			 										iProPack.PrepareQCD(!SkipProcess("QCD"));
 		}else if(type.compare("mcBackground")==0){
-													if(SkipTopology(shortName)){ continue; }
-													result->AddMCbackground(topology);	
+													if(SkipProcess(shortName)){ continue; }
+													iProPack.AddMCbackground(process);	
 		}else if(type.compare("signal")==0){
-													if(SkipTopology(shortName)){ continue; }
-													result->AddSignal(topology);
-		}else{ cerr << "ERROR: topology type \"" << type << "\" invalid" << endl; exit(1);	}
+													if(SkipProcess(shortName)){ continue; }
+													iProPack.AddSignal(process);
+		}else{ cerr << "ERROR: process type \"" << type << "\" invalid" << endl; exit(1);	}
+
+
 	}
 
-	return result;
+	// In-function cleanup
+	topoConfigs.clear();
+
 }
 
-bool SkipTopology(string iThisTopo){
+
+bool SkipProcess(string iThisTopo){
 	string enabledTopologies = " " + GetParam("enabledTopologies") + " ";
 	string thisTopo			 = " " + iThisTopo + " ";
 
 	bool result = IsStringThere(thisTopo,enabledTopologies);
 
-	// Print to screen enabled topology
-	if(!result || ((iThisTopo.compare("QCD"))==0) ){ print(CYAN, "\tWill analyze \"" + iThisTopo + "\""); }
+	// Print to screen enabled process
+	if(!result || ((iThisTopo.compare("QCD"))==0) ){ Print(CYAN, "\tWill analyze \"" + iThisTopo + "\""); }
 
 	return result;
 }
 
-bool IsArgumentThere(string iArgument){ 
-return IsStringThere(iArgument,inputArguments); }
+bool const IsArgumentThere(string iArgument){ return IsStringThere(iArgument,inputArguments); }
 
-bool IsStringThere(string iNeedle, string iHaystack){
+bool const IsStringThere(string iNeedle, string iHaystack){
 	string haystack = " " + iHaystack + " ";
 	string needle = " " + iNeedle + " ";
 
-	bool result = ((haystack.find(needle) < haystack.length()));
+	bool const result = ((haystack.find(needle) < haystack.length()));
 
 	return result;
 
 }
+

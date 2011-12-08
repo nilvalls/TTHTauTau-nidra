@@ -15,21 +15,22 @@ using namespace std;
 
 // Default constructor
 Cruncher::Cruncher(map<string,string>* iParams){
-
+/*
 	params = iParams;
 
-	TopoPack* topologies = GetTopologies((*params)["topology_file"]);	
+	ProPack* topologies = GetTopologies((*params)["process_file"]);	
 
 	collisions		= topologies->GetCollisions()->GetCutFlow();
 	mcBackgrounds	= topologies->GetMCbackgroundsCutFlows();
 	signals			= topologies->GetSignalsCutFlows();
+	//*/
 
 }
 
 // Default destructor
 Cruncher::~Cruncher(){}
 
-
+/*
 // Function to make the plots
 void Cruncher::PrintCutEfficiencies(){
 
@@ -42,4 +43,4 @@ void Cruncher::PrintCutEfficiencies(){
 
 }
 
-
+//*/

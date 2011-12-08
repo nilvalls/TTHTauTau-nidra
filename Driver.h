@@ -1,25 +1,37 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include <stdlib.h>
+#include <utility>
 
 #include <map>
 
-#include "CommonDefs.h"
 #include "ColoredOutput.h"
 
 #include "TError.h"
 #include "TSystem.h"
 #include "TStopwatch.h"
+#include "TDatime.h"
+
 
 #include "style-CMSTDR.h"
 
-#include "HistoWrapper.h"
-#include "Topology.h"
-#include "TopoPack.h"
-#include "RootFileMaker.h"
+#include "TTree.h"
+#include "TFile.h"
+#include "HWrapper.h"
+#include "HContainer.h"
+#include "CutFlow.h"
+#include "DitauBranches.h"
+#include "Process.h"
+#include "ProPack.h"
+
 #include "Analyzer.h"
-#include "Cruncher.h"
+#include "RootFileMaker.h"
+#include "Plotter.h"
 #include "Stacker.h"
+//#include "Optimizer.h"
+//#include "Cruncher.h"
 
 #include "configParser/config.h"
 
@@ -30,45 +42,44 @@
 using namespace std;
 
 
-	string					inputArguments;
-	TStopwatch*				stopwatch;
-	map<string, string> 	params;
+	string								inputArguments;
+	TStopwatch							stopwatch;
+	map<string, string> 				params;
 
-	TopoPack*				topologies;
-	RootFileMaker			rootFileMaker;
+	ProPack*		proPack;
+	RootFileMaker	rootFileMaker;
 
 	// ========== Function declarations ========== //
 
-	void Initialize(int, char**);
-	void ReadConfig(string);
-	void Analyze();
-	void CrunchNumbers();
-	void PlotStacks();
-	void PlotStamps();
-	void Optimize();
-	void Finalize();
+	void			Initialize(int, char**);
+	void			ReadConfig(string);
+	void			Analyze();
+	void			CrunchNumbers();
+	void			PreparePlots();
+	void			PlotStacks();
+	void			PlotStamps();
+	void			Optimize();
+	void			Finalize();
 
-	void SetParam(string, string);
-	void SetParam(Config*, string);
-	TopoPack* BuildTopoPack(Config*);
-	string GetParam(string);
-	void print(string,string);
-	void ReMakeDir(string);
-	void CheckAndRemove(string);
-	void PrintURL(string);
-	void PrintLocal(string);
-	void print(string, string);
-	void BackUpConfigFile(string, string);
-	void NewSection(TStopwatch*);
-	bool SkipTopology(string);
-	bool IsArgumentThere(string);
-	bool IsStringThere(string,string);
-	/*
-	bool DoThisAnalysis(string, string);
-	bool doTopology(string, string); //*/
+	// ========================================== //
 
+	void			SetParam(string, string);
+	void			SetParam(Config const &, string);
+	string	GetParam(string);
 
+	void			ReMakeDir(string);
+	bool const		IsArgumentThere(string);
+	bool const		IsStringThere(string, string);
 
-
+	void			BuildProPack(ProPack&, Config const &);
+	void			Print(string, string);
+	void			CheckAndRemove(string);
+	void			PrintURL(string);
+	void			PrintLocal(string);
+	void			Print(string, string);
+	void			BackUpConfigFile(string, string);
+	void			NewSection(TStopwatch&);
+	bool			SkipProcess(string);
+	//*/
 
 #endif

@@ -38,11 +38,12 @@ class Config {
 		 * is provided, environment variables can be used as expansion symbols.
 		 */
 		Config(string configFile, char** envp = 0);
+		Config(string, int);
 
 		~Config();
 		
 		// get string config entry
-		string pString(string name);
+		string pString(string name) const;
 
 		vector<pair<string,string> >& getTemplates(string prefix);
 
@@ -50,13 +51,16 @@ class Config {
 		 * A value of Yes/yes/YES/true/True/TRUE leads to true,
 		 * all other values leads to false.
 		 */
-		bool pBool(string name);
+		//bool pBool(string name);
+		bool pBool (string name) const;
 
 		// get double config entry; value is parsed using atof()
-		double pDouble(string name);
+		//double pDouble(string name);
+		double pDouble (string name) const;
 
 		// get int config entry; value is parsed using atoi()
-		int pInt(string name);
+		//int pInt(string name);
+		int pInt (string name) const;
 
 		// get the symbol map (e.g. for iterating over all symbols)
 		inline map<string, string>& getSymbols() {
@@ -74,6 +78,10 @@ class Config {
 		}
 
 		inline vector<pair<string, Config*> >& getGroupsVec() {
+			return groupsVec;
+		}
+
+		inline vector<pair<string, Config*> > const & getGroupsVec() const {
 			return groupsVec;
 		}
 

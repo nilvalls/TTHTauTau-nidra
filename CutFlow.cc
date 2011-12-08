@@ -16,6 +16,36 @@ CutFlow::CutFlow(string iCuts){
 
 }
 
+CutFlow::CutFlow(CutFlow const &){
+
+	preCutNames		= GetPreCutNames();
+	cutNames		= GetCutNames();
+	postCutNames	= GetPostCutNames();
+	minThresholds	= GetMinThresholds();
+	maxThresholds 	= GetMaxThresholds();
+
+	thisCombosResults		= map<string, bool>();
+	passedCombosForSignal	= map<string, float>();
+	passedCombosForQCD		= map<string, float>();
+	passedEventsForSignal	= GetPassedEventsForSignal();
+	passedEventsForQCD		= GetPassedEventsForQCD();
+
+	passedEventsForSignalPreCuts	= GetPassedEventsForSignalPreCuts();
+	passedEventsForQCDPreCuts		= GetPassedEventsForQCDPreCuts();
+	passedEventsForSignalPostCuts	= GetPassedEventsForSignalPostCuts();
+	passedEventsForQCDPostCuts		= GetPassedEventsForQCDPostCuts();
+
+	cutsToApply	= GetCutsToApply();
+
+	eventForSignalPassed	= false;
+	eventForQCDPassed		= false;
+	comboIsForSignal		= false;
+	comboIsForQCD			= false;
+
+	heaviestComboForSignal	= -1;
+	heaviestComboForQCD		= -1;
+}
+
 
 // Default destructor
 CutFlow::~CutFlow(){}
@@ -62,33 +92,33 @@ void CutFlow::RegisterCut(string iName){
 }
 
 
-void CutFlow::RegisterPreCut(string iName){ RegisterPreCut(iName, 0); }
-void CutFlow::RegisterPreCut(string iName, double iEvents){
+void CutFlow::RegisterPreCut(string const iName){ RegisterPreCut(iName, 0); }
+void CutFlow::RegisterPreCut(string const iName, double const iEvents){
 	preCutNames.push_back(iName);
 	passedEventsForSignalPreCuts[iName] = 0;
 	passedEventsForQCDPreCuts[iName] = 0;
 }
 
-void CutFlow::RegisterPostCut(string iName){ RegisterPostCut(iName, 0); }
-void CutFlow::RegisterPostCut(string iName, double iEvents){
+void CutFlow::RegisterPostCut(string const iName){ RegisterPostCut(iName, 0); }
+void CutFlow::RegisterPostCut(string const iName, double const iEvents){
 	postCutNames.push_back(iName);
 	passedEventsForSignalPostCuts[iName] = 0;
 	passedEventsForQCDPostCuts[iName] = 0;
 }
 
-void CutFlow::SetPreCutForSignal(string iName, double iEvents){ passedEventsForSignalPreCuts[iName] = iEvents; }
-void CutFlow::SetPreCutForQCD(string iName, double iEvents){ passedEventsForQCDPreCuts[iName] = iEvents; }
-void CutFlow::SetPostCutForSignal(string iName, double iEvents){ passedEventsForSignalPostCuts[iName] = iEvents; }
-void CutFlow::SetPostCutForQCD(string iName, double iEvents){ passedEventsForQCDPostCuts[iName] = iEvents; }
+void CutFlow::SetPreCutForSignal(string const iName, double const iEvents){ passedEventsForSignalPreCuts[iName] = iEvents; }
+void CutFlow::SetPreCutForQCD(string const iName, double const iEvents){ passedEventsForQCDPreCuts[iName] = iEvents; }
+void CutFlow::SetPostCutForSignal(string const iName, double const iEvents){ passedEventsForSignalPostCuts[iName] = iEvents; }
+void CutFlow::SetPostCutForQCD(string const iName, double const iEvents){ passedEventsForQCDPostCuts[iName] = iEvents; }
 
 
-void CutFlow::AddPreCutEventForSignal(string iName, double iWeight){	passedEventsForSignalPreCuts[iName]  += iWeight;	}
-void CutFlow::AddPreCutEventForQCD(string iName, double iWeight){		passedEventsForQCDPreCuts[iName] 	 += iWeight;	}
-void CutFlow::AddPostCutEventForSignal(string iName, double iWeight){	passedEventsForSignalPostCuts[iName] += iWeight;	}
-void CutFlow::AddPostCutEventForQCD(string iName, double iWeight){		passedEventsForQCDPostCuts[iName]	 += iWeight;	}
+void CutFlow::AddPreCutEventForSignal(string const iName, double const iWeight){	passedEventsForSignalPreCuts[iName]  += iWeight;	}
+void CutFlow::AddPreCutEventForQCD(string const iName, double const iWeight){		passedEventsForQCDPreCuts[iName] 	 += iWeight;	}
+void CutFlow::AddPostCutEventForSignal(string const iName, double const iWeight){	passedEventsForSignalPostCuts[iName] += iWeight;	}
+void CutFlow::AddPostCutEventForQCD(string const iName, double const iWeight){		passedEventsForQCDPostCuts[iName]	 += iWeight;	}
 
 
-bool CutFlow::CheckCombo(string iName, float iValue){
+bool CutFlow::CheckCombo(string const iName, float const iValue){
 	bool result = false;
 
 	// If the value relevant for this cut is within thresholds, set results for this cut to true
@@ -104,7 +134,7 @@ bool CutFlow::HaveGoodCombos(){
 }
 
 
-void CutFlow::EndOfCombo(pair<bool,bool> iCombosTarget, int iComboNumber){
+void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber){
 
 	// At the end of the cutflow for this very combo, determine its target, and fill the signal/QCD combo counters accordingly
 	bool comboIsForSignal	= iCombosTarget.first;
@@ -212,6 +242,24 @@ void CutFlow::PrintTest(){
 	for(unsigned int c=0; c<cutNames.size(); c++){		cout << cutNames.at(c) << "\t" << passedEventsForSignal[cutNames.at(c)] << endl; }
 	for(unsigned int c=0; c<postCutNames.size(); c++){	cout << postCutNames.at(c) << "\t" << passedEventsForSignalPostCuts[postCutNames.at(c)] << endl; }
 }
+
+
+vector<string> const		CutFlow::GetPreCutNames() const { return preCutNames; }
+vector<string> const		CutFlow::GetCutNames() const { return cutNames; }
+vector<string> const		CutFlow::GetPostCutNames() const { return postCutNames; }
+map<string, float> const	CutFlow::GetMinThresholds() const { return minThresholds; }
+map<string, float> const	CutFlow::GetMaxThresholds() const { return maxThresholds; }
+map<string, float> const	CutFlow::GetPassedEventsForSignal() const { return passedEventsForSignal; }
+map<string, float> const	CutFlow::GetPassedEventsForQCD() const { return passedEventsForQCD; }
+map<string, float> const	CutFlow::GetPassedEventsForSignalPreCuts() const { return passedEventsForSignalPreCuts; }
+map<string, float> const	CutFlow::GetPassedEventsForQCDPreCuts() const { return passedEventsForQCDPreCuts; }
+map<string, float> const	CutFlow::GetPassedEventsForSignalPostCuts() const { return passedEventsForQCDPostCuts ; }
+map<string, float> const	CutFlow::GetPassedEventsForQCDPostCuts() const { return passedEventsForQCDPostCuts; }
+string const				CutFlow::GetCutsToApply() const { return cutsToApply; }
+
+
+
+
 
 
 /*
@@ -347,4 +395,4 @@ bool CutFlow::OutOfRange(float iValue, float iMin, float iMax){
 }
 
 
-//ClassImp(CutFlow)
+ClassImp(CutFlow)

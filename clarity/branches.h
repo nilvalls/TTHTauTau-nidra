@@ -1,4 +1,3 @@
-// Declaration of leaf types
 Double_t		runNumber;
 Double_t		eventNumber;
 Double_t		lumiBlock;
@@ -14,8 +13,6 @@ vector<bool>*	Tau1_ZtauMatched;
 vector<bool>*	Tau2_ZtauMatched;
 vector<bool>*	Tau1_ZeMatched;
 vector<bool>*	Tau2_ZeMatched;
-
-
 vector<float>	*Tau1GenPt;
 vector<float>	*Tau2GenPt;
 vector<float>	*Tau1GenE;
@@ -130,7 +127,6 @@ vector<float>	*Tau2MElecDeltaR;
 vector<int>		*Tau2MElecCharge;		
 vector<float>	*Tau2MElecTrkSumPt;
 vector<float>	*Tau2MElecEcalRecHitSumEt;
-
 vector<float>*	ElectronPt;
 vector<float>*	ElectronEta;
 vector<float>*	ElectronPhi;
