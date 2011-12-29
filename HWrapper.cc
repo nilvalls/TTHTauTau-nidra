@@ -21,11 +21,11 @@ HWrapper::HWrapper(HWrapper const & iHWrapper){
 
 	name					= iHWrapper.GetName();
 	xMinVis					= iHWrapper.GetMinXVis();
-	xMaxVis					= iHWrapper.GetMinXVis();
-	yMinVis					= iHWrapper.GetMinXVis();
-	yMaxVis					= iHWrapper.GetMinXVis();
-	zMinVis					= iHWrapper.GetMinXVis();
-	zMaxVis					= iHWrapper.GetMinXVis();
+	xMaxVis					= iHWrapper.GetMaxXVis();
+	yMinVis					= iHWrapper.GetMinYVis();
+	yMaxVis					= iHWrapper.GetMaxYVis();
+	zMinVis					= iHWrapper.GetMinZVis();
+	zMaxVis					= iHWrapper.GetMaxZVis();
 	logx					= iHWrapper.GetLogX();
 	logy					= iHWrapper.GetLogY();
 	logz					= iHWrapper.GetLogZ();
@@ -39,28 +39,24 @@ HWrapper::HWrapper(HWrapper const & iHWrapper){
 
 HWrapper::HWrapper(string iName, string iType, const Config& iConfig){
 	histo = NULL;
+	name = iName;
 	const int nBinsX = iConfig.pInt("numBinsX");
 	const float xMin = iConfig.pDouble("xMin");
 	const float xMax = iConfig.pDouble("xMax");
 
 	if(iType.compare("th1f") == 0){ // Specific parameters for TH1F
 		isTH1F = true; isTH2F = false;
-		//histo1 = new TH1F(iName.c_str(), iName.c_str(), nBinsX, xMin, xMax);
 		histo1 = TH1F(iName.c_str(), iName.c_str(), nBinsX, xMin, xMax);
 		histo = &histo1;
-		histo->FillRandom("gaus");
 		showOverFlow	= iConfig.pBool("showOF"); 
 		showUnderFlow	= iConfig.pBool("showUF"); 
-
 	}else if(iType.compare("th2f") == 0){ // Specific paramaters for TH2F
 		isTH1F = false; isTH2F = true;
 		const int nBinsY = iConfig.pInt("numBinsY");
 		const float yMin = iConfig.pDouble("yMin");
 		const float yMax = iConfig.pDouble("yMax");
-	//	histo2 = new TH2F(iName.c_str(), iName.c_str(), nBinsX, xMin, xMax, nBinsY, yMin, yMax);
 		histo2 = TH2F(iName.c_str(), iName.c_str(), nBinsX, xMin, xMax, nBinsY, yMin, yMax);
 		histo = &histo2;
-
 
 		// Visible z axis range
 		histo->GetZaxis()->SetTitle((iConfig.pString("zTitle")).c_str());
@@ -88,10 +84,9 @@ HWrapper::HWrapper(string iName, string iType, const Config& iConfig){
 	logy = iConfig.pBool("logy");
 	
 	// Other
-	showText = iConfig.pBool("showText");
-	centerLabels = iConfig.pBool("centerLabels");
-	NOEraw		= 0;
-
+	showText		= iConfig.pBool("showText");
+	centerLabels	= iConfig.pBool("centerLabels");
+	NOEraw			= 0;
 
 }
 
@@ -101,13 +96,14 @@ HWrapper::~HWrapper(){
 }
 
 // Getter methods
+TH1 * 			HWrapper::GetHisto() { return (histo); }
 TH1 const * 	HWrapper::GetHisto() const { return (histo); }
 bool const		HWrapper::IsTH1F() const { return isTH1F; }
 bool const		HWrapper::IsTH2F() const { return isTH2F; }
-string	HWrapper::GetName() const { return name; }
-string	HWrapper::GetXTitle() const { return string(histo->GetXaxis()->GetTitle()); }
-string	HWrapper::GetYTitle() const { return string(histo->GetYaxis()->GetTitle()); }
-string	HWrapper::GetZTitle() const { return string(histo->GetZaxis()->GetTitle()); }
+string			HWrapper::GetName() const { return name; }
+string			HWrapper::GetXTitle() const { return string(histo->GetXaxis()->GetTitle()); }
+string			HWrapper::GetYTitle() const { return string(histo->GetYaxis()->GetTitle()); }
+string			HWrapper::GetZTitle() const { return string(histo->GetZaxis()->GetTitle()); }
 float const		HWrapper::GetMinXVis() const { return xMinVis; }
 float const		HWrapper::GetMaxXVis() const { return xMaxVis; }
 float const		HWrapper::GetMinYVis() const { return yMinVis; }
@@ -158,7 +154,7 @@ void HWrapper::SetLineWidth(int iVal, int iColor){
 
 void HWrapper::SetFillStyle(int const iVal, int const iColor){
 	histo->SetFillStyle(iVal);
-	if(iVal==1001){ // Solid fill
+	if(iVal!=0){ // Solid fill
 		histo->SetFillColor(iColor);
 		histo->SetLineColor(kBlack);
 		histo->SetLineWidth(1);
@@ -198,5 +194,17 @@ void HWrapper::Positivize(){
 }
 
 void HWrapper::FillRandom(string const iFunction){ histo->FillRandom(iFunction.c_str()); }
+
+double const HWrapper::GetMaximum() const { return histo->GetMaximum(); }
+double const HWrapper::GetMaximumWithError() const {
+	double result = 0;
+	for(unsigned int b = 0; b <= histo->GetNbinsX()+1; b++){
+		double content = histo->GetBinContent(b);	
+		double error = histo->GetBinError(b);	
+		if((content+error) > result){ result = content+error; }
+	}
+
+	return result;
+}
 
 ClassImp(HWrapper)

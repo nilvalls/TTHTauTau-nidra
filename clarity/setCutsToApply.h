@@ -52,8 +52,3 @@ else if(ApplyThisCut("SL_VLooseIso"				)){ CutOn_SL_VLooseIso				= 	true; cutFlo
 	 if(ApplyThisCut("Zeta"						)){ CutOn_Zeta						= 	true; cutFlow.RegisterCut("Zeta");						}
 	 if(ApplyThisCut("Btags"					)){ CutOn_Btags						= 	true; cutFlow.RegisterCut("Btags");						}
 	 //NEWCUT
-
-																					if(IsFlagThere("PUcorr")){ cutFlow.RegisterPostCut("PU reweighing"); }
-																					if(IsFlagThere("trigger")){ cutFlow.RegisterPostCut("LL trigger"); }
-																					if(IsFlagThere("trigger")){ cutFlow.RegisterPostCut("SL trigger"); }
-																				if(IsFlagThere("MCnormEnd")){	  cutFlow.RegisterPostCut("Lumi norm");		}

@@ -22,6 +22,8 @@ class CutFlow {
 		vector<string>		preCutNames;
 		vector<string>		cutNames;
 		vector<string>		postCutNames;
+		vector<string>		mergedCutNames;
+		map<string, int>	mergedCutNamesMap;
 		map<string, float>	minThresholds;
 		map<string, float>	maxThresholds;
 
@@ -93,6 +95,8 @@ class CutFlow {
 		vector<string> const		GetPreCutNames() const;
 		vector<string> const		GetCutNames() const;
 		vector<string> const		GetPostCutNames() const;
+		vector<string> const		GetMergedCutNames() const;
+		map<string,int> const		GetMergedCutNamesMap() const;
 		map<string, float> const	GetMinThresholds() const;
 		map<string, float> const	GetMaxThresholds() const;
 		map<string, float> const	GetPassedEventsForSignal() const;
@@ -101,27 +105,16 @@ class CutFlow {
 		map<string, float> const	GetPassedEventsForQCDPreCuts() const;
 		map<string, float> const	GetPassedEventsForSignalPostCuts() const;
 		map<string, float> const	GetPassedEventsForQCDPostCuts() const;
+		float const					GetPassedEventsForSignal(string const) const;
+		float const					GetPassedEventsForQCD(string const) const;
+		float const					GetRelEffForSignal(string const) const;
+		float const					GetRelEffForQCD(string const) const;
+		float const					GetCumEffForSignal(string const) const;
+		float const					GetCumEffForQCD(string const) const;
 		string const				GetCutsToApply() const;
+		void						MergeCuts();
+		string const				GetLastCut() const;
 
-/*		
-		void AddEvents(string, long int, float iScaleFactor=1.0);
-		long int GetEventsBeforeCut(string);
-		long int GetEventsBeforeCut(int);
-		long int GetEventsAfterCut(string);
-		long int GetEventsAfterCut(int);
-
-		float GetRelativeEfficiency(string);
-		float GetRelativeEfficiencyError(string);
-		float GetRelativeEfficiency(int);
-		float GetRelativeEfficiencyError(int);
-
-		float GetCumulativeEfficiency(string);
-		float GetCumulativeEfficiencyError(string);
-		float GetCumulativeEfficiency(int);
-		float GetCumulativeEfficiencyError(int);
-
-		CutFlow* Clone();
-*/
 
 		pair<float,float> ExtractCutThresholds(string);
 		ClassDef(CutFlow, 1);

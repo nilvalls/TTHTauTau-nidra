@@ -48,6 +48,7 @@ class HContainer{
 
 		void Fill(string const, double const, float const);
 		void Fill(string const, double const, double const, float const);
+		bool Exists(string const);
 		void SetMarkerStyle(int const);
 		void SetFillStyle(int const);
 		void SetFillColor(int const);

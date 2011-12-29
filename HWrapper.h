@@ -62,6 +62,7 @@ class HWrapper{
 		virtual ~HWrapper();
 
 		TH1 const *		GetHisto() const;
+		TH1 *			GetHisto();
 		string			GetName() const;
 		float const		GetMinXVis() const;
 		float const		GetMaxXVis() const;
@@ -85,6 +86,8 @@ class HWrapper{
 		void			Fill(double, double);
 		void			Fill(double, double, double);
 		double const	GetNOEraw() const;
+		double const	GetMaximum() const;
+		double const	GetMaximumWithError() const;
 
 
 		void	SetHisto(TH1 const &);

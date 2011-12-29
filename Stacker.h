@@ -20,18 +20,16 @@ class Stacker : public Plotter {
 	public:
 		Stacker(map<string,string> const &);
 		virtual ~Stacker();
-		void MakePlots(ProPack const *) const;
+		void MakePlots(ProPack const *) ;
 
 	private: 
-/*
-		TH1*			collisions;
-		vector<TH1*>*	backgrounds;
-		vector<TH1*>*	signals;
-		THStack*		stack;
+		map<string,string> params;
 
-		TLegend*	GetLegend(ProPack*);
-		//*/
-		
+		TLegend*		GetLegend(ProPack const *);
+		THStack*		GetBackgroundStack(ProPack const *, string const) const;
+		double const	GetMaximum(ProPack const *, string const, bool const) const;
+		double const	GetMaximum(ProPack const *, string const) const;
+		double const	GetMaximumWithError(ProPack const *, string const) const;
 
 };
 

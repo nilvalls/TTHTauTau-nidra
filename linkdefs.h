@@ -1,5 +1,6 @@
 #include "HWrapper.h"
 #include "HContainer.h"
+#include "PContainer.h"
 #include "CutFlow.h"
 #include "Process.h"
 #include "ProPack.h"
@@ -13,6 +14,7 @@
 
 #pragma link C++ class HWrapper+;
 #pragma link C++ class HContainer+;
+#pragma link C++ class PContainer+;
 #pragma link C++ class std::map<std::string, HWrapper>+;
 #pragma link C++ class CutFlow+;
 #pragma link C++ class Process+;

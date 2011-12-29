@@ -16,17 +16,17 @@ using namespace std;
 // Default constructor
 Plotter::Plotter(){}
 
-// Default destructor
-Plotter::~Plotter(){}
-
-// A more useful constructor
 Plotter::Plotter(map<string,string>const & iParams){
 	params = iParams;
+	Long_t *id,*size,*flags,*mt; id=NULL; size=NULL;flags=NULL;mt=NULL;
+	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
+	if(badFile){ cerr << "ERROR: trying to fill plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
 
 	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
 	file->cd();
 
 	ProPack* proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+
 	MakePlots(proPack);
 
 	file->cd();
@@ -34,12 +34,14 @@ Plotter::Plotter(map<string,string>const & iParams){
 
 	file->Close();
 	delete file;
+
+
 }
 
 // Function to make the plots
 void Plotter::MakePlots(ProPack* iProPack){
 	if(iProPack->HaveCollisions()){		MakePlots(iProPack->GetCollisions());		}
-	if(iProPack->HaveMCbackgrounds()){	MakePlots((iProPack->GetMCbackgrounds()));		}
+	if(iProPack->HaveMCbackgrounds()){	MakePlots((iProPack->GetMCbackgrounds()));	}
 	if(iProPack->HaveSignals()){		MakePlots(iProPack->GetSignals());			}
 
 	// Set analyzed flag in topoPack to true
@@ -48,9 +50,16 @@ void Plotter::MakePlots(ProPack* iProPack){
 	iProPack->SetAnalyzed();
 }
 
-// Book and fill the plots with the good events
+// Run MakePlots for each process in the vector
+void Plotter::MakePlots(vector<Process>* iProcesses){
+	for(unsigned int p=0; p<iProcesses->size(); p++){ 
+		MakePlots(&(iProcesses->at(p))); 
+	}
+}
+
 void Plotter::MakePlots(Process* iProcess){
-	
+
+
 	// Set up two HContainers, one for signal and another for QCD analysis
 	HContainer hContainerForSignal, hContainerForQCD;
 
@@ -58,37 +67,28 @@ void Plotter::MakePlots(Process* iProcess){
 	BookHistos(&hContainerForSignal);
 	BookHistos(&hContainerForQCD);
 
-	// Read in ntuple file
-	Analyzer analyzer(params);
-	analyzer.Init(iProcess->GetNtuplePath());
+	Analyzer analyzer(params);	
+	DitauBranches * event = analyzer.Init(iProcess->GetNtuplePath());
 
-	// Loop over good signal events and fill histos accordingly
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		DitauBranches event = DitauBranches(*(analyzer.GetDitauBranches(goodEventsForSignal.at(i).first)));
-		event.SetBestCombo(goodEventsForSignal.at(i).second);
-		FillHistos(&hContainerForSignal,&event);
+		event->AlienGetEntry(goodEventsForSignal.at(i).first);
+		event->SetBestCombo(goodEventsForSignal.at(i).second);
+		FillHistos(&hContainerForSignal,event,iProcess->IsMC());
 	}
 
-	// Loop over good QCD events and fill histos accordingly
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
 	for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
-		DitauBranches event = DitauBranches(*(analyzer.GetDitauBranches(goodEventsForQCD.at(i).first)));
-		event.SetBestCombo(goodEventsForQCD.at(i).second);
-		FillHistos(&hContainerForQCD,&event);
+		event->AlienGetEntry(goodEventsForQCD.at(i).first);
+		event->SetBestCombo(goodEventsForQCD.at(i).second);
+		FillHistos(&hContainerForQCD,event,iProcess->IsMC());
 	}
 
 	// Send the filled HContainers to the process
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 	iProcess->SetHContainerForQCD(hContainerForQCD);
 
-}
 
-// Run MakePlots for each process in the vector
-void Plotter::MakePlots(vector<Process>* iProcesses){
-	for(unsigned int p=0; p<iProcesses->size(); p++){ 
-		MakePlots(&(iProcesses->at(p))); 
-	}
 }
 
 // Set up the configured histos and add them to the process
@@ -119,20 +119,26 @@ void Plotter::BookHistos(HContainer* iHContainer){
 }
 
 // Fill the histograms with the event passed
-void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent){
+void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool iIsMC){
 	HContainer* hContainer = iHContainer;
 	DitauBranches* event = iEvent;
 	int iCombo = event->bestCombo;
 
-	float iPuWeight = event->puWeight;
-	float iTau1TriggerWeight = event-> tau1TriggerWeight;
-	float iTau2TriggerWeight = event-> tau2TriggerWeight;
+	float iPuWeight = 1.0;
+	float iTau1TriggerWeight = 1.0;
+	float iTau2TriggerWeight = 1.0;
+
+	if(iIsMC){
+//		iPuWeight			= puCorrector->GetWeight(event->numInteractionsBX0);
+//		iTau1TriggerWeight	= trigger->GetWeightFromFunc(event->Tau1Pt->at(event->bestCombo));
+//		iTau2TriggerWeight	= trigger->GetWeightFromFunc(event->Tau2Pt->at(event->bestCombo));
+	}
 
 	#include "clarity/fillHistos.h"
 }
 
 // Save canvas
-void Plotter::SaveCanvas(TCanvas* iCanvas, string iDir, string iFilename){
+void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename) const {
 
 	// Create output dir if it doesn't exists already
 	TString sysCommand = "if [ ! -d " + iDir + " ]; then mkdir -p " + iDir + "; fi";
@@ -159,109 +165,140 @@ void Plotter::SaveCanvasLog(TCanvas* iCanvas, string iDir, string iFilename, boo
 	}   
 }
 
-/*
-THStack* Plotter::GetBackgroundStack(int iPlot){
 
-	double maxY = GetMaxY(iPlot);
-	HWrapper* refHisto = GetAvailableProcess()->GetHistoForSignal(iPlot);
-	string stackName = string(refHisto->GetName()+"_stack");
-	THStack* result = new THStack(stackName.c_str(), stackName.c_str());
+// Sum all the backgrounds and return the resulting HWrapper
+HWrapper const Plotter::GetBackgroundSum(ProPack const * iProPack, string const iName) const {
+	HWrapper* buffer = NULL;
 
 	// Add each MC background first if we have them
-	if(HaveMCbackgrounds()){
-		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
-			int color = GetMCbackgrounds()->at(b)->GetColor();
-			GetMCbackgrounds()->at(b)->GetHistoForSignal(iPlot)->SetFillStyle(1001,color);
-			TH1F* temp = (TH1F*)(GetMCbackgrounds()->at(b)->GetHistoForSignal(iPlot)->GetHisto());
-			temp->GetYaxis()->SetRangeUser(0.001,maxY);
-			result->Add(temp);
+	if(iProPack->HaveMCbackgrounds()){
+		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
+			if(buffer == NULL){	buffer = new HWrapper(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
+			else{ buffer->Add(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
 		}
 	}
-
-	// Then add QCD if we have it
-	if(HaveQCD()){
-		TH1* temp = GetQCD()->GetHistoForSignal(iPlot)->GetHisto();
-		temp->GetYaxis()->SetRangeUser(0.001,maxY);
-		result->Add(temp);
+	// Add QCD if we have it
+	if(iProPack->PrepareQCD()){
+		if(buffer == NULL){	buffer = new HWrapper(*(iProPack->GetQCD()->GetHistoForSignal(iName))); }
+		else{ buffer->Add(*(iProPack->GetQCD()->GetHistoForSignal(iName))); }
 	}
-	
 
-	result->Draw("HIST");
-	result->GetXaxis()->SetRangeUser(refHisto->GetXminVis(), refHisto->GetXmaxVis());
-	result->GetXaxis()->SetTitle((refHisto->GetXtitle()).c_str());
-	result->GetYaxis()->SetTitle((refHisto->GetYtitle()).c_str());
-	result->SetMinimum(0.001);
-	result->SetMaximum(maxY);
-	result->GetYaxis()->SetRangeUser(0.001,maxY);
+	if(buffer == NULL){ cerr << "ERROR: requested sum of backgrounds for " << iName << " but result came out NULL" << endl; exit(1); }
+	HWrapper result = HWrapper(*buffer);
 
-
+	delete buffer;
 	return result;
 }
 
-TH1* Plotter::GetBackgroundSum(int iPlot){
-	TH1* result = NULL;
-
-	// Add each MC background first if we have them
-	if(HaveMCbackgrounds()){
-		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
-			TH1* histo = GetMCbackgrounds()->at(b)->GetHistoForSignal(iPlot)->GetHisto();
-			if(result == NULL){ result = (TH1*)histo->Clone();	}
-			else{				result->Add(histo);				}
-		}
-	}
-
-}
 
 // Figure out the maximum y value
-double const ProPack::GetMaxY(string const iName) const {
+double const Plotter::GetMaximum(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, false); }
+double const Plotter::GetMaximumWithError(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, true); }
+double const Plotter::GetMaximum(ProPack const * iProPack, string const iName, bool const iIncludeError) const {
 	double result = 0;
 
 	// Check max y for collisions
-	if(PrepareCollisions()){
-		double thisMax = collisions.GetHistoForSignal(iName)->GetHisto()->GetMaximum();	
+	if(iProPack->PrepareCollisions()){
+		double thisMax = 0; 
+		if(iIncludeError){	thisMax = iProPack->GetCollisions()->GetHistoForSignal(iName)->GetMaximumWithError(); }	
+		else{				thisMax = iProPack->GetCollisions()->GetHistoForSignal(iName)->GetMaximum(); }	
+		if(thisMax > result){ result = thisMax; }
+	}
+
+		
+	// Check max y for QCD
+	if(iProPack->PrepareQCD()){
+		double thisMax = 0;
+		if(iIncludeError){	thisMax = iProPack->GetQCD()->GetHistoForSignal(iName)->GetMaximumWithError(); }	
+		else{				thisMax = iProPack->GetQCD()->GetHistoForSignal(iName)->GetMaximum(); }	
 		if(thisMax > result){ result = thisMax; }
 	}
 
 	// Check max y for mcBackgrounds
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
-		double thisMax = mcBackgrounds.at(b).GetHistoForSignal(iName)->GetHisto()->GetMaximum();	
-		if(thisMax > result){ result = thisMax; }
+	if(iProPack->PrepareMCbackgrounds()){
+		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
+			double thisMax = 0;
+			if(iIncludeError){  thisMax = iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)->GetMaximumWithError(); }
+			else{				thisMax = iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)->GetMaximum(); }	
+			if(thisMax > result){ result = thisMax; }
+		}
 	}
 
 	// Check max y for signals
-	for(unsigned int s = 0; s < GetSignals()->size(); s++){
-		double thisMax = signals.at(s).GetHistoForSignal(iName)->GetHisto()->GetMaximum();	
-		if(thisMax > result){ result = thisMax; }
+	if(iProPack->PrepareSignals()){
+		for(unsigned int s = 0; s < iProPack->GetSignals()->size(); s++){
+			double thisMax = 0;
+			thisMax = iProPack->GetSignals()->at(s).GetHistoForSignal(iName)->GetMaximum();
+			if(thisMax > result){ result = thisMax; }
+		}
 	}
 	
 	return result;
 }
+
 
 // Figure out the maximum integral value
-double const ProPack::GetMaxIntegral(string const iName) const {
+double const Plotter::GetMaxIntegral(ProPack const * iProPack, string const iName) const {
 	double result = 0;
 
-	// Check max integral for collisions
-	if(PrepareCollisions()){
-		double thisMax = collisions.GetHistoForSignal(iName)->GetHisto()->Integral();
+	// Check max y for collisions
+	if(iProPack->PrepareCollisions()){
+		double thisMax = iProPack->GetCollisions()->GetHistoForSignal(iName)->GetHisto()->Integral();	
 		if(thisMax > result){ result = thisMax; }
 	}
 
-	// Check max integral for mcBackgrounds
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
-		double thisMax = mcBackgrounds.at(b).GetHistoForSignal(iName)->GetHisto()->Integral();
+	// Check max y for QCD
+	if(iProPack->PrepareQCD()){
+		double thisMax = iProPack->GetQCD()->GetHistoForSignal(iName)->GetHisto()->Integral();	
 		if(thisMax > result){ result = thisMax; }
 	}
 
-	// Check max integral for signals
-	for(unsigned int s = 0; s < GetSignals()->size(); s++){
-		double thisMax = signals.at(s).GetHistoForSignal(iName)->GetHisto()->Integral();
-		if(thisMax > result){ result = thisMax; }
+	// Check max y for mcBackgrounds
+	if(iProPack->PrepareMCbackgrounds()){
+		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
+			double thisMax = iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)->GetHisto()->Integral();	
+			if(thisMax > result){ result = thisMax; }
+		}
+	}
+
+	// Check max y for signals
+	if(iProPack->PrepareSignals()){
+		for(unsigned int s = 0; s < iProPack->GetSignals()->size(); s++){
+			double thisMax = iProPack->GetSignals()->at(s).GetHistoForSignal(iName)->GetHisto()->Integral();	
+			if(thisMax > result){ result = thisMax; }
+		}
 	}
 	
 	return result;
 }
 
+// Return TPaveText with some generic plot info
+TPaveText * Plotter::GetPlotText(){
 
-//*/
+		// Extra plot info
+		float xPlotInfo		= 0.15;
+		float yPlotInfo		= 1.01;
+
+		float dxPlotInfo	= 0.85;
+		float dyPlotInfo	= 0.07; 
+
+		TPaveText *plotInfo = new TPaveText(xPlotInfo, yPlotInfo-dyPlotInfo, xPlotInfo+dxPlotInfo, yPlotInfo, "brNDC");
+
+		plotInfo->SetBorderSize(0);
+		plotInfo->SetLineColor(0);
+		plotInfo->SetFillStyle(0);
+
+		stringstream textSS; textSS.str("");
+		textSS	<< "CMS Preliminary"
+				<< "    4.6/fb" << " p-p #sqrt{s} = 7TeV"	
+				<< "    #tau_{h}#tau_{h} channel";
+		plotInfo->AddText((textSS.str()).c_str());
+
+		return plotInfo;
+
+}
+
+
+// Default destructor
+Plotter::~Plotter(){}
 

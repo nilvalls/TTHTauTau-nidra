@@ -24,14 +24,15 @@
 #include "CutFlow.h"
 #include "DitauBranches.h"
 #include "Process.h"
+#include "PContainer.h"
 #include "ProPack.h"
 
 #include "Analyzer.h"
+#include "Cruncher.h"
 #include "RootFileMaker.h"
 #include "Plotter.h"
 #include "Stacker.h"
 //#include "Optimizer.h"
-//#include "Cruncher.h"
 
 #include "configParser/config.h"
 
@@ -54,6 +55,7 @@ using namespace std;
 	void			Initialize(int, char**);
 	void			ReadConfig(string);
 	void			Analyze();
+	void			DistributeProcesses();
 	void			CrunchNumbers();
 	void			PreparePlots();
 	void			PlotStacks();
@@ -67,6 +69,7 @@ using namespace std;
 	void			SetParam(Config const &, string);
 	string	GetParam(string);
 
+	void			DeleteDir(string);
 	void			ReMakeDir(string);
 	bool const		IsArgumentThere(string);
 	bool const		IsStringThere(string, string);
@@ -79,7 +82,8 @@ using namespace std;
 	void			Print(string, string);
 	void			BackUpConfigFile(string, string);
 	void			NewSection(TStopwatch&);
-	bool			SkipProcess(string);
+	bool			AnalyzeProcess(string const);
+	bool			PlotProcess(string const);
 	//*/
 
 #endif

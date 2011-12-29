@@ -16,26 +16,28 @@ CutFlow::CutFlow(string iCuts){
 
 }
 
-CutFlow::CutFlow(CutFlow const &){
+CutFlow::CutFlow(CutFlow const & iCutFlow){
 
-	preCutNames		= GetPreCutNames();
-	cutNames		= GetCutNames();
-	postCutNames	= GetPostCutNames();
-	minThresholds	= GetMinThresholds();
-	maxThresholds 	= GetMaxThresholds();
+	preCutNames			= iCutFlow.GetPreCutNames();
+	cutNames			= iCutFlow.GetCutNames();
+	postCutNames		= iCutFlow.GetPostCutNames();
+	mergedCutNames		= iCutFlow.GetMergedCutNames();
+	mergedCutNamesMap	= iCutFlow.GetMergedCutNamesMap();
+	minThresholds		= iCutFlow.GetMinThresholds();
+	maxThresholds 		= iCutFlow.GetMaxThresholds();
 
 	thisCombosResults		= map<string, bool>();
 	passedCombosForSignal	= map<string, float>();
 	passedCombosForQCD		= map<string, float>();
-	passedEventsForSignal	= GetPassedEventsForSignal();
-	passedEventsForQCD		= GetPassedEventsForQCD();
+	passedEventsForSignal	= iCutFlow.GetPassedEventsForSignal();
+	passedEventsForQCD		= iCutFlow.GetPassedEventsForQCD();
 
-	passedEventsForSignalPreCuts	= GetPassedEventsForSignalPreCuts();
-	passedEventsForQCDPreCuts		= GetPassedEventsForQCDPreCuts();
-	passedEventsForSignalPostCuts	= GetPassedEventsForSignalPostCuts();
-	passedEventsForQCDPostCuts		= GetPassedEventsForQCDPostCuts();
+	passedEventsForSignalPreCuts	= iCutFlow.GetPassedEventsForSignalPreCuts();
+	passedEventsForQCDPreCuts		= iCutFlow.GetPassedEventsForQCDPreCuts();
+	passedEventsForSignalPostCuts	= iCutFlow.GetPassedEventsForSignalPostCuts();
+	passedEventsForQCDPostCuts		= iCutFlow.GetPassedEventsForQCDPostCuts();
 
-	cutsToApply	= GetCutsToApply();
+	cutsToApply	= iCutFlow.GetCutsToApply();
 
 	eventForSignalPassed	= false;
 	eventForQCDPassed		= false;
@@ -102,8 +104,8 @@ void CutFlow::RegisterPreCut(string const iName, double const iEvents){
 void CutFlow::RegisterPostCut(string const iName){ RegisterPostCut(iName, 0); }
 void CutFlow::RegisterPostCut(string const iName, double const iEvents){
 	postCutNames.push_back(iName);
-	passedEventsForSignalPostCuts[iName] = 0;
-	passedEventsForQCDPostCuts[iName] = 0;
+	passedEventsForSignalPostCuts[iName] = iEvents;
+	passedEventsForQCDPostCuts[iName] = iEvents;
 }
 
 void CutFlow::SetPreCutForSignal(string const iName, double const iEvents){ passedEventsForSignalPreCuts[iName] = iEvents; }
@@ -247,6 +249,8 @@ void CutFlow::PrintTest(){
 vector<string> const		CutFlow::GetPreCutNames() const { return preCutNames; }
 vector<string> const		CutFlow::GetCutNames() const { return cutNames; }
 vector<string> const		CutFlow::GetPostCutNames() const { return postCutNames; }
+vector<string> const		CutFlow::GetMergedCutNames() const { return mergedCutNames; }
+map<string, int> const		CutFlow::GetMergedCutNamesMap() const { return mergedCutNamesMap; }
 map<string, float> const	CutFlow::GetMinThresholds() const { return minThresholds; }
 map<string, float> const	CutFlow::GetMaxThresholds() const { return maxThresholds; }
 map<string, float> const	CutFlow::GetPassedEventsForSignal() const { return passedEventsForSignal; }
@@ -258,88 +262,82 @@ map<string, float> const	CutFlow::GetPassedEventsForQCDPostCuts() const { return
 string const				CutFlow::GetCutsToApply() const { return cutsToApply; }
 
 
+float const CutFlow::GetPassedEventsForSignal(string const iCut) const {
 
-
-
-
-/*
-
-long int CutFlow::GetEventsBeforeCut(string iName){
-	return ((*eventsBeforeCut)[iName]);	
-}
-
-long int CutFlow::GetEventsBeforeCut(int iPos){
-	return ((*eventsBeforeCut)[(cutNames->at(iPos))]);	
-}
-
-long int CutFlow::GetEventsAfterCut(string iName){
-	return ((*eventsAfterCut)[iName]);	
-}
-
-long int CutFlow::GetEventsAfterCut(int iPos){
-	return ((*eventsAfterCut)[(cutNames->at(iPos))]);	
-}
-
-float CutFlow::GetRelativeEfficiency(string iName){
 	float result = 0;
-	result = GetEventsAfterCut(iName)/GetEventsBeforeCut(iName);
+	if(passedEventsForSignal.find(iCut) != passedEventsForSignal.end()){						result = passedEventsForSignal.find(iCut)->second; }
+	else if(passedEventsForSignalPreCuts.find(iCut) != passedEventsForSignalPreCuts.end()){		result = passedEventsForSignalPreCuts.find(iCut)->second; }
+	else if(passedEventsForSignalPostCuts.find(iCut) != passedEventsForSignalPostCuts.end()){	result = passedEventsForSignalPostCuts.find(iCut)->second; }
+	else{ cerr << "ERROR: Could not find cut named \"" << iCut << "\" in cuts, precuts or postcuts." << endl; exit(1); }
 	return result;
 }
 
-float CutFlow::GetRelativeEfficiencyError(string iName){
+float const CutFlow::GetPassedEventsForQCD(string const iCut) const {
 	float result = 0;
-	result = GetRelativeEfficiency(iName)*sqrt(1/(double)GetEventsAfterCut(iName) - 1/(double)GetEventsBeforeCut(iName) ); // Binomial!!
+	if(passedEventsForQCD.find(iCut) != passedEventsForQCD.end()){							result = passedEventsForQCD.find(iCut)->second; }
+	else if(passedEventsForQCDPreCuts.find(iCut) != passedEventsForQCDPreCuts.end()){		result = passedEventsForQCDPreCuts.find(iCut)->second; }
+	else if(passedEventsForQCDPostCuts.find(iCut) != passedEventsForQCDPostCuts.end()){		result = passedEventsForQCDPostCuts.find(iCut)->second; }
+	else{ cerr << "ERROR: Could not find cut named \"" << iCut << "\" in cuts, precuts or postcuts." << endl; exit(1); }
 	return result;
 }
 
-float CutFlow::GetRelativeEfficiency(int iPos){
+
+float const CutFlow::GetRelEffForSignal(string const iCut) const {
 	float result = 0;
-	result = GetEventsAfterCut(iPos)/GetEventsBeforeCut(iPos);
+	float numerator = 0;
+	float denominator = 0;
+	if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	int cutPosition = mergedCutNamesMap.find(iCut)->second;
+	if(cutPosition==0){ result = 1; }
+	else{
+		numerator	= passedEventsForSignal.find(iCut)->second;
+		denominator	= passedEventsForSignal.find(mergedCutNames.at(cutPosition-1))->second;
+		result = numerator/denominator;
+	}
 	return result;
 }
 
-float CutFlow::GetRelativeEfficiencyError(int iPos){
+float const CutFlow::GetCumEffForSignal(string const iCut) const {
 	float result = 0;
-	result = GetRelativeEfficiency(iPos)*sqrt(1/(double)GetEventsAfterCut(iPos) - 1/(double)GetEventsBeforeCut(iPos)); // Binomial!!
+	float numerator = 0;
+	float denominator = 0;
+	if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	int cutPosition = mergedCutNamesMap.find(iCut)->second;
+	numerator	= passedEventsForSignal.find(iCut)->second;
+	denominator	= passedEventsForSignal.find(mergedCutNames.front())->second;
+	result = numerator/denominator;
 	return result;
 }
 
-float CutFlow::GetCumulativeEfficiency(string iName){
+float const CutFlow::GetRelEffForQCD(string const iCut) const {
 	float result = 0;
-	result = GetEventsAfterCut(iName)/GetEventsBeforeCut(cutNames->front());
+	float numerator = 0;
+	float denominator = 0;
+	if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	int cutPosition = mergedCutNamesMap.find(iCut)->second;
+	if(cutPosition==0){ result = 1; }
+	else{
+		numerator	= passedEventsForQCD.find(iCut)->second;
+		denominator	= passedEventsForQCD.find(mergedCutNames.at(cutPosition-1))->second;
+		result = numerator/denominator;
+	}
 	return result;
 }
 
-float CutFlow::GetCumulativeEfficiencyError(string iName){
+float const CutFlow::GetCumEffForQCD(string const iCut) const {
 	float result = 0;
-	result = GetCumulativeEfficiency(iName)*sqrt(1/(double)GetEventsAfterCut(iName) - 1/(double)GetEventsBeforeCut(cutNames->front()) ); // Binomial!!
+	float numerator = 0;
+	float denominator = 0;
+	if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	int cutPosition = mergedCutNamesMap.find(iCut)->second;
+	numerator	= passedEventsForQCD.find(iCut)->second;
+	denominator	= passedEventsForQCD.find(mergedCutNames.front())->second;
+	result = numerator/denominator;
 	return result;
 }
 
-float CutFlow::GetCumulativeEfficiency(int iPos){
-	float result = 0;
-	result = GetEventsAfterCut(iPos)/GetEventsBeforeCut(iPos);
-	return result;
-}
 
-float CutFlow::GetCumulativeEfficiencyError(int iPos){
-	float result = 0;
-	result = GetCumulativeEfficiency(iPos)*sqrt(1/(double)GetEventsAfterCut(iPos) - 1/(double)GetEventsBeforeCut(0)); // Binomial!!
-	return result;
-}
 
-CutFlow* CutFlow::Clone(){
-	CutFlow* result		= new CutFlow(*this);
-	result->cutNames				= new vector<string>(*cutNames);
-	result->eventsBeforeCut			= new map<string, double>(*eventsBeforeCut);
-	result->eventsAfterCut			= new map<string, double>(*eventsAfterCut);
-	result->eventsBeforeCutError	= new map<string, double>(*eventsBeforeCutError);
-	result->eventsAfterCutError		= new map<string, double>(*eventsAfterCutError);
-	result->scaleFactors			= new map<string, float>(*scaleFactors);
-	result->scaleFactorsError		= new map<string, float>(*scaleFactorsError);
-}
-
-//*/
 
 pair<float,float> CutFlow::ExtractCutThresholds(string iCutString){
 	pair<float,float> result = make_pair(-FLT_MAX,FLT_MAX);
@@ -394,5 +392,27 @@ bool CutFlow::OutOfRange(float iValue, float iMin, float iMax){
 	return ((iValue < iMin) || (iMax < iValue));
 }
 
+// Put all preCuts, cuts, and postCuts in a single vector+map
+void CutFlow::MergeCuts(){
+	mergedCutNames.clear();
+	mergedCutNames.insert(mergedCutNames.end(), preCutNames.begin(), preCutNames.end());
+	mergedCutNames.insert(mergedCutNames.end(), cutNames.begin(), cutNames.end());
+	mergedCutNames.insert(mergedCutNames.end(), postCutNames.begin(), postCutNames.end());
+	mergedCutNamesMap.clear();
+	for(unsigned int n = 0; n < mergedCutNames.size(); n++){ mergedCutNamesMap[mergedCutNames.at(n)] = n; }
+
+	passedEventsForSignal.insert(passedEventsForSignalPreCuts.begin(), passedEventsForSignalPreCuts.end());
+	passedEventsForSignal.insert(passedEventsForSignalPostCuts.begin(), passedEventsForSignalPostCuts.end());
+	passedEventsForQCD.insert(passedEventsForQCDPreCuts.begin(), passedEventsForQCDPreCuts.end());
+	passedEventsForQCD.insert(passedEventsForQCDPostCuts.begin(), passedEventsForQCDPostCuts.end());
+}
+
+string const CutFlow::GetLastCut() const{
+	string result = "";
+	if(postCutNames.size() != 0){ result = postCutNames.back(); }
+	else if(cutNames.size() != 0){ result = cutNames.back(); }
+	else if(preCutNames.size() != 0){ result = preCutNames.back(); }
+	return result;
+}
 
 ClassImp(CutFlow)

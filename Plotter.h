@@ -10,32 +10,17 @@
 
 #include <TROOT.h>
 #include <TSystem.h>
-#include <TChain.h>
-#include <TStyle.h>
 #include <TFile.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <THStack.h>
-#include <TCanvas.h>
-#include <TLegend.h>
-#include <TPaveText.h>
-#include <TGraphAsymmErrors.h>
-#include <TPaletteAxis.h>
-#include <math.h>
-#include <map>
-#include <vector>
-#include <sstream>
 #include <iostream>
-#include <iomanip>
-#include <utility>
-#include <stdlib.h>
-#include "Analyzer.h"
-#include "HWrapper.h"
+#include <fstream>
+#include <sstream>
+#include "TCanvas.h"
+#include "CutFlow.h"
 #include "DitauBranches.h"
 #include "Process.h"
 #include "ProPack.h"
-#include "configParser/config.h"
-
+#include "Analyzer.h"
+#include "TPaveText.h"
 
 using namespace std;
 
@@ -46,27 +31,25 @@ class Plotter {
 		Plotter(map<string,string> const &);
 		virtual ~Plotter();
 
-		ProPack* GetTopologies(string);
+		void PrintEfficiencies(string const, string const);
+
+	private: 
 		virtual void MakePlots(ProPack*);
 		virtual void MakePlots(Process*);
 		virtual void MakePlots(vector<Process>*);
-		virtual void SaveCanvas(TCanvas*, string, string);
+		void		BookHistos(HContainer*);
+		void		FillHistos(HContainer*, DitauBranches*, bool);
+		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
 		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
 
-	private:
-		void						BookHistos(HContainer*);
-		void						FillHistos(HContainer*, DitauBranches*);
-
-		/*
-		double const				GetMaxY(string const) const;
-		double const				GetMaxIntegral(string const) const;
-		//*/
-
-
-
 	protected:
-		map<string,string> params;
-					
+		map<string,string>	params;
+		HWrapper const  	GetBackgroundSum(ProPack const *, string const) const;
+		double const		GetMaximum(ProPack const *, string const, bool const) const;
+		double const		GetMaximum(ProPack const *, string const) const;
+		double const		GetMaximumWithError(ProPack const *, string const) const;
+		double const		GetMaxIntegral(ProPack const *, string const) const;
+		TPaveText *			GetPlotText();
 
 };
 

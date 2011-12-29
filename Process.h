@@ -100,6 +100,7 @@ class Process {
 		void				SetHContainerForSignal(HContainer const &);
 		void				SetHContainerForQCD(HContainer const &);
 		void				SetCutFlow(CutFlow const &);
+		CutFlow *			GetCutFlow();
 		CutFlow const *		GetCutFlow() const;
 
 		int const			GetColor() const;
@@ -108,6 +109,10 @@ class Process {
 		string const		GetLabelForLegend() const;
 		string const		GetNtuplePath() const;
 		string const		GetType() const;
+		bool const			IsCollisions() const;
+		bool const			IsQCD() const;
+		bool const			IsMCbackground() const;
+		bool const			IsSignal() const;
 		bool const			IsMC() const;
 
 		double const		GetCrossSection() const;
@@ -127,6 +132,7 @@ class Process {
 		HContainer const *	GetHContainerForQCD() const;
 
 		HWrapper const *	GetAvailableHWrapper() const;
+		HWrapper const *	GetAvailableHWrapper(string const) const;
 		HWrapper const *	GetHistoForSignal(string const) const;
 		HWrapper const *	GetHistoForQCD(string const) const;
 

@@ -6,6 +6,12 @@ using namespace std;
 
 // Perform some initialization tasks
 void Initialize(int argc, char **argv){
+	// Keep track of how long things take
+	//TDatime clock;
+	stopwatch = TStopwatch();
+	stopwatch.Start();
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Initializing Nidra");
 
 	proPack = NULL;
 	inputArguments = "";
@@ -15,26 +21,19 @@ void Initialize(int argc, char **argv){
 	params.clear();
 
 	// Set up nice plot style
-//	gROOT->Reset();
+	//gROOT->Reset();
 
 	//gROOT->SetStyle("Plain");
 	setTDRStyle();
 
 	// Supress ROOT warnings
 	gErrorIgnoreLevel = kError;
-
-	// Keep track of how long things take
-	//TDatime clock;
-	stopwatch = TStopwatch();
-
-	Print(CYAN, ">>> Starting analysis...");
-	stopwatch.Start();
-
 }
 
 // Read in config file and set up parameters
 void ReadConfig(string iPath){
-
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Reading configuration file from "+iPath);
 	// Instatiate configuration parser and take the first argument as the config file
 	Config theConfig(iPath);
 
@@ -42,7 +41,8 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "luminosity");
 	SetParam(theConfig, "puList");
 	SetParam(theConfig, "toDo");
-	SetParam(theConfig, "enabledTopologies");
+	SetParam(theConfig, "analyze");
+	SetParam(theConfig, "plot");
 	SetParam(theConfig, "flags");
 	SetParam(theConfig, "countMasses");
 	SetParam(theConfig, "webDir"); ReMakeDir(GetParam("webDir"));
@@ -57,6 +57,8 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "yLegend");
 	SetParam(theConfig, "dxLegend");
 	SetParam(theConfig, "dyLegend");
+	SetParam(theConfig, "showBackgroundError");
+	SetParam(theConfig, "stackSignals");
 
 	// Copy original config file to output dir
 	BackUpConfigFile(iPath, GetParam("webDir")); 
@@ -70,8 +72,10 @@ void ReadConfig(string iPath){
 	// Set some additional internal parameters
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 	SetParam("goodEvents_file",string(GetParam("bigDir")+"goodEvents.root"));
-	SetParam("stacks_output",string(GetParam("webDir")+"stacks/")); ReMakeDir(GetParam("stacks_output"));
-	SetParam("optimization_output",string(GetParam("webDir")+"optimization/")); ReMakeDir(GetParam("optimization_output"));
+	SetParam("stacks_output",string(GetParam("webDir")+"stacks/"));
+	SetParam("stamps_output",string(GetParam("webDir")+"stamps/"));
+	SetParam("efficiency_output",string(GetParam("webDir")+"efficiency/"));
+	SetParam("optimization_output",string(GetParam("webDir")+"optimization/")); 
 	SetParam("propack_name","HtoTauTau");
 
 	// Build the topopack from the info in the config file
@@ -84,6 +88,8 @@ void ReadConfig(string iPath){
 }
 
 void Analyze(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Analyzing events...");
 
 	// Set up analyzer with global paramaters
 	Analyzer analyzer(params);	
@@ -93,44 +99,84 @@ void Analyze(){
 
 	// Save analyzed ProPack to a root file
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
+	delete proPack; proPack = NULL;
+	Print(GREEN," done!");
 }
 
-void CrunchNumbers(){
-/*
-	Cruncher cruncher = Cruncher(&params);
-//	cruncher.PrintCutEfficiencies();
-//*/
+void DistributeProcesses(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Distributing processes...");
+
+	Long_t *id,*size,*flags,*mt; id=NULL; size=NULL;flags=NULL;mt=NULL;
+	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
+	if(badFile){ cerr << "ERROR: trying to distribute processes but proPack file does not exist." << endl; exit(1); }
+
+	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
+	file->cd();
+
+	ProPack* tempProPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+	tempProPack->DistributeProcesses();
+
+	file->cd();
+	tempProPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
+
+	file->Close();
+	delete file;
+
+	Print(GREEN," done!");
 }
 
 void PreparePlots(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Filling histograms...");
 	// Book histos and fill them with good events
 	Plotter plotter = Plotter(params);
+	Print(GREEN," done!");
+}
+
+void CrunchNumbers(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Crunching numbers...");
+	ReMakeDir(GetParam("efficiency_output"));
+	Cruncher cruncher = Cruncher(params);
+	cruncher.PrintEfficiencies("HTML","erc");
+	cruncher.PrintEfficiencies("HTML","rc");
+	cruncher.PrintEfficiencies("HTML","e");
+	Print(GREEN," done!");
 }
 
 void PlotStacks(){
-	// Read root file with topologies and make stacks
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Stacking plots...");
+	ReMakeDir(GetParam("stacks_output"));
 	Stacker stacker = Stacker(params);
+	Print(GREEN," done!");
 }
 
 void PlotStamps(){
-	// Read root file with topologies and make stamps
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Stamping plots...");
+	ReMakeDir(GetParam("stamps_output"));
 	//Stamper stamper = Stamper(new map<string,string>(params));
+	Print(GREEN," done!");
 }
 
 void Optimize(){
-	// Read root file with topologies and make optimization plots
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Making optimization plots...");
+	ReMakeDir(GetParam("optimization_output"));
 	//Optimizer optimizer = Optimizer(&params);
+	Print(GREEN," done!");
 }
 
 void Finalize(){
-	// Print output dirs
 	NewSection(stopwatch);
-	cout << "\n" << endl;
-	PrintURL(GetParam("webDir"));
-	PrintLocal(GetParam("bigDir"));
-	cout << "\n" << endl;
-
+	Print(CYAN,">>>>>>>> Finalizing...");
+	// Print output dirs
+	cout << "\t"; PrintURL(GetParam("webDir"));
+	cout << "\t"; PrintLocal(GetParam("bigDir"));
 	if(proPack != NULL){ delete proPack; proPack = NULL; }
+	NewSection(stopwatch);
 }
 
 
@@ -150,6 +196,19 @@ string GetParam(string iParam){
 
 void Print(string color, string iString){
 	cout << color << iString << NOCOLOR << endl;
+}
+
+void DeleteDir(string iPath){
+	TString sysCommand;
+
+	string path = iPath;
+
+	if(path.substr(path.length()-1).compare("/")!=0){
+		path = path.substr(0,path.rfind("/"));
+	}
+
+	sysCommand = "rm -rf " + path;
+	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem deleting \"" << path << "\" -- Check permissions." << endl; exit(1); }
 }
 
 void ReMakeDir(string iPath){
@@ -218,22 +277,9 @@ void BuildProPack(ProPack& iProPack, Config const & theConfig){
 
 		// Pass subConfig to process and let it build itself
 		Process process(shortName, params, *topoConfig);
-		string type = process.GetType();
 
-		// Add process to the topopack according to its type
-			 if(type.compare("collisions")==0){	
-			 										iProPack.SetCollisions(process);
-			 										iProPack.PrepareCollisions(!SkipProcess("Collisions"));
-			 										iProPack.PrepareQCD(!SkipProcess("QCD"));
-		}else if(type.compare("mcBackground")==0){
-													if(SkipProcess(shortName)){ continue; }
-													iProPack.AddMCbackground(process);	
-		}else if(type.compare("signal")==0){
-													if(SkipProcess(shortName)){ continue; }
-													iProPack.AddSignal(process);
-		}else{ cerr << "ERROR: process type \"" << type << "\" invalid" << endl; exit(1);	}
-
-
+		// Put process in ProPack's PContainer if we want it analyzed
+		if(AnalyzeProcess(shortName)){ iProPack.GetPContainer()->Add(process); }
 	}
 
 	// In-function cleanup
@@ -242,27 +288,25 @@ void BuildProPack(ProPack& iProPack, Config const & theConfig){
 }
 
 
-bool SkipProcess(string iThisTopo){
-	string enabledTopologies = " " + GetParam("enabledTopologies") + " ";
-	string thisTopo			 = " " + iThisTopo + " ";
-
-	bool result = IsStringThere(thisTopo,enabledTopologies);
-
-	// Print to screen enabled process
-	if(!result || ((iThisTopo.compare("QCD"))==0) ){ Print(CYAN, "\tWill analyze \"" + iThisTopo + "\""); }
-
+bool AnalyzeProcess(string const iThisProcess){
+	bool result;
+	if(GetParam("analyze").compare("All")==0){
+		result = true;
+	}else{
+		string enabledProcesses = " " + GetParam("analyze") + " ";
+		string thisProcess			 = " " + iThisProcess + " ";
+		result = IsStringThere(thisProcess,enabledProcesses);
+	}
 	return result;
 }
+
 
 bool const IsArgumentThere(string iArgument){ return IsStringThere(iArgument,inputArguments); }
 
 bool const IsStringThere(string iNeedle, string iHaystack){
-	string haystack = " " + iHaystack + " ";
-	string needle = " " + iNeedle + " ";
-
+	string haystack = iHaystack;
+	string needle = iNeedle;
 	bool const result = ((haystack.find(needle) < haystack.length()));
-
 	return result;
-
 }
 

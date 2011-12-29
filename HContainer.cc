@@ -47,9 +47,10 @@ map<string, HWrapper>::const_iterator HContainer::begin() const { return (contai
 map<string, HWrapper>::const_iterator HContainer::end() const { return (container.end()); }
 
 
-void HContainer::Fill(string const iName, double const iValue, float const iWeight){ Get(iName)->Fill(iValue, iWeight); }
-void HContainer::Fill(string const iName, double const iValue1, double const iValue2, float const iWeight){ Get(iName)->Fill(iValue1, iValue2, iWeight); }
+void HContainer::Fill(string const iName, double const iValue, float const iWeight){ if(Exists(iName)){ Get(iName)->Fill(iValue, iWeight); } }
+void HContainer::Fill(string const iName, double const iValue1, double const iValue2, float const iWeight){ if(Exists(iName)){ Get(iName)->Fill(iValue1, iValue2, iWeight); } }
 
+bool HContainer::Exists(string const iName){ return (container.find(iName) != container.end()); }
 
 void HContainer::SetMarkerStyle(int const iValue){
 	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){ ite->second.SetMarkerStyle(iValue); }

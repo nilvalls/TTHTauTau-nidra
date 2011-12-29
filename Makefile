@@ -28,23 +28,16 @@ NGLIBS		  += -L./configParser/ -lconfigParser
 GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 
-#.nidra.exe: linkdefs.h libNidra.so libConfigParser.so \
-			.HWrapper.o .HContainer.o .DitauBranches.o .Process.o .ProPack.o .Driver.o .RootFileMaker.o \
-			.Analyzer.o .Trigger.o .CutFlow.o .Plotter.o .Stacker.o .Optimizer.o .Cruncher.o
-#			$(LD) $(LDFLAGS) -o .nidra.exe libNidra.so configParser/libconfigParser.so \
-			.HWrapper.o .HContainer.o .DitauBranches.o .Process.o .ProPack.o .Driver.o .RootFileMaker.o \
-			.Analyzer.o .Trigger.o .CutFlow.o .Plotter.o .Stacker.o .Optimizer.o .Cruncher.o $(GLIBS)
-
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
-			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .ProPack.o \
-			.Analyzer.o .Trigger.o .Plotter.o .Stacker.o \
+			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
+			.Analyzer.o .Trigger.o .Cruncher.o .Plotter.o .Stacker.o \
 			.RootFileMaker.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
-			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .ProPack.o \
-			.Analyzer.o .Trigger.o .Plotter.o .Stacker.o \
+			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
+			.Analyzer.o .Trigger.o .Cruncher.o .Plotter.o .Stacker.o \
 			.RootFileMaker.o $(GLIBS)
 
-.NidraDict.cc: HWrapper.h HContainer.h CutFlow.h DitauBranches.h Process.h ProPack.h linkdefs.h
+.NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
 
 libNidra.so: .NidraDict.cc 
@@ -58,6 +51,9 @@ libConfigParser.so: configParser/config.h
 
 .HContainer.o: HContainer.cc HContainer.h 
 	$(CXX) $(CXXFLAGS) -c HContainer.cc -o $@
+
+.PContainer.o: PContainer.cc PContainer.h 
+	$(CXX) $(CXXFLAGS) -c PContainer.cc -o $@
 
 .CutFlow.o: CutFlow.cc CutFlow.h
 	$(CXX) $(CXXFLAGS) -c CutFlow.cc -o $@

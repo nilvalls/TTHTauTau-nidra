@@ -102,7 +102,7 @@ echoInf "Running $execFile with config file $iConfig..."
 #./$execFile $allArgs
 
 # Notify of analysis end
-echoSuc "Analysis finished!"
+echoSuc " Analysis finished!"
 echo ""
 
 

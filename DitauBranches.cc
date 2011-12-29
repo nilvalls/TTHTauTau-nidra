@@ -144,16 +144,112 @@ DitauBranches::DitauBranches(){
 //}
 
 // Default destructor
-DitauBranches::~DitauBranches(){}
+DitauBranches::~DitauBranches(){
+	fChain->ResetBranchAddresses();
+	delete fChain; fChain = NULL;
+delete Tau1GenPt;
+delete Tau2GenPt;
+delete Tau1GenE;
+delete Tau2GenE;
+delete Tau1GenEta;
+delete Tau2GenEta;
+delete Tau1GenPhi;
+delete Tau2GenPhi;
+delete Tau1Matched;
+delete Tau2Matched;
+delete Tau1MotherId;
+delete Tau2MotherId;
+delete Tau1PdgId;
+delete Tau2PdgId;
+delete Tau1MotherPdgId;
+delete Tau2MotherPdgId;
+delete NumPV;
+delete Tau1E;
+delete Tau2E;
+delete Tau1Et;
+delete Tau2Et;
+delete Tau1Pt;
+delete Tau2Pt;
+delete Tau1LTPt;
+delete Tau2LTPt;
+delete Tau1Charge;
+delete Tau2Charge;
+delete Tau1Eta;
+delete Tau2Eta;
+delete Tau1Phi;
+delete Tau2Phi;
+delete Tau1LTIpVtdxy;
+delete Tau1LTIpVtdz;
+delete Tau1LTIpVtxError;
+delete Tau1LTValidHits;
+delete Tau1LTNormChiSqrd;
+delete Tau2LTIpVtdxy;
+delete Tau2LTIpVtdz;
+delete Tau2LTIpVtxError;
+delete Tau2LTValidHits;
+delete Tau2LTNormChiSqrd;
+delete Tau1NProngs;
+delete Tau2NProngs;
+delete Tau1EmFraction;
+delete Tau2EmFraction;
+delete Tau1HcalTotOverPLead;
+delete Tau2HcalTotOverPLead;
+delete Tau1HCalMaxOverPLead;
+delete Tau2HCalMaxOverPLead;
+delete Tau1HCal3x3OverPLead;
+delete Tau2HCal3x3OverPLead;
+delete Tau1DiscAgainstElectron;
+delete Tau2DiscAgainstElectron;
+delete Tau1DiscAgainstMuon;
+delete Tau2DiscAgainstMuon;
+delete Tau1IsInTheCracks;
+delete Tau2IsInTheCracks;
+delete Tau1DecayMode;
+delete Tau2DecayMode;
+delete MET;
+delete TauTauVisibleMass;
+delete TauTauVisPlusMetMass;
+delete TauTauCollinearMetMass;
+delete TauTauCosDPhi;
+delete TauTauDeltaR;
+delete TauTauPZeta;
+delete TauTauPZetaVis;
+delete Tau1MetCosDphi;
+delete Tau2MetCosDphi;
+delete Tau1MetMt;
+delete Tau2MetMt;
+delete nBtagsHiEffTrkCnt;
+delete nBtagsHiPurityTrkCnt;
+delete nBTagsHiEffSimpleSecVtx;
+delete nBTagsHiPuritySimpleSecVtx;
+delete nBTagsCombSecVtx;
+delete jetSumEt;
+delete jetMETSumEt;
+delete nJets;
+delete nExtraJets;
+delete Tau1hpsPFTauDiscriminationAgainstLooseElectron;
+delete Tau1hpsPFTauDiscriminationAgainstLooseMuon;
+delete Tau1hpsPFTauDiscriminationAgainstMediumElectron;
+delete Tau1hpsPFTauDiscriminationAgainstTightElectron;
+delete Tau1hpsPFTauDiscriminationAgainstTightMuon;
+delete Tau1hpsPFTauDiscriminationByDecayModeFinding;
+delete Tau1hpsPFTauDiscriminationByLooseIsolation;
+delete Tau1hpsPFTauDiscriminationByMediumIsolation;
+delete Tau1hpsPFTauDiscriminationByTightIsolation;
+delete Tau1hpsPFTauDiscriminationByVLooseIsolation;
+delete Tau2hpsPFTauDiscriminationAgainstLooseElectron;
+delete Tau2hpsPFTauDiscriminationAgainstLooseMuon;
+delete Tau2hpsPFTauDiscriminationAgainstMediumElectron;
+delete Tau2hpsPFTauDiscriminationAgainstTightElectron;
+delete Tau2hpsPFTauDiscriminationAgainstTightMuon;
+delete Tau2hpsPFTauDiscriminationByDecayModeFinding;
+delete Tau2hpsPFTauDiscriminationByLooseIsolation;
+delete Tau2hpsPFTauDiscriminationByMediumIsolation;
+delete Tau2hpsPFTauDiscriminationByTightIsolation;
+delete Tau2hpsPFTauDiscriminationByVLooseIsolation;
 
-
-
-void DitauBranches::SetPUweight(double const iValue){ puWeight = iValue; }
-
-void DitauBranches::SetTriggerWeights(double const iTau1Trigger, double const iTau2Trigger){
-	tau1TriggerWeight = iTau1Trigger; 
-	tau2TriggerWeight = iTau2Trigger; 
 }
+
 
 void DitauBranches::SetBestCombo(int const iValue){ bestCombo = iValue; }
 
@@ -167,6 +263,7 @@ void DitauBranches::AlienInit(){
 	if (!fChain) return;
 	fCurrent = -1; 
 	fChain->SetMakeClass(1);
+	fChain->ResetBranchAddresses();
 
 
 fChain->SetBranchAddress("runNumber", &runNumber);
@@ -182,8 +279,10 @@ fChain->SetBranchAddress("Tau2_ParentTauMatched", &Tau2_ParentTauMatched);
 fChain->SetBranchAddress("Tau1_ZtauMatched", &Tau1_ZtauMatched);
 fChain->SetBranchAddress("Tau2_ZtauMatched", &Tau2_ZtauMatched);
 fChain->SetBranchAddress("Tau1_ZeMatched", &Tau1_ZeMatched);
-fChain->SetBranchAddress("Tau2_ZeMatched", &Tau2_ZeMatched);
+fChain->SetBranchAddress("Tau2_ZeMatched", &Tau2_ZeMatched);//*/
 
+	cout << "alieninit 5 pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
 fChain->SetBranchAddress("Tau1GenPt", &Tau1GenPt);
 fChain->SetBranchAddress("Tau2GenPt", &Tau2GenPt);
 fChain->SetBranchAddress("Tau1GenE", &Tau1GenE);
@@ -209,6 +308,8 @@ fChain->SetBranchAddress("Tau1Et", &Tau1Et);
 fChain->SetBranchAddress("Tau2Et", &Tau2Et);
 fChain->SetBranchAddress("Tau1Pt", &Tau1Pt);
 fChain->SetBranchAddress("Tau2Pt", &Tau2Pt);
+	cout << "alieninit 6 pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
 fChain->SetBranchAddress("Tau1LTPt", &Tau1LTPt);
 fChain->SetBranchAddress("Tau2LTPt", &Tau2LTPt);
 fChain->SetBranchAddress("Tau1Charge", &Tau1Charge);
@@ -286,6 +387,8 @@ fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByLooseIsolation", &Tau2hpsP
 fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByMediumIsolation", &Tau2hpsPFTauDiscriminationByMediumIsolation);
 fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByTightIsolation", &Tau2hpsPFTauDiscriminationByTightIsolation);
 fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByVLooseIsolation", &Tau2hpsPFTauDiscriminationByVLooseIsolation);
+
+//*/
 }
 
 

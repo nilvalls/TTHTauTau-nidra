@@ -18,6 +18,7 @@
 
 #include "HWrapper.h"
 #include "Process.h"
+#include "PContainer.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ class ProPack : public TObject {
 		Process			qcd;
 		vector<Process>	mcBackgrounds;
 		vector<Process>	signals;
+		PContainer		pContainer;
 		
 		bool                analyzed;
 		double				integratedLumiInInvPb;
@@ -56,11 +58,13 @@ class ProPack : public TObject {
 		Process const *				GetQCD() const;
 		vector<Process> const *		GetMCbackgrounds() const;
 		vector<Process> const *		GetSignals() const;
+		PContainer const *			GetPContainer() const;
 
 		Process*					GetCollisions();
 		Process*					GetQCD();
 		vector<Process>*			GetMCbackgrounds();
 		vector<Process>*			GetSignals();
+		PContainer *				GetPContainer();
 
 		void						SetCollisions(Process&);
 		void						SetQCD(Process&);
@@ -92,19 +96,28 @@ class ProPack : public TObject {
 		void						NormalizeToLumi();
 
 		// Cut flows
-		CutFlow 				GetCollisionsCutFlow() const;
-		CutFlow 				GetQCDCutFlow() const;
-		vector<CutFlow>			GetMCbackgroundsCutFlows() const;
-		vector<CutFlow>			GetSignalsCutFlows() const;
+		CutFlow 					GetCollisionsCutFlow() const;
+		CutFlow 					GetQCDCutFlow() const;
+		vector<CutFlow>				GetMCbackgroundsCutFlows() const;
+		vector<CutFlow>				GetSignalsCutFlows() const;
 
 
 		// Useful for plotting
-		int	const				GetNumberOfPlots() const;
-		HContainer const		GetSignalsHWrappers(string const) const;
-		HContainer const 		GetMCbackgroundsHWrappers(string const) const;
-		HContainer const 		GetBackgroundsHWrappers(string const) const;
-		HWrapper const			GetAvailableHWrapper() const;
-		Process					GetAvailableProcess() const;
+		int	const					GetNumberOfPlots() const;
+		HContainer const			GetSignalsHWrappers(string const) const;
+		HContainer const 			GetMCbackgroundsHWrappers(string const) const;
+		HContainer const 			GetBackgroundsHWrappers(string const) const;
+		HWrapper const				GetAvailableHWrapper() const;
+		HWrapper const				GetAvailableHWrapper(string const) const;
+		Process						GetAvailableProcess() const;
+
+		// Misc
+		void						DistributeProcesses();
+		vector<Process>				GetProcesses();
+		string						GetProccessNamesToAnalyze();
+		string						GetProccessNamesToPlot();
+		bool 						PlotProcess(string const);
+		bool const					IsStringThere(string const, string const) const;
 
 		ClassDef(ProPack, 1);
 };

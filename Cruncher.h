@@ -8,24 +8,44 @@
 #ifndef Cruncher_h
 #define Cruncher_h
 
-#include "Plotter.h"
+#include <TROOT.h>
+#include <TSystem.h>
+#include <TFile.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "CutFlow.h"
+#include "ProPack.h"
+#include "Analyzer.h"
 
 using namespace std;
 
-class Cruncher : public Plotter {
+class Cruncher {
 
 	public:
-		Cruncher(map<string,string>*);
+		Cruncher();
+		Cruncher(map<string,string> const &);
 		virtual ~Cruncher();
-//		void PrintCutEfficiencies();
+
+		void PrintEfficiencies(string const, string const);
 
 	private: 
-//		map<string,string>* params;
+		map<string,string> params;
+		vector<Process> processes;
 
-//		CutFlow*			collisions;
-//		vector<CutFlow*>*	mcBackgrounds;
-//		vector<CutFlow*>*	signals;
+		string GetDocumentHeader(string const);
+		string GetDocumentFooter(string const);
+		string GetTableHeader(string const, string const);
+		string GetTableSubHeader(string const, string const);
+		string GetTableFooter(string const);
+		string GetOptionsHeader(string const, string const);
+		string GetCutLine(string const, string const, string const);
+		string GetCutTriplet(string const, string const, string const, int const);
+		string GetEfficiencies(string const, string const);
+		bool IsOptionThere(string const, string const);
+		int GetNumberOfOptions(string const);
+		void SaveToFile(stringstream const, string const);
+		void SaveToFile(string const, string const);
 
 };
 

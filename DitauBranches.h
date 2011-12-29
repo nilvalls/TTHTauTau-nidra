@@ -36,7 +36,6 @@ class DitauBranches {
 
 	public:
 		DitauBranches();
-//		DitauBranches(DitauBranches const &);
 		virtual ~DitauBranches();
 
 
@@ -158,13 +157,7 @@ class DitauBranches {
 //*/
 
 
-		void		SetPUweight(double);
-		void		SetTriggerWeights(double, double);
 		void		SetBestCombo(int);
-
-		double		puWeight;
-		double		tau1TriggerWeight;
-		double		tau2TriggerWeight;
 		int			bestCombo;
 
 };

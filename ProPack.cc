@@ -28,6 +28,7 @@ ProPack::ProPack(ProPack const & iProPack){
 	qcd						= Process(*(iProPack.GetQCD()));
 	mcBackgrounds			= vector<Process>(*(iProPack.GetMCbackgrounds()));
 	signals					= vector<Process>(*(iProPack.GetSignals()));
+	pContainer				= PContainer(*(iProPack.GetPContainer()));
 
 	analyzed				= iProPack.Analyzed();
 	integratedLumiInInvPb	= iProPack.GetIntegratedLumiInInvPb();
@@ -84,11 +85,13 @@ Process* ProPack::GetCollisions(){ return &collisions; }
 Process* ProPack::GetQCD(){ return &qcd; }
 vector<Process>* ProPack::GetMCbackgrounds(){ return &mcBackgrounds; }
 vector<Process>* ProPack::GetSignals(){ return &signals; }
+PContainer* ProPack::GetPContainer(){ return &pContainer; }
 
-Process const * ProPack::GetCollisions() const { cout << "const" << endl; return &collisions; }
+Process const * ProPack::GetCollisions() const { return &collisions; }
 Process const * ProPack::GetQCD() const { return &qcd; }
 vector<Process> const * ProPack::GetMCbackgrounds() const { return &mcBackgrounds; }
 vector<Process> const * ProPack::GetSignals() const { return &signals; }
+PContainer const * ProPack::GetPContainer() const { return &pContainer; }
 
 void ProPack::SetAnalyzed(){
 	analyzed = true;
@@ -97,6 +100,7 @@ void ProPack::SetAnalyzed(){
 void ProPack::SetCollisions(Process& iProcess){
 	collisions = Process(iProcess);
 	haveCollisions = true;
+	prepareCollisions = true;
 }
 
 void ProPack::SetQCD(Process& iProcess){
@@ -143,25 +147,15 @@ void ProPack::PrepareQCD(bool const iVal){			prepareQCD = (iVal && haveCollision
 map<string,string> const ProPack::GetParams() const { return params; }
 double const ProPack::GetIntegratedLumiInInvPb() const { return integratedLumiInInvPb; }
 
-
-
-
-
-
-
-
-
-
-
 void ProPack::BuildQCD(){
 	if(!PrepareQCD()){ return; }
 	NormalizeToLumi();
 
-	Process qcdTemp = Process(collisions);
-	qcdTemp.SetShortName("QCD");
-	qcdTemp.SetNiceName("QCD");
-	qcdTemp.SetLabelForLegend("QCD");
-	qcdTemp.SetColor(atoi((params["QCDcolor"]).c_str()));
+	//Process qcdTemp = Process(collisions);
+	qcd.SetShortName("QCD");
+	qcd.SetNiceName("QCD");
+	qcd.SetLabelForLegend("QCD");
+	qcd.SetColor(atoi((params["QCDcolor"]).c_str()));
 	//qcdTemp->SetCutFlow(); !!!!!!!!!!!!!!!!!
 
 	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
@@ -173,6 +167,7 @@ void ProPack::BuildQCD(){
 	hContainerForQCD.ScaleBy(atof((params["osls"]).c_str()));
 
 	// Set colors and put it in process here
+	qcd.SetHContainerForSignal(hContainerForQCD);
 }
 
 Process ProPack::GetAvailableProcess() const {
@@ -216,6 +211,19 @@ vector<CutFlow>	ProPack::GetSignalsCutFlows() const {
 }
 
 HWrapper const ProPack::GetAvailableHWrapper() const { return (*(GetAvailableProcess().GetAvailableHWrapper())); }
+HWrapper const ProPack::GetAvailableHWrapper(string const iName) const { 
+
+	HWrapper result = (*(GetAvailableProcess().GetAvailableHWrapper(iName))); 
+
+	return result;
+
+//	return (*(GetAvailableProcess().GetAvailableHWrapper(iName))); 
+	
+}
+
+
+
+
 int const ProPack::GetNumberOfPlots() const { return GetAvailableProcess().GetNumberOfPlots(); }
 
 HContainer const ProPack::GetSignalsHWrappers(string const iName) const {
@@ -245,19 +253,92 @@ void ProPack::NormalizeToLumi(){
 	if(PrepareCollisions()){
 		float fractionCollisionsAnalyzed = collisions.GetNOEanalyzed()/(double)collisions.GetNOEinNtuple();
 		effectiveIntegratedLumi = integratedLumiInInvPb*fractionCollisionsAnalyzed;
+		double collisionsNOE = collisions.GetCutFlow()->GetPassedEventsForSignal(collisions.GetCutFlow()->GetLastCut());
+		collisions.GetCutFlow()->RegisterPostCut("Lumi norm", collisionsNOE);
+		collisions.GetCutFlow()->MergeCuts();
 	}
 
 	// Normalize MC backgrounds
 	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
 		GetMCbackgrounds()->at(b).NormalizeToLumi(effectiveIntegratedLumi);
+		GetMCbackgrounds()->at(b).GetCutFlow()->MergeCuts();
 	}
 
 	// Normalize signals
 	for(unsigned int s = 0; s < GetSignals()->size(); s++){
 		GetSignals()->at(s).NormalizeToLumi(effectiveIntegratedLumi);
+		GetSignals()->at(s).GetCutFlow()->MergeCuts();
 	}
 
 }
 
+// Take processes from the PContainer and distribute them appropriately in the ProPack
+void ProPack::DistributeProcesses(){
+	if(pContainer.size()==0){ cerr << "ERROR: PContainer contains zero processes" << endl; exit(1); }
+	if(pContainer.GetNumberOfCollisionProcesses()>1){ cerr << "ERROR: PContainer contains " << pContainer.GetNumberOfCollisionProcesses() << " processes with type \"collisions\"" << endl; exit(1); }
+	if(pContainer.GetNumberOfQCDProcesses()>1){ cerr << "ERROR: PContainer contains " << pContainer.GetNumberOfQCDProcesses() << " processes with type \"QCD\"" << endl; exit(1); }
+	if(pContainer.GetNumberOfMCbackgroundProcesses()<1){ cout << "WARNING: Zero MC background processes found in PContainer" << endl; }
+	if(pContainer.GetNumberOfQCDProcesses()==1 && pContainer.GetNumberOfMCbackgroundProcesses()<1){ cerr << "ERROR: QCD cannot be built because there are zero MC background processes in PContainer" << endl; exit(1); }
+
+	mcBackgrounds.clear();
+	signals.clear();
+	vector<string> names = pContainer.GetNames();
+	cout << endl;
+	for(unsigned int n = 0; n < names.size(); n++){
+		Process * process = pContainer.Get(names.at(n));
+		if(!PlotProcess(names.at(n))){ continue; }
+		if(process->IsCollisions()){		cout << "\tSetting  collisions    with name: " << process->GetShortName() << endl; SetCollisions(*process); }
+		if(process->IsMCbackground()){ 		cout << "\tAdding   mcBackground  with name: " << process->GetShortName() << endl; AddMCbackground(*process); }
+		if(process->IsSignal()){			cout << "\tAdding   signal        with name: " << process->GetShortName() << endl; AddSignal(*process); }
+	}
+	cout << endl;
+
+}
+
+vector<Process> ProPack::GetProcesses(){
+	vector<Process> result;
+	if(PrepareCollisions()){	result.push_back(*GetCollisions()); };
+	if(PrepareQCD()){			result.push_back(*GetQCD()); };
+
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++ ){ result.push_back(GetMCbackgrounds()->at(b)); }
+	for(unsigned int s = 0; s < GetSignals()->size(); s++ ){ result.push_back(GetSignals()->at(s)); }
+
+	return result;
+}
+
+string ProPack::GetProccessNamesToAnalyze(){
+	string result = "";
+	vector<string> names = pContainer.GetNames();
+	for(unsigned int n = 0; n < names.size(); n++){ result += (" " + names.at(n)); }
+	return result;
+}
+
+string ProPack::GetProccessNamesToPlot(){
+	string result = "";
+	vector<string> names = pContainer.GetNames();
+	for(unsigned int n = 0; n < names.size(); n++){ 
+		if(PlotProcess(names.at(n))){ result += (" " + names.at(n)); }
+	}
+	return result;
+}
+
+bool ProPack::PlotProcess(string const iThisProcess){
+	bool result;
+	if(params["plot"].compare("All")==0){
+		result = true;
+	}else{
+		string enabledProcesses = " " + params["plot"] + " ";
+		string thisProcess			 = " " + iThisProcess + " ";
+		result = IsStringThere(thisProcess,enabledProcesses);
+	}
+	return result;
+}
+
+bool const ProPack::IsStringThere(string const iNeedle, string const iHaystack) const {
+	string haystack = iHaystack;
+	string needle = iNeedle;
+	bool const result = ((haystack.find(needle) < haystack.length()));
+	return result;
+}
 
 ClassImp(ProPack)

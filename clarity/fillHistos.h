@@ -13,6 +13,7 @@
 	FillHisto(hContainer, "NumPV_afRW", event->NumPV->at(iCombo), weightFull); //*/
 
 	// Physics
+	hContainer->Fill("Events", 0, weightFull);
 	hContainer->Fill("MET_M", event->MET->at(iCombo), weightFull);
 	hContainer->Fill("Btags", event->nBtagsHiEffTrkCnt->at(iCombo), weightFull);
 

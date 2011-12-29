@@ -98,16 +98,24 @@ void Process::SetHContainerForSignal(HContainer const & iHContainer){ hContainer
 void Process::SetHContainerForQCD(HContainer const & iHContainer){ hContainerForQCD = HContainer(iHContainer); }
 vector<pair<int, int> > const Process::GetGoodEventsForSignal() const { return goodEventsForSignal; }
 vector<pair<int, int> > const Process::GetGoodEventsForQCD() const {	return goodEventsForQCD; }
-void Process::SetCutFlow(CutFlow const & iCutFlow){ cutFlow	= CutFlow(iCutFlow); }
+void Process::SetCutFlow(CutFlow const & iCutFlow){
+	cutFlow	= CutFlow(iCutFlow);
+	cutFlow.MergeCuts();
+}
 void Process::SetNOEanalyzed(double const iEvents){ NOEanalyzed = iEvents; }
 void Process::SetNOEinNtuple(double const iEvents){ NOEinNtuple = iEvents; }
 void Process::SetColor(int const iColor){ color = iColor; }
+CutFlow* Process::GetCutFlow() { return &cutFlow; }
 CutFlow const * Process::GetCutFlow() const { return &cutFlow; }
 string const Process::GetShortName() const {	return shortName;		}
 string const Process::GetNiceName() const {			return niceName;		}
 string const Process::GetLabelForLegend() const {	return labelForLegend;	}
 string const Process::GetType() const {				return type;			}
 bool const Process::IsMC() const { return ((type.compare("mcBackground")==0) || (type.compare("signal")==0)); }
+bool const Process::IsCollisions() const { return ((type.compare("collisions")==0)); }
+bool const Process::IsQCD() const { return ((type.compare("qcd")==0)); }
+bool const Process::IsMCbackground() const { return ((type.compare("mcBackground")==0)); }
+bool const Process::IsSignal() const { return ((type.compare("signal")==0)); }
 string const Process::GetNtuplePath() const { return ntuplePath; }
 int const Process::GetColor() const { return color; }
 int const Process::GetNOEinDS() const {			return NOEinDS;		}
@@ -151,6 +159,11 @@ HWrapper const * Process::GetAvailableHWrapper() const {
 	return &((hContainerForSignal.begin()))->second;
 }
 
+HWrapper const * Process::GetAvailableHWrapper(string const iName) const {
+	if(hContainerForSignal.size()==0){ cerr << "ERROR: trying to obtain a sample HWrapper from process but there are none" << endl; }
+	return ((hContainerForSignal.Get(iName)));
+}
+
 // Massive set histogram properties
 void Process::SetMarkerStyle(int const iVal){ hContainerForSignal.SetMarkerStyle(iVal); }
 void Process::SetFillStyle(int const iVal){ hContainerForSignal.SetFillStyle(iVal); }
@@ -162,9 +175,12 @@ void Process::SetGoodEventsForQCD(vector<pair<int,int> > const iVector){ goodEve
 
 
 void Process::NormalizeToLumi(double const iIntLumi){
-	if((type.compare("collisions")!=0) && !normalizedHistosForSignal && !normalizedHistosForQCD){
+	if((!normalizedHistosForSignal) && (!normalizedHistosForQCD)){ GetCutFlow()->RegisterPostCut("Lumi norm"); }
+	if((!IsCollisions()) && (!normalizedHistosForSignal) && (!normalizedHistosForQCD)){
 		double expectedNOE = iIntLumi*crossSection*branchingRatio*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
 		NormalizeTo(expectedNOE);
+		GetCutFlow()->SetPostCutForSignal("Lumi norm", expectedNOE);
+		GetCutFlow()->MergeCuts();
 	}
 	normalizedHistosForSignal	= true;
 	normalizedHistosForQCD		= true;

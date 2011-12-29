@@ -12,11 +12,8 @@
 using namespace std;
 
 Analyzer::Analyzer(){
-
 		event = NULL;
 		fChain = NULL;
-		tauTrigger = NULL;
-		puCorrector = NULL;
 		goodEventsForSignal.clear();
 		goodEventsForQCD.clear();
 }
@@ -28,8 +25,6 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 
 	event = NULL;
 	fChain = NULL;
-	tauTrigger = NULL;
-	puCorrector = NULL;
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
@@ -39,23 +34,31 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 	#include "clarity/falseCuts.h"
 	SetCutsToApply(params["cutsToApply"]);
 
-	puCorrector			= new PUcorrector(params["puList"]);
-	tauTrigger			= new Trigger(4600);
-
 }
 
 
 // Default destructor
 Analyzer::~Analyzer(){
+	delete event; event = NULL;
+	if (fChain!=NULL){ delete fChain->GetCurrentFile(); }
+}
 
-	if (!fChain) return;
-	delete fChain->GetCurrentFile();
 
+void Analyzer::AnalyzeAll(ProPack& iProPack){
+
+	// Print processes to be analyzed and plotted
+	cout << endl;
+	cout << "\tTo be analyzed: " << iProPack.GetProccessNamesToAnalyze() << endl;
+	cout << endl;
+
+	map<string,Process> * processes = iProPack.GetPContainer()->GetContainer();
+	for(map<string,Process>::iterator p = processes->begin(); p != processes->end(); p++){ Analyze((p)->second); }
 }
 
 void Analyzer::Analyze(Process& iProcess){
 
 	//Reset();
+	cout << "\tNow analyzing " << iProcess.GetShortName() << endl;
 
 	cutFlow.Zero();
 	cutFlow.SetPreCutForSignal("Read from DS", iProcess.GetNOEinDS());
@@ -64,9 +67,6 @@ void Analyzer::Analyze(Process& iProcess){
 	cutFlow.SetPreCutForQCD("skimming + PAT", iProcess.GetNOEinPATuple());
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
-
-	applyTrigger		= (IsFlagThere("trigger") && iProcess.IsMC());
-	applyPUreweighing	= (IsFlagThere("PUcorr") && iProcess.IsMC());
 
 	Init(iProcess.GetNtuplePath());
 
@@ -94,7 +94,7 @@ pair<double,double> Analyzer::Loop(){
 	pair<double,double> result = make_pair(0,0);
 	int maxEvents = atoi((params["maxEvents"]).c_str());
 
-	cout << ">>> Starting loop... "; cout.flush();
+	cout << "\t>>> Starting loop... "; cout.flush();
 
 	if (fChain == 0){ cout << endl << "ERROR: empty TChain. Exiting."; return result; }
 
@@ -114,7 +114,7 @@ pair<double,double> Analyzer::Loop(){
 	double NOEanalyzed = 0;
 	for (Long64_t jentry=0; jentry<nentries; jentry++) {
 		// Keep user informed of the number of events processed and if there is a termination due to reaching of the limit
-		if ( maxEvents > 0 && jentry >= (unsigned int)(maxEvents)){ cout << "\n>>> INFO: Reached user-imposed event number limit (" << maxEvents << "), skipping the rest." << endl; break; }
+		if ( maxEvents > 0 && jentry >= (unsigned int)(maxEvents)){ cout << "\n\t>>> INFO: Reached user-imposed event number limit (" << maxEvents << "), skipping the rest." << endl; break; }
 
 		int prevLength = 0;
 		if (jentry>0 && (jentry+1)%1000==0){ 
@@ -152,17 +152,6 @@ pair<double,double> Analyzer::Loop(){
 		// Fill good event vectors for signal analysis
 		if(cutFlow.EventForSignalPassed()){
 			int heaviestComboForSignal = cutFlow.GetHeaviestComboForSignal();
-
-			float puWeight			= GetPUweight(heaviestComboForSignal);
-			float tau1TriggerWeight	= GetTau1TriggerWeight(heaviestComboForSignal);
-			float tau2TriggerWeight	= GetTau2TriggerWeight(heaviestComboForSignal);
-
-			cutFlow.AddPostCutEventForSignal("PU reweighing", puWeight);
-			cutFlow.AddPostCutEventForSignal("LL trigger", puWeight*tau1TriggerWeight);
-			cutFlow.AddPostCutEventForSignal("SL trigger", puWeight*tau1TriggerWeight*tau2TriggerWeight);
-
-			event->SetPUweight(puWeight);
-			event->SetTriggerWeights(tau1TriggerWeight,tau2TriggerWeight);
 			event->SetBestCombo(heaviestComboForSignal);
 			goodEventsForSignal.push_back(make_pair(jentry, heaviestComboForSignal));
 
@@ -171,17 +160,6 @@ pair<double,double> Analyzer::Loop(){
 		// Fill good event vectors for QCD analysis
 		if(cutFlow.EventForQCDPassed()){
 			int heaviestComboForQCD = cutFlow.GetHeaviestComboForQCD();
-
-			float puWeight			= GetPUweight(heaviestComboForQCD);
-			float tau1TriggerWeight	= GetTau1TriggerWeight(heaviestComboForQCD);
-			float tau2TriggerWeight	= GetTau2TriggerWeight(heaviestComboForQCD);
-
-			cutFlow.AddPostCutEventForQCD("PU reweighing", puWeight);
-			cutFlow.AddPostCutEventForQCD("LL trigger", puWeight*tau1TriggerWeight);
-			cutFlow.AddPostCutEventForQCD("SL trigger", puWeight*tau1TriggerWeight*tau2TriggerWeight);
-
-			event->SetPUweight(puWeight);
-			event->SetTriggerWeights(tau1TriggerWeight,tau2TriggerWeight);
 			event->SetBestCombo(heaviestComboForQCD);
 			goodEventsForQCD.push_back(make_pair(jentry, heaviestComboForQCD));
 
@@ -329,20 +307,10 @@ void Analyzer::SetCutsToApply(string iCutsToApply){
 }
 
 
-void Analyzer::AnalyzeAll(ProPack& iProPack){
-
-	if(iProPack.HaveCollisions()){									Analyze(*iProPack.GetCollisions());		}
-	if(iProPack.HaveMCbackgrounds()){								Analyze(*iProPack.GetMCbackgrounds());	}
-	if(iProPack.HaveSignals()){										Analyze(*iProPack.GetSignals());			}
-
-	iProPack.SetAnalyzed();
-}
-
 DitauBranches const * Analyzer::GetDitauBranches(double iEntry) const {
 	if(fChain == NULL){ cerr << "ERROR: trying to obtain DitauBranches but fChain has not been initialized" << endl; exit(1); }	
 	if(iEntry < 0){ cerr << "ERROR: trying to obtain a negative entry (" << iEntry << ") from tree" << endl; exit(1); }
 	if(iEntry > fChain->GetEntries()){ cerr << "ERROR: trying to obtain entry " << iEntry << " but TChain only contains " << fChain->GetEntries() << endl; exit(1); }
-
 	event->AlienGetEntry(iEntry);
 
 	return event;
@@ -356,24 +324,38 @@ TChain* Analyzer::GetTChain(string iPath){
 	// Add all *.root files in iPath
 	string pathToRootFiles = iPath + "/*.root";
 	result->Add(pathToRootFiles.c_str());
+	cout << "gettchain pointing to: " << result << endl;
+	cout << "entries: " << result->GetEntries() << endl;
 
 	// Return TChain
 	return result;
 }
 
 
-void Analyzer::Init(string iPath){
+DitauBranches* Analyzer::Init(string iPath){
 
 	fChain = GetTChain(iPath);
+	cout << "init pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
 	event = new DitauBranches();
+	cout << "init 2 pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
 
 	// Set branch addresses and branch pointers
-	if (!fChain) return;
+	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }
 	fCurrent = -1; 
 	fChain->SetMakeClass(1);
 
+	cout << "init 3 pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
 	event->AlienSetChain(fChain);
+	cout << "init 4 pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
 	event->AlienInit();
+	cout << "init 5 pointing to: " << fChain << endl;
+	cout << "entries: " << fChain->GetEntries() << endl;
+
+	return event;
 }
 
 Long64_t Analyzer::LoadTree(Long64_t entry){
@@ -414,23 +396,4 @@ bool Analyzer::IsFlagThere(string iFlag){
 	size_t found = flags.find(iFlag);
 	return ((0 <= found) && (found < flags.length()));
 }
-
-double Analyzer::GetPUweight(int iCombo){ 
-	if(!applyPUreweighing){ return 1.0; }
-	return 1;
-	return puCorrector->GetWeight(event->numInteractionsBX0);
-}
-
-double Analyzer::GetTau1TriggerWeight(int iCombo){ 
-	if(!applyTrigger){ return 1.0; }
-	return 1;
-	//return tauTrigger->GetWeightFromFunc(event->Tau1Pt->at(iCombo));
-}
-
-double Analyzer::GetTau2TriggerWeight(int iCombo){ 
-	if(!applyTrigger){ return 1.0; }
-	return 1;
-	//return tauTrigger->GetWeightFromFunc(event->Tau2Pt->at(iCombo));
-}
-
 
