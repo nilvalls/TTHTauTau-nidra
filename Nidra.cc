@@ -19,8 +19,8 @@ int main(int argc, char **argv){
 		PreparePlots();
 		CrunchNumbers();
 		PlotStacks();
-		PlotStamps();
-		Optimize();
+//		PlotStamps();
+//		Optimize();
 	}
 
 

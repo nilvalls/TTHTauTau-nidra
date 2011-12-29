@@ -98,10 +98,7 @@ void Process::SetHContainerForSignal(HContainer const & iHContainer){ hContainer
 void Process::SetHContainerForQCD(HContainer const & iHContainer){ hContainerForQCD = HContainer(iHContainer); }
 vector<pair<int, int> > const Process::GetGoodEventsForSignal() const { return goodEventsForSignal; }
 vector<pair<int, int> > const Process::GetGoodEventsForQCD() const {	return goodEventsForQCD; }
-void Process::SetCutFlow(CutFlow const & iCutFlow){
-	cutFlow	= CutFlow(iCutFlow);
-	cutFlow.MergeCuts();
-}
+void Process::SetCutFlow(CutFlow const & iCutFlow){ cutFlow	= CutFlow(iCutFlow); }
 void Process::SetNOEanalyzed(double const iEvents){ NOEanalyzed = iEvents; }
 void Process::SetNOEinNtuple(double const iEvents){ NOEinNtuple = iEvents; }
 void Process::SetColor(int const iColor){ color = iColor; }
@@ -175,12 +172,12 @@ void Process::SetGoodEventsForQCD(vector<pair<int,int> > const iVector){ goodEve
 
 
 void Process::NormalizeToLumi(double const iIntLumi){
-	if((!normalizedHistosForSignal) && (!normalizedHistosForQCD)){ GetCutFlow()->RegisterPostCut("Lumi norm"); }
 	if((!IsCollisions()) && (!normalizedHistosForSignal) && (!normalizedHistosForQCD)){
-		double expectedNOE = iIntLumi*crossSection*branchingRatio*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
-		NormalizeTo(expectedNOE);
-		GetCutFlow()->SetPostCutForSignal("Lumi norm", expectedNOE);
-		GetCutFlow()->MergeCuts();
+		double NOElumiEvents		= iIntLumi*crossSection*branchingRatio;
+		double NOErawEvents			= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
+		double lumiNormalization	= NOElumiEvents/NOErawEvents;
+		ScaleBy(lumiNormalization);
+		GetCutFlow()->RegisterCutFromLast("Lumi norm", lumiNormalization, lumiNormalization);
 	}
 	normalizedHistosForSignal	= true;
 	normalizedHistosForQCD		= true;

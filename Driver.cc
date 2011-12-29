@@ -22,7 +22,6 @@ void Initialize(int argc, char **argv){
 
 	// Set up nice plot style
 	//gROOT->Reset();
-
 	//gROOT->SetStyle("Plain");
 	setTDRStyle();
 

@@ -19,11 +19,9 @@ using namespace std;
 
 class CutFlow {
 	private:
-		vector<string>		preCutNames;
 		vector<string>		cutNames;
-		vector<string>		postCutNames;
-		vector<string>		mergedCutNames;
-		map<string, int>	mergedCutNamesMap;
+		map<string, int>	cutNamesMap;
+		map<string, int>	cutRanks;
 		map<string, float>	minThresholds;
 		map<string, float>	maxThresholds;
 
@@ -32,11 +30,6 @@ class CutFlow {
 		map<string, float>	passedCombosForQCD;
 		map<string, float>	passedEventsForSignal;
 		map<string, float>	passedEventsForQCD;
-
-		map<string, float>	passedEventsForSignalPreCuts;
-		map<string, float>	passedEventsForQCDPreCuts;
-		map<string, float>	passedEventsForSignalPostCuts;
-		map<string, float>	passedEventsForQCDPostCuts;
 
 		string cutsToApply;
 
@@ -59,25 +52,18 @@ class CutFlow {
 		CutFlow(string);
 		virtual ~CutFlow();
 
+		void PrintTable();
+
 		void Reset();
 		void Zero();
+		int const size() const;
+		void InvertSignalAndQCD();
 
-		void PrintTest();
-
-		void RegisterCut(string const);
-		void RegisterPreCut(string const);
-		void RegisterPreCut(string const, double const);
-		void RegisterPostCut(string const);
-		void RegisterPostCut(string const, double const);
-		void SetPreCutForSignal(string const, double const);
-		void SetPreCutForQCD(string const , double const);
-		void SetPostCutForSignal(string const, double const);
-		void SetPostCutForQCD(string const, double const);
-
-		void AddPreCutEventForSignal(string const, double const);
-		void AddPreCutEventForQCD(string const, double const);
-		void AddPostCutEventForSignal(string const, double const);
-		void AddPostCutEventForQCD(string const, double const);
+		void RegisterCut(string const, int const);
+		void RegisterCut(string const, int const, double const, double const);
+		void RegisterCutFromLast(string, double, double);
+		void UpdateCutNamesMap();
+		void SetCutCounts(string const, double const, double const);
 
 		bool CheckCombo(string const, float const);
 		void EndOfCombo(pair<bool, bool>, int const);
@@ -92,19 +78,13 @@ class CutFlow {
 		int GetHeaviestComboForSignal();
 		int GetHeaviestComboForQCD();
 
-		vector<string> const		GetPreCutNames() const;
 		vector<string> const		GetCutNames() const;
-		vector<string> const		GetPostCutNames() const;
-		vector<string> const		GetMergedCutNames() const;
-		map<string,int> const		GetMergedCutNamesMap() const;
+		map<string, int> const		GetCutRanks() const;
+		int const					GetCutRank(string const) const;
 		map<string, float> const	GetMinThresholds() const;
 		map<string, float> const	GetMaxThresholds() const;
 		map<string, float> const	GetPassedEventsForSignal() const;
 		map<string, float> const	GetPassedEventsForQCD() const;
-		map<string, float> const	GetPassedEventsForSignalPreCuts() const;
-		map<string, float> const	GetPassedEventsForQCDPreCuts() const;
-		map<string, float> const	GetPassedEventsForSignalPostCuts() const;
-		map<string, float> const	GetPassedEventsForQCDPostCuts() const;
 		float const					GetPassedEventsForSignal(string const) const;
 		float const					GetPassedEventsForQCD(string const) const;
 		float const					GetRelEffForSignal(string const) const;
@@ -112,8 +92,10 @@ class CutFlow {
 		float const					GetCumEffForSignal(string const) const;
 		float const					GetCumEffForQCD(string const) const;
 		string const				GetCutsToApply() const;
-		void						MergeCuts();
 		string const				GetLastCut() const;
+		double const				GetLastCountForSignal() const;
+		double const				GetLastCountForQCD() const;
+		void						Add(CutFlow const &, float const iFactor=1.0);
 
 
 		pair<float,float> ExtractCutThresholds(string);

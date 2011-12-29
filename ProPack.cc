@@ -9,6 +9,7 @@ using namespace std;
 // Default constructor
 ProPack::ProPack(){
 	analyzed			= false;
+	normalizedToLumi	= false;
 
 	haveCollisions		= false;
 	haveMCbackgrounds	= false;
@@ -31,6 +32,7 @@ ProPack::ProPack(ProPack const & iProPack){
 	pContainer				= PContainer(*(iProPack.GetPContainer()));
 
 	analyzed				= iProPack.Analyzed();
+	normalizedToLumi		= iProPack.NormalizedToLumi();
 	integratedLumiInInvPb	= iProPack.GetIntegratedLumiInInvPb();
 
 	haveCollisions			= iProPack.HaveCollisions();
@@ -77,9 +79,8 @@ ProPack::ProPack(const map<string,string>& iParams){
 ProPack::~ProPack(){
 }
 
-bool const ProPack::Analyzed() const{
-	return analyzed;
-}
+bool const ProPack::Analyzed() const{ return analyzed; }
+bool const ProPack::NormalizedToLumi() const{ return normalizedToLumi; }
 
 Process* ProPack::GetCollisions(){ return &collisions; }
 Process* ProPack::GetQCD(){ return &qcd; }
@@ -150,13 +151,13 @@ double const ProPack::GetIntegratedLumiInInvPb() const { return integratedLumiIn
 void ProPack::BuildQCD(){
 	if(!PrepareQCD()){ return; }
 	NormalizeToLumi();
+	cout << "\nBuilding QCD..." << endl;
 
 	//Process qcdTemp = Process(collisions);
 	qcd.SetShortName("QCD");
 	qcd.SetNiceName("QCD");
 	qcd.SetLabelForLegend("QCD");
 	qcd.SetColor(atoi((params["QCDcolor"]).c_str()));
-	//qcdTemp->SetCutFlow(); !!!!!!!!!!!!!!!!!
 
 	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
 	HContainer hContainerForQCD = HContainer(*(collisions.GetHContainerForQCD()));
@@ -165,6 +166,12 @@ void ProPack::BuildQCD(){
 	}
 	hContainerForQCD.Positivize(); 
 	hContainerForQCD.ScaleBy(atof((params["osls"]).c_str()));
+
+	// Do the same for the CutFlow
+	CutFlow cutFlow = CutFlow(*(collisions.GetCutFlow()));
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ cutFlow.Add(*(GetMCbackgrounds()->at(b).GetCutFlow()), -1); }
+	cutFlow.InvertSignalAndQCD();
+	qcd.SetCutFlow(cutFlow);
 
 	// Set colors and put it in process here
 	qcd.SetHContainerForSignal(hContainerForQCD);
@@ -247,28 +254,27 @@ HContainer const ProPack::GetBackgroundsHWrappers(string const iName) const {
 
 
 void ProPack::NormalizeToLumi(){
-	
-	// Calculate effective integrated lumi in case we've only run on a fraction of the collision events
-	float effectiveIntegratedLumi = integratedLumiInInvPb;
-	if(PrepareCollisions()){
-		float fractionCollisionsAnalyzed = collisions.GetNOEanalyzed()/(double)collisions.GetNOEinNtuple();
-		effectiveIntegratedLumi = integratedLumiInInvPb*fractionCollisionsAnalyzed;
-		double collisionsNOE = collisions.GetCutFlow()->GetPassedEventsForSignal(collisions.GetCutFlow()->GetLastCut());
-		collisions.GetCutFlow()->RegisterPostCut("Lumi norm", collisionsNOE);
-		collisions.GetCutFlow()->MergeCuts();
+
+	if(!NormalizedToLumi()){
+		
+		// Calculate effective integrated lumi in case we've only run on a fraction of the collision events
+		float effectiveIntegratedLumi = integratedLumiInInvPb;
+		if(PrepareCollisions()){
+			float fractionCollisionsAnalyzed = collisions.GetNOEanalyzed()/(double)collisions.GetNOEinNtuple();
+			effectiveIntegratedLumi = integratedLumiInInvPb*fractionCollisionsAnalyzed;
+			collisions.GetCutFlow()->RegisterCutFromLast("Lumi norm", 1, 1);
+		}
+
+		// Normalize MC backgrounds
+		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ GetMCbackgrounds()->at(b).NormalizeToLumi(effectiveIntegratedLumi); }
+
+		// Normalize signals
+		for(unsigned int s = 0; s < GetSignals()->size(); s++){
+			GetSignals()->at(s).NormalizeToLumi(effectiveIntegratedLumi);
+		}
 	}
 
-	// Normalize MC backgrounds
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
-		GetMCbackgrounds()->at(b).NormalizeToLumi(effectiveIntegratedLumi);
-		GetMCbackgrounds()->at(b).GetCutFlow()->MergeCuts();
-	}
-
-	// Normalize signals
-	for(unsigned int s = 0; s < GetSignals()->size(); s++){
-		GetSignals()->at(s).NormalizeToLumi(effectiveIntegratedLumi);
-		GetSignals()->at(s).GetCutFlow()->MergeCuts();
-	}
+	normalizedToLumi = true;
 
 }
 
@@ -291,6 +297,7 @@ void ProPack::DistributeProcesses(){
 		if(process->IsMCbackground()){ 		cout << "\tAdding   mcBackground  with name: " << process->GetShortName() << endl; AddMCbackground(*process); }
 		if(process->IsSignal()){			cout << "\tAdding   signal        with name: " << process->GetShortName() << endl; AddSignal(*process); }
 	}
+	PrepareQCD(true);
 	cout << endl;
 
 }

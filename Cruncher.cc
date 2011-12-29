@@ -154,6 +154,7 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 	stringstream result; result.str("");
 
 	CutFlow cutFlow = CutFlow(*(processes.at(iProcess).GetCutFlow()));
+
 	if(iFormat.compare("HTML")==0){
 		if(IsOptionThere("e", iOptions)){ result << "<TD>" << cutFlow.GetPassedEventsForSignal(iCut) << "</TD>"; }
 		if(IsOptionThere("r", iOptions)){ result << "<TD>" << cutFlow.GetRelEffForSignal(iCut) << "</TD>"; }
@@ -172,18 +173,14 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 string Cruncher::GetEfficiencies(string const iFormat, string const iOptions){
 	stringstream result; result.str("");
 	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
-	vector<string> preCutNames	= processes.at(0).GetCutFlow()->GetPreCutNames();
 	vector<string> cutNames = processes.at(0).GetCutFlow()->GetCutNames();
-	vector<string> postCutNames	= processes.at(0).GetCutFlow()->GetPostCutNames();
-
-	cutNames.insert(cutNames.begin(), preCutNames.begin(), preCutNames.end());
-	cutNames.insert(cutNames.end(), postCutNames.begin(), postCutNames.end());
 
 	result << GetDocumentHeader(iFormat) << endl;
 	result << GetTableHeader(iFormat, iOptions) << endl;
 	result << GetTableSubHeader(iFormat, iOptions) << endl;
 
-	for(unsigned int c = 0; c < cutNames.size(); c++){ result << GetCutLine(iFormat, iOptions, cutNames.at(c)) << endl; }
+	for(unsigned int c = 0; c < cutNames.size(); c++){ 
+		result << GetCutLine(iFormat, iOptions, cutNames.at(c)) << endl; }
 
 	result << GetTableFooter(iFormat) << endl;
 	result << GetDocumentFooter(iFormat) << endl;

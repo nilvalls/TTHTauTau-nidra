@@ -50,6 +50,7 @@ class Plotter {
 		virtual void MakePlots(vector<Process>*);
 		void		BookHistos(HContainer*);
 		void		FillHistos(HContainer*, DitauBranches*, bool, Trigger const *, PUcorrector const *, weightCounter *);
+		bool const	IsFlagThere(string const) const;
 
 	protected:
 		map<string,string>	params;

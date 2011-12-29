@@ -61,10 +61,8 @@ void Analyzer::Analyze(Process& iProcess){
 	cout << "\tNow analyzing " << iProcess.GetShortName() << endl;
 
 	cutFlow.Zero();
-	cutFlow.SetPreCutForSignal("Read from DS", iProcess.GetNOEinDS());
-	cutFlow.SetPreCutForQCD("Read from DS", iProcess.GetNOEinDS());
-	cutFlow.SetPreCutForSignal("skimming + PAT", iProcess.GetNOEinPATuple());
-	cutFlow.SetPreCutForQCD("skimming + PAT", iProcess.GetNOEinPATuple());
+	cutFlow.SetCutCounts("Read from DS", iProcess.GetNOEinDS(), iProcess.GetNOEinDS());
+	cutFlow.SetCutCounts("skimming + PAT", iProcess.GetNOEinPATuple(), iProcess.GetNOEinPATuple());
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
@@ -101,14 +99,12 @@ pair<double,double> Analyzer::Loop(){
 	Long64_t nentries = fChain->GetEntries(); 
 	if(nentries == 0){ cerr << "ERROR: this process has zero events to read" << endl; exit(1); }
 	cout << " " << nentries << " entries available: ";
-	cutFlow.SetPreCutForSignal("nTuple making", nentries);
-	cutFlow.SetPreCutForQCD("nTuple making", nentries);
+	cutFlow.SetCutCounts("nTuple making", nentries, nentries);
 	if(maxEvents <= 0 || maxEvents >= nentries){ cout << "Processing all of them..." << string(14,'.') << " "; }
 	else{ cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " "; }
 	cout.flush();
 
-	cutFlow.SetPreCutForSignal("User event limit", maxEvents);
-	cutFlow.SetPreCutForQCD("User event limit", maxEvents);
+	cutFlow.SetCutCounts("User event limit", maxEvents, maxEvents);
 
 	// Actual loop
 	double NOEanalyzed = 0;

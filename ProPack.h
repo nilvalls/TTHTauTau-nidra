@@ -33,6 +33,7 @@ class ProPack : public TObject {
 		
 		bool                analyzed;
 		double				integratedLumiInInvPb;
+		bool				normalizedToLumi;
 
 		bool                haveCollisions;
 		bool                haveQCD;
@@ -92,6 +93,7 @@ class ProPack : public TObject {
 
 		void						BuildQCD();
 		bool const					Analyzed() const;
+		bool const					NormalizedToLumi() const;
 		void						SetAnalyzed();
 		void						NormalizeToLumi();
 
