@@ -30,6 +30,7 @@ class Trigger{
 	TF1* function;
 	TF1* eduMuTau;
 	TF1* eduElectron;
+	double counter;
 
 	Config*				triggerConfig;
 
@@ -40,7 +41,7 @@ class Trigger{
 		void SetEfficiency(std::string, std::string);
 		void SetEfficiency(string);
 		void ParseCSV(const string&, char,vector<float>&) ;
-		float GetWeightFromFunc(float);
+		float const GetWeightFromFunc(float const) const;
 		float GetWeightFromFuncE(float);
 		float GetWeightFromBins(float);
 		float GetWeightFromConf(float,int);
@@ -50,7 +51,6 @@ class Trigger{
 		void ParseConfig(string);
 		void InsertTrigger(vector<trigger*>*, string, int, int, string, double, double, double);
 		virtual string Replace(string, string, string);
-
 
 };
 

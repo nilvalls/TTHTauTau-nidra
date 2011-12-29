@@ -59,7 +59,6 @@ void Plotter::MakePlots(vector<Process>* iProcesses){
 
 void Plotter::MakePlots(Process* iProcess){
 
-
 	// Set up two HContainers, one for signal and another for QCD analysis
 	HContainer hContainerForSignal, hContainerForQCD;
 
@@ -67,27 +66,46 @@ void Plotter::MakePlots(Process* iProcess){
 	BookHistos(&hContainerForSignal);
 	BookHistos(&hContainerForQCD);
 
+	// Instantiante Analyzer to read events more easily
 	Analyzer analyzer(params);	
 	DitauBranches * event = analyzer.Init(iProcess->GetNtuplePath());
 
+	// Get preexisting cutflow to potentially add postcuts
+	CutFlow* cutFlow = iProcess->GetCutFlow();
+
+	// Triggers and PUcorrectors
+	PUcorrector puCorrector;
+	Trigger trigger(4600);
+
+	// Recover the good events for signal and fill histos with them
+	weightCounter weightCounterForSignal;
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
 		event->AlienGetEntry(goodEventsForSignal.at(i).first);
 		event->SetBestCombo(goodEventsForSignal.at(i).second);
-		FillHistos(&hContainerForSignal,event,iProcess->IsMC());
+		FillHistos(&hContainerForSignal,event,iProcess->IsMC(), &trigger, &puCorrector, &weightCounterForSignal);
 	}
 
+	cout << "pu: " << weightCounterForSignal.puCorrection/weightCounterForSignal.total << endl;
+	cout << "t1: " << weightCounterForSignal.tau1Trigger/weightCounterForSignal.total << endl;
+	cout << "t2: " << weightCounterForSignal.tau2Trigger/weightCounterForSignal.total << endl;
+
+	// Recover the good events for QCD and fill histos with them
+	weightCounter weightCounterForQCD;
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
 	for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
 		event->AlienGetEntry(goodEventsForQCD.at(i).first);
 		event->SetBestCombo(goodEventsForQCD.at(i).second);
-		FillHistos(&hContainerForQCD,event,iProcess->IsMC());
+		FillHistos(&hContainerForQCD,event,iProcess->IsMC(), &trigger, &puCorrector, &weightCounterForQCD);
 	}
 
 	// Send the filled HContainers to the process
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 	iProcess->SetHContainerForQCD(hContainerForQCD);
 
+	// Add postCuts
+	//if(IsFlagThere("PUcorr")){ cutFlow.RegisterPostCut("PU reweighing"); }
+	//if(IsFlagThere("trigger")){ cutFlow.RegisterPostCut("Trigger"); }
 
 }
 
@@ -119,7 +137,7 @@ void Plotter::BookHistos(HContainer* iHContainer){
 }
 
 // Fill the histograms with the event passed
-void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool iIsMC){
+void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool iIsMC, Trigger const* iTrigger, PUcorrector const * iPUcorrector, weightCounter* iWeightCounter){
 	HContainer* hContainer = iHContainer;
 	DitauBranches* event = iEvent;
 	int iCombo = event->bestCombo;
@@ -129,11 +147,16 @@ void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool iI
 	float iTau2TriggerWeight = 1.0;
 
 	if(iIsMC){
-//		iPuWeight			= puCorrector->GetWeight(event->numInteractionsBX0);
-//		iTau1TriggerWeight	= trigger->GetWeightFromFunc(event->Tau1Pt->at(event->bestCombo));
-//		iTau2TriggerWeight	= trigger->GetWeightFromFunc(event->Tau2Pt->at(event->bestCombo));
+		iPuWeight			= iPUcorrector->GetWeight(event->numInteractionsBX0);
+		iTau1TriggerWeight	= iTrigger->GetWeightFromFunc(event->Tau1Pt->at(event->bestCombo));
+		iTau2TriggerWeight	= iTrigger->GetWeightFromFunc(event->Tau2Pt->at(event->bestCombo));
 	}
 
+	iWeightCounter->puCorrection	+= iPuWeight;
+	iWeightCounter->tau1Trigger		+= iTau1TriggerWeight;
+	iWeightCounter->tau2Trigger		+= iTau2TriggerWeight;
+	iWeightCounter->total++;
+	
 	#include "clarity/fillHistos.h"
 }
 

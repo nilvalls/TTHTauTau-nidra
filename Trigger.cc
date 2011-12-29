@@ -225,12 +225,11 @@ void Trigger::ParseCSV(const string& iS, char c, vector<float>& v) {
 }
 
 // Return the trigger weight given the pT
-float Trigger::GetWeightFromFunc(float pT){
+float const Trigger::GetWeightFromFunc(float const pT) const {
 
 	if (pT < 0){ return 0.0; }
 
 	float result = 1.0;
-
 
 	result = eduMuTau->Eval(pT);
 
@@ -385,3 +384,4 @@ string Trigger::Replace(string input, string oldStr, string newStr){
 
 	return toReturn;
 }
+

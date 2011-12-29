@@ -21,8 +21,17 @@
 #include "ProPack.h"
 #include "Analyzer.h"
 #include "TPaveText.h"
+#include "Trigger.h"
+#include "PUcorrector.h"
 
 using namespace std;
+
+struct weightCounter{
+	double puCorrection;
+	double tau1Trigger;
+	double tau2Trigger;
+	double total;
+};
 
 class Plotter {
 
@@ -38,7 +47,7 @@ class Plotter {
 		virtual void MakePlots(Process*);
 		virtual void MakePlots(vector<Process>*);
 		void		BookHistos(HContainer*);
-		void		FillHistos(HContainer*, DitauBranches*, bool);
+		void		FillHistos(HContainer*, DitauBranches*, bool, Trigger const *, PUcorrector const *, weightCounter *);
 		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
 		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
 

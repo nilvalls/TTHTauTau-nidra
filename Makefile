@@ -30,11 +30,11 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
 			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .Trigger.o .Cruncher.o .Plotter.o .Stacker.o \
+			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o \
 			.RootFileMaker.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
 			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .Trigger.o .Cruncher.o .Plotter.o .Stacker.o \
+			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o \
 			.RootFileMaker.o $(GLIBS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
@@ -54,6 +54,9 @@ libConfigParser.so: configParser/config.h
 
 .PContainer.o: PContainer.cc PContainer.h 
 	$(CXX) $(CXXFLAGS) -c PContainer.cc -o $@
+
+.PUcorrector.o: PUcorrector.cc PUcorrector.h 
+	$(CXX) $(CXXFLAGS) -c PUcorrector.cc -o $@
 
 .CutFlow.o: CutFlow.cc CutFlow.h
 	$(CXX) $(CXXFLAGS) -c CutFlow.cc -o $@

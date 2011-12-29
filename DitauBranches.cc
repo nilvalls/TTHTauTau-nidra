@@ -280,9 +280,6 @@ fChain->SetBranchAddress("Tau1_ZtauMatched", &Tau1_ZtauMatched);
 fChain->SetBranchAddress("Tau2_ZtauMatched", &Tau2_ZtauMatched);
 fChain->SetBranchAddress("Tau1_ZeMatched", &Tau1_ZeMatched);
 fChain->SetBranchAddress("Tau2_ZeMatched", &Tau2_ZeMatched);//*/
-
-	cout << "alieninit 5 pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 fChain->SetBranchAddress("Tau1GenPt", &Tau1GenPt);
 fChain->SetBranchAddress("Tau2GenPt", &Tau2GenPt);
 fChain->SetBranchAddress("Tau1GenE", &Tau1GenE);
@@ -308,8 +305,6 @@ fChain->SetBranchAddress("Tau1Et", &Tau1Et);
 fChain->SetBranchAddress("Tau2Et", &Tau2Et);
 fChain->SetBranchAddress("Tau1Pt", &Tau1Pt);
 fChain->SetBranchAddress("Tau2Pt", &Tau2Pt);
-	cout << "alieninit 6 pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 fChain->SetBranchAddress("Tau1LTPt", &Tau1LTPt);
 fChain->SetBranchAddress("Tau2LTPt", &Tau2LTPt);
 fChain->SetBranchAddress("Tau1Charge", &Tau1Charge);

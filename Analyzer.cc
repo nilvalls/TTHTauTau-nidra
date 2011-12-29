@@ -324,8 +324,6 @@ TChain* Analyzer::GetTChain(string iPath){
 	// Add all *.root files in iPath
 	string pathToRootFiles = iPath + "/*.root";
 	result->Add(pathToRootFiles.c_str());
-	cout << "gettchain pointing to: " << result << endl;
-	cout << "entries: " << result->GetEntries() << endl;
 
 	// Return TChain
 	return result;
@@ -335,11 +333,7 @@ TChain* Analyzer::GetTChain(string iPath){
 DitauBranches* Analyzer::Init(string iPath){
 
 	fChain = GetTChain(iPath);
-	cout << "init pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 	event = new DitauBranches();
-	cout << "init 2 pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 
 	// Set branch addresses and branch pointers
 	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }
