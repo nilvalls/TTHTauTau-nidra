@@ -23,6 +23,8 @@
 #include "TPaveText.h"
 #include "Trigger.h"
 #include "PUcorrector.h"
+#include "TLegend.h"
+#include "TStyle.h"
 
 using namespace std;
 
@@ -48,8 +50,6 @@ class Plotter {
 		virtual void MakePlots(vector<Process>*);
 		void		BookHistos(HContainer*);
 		void		FillHistos(HContainer*, DitauBranches*, bool, Trigger const *, PUcorrector const *, weightCounter *);
-		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
-		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
 
 	protected:
 		map<string,string>	params;
@@ -59,6 +59,8 @@ class Plotter {
 		double const		GetMaximumWithError(ProPack const *, string const) const;
 		double const		GetMaxIntegral(ProPack const *, string const) const;
 		TPaveText *			GetPlotText();
+		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
+		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
 
 };
 

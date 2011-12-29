@@ -339,15 +339,8 @@ DitauBranches* Analyzer::Init(string iPath){
 	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }
 	fCurrent = -1; 
 	fChain->SetMakeClass(1);
-
-	cout << "init 3 pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 	event->AlienSetChain(fChain);
-	cout << "init 4 pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 	event->AlienInit();
-	cout << "init 5 pointing to: " << fChain << endl;
-	cout << "entries: " << fChain->GetEntries() << endl;
 
 	return event;
 }
