@@ -128,6 +128,8 @@ class Process {
 		bool const			NormalizedHistosForQCD() const;
 
 
+		HContainer *	GetHContainerForSignal();
+		HContainer *	GetHContainerForQCD();
 		HContainer const *	GetHContainerForSignal() const;
 		HContainer const *	GetHContainerForQCD() const;
 

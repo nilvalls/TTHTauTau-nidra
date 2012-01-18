@@ -144,16 +144,14 @@ bool const ProPack::PrepareBackgrounds() const {	return HaveBackgrounds(); }
 void ProPack::PrepareCollisions(bool const iVal){	prepareCollisions = (iVal && haveCollisions);	}
 void ProPack::PrepareQCD(bool const iVal){			prepareQCD = (iVal && haveCollisions);			}
 
-
 map<string,string> const ProPack::GetParams() const { return params; }
 double const ProPack::GetIntegratedLumiInInvPb() const { return integratedLumiInInvPb; }
 
 void ProPack::BuildQCD(){
 	if(!PrepareQCD()){ return; }
 	NormalizeToLumi();
-	cout << "\nBuilding QCD..." << endl;
+	cout << "\tBuilding QCD..." << endl;
 
-	//Process qcdTemp = Process(collisions);
 	qcd.SetShortName("QCD");
 	qcd.SetNiceName("QCD");
 	qcd.SetLabelForLegend("QCD");
@@ -161,11 +159,9 @@ void ProPack::BuildQCD(){
 
 	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
 	HContainer hContainerForQCD = HContainer(*(collisions.GetHContainerForQCD()));
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
-		hContainerForQCD.Add(*(GetMCbackgrounds()->at(b).GetHContainerForQCD()), -1);
-	}
-	hContainerForQCD.Positivize(); 
-	hContainerForQCD.ScaleBy(atof((params["osls"]).c_str()));
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ hContainerForQCD.Add(*(GetMCbackgrounds()->at(b).GetHContainerForQCD()), -1); }
+	//hContainerForQCD.Positivize(); 
+	//hContainerForQCD.ScaleBy(atof((params["osls"]).c_str()));
 
 	// Do the same for the CutFlow
 	CutFlow cutFlow = CutFlow(*(collisions.GetCutFlow()));
@@ -175,16 +171,19 @@ void ProPack::BuildQCD(){
 
 	// Set colors and put it in process here
 	qcd.SetHContainerForSignal(hContainerForQCD);
+
+	// Apply Rosls to plots and cutflow
+	ApplyRosls();
 }
 
 Process ProPack::GetAvailableProcess() const {
 	Process const * result = NULL;
 	if(HaveCollisions()){			result = &collisions;			 }
 	else if(HaveQCD()){				result = &qcd;					 }
-	else if(HaveMCbackgrounds()){	result = &mcBackgrounds.front();}	
+	else if(HaveMCbackgrounds()){	result = &mcBackgrounds.front(); }	
 	else if(HaveSignals()){			result = &signals.front();		 }
 
-	return *result;
+	return (*result);
 }
 
 
@@ -219,13 +218,8 @@ vector<CutFlow>	ProPack::GetSignalsCutFlows() const {
 
 HWrapper const ProPack::GetAvailableHWrapper() const { return (*(GetAvailableProcess().GetAvailableHWrapper())); }
 HWrapper const ProPack::GetAvailableHWrapper(string const iName) const { 
-
 	HWrapper result = (*(GetAvailableProcess().GetAvailableHWrapper(iName))); 
-
 	return result;
-
-//	return (*(GetAvailableProcess().GetAvailableHWrapper(iName))); 
-	
 }
 
 
@@ -256,13 +250,12 @@ HContainer const ProPack::GetBackgroundsHWrappers(string const iName) const {
 void ProPack::NormalizeToLumi(){
 
 	if(!NormalizedToLumi()){
-		
 		// Calculate effective integrated lumi in case we've only run on a fraction of the collision events
 		float effectiveIntegratedLumi = integratedLumiInInvPb;
 		if(PrepareCollisions()){
 			float fractionCollisionsAnalyzed = collisions.GetNOEanalyzed()/(double)collisions.GetNOEinNtuple();
 			effectiveIntegratedLumi = integratedLumiInInvPb*fractionCollisionsAnalyzed;
-			collisions.GetCutFlow()->RegisterCutFromLast("Lumi norm", 1, 1);
+			collisions.GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, 1, 1);
 		}
 
 		// Normalize MC backgrounds
@@ -275,6 +268,33 @@ void ProPack::NormalizeToLumi(){
 	}
 
 	normalizedToLumi = true;
+
+}
+
+
+void ProPack::ApplyRosls(){
+
+		// Collisions
+		if(PrepareCollisions()){
+			collisions.GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, 1, 1);
+		}
+
+		// QCD
+		if(PrepareQCD()){
+			qcd.GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, atof((params["osls"]).c_str()), atof((params["osls"]).c_str()));
+			qcd.GetHContainerForSignal()->Positivize();
+			qcd.GetHContainerForSignal()->ScaleBy(atof((params["osls"]).c_str()));
+		}
+
+		// MC backgrounds
+		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ 
+			GetMCbackgrounds()->at(b).GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, 1, 1);
+		}
+
+		// Signals
+		for(unsigned int s = 0; s < GetSignals()->size(); s++){
+			GetSignals()->at(s).GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, 1, 1);
+		}
 
 }
 
@@ -302,6 +322,7 @@ void ProPack::DistributeProcesses(){
 
 }
 
+/*
 vector<Process> ProPack::GetProcesses(){
 	vector<Process> result;
 	if(PrepareCollisions()){	result.push_back(*GetCollisions()); };
@@ -309,6 +330,17 @@ vector<Process> ProPack::GetProcesses(){
 
 	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++ ){ result.push_back(GetMCbackgrounds()->at(b)); }
 	for(unsigned int s = 0; s < GetSignals()->size(); s++ ){ result.push_back(GetSignals()->at(s)); }
+
+	return result;
+}//*/
+
+vector<Process*> ProPack::GetProcesses(){
+	vector<Process*> result;
+	if(PrepareCollisions()){	result.push_back(GetCollisions()); };
+	if(PrepareQCD()){			result.push_back(GetQCD()); };
+
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++ ){ result.push_back(&GetMCbackgrounds()->at(b)); }
+	for(unsigned int s = 0; s < GetSignals()->size(); s++ ){ result.push_back(&GetSignals()->at(s)); }
 
 	return result;
 }

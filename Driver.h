@@ -14,7 +14,6 @@
 #include "TStopwatch.h"
 #include "TDatime.h"
 
-
 #include "style-CMSTDR.h"
 
 #include "TTree.h"

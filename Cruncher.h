@@ -28,10 +28,13 @@ class Cruncher {
 		virtual ~Cruncher();
 
 		void PrintEfficiencies(string const, string const);
+		void PrintEfficienciesForQCD(string const, string const);
 
 	private: 
 		map<string,string> params;
-		vector<Process> processes;
+		ProPack* proPack;
+		vector<Process*> processes;
+		TFile* file;
 
 		string GetDocumentHeader(string const);
 		string GetDocumentFooter(string const);
@@ -42,6 +45,9 @@ class Cruncher {
 		string GetCutLine(string const, string const, string const);
 		string GetCutTriplet(string const, string const, string const, int const);
 		string GetEfficiencies(string const, string const);
+		string GetCutLineForQCD(string const, string const, string const);
+		string GetCutTripletForQCD(string const, string const, string const, int const);
+		string GetEfficienciesForQCD(string const, string const);
 		bool IsOptionThere(string const, string const);
 		int GetNumberOfOptions(string const);
 		void SaveToFile(stringstream const, string const);

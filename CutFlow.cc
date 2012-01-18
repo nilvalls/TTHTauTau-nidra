@@ -81,8 +81,8 @@ void CutFlow::RegisterCut(string const iName, int const iRank){
 	if( (iRank < 0) || 2 < (iRank)){ cerr << "ERROR: Cut named \"" << iName << "\" is trying to be registered with rank " << iRank << " but rank can only be 0, 1, or 2." << endl; exit(1); }
 	cutRanks[iName] = iRank;
 
-	passedEventsForSignal[iName]	= 0;
-	passedEventsForQCD[iName]		= 0;
+	passedEventsForSignal[iName]	= 0.0;
+	passedEventsForQCD[iName]		= 0.0;
 
 	pair<float,float> thresholds = ExtractCutThresholds(iName);
 	minThresholds[iName] = (thresholds.first);
@@ -100,15 +100,10 @@ void CutFlow::RegisterCut(string const iName, int const iRank,  double const iEv
 	UpdateCutNamesMap();
 }
 
-
-
-void CutFlow::RegisterCutFromLast(string const iName, double const iFactorForSignal, double const iFactorForQCD){
+void CutFlow::RegisterCutFromLast(string const iName, int const iRank, double const iFactorForSignal, double const iFactorForQCD){
 	double lastCountForSignal = GetLastCountForSignal();
 	double lastCountForQCD = GetLastCountForQCD();
-	cutNames.push_back(iName);
-	passedEventsForSignal[iName] = lastCountForSignal*iFactorForSignal;
-	passedEventsForQCD[iName] = lastCountForQCD*iFactorForQCD;
-	UpdateCutNamesMap();
+	RegisterCut(iName, iRank, iFactorForSignal*GetLastCountForSignal(), iFactorForQCD*GetLastCountForQCD());
 }
 
 void CutFlow::SetCutCounts(string const iName, double const iEventsForSignal, double const iEventsForQCD){
@@ -125,6 +120,10 @@ bool CutFlow::CheckCombo(string const iName, float const iValue){
 	thisCombosResults[iName] = result;
 
 	return result;
+}
+
+void CutFlow::ComboIsGood(string const iName){
+	thisCombosResults[iName] = true;
 }
 
 // This function is intended to save time if we have already one good combo for signal and one for QCD. Since the heaviest combos come first, no need to check the rest. This will tell the analyzer it's time to move on.
@@ -202,7 +201,7 @@ void CutFlow::EndOfEvent(){
 		if(c == cutNames.size()-1){ eventForSignalPassed = (passedCombosForSignal[cutName] > 0); }
 
 		// If at least one combo for QCD has passed this cut, increase the event count in the "forQCD" cut map FOR THAT CUT only
-		if(passedCombosForSignal[cutName] > 0){ passedEventsForQCD[cutName]++; }	
+		if(passedCombosForQCD[cutName] > 0){ passedEventsForQCD[cutName]++; }	
 
 		// Wait for the last registered cut to determine the outcome of the event
 		if(c == cutNames.size()-1){ eventForQCDPassed = (passedCombosForQCD[cutName] > 0); }
@@ -254,14 +253,16 @@ float const CutFlow::GetPassedEventsForSignal(string const iCut) const {
 
 	float result = 0;
 	if(passedEventsForSignal.find(iCut) != passedEventsForSignal.end()){						result = passedEventsForSignal.find(iCut)->second; }
-	else{ cerr << "ERROR: Could not find cut named \"" << iCut << "\" in cuts." << endl; exit(1); }
+	else{ result = 0; }
+	//else{ cerr << "ERROR: Could not find cut named \"" << iCut << "\" in cuts." << endl; exit(1); }
 	return result;
 }
 
 float const CutFlow::GetPassedEventsForQCD(string const iCut) const {
 	float result = 0;
 	if(passedEventsForQCD.find(iCut) != passedEventsForQCD.end()){							result = passedEventsForQCD.find(iCut)->second; }
-	else{ cerr << "ERROR: Could not find cut named \"" << iCut << "\" in cuts." << endl; exit(1); }
+	else{ result = 0; }
+	//else{ cerr << "ERROR: Could not find cut named \"" << iCut << "\" in cuts." << endl; exit(1); }
 	return result;
 }
 
@@ -270,14 +271,17 @@ float const CutFlow::GetRelEffForSignal(string const iCut) const {
 	float result = 0;
 	float numerator = 0;
 	float denominator = 0;
-	if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	//if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ return 0; }
 	int cutPosition = cutNamesMap.find(iCut)->second;
 	if(cutPosition==0){ result = 1; }
 	else{
-		numerator	= passedEventsForSignal.find(iCut)->second;
-		denominator	= passedEventsForSignal.find(cutNames.at(cutPosition-1))->second;
+		numerator	= GetPassedEventsForSignal(iCut);
+		denominator	= GetPassedEventsForSignal(cutNames.at(cutPosition-1));
 		result = numerator/denominator;
 	}
+
+	if(fabs(denominator) < 1e-10){ result = 0; }
 	return result;
 }
 
@@ -285,11 +289,14 @@ float const CutFlow::GetCumEffForSignal(string const iCut) const {
 	float result = 0;
 	float numerator = 0;
 	float denominator = 0;
-	if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	//if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	if(passedEventsForSignal.find(iCut) == passedEventsForSignal.end()){ return 0; }
 	int cutPosition = cutNamesMap.find(iCut)->second;
-	numerator	= passedEventsForSignal.find(iCut)->second;
-	denominator	= passedEventsForSignal.find(cutNames.front())->second;
+	numerator	= GetPassedEventsForSignal(iCut);
+	denominator	= GetPassedEventsForSignal(cutNames.front());
 	result = numerator/denominator;
+
+	if(fabs(denominator) < 1e-10){ result = 0; }
 	return result;
 }
 
@@ -297,14 +304,17 @@ float const CutFlow::GetRelEffForQCD(string const iCut) const {
 	float result = 0;
 	float numerator = 0;
 	float denominator = 0;
-	if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	//if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ return 0; }
 	int cutPosition = cutNamesMap.find(iCut)->second;
 	if(cutPosition==0){ result = 1; }
 	else{
-		numerator	= passedEventsForQCD.find(iCut)->second;
-		denominator	= passedEventsForQCD.find(cutNames.at(cutPosition-1))->second;
+		numerator	= GetPassedEventsForQCD(iCut);
+		denominator	= GetPassedEventsForQCD(cutNames.at(cutPosition-1));
 		result = numerator/denominator;
 	}
+
+	if(fabs(denominator) < 1e-10){ result = 0; }
 	return result;
 }
 
@@ -312,11 +322,14 @@ float const CutFlow::GetCumEffForQCD(string const iCut) const {
 	float result = 0;
 	float numerator = 0;
 	float denominator = 0;
-	if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	//if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ cerr << "ERROR: Cut named \"" << iCut << "\" not found in cutflow map." << endl; exit(1); }
+	if(passedEventsForQCD.find(iCut) == passedEventsForQCD.end()){ return 0; }
 	int cutPosition = cutNamesMap.find(iCut)->second;
-	numerator	= passedEventsForQCD.find(iCut)->second;
-	denominator	= passedEventsForQCD.find(cutNames.front())->second;
+	numerator	= GetPassedEventsForQCD(iCut);
+	denominator	= GetPassedEventsForQCD(cutNames.front());
 	result = numerator/denominator;
+
+	if(fabs(denominator) < 1e-10){ result = 0; }
 	return result;
 }
 
@@ -382,8 +395,8 @@ string const CutFlow::GetLastCut() const{
 	return result;
 }
 
-double const CutFlow::GetLastCountForSignal() const { return  passedEventsForSignal.find(GetLastCut())->second; }
-double const CutFlow::GetLastCountForQCD() const { return  passedEventsForQCD.find(GetLastCut())->second; }
+double const CutFlow::GetLastCountForSignal() const { return  GetPassedEventsForSignal(GetLastCut()); }
+double const CutFlow::GetLastCountForQCD() const { return  GetPassedEventsForQCD(GetLastCut()); }
 
 void CutFlow::Add(CutFlow const & iCutFlow, float const iFactor){
 	// Check the current cuts	
@@ -425,7 +438,7 @@ void CutFlow::UpdateCutNamesMap(){
 
 void CutFlow::PrintTable(){
 	for(unsigned int n = 0; n < cutNames.size(); n++){
-		cout << "\t" << cutNames.at(n) << "\t\t" << passedEventsForSignal[cutNames.at(n)] << "\t\t" << passedEventsForQCD[cutNames.at(n)] << endl;
+		cout << "\t" << cutNames.at(n) << "\t\t" << GetPassedEventsForSignal(cutNames.at(n)) << "\t\t" << GetPassedEventsForQCD(cutNames.at(n)) << endl;
 	}	
 }
 

@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <climits>
 #include <float.h>
+#include <math.h>
 
 #include <TROOT.h>
 #include <map>
@@ -61,11 +62,12 @@ class CutFlow {
 
 		void RegisterCut(string const, int const);
 		void RegisterCut(string const, int const, double const, double const);
-		void RegisterCutFromLast(string, double, double);
+		void RegisterCutFromLast(string const, int const, double const, double const);
 		void UpdateCutNamesMap();
 		void SetCutCounts(string const, double const, double const);
 
 		bool CheckCombo(string const, float const);
+		void ComboIsGood(string const);
 		void EndOfCombo(pair<bool, bool>, int const);
 		void StartOfEvent();
 		void EndOfEvent();

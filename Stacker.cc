@@ -22,18 +22,20 @@ Stacker::Stacker(map<string,string> const & iParams){
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
 	if(badFile){ cerr << "ERROR: trying to stack plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
 
-	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
+	file = new TFile((params["process_file"]).c_str(), "UPDATE");
 	file->cd();
 
-	ProPack* proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
 	MakePlots(proPack);
-
-	file->Close();
-	delete file;
 }
 
 // Default destructor
-Stacker::~Stacker(){}
+Stacker::~Stacker(){
+	if(file!=NULL){ file->Close(); }
+	delete file; file = NULL;
+	delete proPack; proPack = NULL;
+
+}
 
 // Function to make the plots
 void Stacker::MakePlots(ProPack const * iProPack) {
@@ -110,6 +112,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		if(haveCollisions){ 
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
+			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
 			if(collisionsHisto.GetHisto()->Integral()>0){ collisionsHisto.GetHisto()->Draw("EPsame"); }
 		}	
 
@@ -203,7 +206,7 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
 		temp->SetFillStyle(3004,kBlack);
 		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),"Bkg. stat. err.","f");
+		result->AddEntry(temp->GetHisto(),"Bkg. stat. err. ","f");
 	}
 
 	// Finally signals also in reverse order as in the vector

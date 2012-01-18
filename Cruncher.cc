@@ -14,7 +14,10 @@ using namespace std;
 #define AT __LINE__
 
 // Default constructor
-Cruncher::Cruncher(){}
+Cruncher::Cruncher(){
+	file = NULL;
+	proPack = NULL;
+}
 
 Cruncher::Cruncher(map<string,string>const & iParams){
 	params = iParams;
@@ -22,18 +25,19 @@ Cruncher::Cruncher(map<string,string>const & iParams){
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
 	if(badFile){ cerr << "ERROR: trying to fill plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
 
-	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
+	file = new TFile((params["process_file"]).c_str(), "UPDATE");
 	file->cd();
 
-	ProPack proPack = *((ProPack*)file->Get((params["propack_name"]).c_str()));
+	proPack = ((ProPack*)file->Get((params["propack_name"]).c_str()));
+	processes = proPack->GetProcesses();
 
-	processes = ((ProPack*)file->Get((params["propack_name"]).c_str()))->GetProcesses();
-
-	file->Close();
 }
 
 // Default destructor
-Cruncher::~Cruncher(){}
+Cruncher::~Cruncher(){
+	delete proPack; proPack = NULL;
+	file->Close();
+}
 
 string Cruncher::GetDocumentHeader(string const iFormat){
 	stringstream result; result.str("");
@@ -75,7 +79,7 @@ string Cruncher::GetTableHeader(string const iFormat, string const iOptions){
 		result << "<TR><TH rowspan=2>Cut</TH>";
 		for(unsigned int p = 0; p < processes.size(); p++){
 			result << "<TH colspan=" << GetNumberOfOptions(iOptions) << ">"
-			<< processes.at(p).GetNiceName()
+			<< processes.at(p)->GetNiceName()
 			<< "</TH>";
 		}
 		result << "</TR>";
@@ -150,10 +154,29 @@ string Cruncher::GetCutLine(string const iFormat, string const iOptions, string 
 	return result.str();
 }
 
+string Cruncher::GetCutLineForQCD(string const iFormat, string const iOptions, string const iCut){
+	stringstream result; result.str("");
+
+	if(iFormat.compare("HTML")==0){
+		result << "<TR>"; 
+		result << "<TD>" << iCut << "</TD>";
+		for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTripletForQCD(iFormat, iOptions, iCut, p); }
+		result << "</TR>";	
+	}else if(iFormat.compare("TEX")==0){
+
+	}else if(iFormat.compare("TXT")==0){
+
+	}else if(iFormat.compare("CSV")==0){
+
+	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
+
+	return result.str();
+}
+
 string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, string const iCut, int const iProcess){
 	stringstream result; result.str("");
 
-	CutFlow cutFlow = CutFlow(*(processes.at(iProcess).GetCutFlow()));
+	CutFlow cutFlow = CutFlow(*(processes.at(iProcess)->GetCutFlow()));
 
 	if(iFormat.compare("HTML")==0){
 		if(IsOptionThere("e", iOptions)){ result << "<TD>" << cutFlow.GetPassedEventsForSignal(iCut) << "</TD>"; }
@@ -170,17 +193,55 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 	return result.str();
 }
 
+string Cruncher::GetCutTripletForQCD(string const iFormat, string const iOptions, string const iCut, int const iProcess){
+	stringstream result; result.str("");
+
+	CutFlow cutFlow = CutFlow(*(processes.at(iProcess)->GetCutFlow()));
+
+	if(iFormat.compare("HTML")==0){
+		if(IsOptionThere("e", iOptions)){ result << "<TD>" << cutFlow.GetPassedEventsForQCD(iCut) << "</TD>"; }
+		if(IsOptionThere("r", iOptions)){ result << "<TD>" << cutFlow.GetRelEffForQCD(iCut) << "</TD>"; }
+		if(IsOptionThere("c", iOptions)){ result << "<TD>" << cutFlow.GetCumEffForQCD(iCut) << "</TD>"; }
+	}else if(iFormat.compare("TEX")==0){
+
+	}else if(iFormat.compare("TXT")==0){
+
+	}else if(iFormat.compare("CSV")==0){
+
+	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
+
+	return result.str();
+}
+
 string Cruncher::GetEfficiencies(string const iFormat, string const iOptions){
 	stringstream result; result.str("");
 	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
-	vector<string> cutNames = processes.at(0).GetCutFlow()->GetCutNames();
+	processes.at(0)->GetCutFlow()->GetCutNames();
+	vector<string> cutNames = processes.at(0)->GetCutFlow()->GetCutNames();
 
 	result << GetDocumentHeader(iFormat) << endl;
 	result << GetTableHeader(iFormat, iOptions) << endl;
 	result << GetTableSubHeader(iFormat, iOptions) << endl;
 
-	for(unsigned int c = 0; c < cutNames.size(); c++){ 
-		result << GetCutLine(iFormat, iOptions, cutNames.at(c)) << endl; }
+	for(unsigned int c = 0; c < cutNames.size(); c++){ result << GetCutLine(iFormat, iOptions, cutNames.at(c)) << endl; }
+
+	result << GetTableFooter(iFormat) << endl;
+	result << GetDocumentFooter(iFormat) << endl;
+
+	return result.str();
+}
+
+string Cruncher::GetEfficienciesForQCD(string const iFormat, string const iOptions){
+	stringstream result; result.str("");
+	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
+	processes.at(0)->GetCutFlow()->GetCutNames();
+	vector<string> cutNames = processes.at(0)->GetCutFlow()->GetCutNames();
+
+	result << GetDocumentHeader(iFormat) << endl;
+	result << GetTableHeader(iFormat, iOptions) << endl;
+	result << GetTableSubHeader(iFormat, iOptions) << endl;
+
+	for(unsigned int c = 0; c < cutNames.size(); c++){ result << GetCutLineForQCD(iFormat, iOptions, cutNames.at(c)) << endl; }
 
 	result << GetTableFooter(iFormat) << endl;
 	result << GetDocumentFooter(iFormat) << endl;
@@ -189,6 +250,7 @@ string Cruncher::GetEfficiencies(string const iFormat, string const iOptions){
 }
 
 void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions){ 
+
 	string output = "";
 	if(iFormat.compare("HTML")==0){
 		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".html");
@@ -207,6 +269,28 @@ void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions){
 	}
 
 	SaveToFile(GetEfficiencies(iFormat, iOptions), output);
+}
+
+void Cruncher::PrintEfficienciesForQCD(string const iFormat, string const iOptions){ 
+
+	string output = "";
+	if(iFormat.compare("HTML")==0){
+		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".html");
+		cout << "\tCalculating and priting numbers in HTML to: " << output << endl;
+	}else if(iFormat.compare("TEX")==0){
+		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".tex.txt");
+		cout << "\tCalculating and priting numbers in TEX  to: " << output << endl;
+	}else if(iFormat.compare("TXT")==0){
+		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".txt");
+		cout << "\tCalculating and priting numbers in TXT  to: " << output << endl;
+	}else if(iFormat.compare("CSV")==0){
+		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".csv.txt");
+		cout << "\tCalculating and priting numbers in CSV to: " << output << endl;
+	}else{
+		cout << "WARNING: Trying to print numbers in \"" << iFormat << "\" but this format is not valid." << endl;
+	}
+
+	SaveToFile(GetEfficienciesForQCD(iFormat, iOptions), output);
 }
 
 bool Cruncher::IsOptionThere(string const iOption, string const iOptions){ return ((0 <= iOptions.find(iOption)) && (iOptions.find(iOption) < iOptions.length())); }

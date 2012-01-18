@@ -138,6 +138,8 @@ void Process::SetNiceName(string const iVal){ niceName = iVal; }
 void Process::SetLabelForLegend(string const iVal){ labelForLegend = iVal; }
 void Process::SetAnalyzed(){ analyzed = true; }
 bool const Process::Analyzed() const { return analyzed; }
+HContainer* Process::GetHContainerForSignal(){ return &hContainerForSignal; }
+HContainer* Process::GetHContainerForQCD(){ return &hContainerForQCD; }
 HContainer const * Process::GetHContainerForSignal() const { return &hContainerForSignal; }
 HContainer const * Process::GetHContainerForQCD() const { return &hContainerForQCD; }
 
@@ -177,7 +179,7 @@ void Process::NormalizeToLumi(double const iIntLumi){
 		double NOErawEvents			= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
 		double lumiNormalization	= NOElumiEvents/NOErawEvents;
 		ScaleBy(lumiNormalization);
-		GetCutFlow()->RegisterCutFromLast("Lumi norm", lumiNormalization, lumiNormalization);
+		GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, lumiNormalization, lumiNormalization);
 	}
 	normalizedHistosForSignal	= true;
 	normalizedHistosForQCD		= true;

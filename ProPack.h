@@ -96,6 +96,7 @@ class ProPack : public TObject {
 		bool const					NormalizedToLumi() const;
 		void						SetAnalyzed();
 		void						NormalizeToLumi();
+		void						ApplyRosls();
 
 		// Cut flows
 		CutFlow 					GetCollisionsCutFlow() const;
@@ -115,7 +116,8 @@ class ProPack : public TObject {
 
 		// Misc
 		void						DistributeProcesses();
-		vector<Process>				GetProcesses();
+		//vector<Process>				GetProcesses();
+		vector<Process*>				GetProcesses();
 		string						GetProccessNamesToAnalyze();
 		string						GetProccessNamesToPlot();
 		bool 						PlotProcess(string const);

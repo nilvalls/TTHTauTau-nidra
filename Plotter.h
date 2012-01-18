@@ -53,6 +53,8 @@ class Plotter {
 		bool const	IsFlagThere(string const) const;
 
 	protected:
+		TFile* file;
+		ProPack* proPack;
 		map<string,string>	params;
 		HWrapper const  	GetBackgroundSum(ProPack const *, string const) const;
 		double const		GetMaximum(ProPack const *, string const, bool const) const;

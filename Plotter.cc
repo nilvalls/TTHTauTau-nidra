@@ -14,7 +14,17 @@ using namespace std;
 #define AT __LINE__
 
 // Default constructor
-Plotter::Plotter(){}
+Plotter::Plotter(){
+	file = NULL;
+	proPack = NULL;
+}
+
+// Default destructor
+Plotter::~Plotter(){
+	if(file!=NULL){ file->Close(); }
+	delete file; file = NULL;
+	delete proPack; proPack = NULL;
+}
 
 Plotter::Plotter(map<string,string>const & iParams){
 	params = iParams;
@@ -22,18 +32,16 @@ Plotter::Plotter(map<string,string>const & iParams){
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
 	if(badFile){ cerr << "ERROR: trying to fill plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
 
-	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
+	file = new TFile((params["process_file"]).c_str(), "UPDATE");
 	file->cd();
 
-	ProPack* proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
 
 	MakePlots(proPack);
 
 	file->cd();
 	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
 
-	file->Close();
-	delete file;
 }
 
 // Function to make the plots
@@ -107,7 +115,6 @@ void Plotter::MakePlots(Process* iProcess){
 		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau1TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 		cutFlow->RegisterCut("SL trigger", 2, tau2TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau2TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 	}
-	
 }
 
 // Set up the configured histos and add them to the process
@@ -329,8 +336,4 @@ bool const Plotter::IsFlagThere(string const iFlag) const {
 	size_t found = flags.find(iFlag);
 	return ((0 <= found) && (found < flags.length()));
 }
-
-
-// Default destructor
-Plotter::~Plotter(){}
 

@@ -103,8 +103,8 @@ pair<double,double> Analyzer::Loop(){
 	if(maxEvents <= 0 || maxEvents >= nentries){ cout << "Processing all of them..." << string(14,'.') << " "; }
 	else{ cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " "; }
 	cout.flush();
-
-	cutFlow.SetCutCounts("User event limit", maxEvents, maxEvents);
+ 
+	if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", maxEvents, maxEvents); }
 
 	// Actual loop
 	double NOEanalyzed = 0;
@@ -128,10 +128,13 @@ pair<double,double> Analyzer::Loop(){
 
 		// Loop over all the combos
 		for (unsigned int combo = 0; combo < event->Tau1Pt->size(); combo++){
+
 			// Obtain combo's mass
 			float comboMass = event->TauTauVisPlusMetMass->at(combo);
+
 			// Apply all selections here (do this first)
 			if( comboMass <= 0 ){ continue; }
+
 			// Rest of selections
 			pair<bool,bool> combosTarget = ComboPassesCuts(combo);
 
@@ -173,16 +176,19 @@ pair<double,double> Analyzer::Loop(){
 pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 	///***/// LS QCD business, this is a bit tricky... ///***///
+	bool isForSignal = false;
 	bool isLS = false;
 	bool satisfiesChargeProduct = false;
 
 	int chargeProduct = (event->Tau1Charge->at(iCombo))*(event->Tau2Charge->at(iCombo));
-	if(CutOn_ChargeProduct){ satisfiesChargeProduct = cutFlow.CheckCombo("ChargeProduct", chargeProduct); }
 	isLS = (chargeProduct == 1);
 
-	bool isForSignal = ((!CutOn_ChargeProduct) || (satisfiesChargeProduct)); //*/
-	//pair<bool,bool> result = make_pair(isForSignal, isLS);
-	pair<bool,bool> result = make_pair(true, isLS);
+	satisfiesChargeProduct = cutFlow.CheckCombo("ChargeProduct", chargeProduct); // This line before the next!!!
+	if(CutOn_ChargeProduct && ((chargeProduct == 1) || (chargeProduct == -1))){ cutFlow.ComboIsGood("ChargeProduct"); } // This line after the previous!!!
+
+	isForSignal = ((!CutOn_ChargeProduct) || (satisfiesChargeProduct));
+
+	pair<bool,bool> result = make_pair(isForSignal, isLS);
 	///***/// 	End of LS/QCD business	 ///***///
 
 	// ============================= Acceptance Cuts ============================= //
@@ -288,7 +294,6 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 	// Btags
 	if(CutOn_Btags){ if(!cutFlow.CheckCombo("Btags",event->nBtagsHiEffTrkCnt->at(iCombo))){ return result; }}
 
-	//*/
 	// Return target, first element is for signal analysis, second is for QCD
 	return result;
 }

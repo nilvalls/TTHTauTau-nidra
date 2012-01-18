@@ -14,16 +14,13 @@ int main(int argc, char **argv){
 
 	DistributeProcesses();
 
-
 	if(IsArgumentThere("-p")){
 		PreparePlots();
 		CrunchNumbers();
 		PlotStacks();
-//		PlotStamps();
-//		Optimize();
+		PlotStamps();
+		Optimize();
 	}
-
-
 
 	Finalize();
 

@@ -21,8 +21,6 @@ void Initialize(int argc, char **argv){
 	params.clear();
 
 	// Set up nice plot style
-	//gROOT->Reset();
-	//gROOT->SetStyle("Plain");
 	setTDRStyle();
 
 	// Supress ROOT warnings
@@ -137,10 +135,13 @@ void CrunchNumbers(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Crunching numbers...");
 	ReMakeDir(GetParam("efficiency_output"));
-	Cruncher cruncher = Cruncher(params);
+	Cruncher cruncher(params);
 	cruncher.PrintEfficiencies("HTML","erc");
 	cruncher.PrintEfficiencies("HTML","rc");
 	cruncher.PrintEfficiencies("HTML","e");
+	cruncher.PrintEfficienciesForQCD("HTML","erc");
+	cruncher.PrintEfficienciesForQCD("HTML","rc");
+	cruncher.PrintEfficienciesForQCD("HTML","e");
 	Print(GREEN," done!");
 }
 
