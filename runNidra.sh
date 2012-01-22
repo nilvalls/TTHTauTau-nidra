@@ -55,7 +55,7 @@ else
 	iConfig="$1"
 fi
 
-iConfig="cfg/generic.cfg"
+##iConfig="cfg/generic.cfg"
 
 if [ -z "$iConfig" ]; then
 	echoErr "ERROR: must provide a config file as argument."

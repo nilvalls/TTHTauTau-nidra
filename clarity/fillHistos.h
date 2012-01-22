@@ -88,6 +88,7 @@ hContainer->Fill("Eta_LS", event->Tau1Eta->at(iCombo), weightFull);
 hContainer->Fill("Eta_LS", event->Tau2Eta->at(iCombo), weightFull);
 hContainer->Fill("Eta_L", event->Tau1Eta->at(iCombo), weightFull);
 hContainer->Fill("Eta_S", event->Tau2Eta->at(iCombo), weightFull);
+hContainer->Fill("AbsDeltaEta_LS", fabs((event->Tau1Eta->at(iCombo))-(event->Tau2Eta->at(iCombo))), weightFull);
 hContainer->Fill("Phi_LS", event->Tau1Phi->at(iCombo), weightFull);
 hContainer->Fill("Phi_LS", event->Tau2Phi->at(iCombo), weightFull);
 hContainer->Fill("Phi_L", event->Tau1Phi->at(iCombo), weightFull);
@@ -104,3 +105,51 @@ hContainer->Fill("PZetaVis_LSM", event->TauTauPZetaVis->at(iCombo), weightFull);
 hContainer->Fill("Zeta_LSM", (event->TauTauPZeta->at(iCombo)-0.875*event->TauTauPZetaVis->at(iCombo)), weightFull);
 
 //hContainer->Fill("PUweightsPassingEvents", event->puCorrector->GetWeight(NumPV->at(iCombo), weightFull);
+
+
+int DDMI = -1; 
+if(event->Tau1DecayMode->at(iCombo)<0 || event->Tau2DecayMode->at(iCombo)<0){ DDMI = -1; }
+else if(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo)==0){ DDMI = 0; }
+else if( 
+		(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 1) ||
+		(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 2) ||
+		(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 3) ||
+		(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 4) ||
+		(event->Tau1DecayMode->at(iCombo)==1 && event->Tau2DecayMode->at(iCombo) == 0) ||
+		(event->Tau1DecayMode->at(iCombo)==2 && event->Tau2DecayMode->at(iCombo) == 0) ||
+		(event->Tau1DecayMode->at(iCombo)==3 && event->Tau2DecayMode->at(iCombo) == 0) ||
+		(event->Tau1DecayMode->at(iCombo)==4 && event->Tau2DecayMode->at(iCombo) == 0) ){ DDMI = 1; }
+else if( 
+		(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo)>=10) ||
+		(event->Tau1DecayMode->at(iCombo)>=10 && event->Tau2DecayMode->at(iCombo)==0) ){ DDMI = 2; }
+else{ DDMI = 3; }
+hContainer->Fill("DDMI", DDMI, weightFull);
+
+int DTMI = -1; 
+if((event->Tau1NProngs->at(iCombo)<1) || (event->Tau2NProngs->at(iCombo)<1)){ DTMI = -1; }
+else if(event->Tau1NProngs->at(iCombo)==1 && event->Tau2NProngs->at(iCombo)==1){ DTMI = 0; }
+else if((event->Tau1NProngs->at(iCombo)==1 && event->Tau2NProngs->at(iCombo)==3) || (event->Tau2NProngs->at(iCombo)==1 && event->Tau1NProngs->at(iCombo)==3)){ DTMI = 1; }
+else if(event->Tau1NProngs->at(iCombo)==3 && event->Tau2NProngs->at(iCombo)==3){ DTMI = 2; }
+else{ DTMI = 3; }
+hContainer->Fill("DTMI", DTMI, weightFull);
+
+// Vertex-track stuff
+hContainer->Fill("LTdxy_L", event->Tau1LTIpVtdxy->at(iCombo), weightFull);
+hContainer->Fill("LTdxy_S", event->Tau2LTIpVtdxy->at(iCombo), weightFull);
+hContainer->Fill("AbsDeltaLTdxy_LS", fabs((event->Tau1LTIpVtdxy->at(iCombo)) - (event->Tau2LTIpVtdxy->at(iCombo))), weightFull);
+
+hContainer->Fill("LTdz_L", event->Tau1LTIpVtdz->at(iCombo), weightFull);
+hContainer->Fill("LTdz_S", event->Tau2LTIpVtdz->at(iCombo), weightFull);
+hContainer->Fill("AbsDeltaLTdz_LS", fabs((event->Tau1LTIpVtdz->at(iCombo)) - (event->Tau2LTIpVtdz->at(iCombo))), weightFull);
+
+hContainer->Fill("LTd0_L", event->Tau1LTIpVtd0->at(iCombo), weightFull);
+hContainer->Fill("LTd0_S", event->Tau2LTIpVtd0->at(iCombo), weightFull);
+hContainer->Fill("AbsDeltaLTd0_LS", fabs((event->Tau1LTIpVtd0->at(iCombo)) - (event->Tau2LTIpVtd0->at(iCombo))), weightFull);
+hContainer->Fill("LTd0_LvsS", event->Tau1LTIpVtd0->at(iCombo)/event->Tau2LTIpVtd0->at(iCombo), weightFull);
+
+float deltaXY	= sqrt(pow(event->Tau1x-event->Tau2x,2) + pow(event->Tau1y-event->Tau2y,2));
+float deltaXYZ	= sqrt(pow(event->Tau1x-event->Tau2x,2) + pow(event->Tau1y-event->Tau2y,2) + pow(event->Tau1z-event->Tau2z,2));
+hContainer->Fill("DeltaXY_LS", deltaXY, weightFull);
+hContainer->Fill("DeltaXYZ_LS", deltaXYZ, weightFull);
+
+

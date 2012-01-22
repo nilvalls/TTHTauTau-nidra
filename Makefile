@@ -29,12 +29,12 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
-			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o \
+			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
+			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o .Stamper.o .Optimizer.o \
 			.RootFileMaker.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
-			.HWrapper.o .HContainer.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o \
+			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
+			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o .Stamper.o .Optimizer.o \
 			.RootFileMaker.o $(GLIBS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
@@ -85,6 +85,9 @@ libConfigParser.so: configParser/config.h
 
 .Stacker.o: Stacker.cc Stacker.h
 	$(CXX) $(CXXFLAGS) -c Stacker.cc -o $@
+
+.Stamper.o: Stamper.cc Stamper.h
+	$(CXX) $(CXXFLAGS) -c Stamper.cc -o $@
 
 .Optimizer.o: Optimizer.cc Optimizer.h 
 	$(CXX) $(CXXFLAGS) -c Optimizer.cc -o $@

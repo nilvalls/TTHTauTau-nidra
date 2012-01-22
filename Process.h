@@ -36,6 +36,7 @@ class Process {
 		HContainer				hContainerForSignal;
 		HContainer				hContainerForQCD;
 		CutFlow					cutFlow;
+		CutFlow					normalizedCutFlow;
 
 		string shortName;
 		string niceName;
@@ -91,6 +92,7 @@ class Process {
 
 		void				NormalizeToLumi(double const);
 		void				NormalizeToOne();
+		void				BuildNormalizedCutFlow();
 		void				ScaleBy(double const);
 		void				SetAnalyzed();
 		bool const			Analyzed() const;
@@ -100,8 +102,11 @@ class Process {
 		void				SetHContainerForSignal(HContainer const &);
 		void				SetHContainerForQCD(HContainer const &);
 		void				SetCutFlow(CutFlow const &);
+		void				SetNormalizedCutFlow(CutFlow const &);
 		CutFlow *			GetCutFlow();
 		CutFlow const *		GetCutFlow() const;
+		CutFlow *			GetNormalizedCutFlow();
+		CutFlow const *		GetNormalizedCutFlow() const;
 
 		int const			GetColor() const;
 		string const		GetShortName() const;

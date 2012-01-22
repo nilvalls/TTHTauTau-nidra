@@ -40,9 +40,12 @@
 	bool CutOn_SL_DecayModeFinding;			float Min_SL_DecayModeFinding;			float Max_SL_DecayModeFinding;
 	bool CutOn_LL_DecayMode;				float Min_LL_DecayMode;					float Max_LL_DecayMode;
 	bool CutOn_SL_DecayMode;				float Min_SL_DecayMode;					float Max_SL_DecayMode;
+	bool CutOn_DDMI;                        float Min_DDMI;                         float Max_DDMI;
+	bool CutOn_DTMI;                        float Min_DTMI;                         float Max_DTMI;
 	bool CutOn_LL_NumProngs;				float Min_LL_NumProngs;					float Max_LL_NumProngs;
 	bool CutOn_SL_NumProngs;				float Min_SL_NumProngs;					float Max_SL_NumProngs;
 	bool CutOn_ChargeProduct;				float Min_ChargeProduct;				float Max_ChargeProduct;
+	bool CutOn_DeltaEta;					float Min_DeltaEta;						float Max_DeltaEta;
 	bool CutOn_CosDeltaPhi;					float Min_CosDeltaPhi;					float Max_CosDeltaPhi;
 	bool CutOn_MET;							float Min_MET;							float Max_MET;
 	bool CutOn_Zeta;						float Min_Zeta;							float Max_Zeta;

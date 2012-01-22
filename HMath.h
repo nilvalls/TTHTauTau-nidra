@@ -14,21 +14,19 @@ class HMath{
 		HMath(HMath const &);
 		~HMath();
 
-		HWrapper const & Integrated(HWrapper const &, bool const) const;
-		TH1F const & Integrated(TH1F const &, bool const) const;
+		HWrapper  * Integrated(HWrapper  *, bool ) ;
+		TH1F  * Integrated(TH1F* , bool ) ;
 
-		HWrapper const & IntegratedFromLeft (HWrapper const &) const;
-		HWrapper const & IntegratedFromRight(HWrapper const &) const;
+		HWrapper  * IntegratedFromLeft (HWrapper  *) ;
+		HWrapper  * IntegratedFromRight(HWrapper  *) ;
 
-		TH1F const & IntegratedFromLeft (TH1F const &) const;
-		TH1F const & IntegratedFromRight(TH1F const &) const;
+		TH1F  * IntegratedFromLeft (TH1F  *) ;
+		TH1F  * IntegratedFromRight(TH1F  *) ;
 
-		TH1F const & StoRootB(TH1F const &, TH1F const &) const;
-		TH1F const & RightIntegratedStoRootB(TH1F const &, TH1F const &) const;
-		TH1F const & LeftIntegratedStoRootB(TH1F const &, TH1F const &) const;
-		//*/
+		TH1F * StoRootB(TH1F  *, TH1F  *) ;
+		TH1F  * RightIntegratedStoRootB(TH1F  *, TH1F  *) ;
+		TH1F  * LeftIntegratedStoRootB(TH1F  *, TH1F  *) ;
 
-		ClassDef(HMath, 1);
 };
 
 #endif

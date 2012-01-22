@@ -31,7 +31,8 @@
 #include "RootFileMaker.h"
 #include "Plotter.h"
 #include "Stacker.h"
-//#include "Optimizer.h"
+#include "Stamper.h"
+#include "Optimizer.h"
 
 #include "configParser/config.h"
 

@@ -91,8 +91,11 @@ class HWrapper{
 
 
 		void	SetHisto(TH1 const &);
+		void	SetHisto(TH1*);
 		void	SetIsTH1F(bool const);
 		void	SetIsTH2F(bool const);
+		void	SetMaximum(double const);
+		void	ResetMaximum(double const iFactor=1.1);
 		void	Add(TH1 const &, double const iFactor=1.0);
 		void	Add(HWrapper const &, double const iFactor=1.0);
 		void	NormalizeTo(double const);

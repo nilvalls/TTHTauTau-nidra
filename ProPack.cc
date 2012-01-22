@@ -164,10 +164,10 @@ void ProPack::BuildQCD(){
 	//hContainerForQCD.ScaleBy(atof((params["osls"]).c_str()));
 
 	// Do the same for the CutFlow
-	CutFlow cutFlow = CutFlow(*(collisions.GetCutFlow()));
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ cutFlow.Add(*(GetMCbackgrounds()->at(b).GetCutFlow()), -1); }
+	CutFlow cutFlow = CutFlow(*(collisions.GetNormalizedCutFlow()));
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ cutFlow.Add(*(GetMCbackgrounds()->at(b).GetNormalizedCutFlow()), -1); }
 	cutFlow.InvertSignalAndQCD();
-	qcd.SetCutFlow(cutFlow);
+	qcd.SetNormalizedCutFlow(cutFlow);
 
 	// Set colors and put it in process here
 	qcd.SetHContainerForSignal(hContainerForQCD);
@@ -187,7 +187,7 @@ Process ProPack::GetAvailableProcess() const {
 }
 
 
-// Cut flow getters
+/*// Cut flow getters
 CutFlow ProPack::GetCollisionsCutFlow() const {
 	if(!prepareCollisions){ cerr << "ERROR: trying to obtain Collisions cutflow but have no Collisions" << endl; exit(1); }
 	return CutFlow(*collisions.GetCutFlow());
@@ -201,9 +201,7 @@ CutFlow ProPack::GetQCDCutFlow() const {
 vector<CutFlow>	ProPack::GetMCbackgroundsCutFlows() const {
 	if(!PrepareMCbackgrounds()){ cerr << "ERROR: trying to obtain mc background cutflows but have no none" << endl; exit(1); }
 	vector<CutFlow> result;
-	for(unsigned int b = 0; b < mcBackgrounds.size(); b++){
-		result.push_back(*mcBackgrounds.at(b).GetCutFlow());
-	}
+	for(unsigned int b = 0; b < mcBackgrounds.size(); b++){ result.push_back(*mcBackgrounds.at(b).GetCutFlow()); }
 	return result;
 }
 
@@ -214,7 +212,7 @@ vector<CutFlow>	ProPack::GetSignalsCutFlows() const {
 		result.push_back(*signals.at(b).GetCutFlow());
 	}
 	return result;
-}
+} //*/
 
 HWrapper const ProPack::GetAvailableHWrapper() const { return (*(GetAvailableProcess().GetAvailableHWrapper())); }
 HWrapper const ProPack::GetAvailableHWrapper(string const iName) const { 
@@ -256,14 +254,19 @@ void ProPack::NormalizeToLumi(){
 			float fractionCollisionsAnalyzed = collisions.GetNOEanalyzed()/(double)collisions.GetNOEinNtuple();
 			effectiveIntegratedLumi = integratedLumiInInvPb*fractionCollisionsAnalyzed;
 			collisions.GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, 1, 1);
+			collisions.BuildNormalizedCutFlow();
 		}
 
 		// Normalize MC backgrounds
-		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ GetMCbackgrounds()->at(b).NormalizeToLumi(effectiveIntegratedLumi); }
+		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){
+			GetMCbackgrounds()->at(b).NormalizeToLumi(effectiveIntegratedLumi);
+			GetMCbackgrounds()->at(b).BuildNormalizedCutFlow();
+		}
 
 		// Normalize signals
 		for(unsigned int s = 0; s < GetSignals()->size(); s++){
 			GetSignals()->at(s).NormalizeToLumi(effectiveIntegratedLumi);
+			GetSignals()->at(s).BuildNormalizedCutFlow();
 		}
 	}
 
@@ -320,19 +323,9 @@ void ProPack::DistributeProcesses(){
 	PrepareQCD(true);
 	cout << endl;
 
+	normalizedToLumi = false;
+
 }
-
-/*
-vector<Process> ProPack::GetProcesses(){
-	vector<Process> result;
-	if(PrepareCollisions()){	result.push_back(*GetCollisions()); };
-	if(PrepareQCD()){			result.push_back(*GetQCD()); };
-
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++ ){ result.push_back(GetMCbackgrounds()->at(b)); }
-	for(unsigned int s = 0; s < GetSignals()->size(); s++ ){ result.push_back(GetSignals()->at(s)); }
-
-	return result;
-}//*/
 
 vector<Process*> ProPack::GetProcesses(){
 	vector<Process*> result;

@@ -39,9 +39,12 @@
 	CutOn_SL_DecayModeFinding		= false; //	Max_SL_DecayModeFinding			= 0;		Max_SL_DecayModeFinding			= FLT_MAX;
 	CutOn_LL_DecayMode				= false; //	Max_LL_DecayMode				= 0;		Max_LL_DecayMode				= FLT_MAX;
 	CutOn_SL_DecayMode				= false; //	Max_SL_DecayMode				= 0;		Max_SL_DecayMode				= FLT_MAX;
+	CutOn_DDMI                      = false; // Max_DDMI                        = 0;        Max_DDMI                        = FLT_MAX;
+	CutOn_DTMI                      = false; // Max_DTMI                        = 0;        Max_DTMI                        = FLT_MAX;
 	CutOn_LL_NumProngs				= false; //	Max_LL_NumProngs				= 0;		Max_LL_NumProngs				= FLT_MAX;
 	CutOn_SL_NumProngs				= false; //	Max_SL_NumProngs				= 0;		Max_SL_NumProngs				= FLT_MAX;
 	CutOn_ChargeProduct				= false; //	Max_ChargeProduct				= -FLT_MAX;	Max_ChargeProduct				= FLT_MAX;
+	CutOn_DeltaEta					= false; //	Max_DeltaEta					= 0;		Max_DeltaEta					= FLT_MAX;
 	CutOn_CosDeltaPhi				= false; //	Max_CosDeltaPhi					= -FLT_MAX;	Max_CosDeltaPhi					= FLT_MAX;
 	CutOn_MET						= false; //	Max_MET							= 0;		Max_MET							= FLT_MAX;
 	CutOn_Zeta						= false; //	Max_Zeta						= -FLT_MAX;	Max_Zeta						= FLT_MAX;

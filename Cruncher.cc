@@ -141,7 +141,8 @@ string Cruncher::GetCutLine(string const iFormat, string const iOptions, string 
 	if(iFormat.compare("HTML")==0){
 		result << "<TR>"; 
 		result << "<TD>" << iCut << "</TD>";
-		for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTriplet(iFormat, iOptions, iCut, p); }
+		for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTriplet(iFormat, iOptions, iCut, processes.at(p)->GetNormalizedCutFlow()); }
+	//	for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTriplet(iFormat, iOptions, iCut, processes.at(p)->GetCutFlow()); }
 		result << "</TR>";	
 	}else if(iFormat.compare("TEX")==0){
 
@@ -160,7 +161,8 @@ string Cruncher::GetCutLineForQCD(string const iFormat, string const iOptions, s
 	if(iFormat.compare("HTML")==0){
 		result << "<TR>"; 
 		result << "<TD>" << iCut << "</TD>";
-		for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTripletForQCD(iFormat, iOptions, iCut, p); }
+		for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTripletForQCD(iFormat, iOptions, iCut, processes.at(p)->GetNormalizedCutFlow()); }
+		//for(unsigned int p = 0; p < processes.size(); p++){ result << GetCutTripletForQCD(iFormat, iOptions, iCut, processes.at(p)->GetCutFlow()); }
 		result << "</TR>";	
 	}else if(iFormat.compare("TEX")==0){
 
@@ -173,15 +175,13 @@ string Cruncher::GetCutLineForQCD(string const iFormat, string const iOptions, s
 	return result.str();
 }
 
-string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, string const iCut, int const iProcess){
+string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, string const iCut, CutFlow const * iCutFlow){
 	stringstream result; result.str("");
 
-	CutFlow cutFlow = CutFlow(*(processes.at(iProcess)->GetCutFlow()));
-
 	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e", iOptions)){ result << "<TD>" << cutFlow.GetPassedEventsForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("r", iOptions)){ result << "<TD>" << cutFlow.GetRelEffForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("c", iOptions)){ result << "<TD>" << cutFlow.GetCumEffForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("e", iOptions)){ result << "<TD>" << iCutFlow->GetPassedEventsForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("r", iOptions)){ result << "<TD>" << iCutFlow->GetRelEffForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("c", iOptions)){ result << "<TD>" << iCutFlow->GetCumEffForSignal(iCut) << "</TD>"; }
 	}else if(iFormat.compare("TEX")==0){
 
 	}else if(iFormat.compare("TXT")==0){
@@ -193,15 +193,13 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 	return result.str();
 }
 
-string Cruncher::GetCutTripletForQCD(string const iFormat, string const iOptions, string const iCut, int const iProcess){
+string Cruncher::GetCutTripletForQCD(string const iFormat, string const iOptions, string const iCut, CutFlow const * iCutFlow){
 	stringstream result; result.str("");
 
-	CutFlow cutFlow = CutFlow(*(processes.at(iProcess)->GetCutFlow()));
-
 	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e", iOptions)){ result << "<TD>" << cutFlow.GetPassedEventsForQCD(iCut) << "</TD>"; }
-		if(IsOptionThere("r", iOptions)){ result << "<TD>" << cutFlow.GetRelEffForQCD(iCut) << "</TD>"; }
-		if(IsOptionThere("c", iOptions)){ result << "<TD>" << cutFlow.GetCumEffForQCD(iCut) << "</TD>"; }
+		if(IsOptionThere("e", iOptions)){ result << "<TD>" << iCutFlow->GetPassedEventsForQCD(iCut) << "</TD>"; }
+		if(IsOptionThere("r", iOptions)){ result << "<TD>" << iCutFlow->GetRelEffForQCD(iCut) << "</TD>"; }
+		if(IsOptionThere("c", iOptions)){ result << "<TD>" << iCutFlow->GetCumEffForQCD(iCut) << "</TD>"; }
 	}else if(iFormat.compare("TEX")==0){
 
 	}else if(iFormat.compare("TXT")==0){
@@ -216,8 +214,8 @@ string Cruncher::GetCutTripletForQCD(string const iFormat, string const iOptions
 string Cruncher::GetEfficiencies(string const iFormat, string const iOptions){
 	stringstream result; result.str("");
 	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
-	processes.at(0)->GetCutFlow()->GetCutNames();
-	vector<string> cutNames = processes.at(0)->GetCutFlow()->GetCutNames();
+	vector<string> cutNames = processes.at(0)->GetNormalizedCutFlow()->GetCutNames();
+	//vector<string> cutNames = processes.at(0)->GetCutFlow()->GetCutNames();
 
 	result << GetDocumentHeader(iFormat) << endl;
 	result << GetTableHeader(iFormat, iOptions) << endl;
@@ -234,8 +232,8 @@ string Cruncher::GetEfficiencies(string const iFormat, string const iOptions){
 string Cruncher::GetEfficienciesForQCD(string const iFormat, string const iOptions){
 	stringstream result; result.str("");
 	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
-	processes.at(0)->GetCutFlow()->GetCutNames();
-	vector<string> cutNames = processes.at(0)->GetCutFlow()->GetCutNames();
+	vector<string> cutNames = processes.at(0)->GetNormalizedCutFlow()->GetCutNames();
+	//vector<string> cutNames = processes.at(0)->GetCutFlow()->GetCutNames();
 
 	result << GetDocumentHeader(iFormat) << endl;
 	result << GetTableHeader(iFormat, iOptions) << endl;

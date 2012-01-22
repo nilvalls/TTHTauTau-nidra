@@ -147,6 +147,21 @@ void HWrapper::SetHisto(TH1 const & iHisto){
 	histo = (TH1*)iHisto.Clone((ssName.str()).c_str());
 }
 
+void HWrapper::SetHisto(TH1* iHisto){
+
+	if(isTH1F && isTH2F){
+		cerr << "ERROR: trying to set histo in HWrapper but it's both a TH1F and a TH2F" << endl;
+		exit(1);
+	}else if(isTH1F){
+		histo1 = TH1F(*(TH1F*)iHisto);
+		histo = &histo1;
+	}else if(isTH2F){
+		histo2 = TH2F(*(TH2F*)iHisto);
+		histo = &histo2;
+	}else { cerr << "ERROR: trying to set histo in HWrapper but it's neither a TH1F nor a TH2F" << endl; exit(1); }
+
+}
+
 void HWrapper::SetLineWidth(int iVal, int iColor){
 	histo->SetLineWidth(iVal);
 	histo->SetLineColor(iColor);
@@ -161,6 +176,8 @@ void HWrapper::SetFillStyle(int const iVal, int const iColor){
 	}
 }
 
+void HWrapper::SetMaximum(double const iValue){ histo->SetMaximum(iValue); }
+void HWrapper::ResetMaximum(double const iFactor){ histo->SetMaximum(iFactor*histo->GetBinContent(histo->GetMaximumBin())); }
 void HWrapper::SetFillColor(int const iValue){ histo->SetFillColor(iValue); }
 void HWrapper::SetLineColor(int const iValue){ histo->SetLineColor(iValue); }
 void HWrapper::SetMarkerStyle(int const iValue){ histo->SetMarkerStyle(iValue); }
@@ -195,15 +212,14 @@ void HWrapper::Positivize(){
 
 void HWrapper::FillRandom(string const iFunction){ histo->FillRandom(iFunction.c_str()); }
 
-double const HWrapper::GetMaximum() const { return histo->GetMaximum(); }
+double const HWrapper::GetMaximum() const { return histo->GetBinContent(histo->GetMaximumBin()); }
 double const HWrapper::GetMaximumWithError() const {
 	double result = 0;
-	for(unsigned int b = 0; b <= histo->GetNbinsX()+1; b++){
+	for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
 		double content = histo->GetBinContent(b);	
 		double error = histo->GetBinError(b);	
 		if((content+error) > result){ result = content+error; }
 	}
-
 	return result;
 }
 

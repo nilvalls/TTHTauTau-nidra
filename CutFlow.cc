@@ -48,10 +48,12 @@ CutFlow::~CutFlow(){}
 void CutFlow::Reset(){
 
 	cutNames.clear();
+	cutRanks.clear();
 	minThresholds.clear();
 	maxThresholds.clear();
 	
 	Zero();
+
 }
 
 void CutFlow::Zero(){
@@ -62,6 +64,14 @@ void CutFlow::Zero(){
 
 	passedEventsForSignal.clear();
 	passedEventsForQCD.clear();
+
+	heaviestComboForSignal	= -1;
+	heaviestComboForQCD		= -1;
+
+	eventForSignalPassed	= false;
+	eventForQCDPassed		= false;
+	comboIsForSignal		= false;
+	comboIsForQCD			= false;
 
 	heaviestComboForSignal	= -1;
 	heaviestComboForQCD		= -1;
@@ -441,6 +451,36 @@ void CutFlow::PrintTable(){
 		cout << "\t" << cutNames.at(n) << "\t\t" << GetPassedEventsForSignal(cutNames.at(n)) << "\t\t" << GetPassedEventsForQCD(cutNames.at(n)) << endl;
 	}	
 }
+
+void CutFlow::BuildNormalizedCutFlow(CutFlow const * iCutFlow){
+
+		Reset();
+
+		vector<string> iCutNames = iCutFlow->GetCutNames();
+		double scaleFactorForSignal = 1.0;
+		double scaleFactorForQCD = 1.0;
+
+		for(unsigned int n = 0; n < iCutNames.size(); n++){
+			string iCutName = iCutNames.at(n);
+			if(iCutFlow->GetCutRank(iCutName) != 2){ continue; }
+			scaleFactorForSignal *= iCutFlow->GetRelEffForSignal(iCutName);
+			scaleFactorForQCD *= iCutFlow->GetRelEffForQCD(iCutName);
+		}
+
+		for(unsigned int n = 0; n < iCutNames.size(); n++){
+			string iCutName = iCutNames.at(n);
+			if(iCutFlow->GetCutRank(iCutName) == 2){ continue; }
+
+			RegisterCut( iCutName, iCutFlow->GetCutRank(iCutName),
+						scaleFactorForSignal*iCutFlow->GetPassedEventsForSignal(iCutName),
+						scaleFactorForQCD*iCutFlow->GetPassedEventsForQCD(iCutName));
+
+			UpdateCutNamesMap();
+		
+		}
+
+}
+
 
 
 ClassImp(CutFlow)

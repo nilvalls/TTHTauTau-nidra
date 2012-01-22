@@ -98,6 +98,7 @@ class CutFlow {
 		double const				GetLastCountForSignal() const;
 		double const				GetLastCountForQCD() const;
 		void						Add(CutFlow const &, float const iFactor=1.0);
+		void						BuildNormalizedCutFlow(CutFlow const *);
 
 
 		pair<float,float> ExtractCutThresholds(string);

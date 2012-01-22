@@ -98,11 +98,11 @@ class ProPack : public TObject {
 		void						NormalizeToLumi();
 		void						ApplyRosls();
 
-		// Cut flows
+/*		// Cut flows
 		CutFlow 					GetCollisionsCutFlow() const;
 		CutFlow 					GetQCDCutFlow() const;
 		vector<CutFlow>				GetMCbackgroundsCutFlows() const;
-		vector<CutFlow>				GetSignalsCutFlows() const;
+		vector<CutFlow>				GetSignalsCutFlows() const; //*/
 
 
 		// Useful for plotting

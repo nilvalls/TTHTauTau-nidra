@@ -94,6 +94,7 @@ void Analyze(){
 	// Pass topopack to analyzer to analyze
 	analyzer.AnalyzeAll(*proPack);
 
+
 	// Save analyzed ProPack to a root file
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
 	delete proPack; proPack = NULL;
@@ -157,7 +158,7 @@ void PlotStamps(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Stamping plots...");
 	ReMakeDir(GetParam("stamps_output"));
-	//Stamper stamper = Stamper(new map<string,string>(params));
+	//Stamper stamper = Stamper(params);
 	Print(GREEN," done!");
 }
 
@@ -165,7 +166,7 @@ void Optimize(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Making optimization plots...");
 	ReMakeDir(GetParam("optimization_output"));
-	//Optimizer optimizer = Optimizer(&params);
+	Optimizer optimizer = Optimizer(params);
 	Print(GREEN," done!");
 }
 

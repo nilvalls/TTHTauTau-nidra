@@ -193,6 +193,9 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 	// ============================= Acceptance Cuts ============================= //
 
+	// Invariant mass
+	if(CutOn_InvariantMass){ if(!cutFlow.CheckCombo("InvariantMass", event->TauTauVisPlusMetMass->at(iCombo))){ return result; }}
+
 	// Transverse momentum
 	if(CutOn_LL_pT){ if(!cutFlow.CheckCombo("LL_pT", event->Tau1Pt->at(iCombo))){ return result; }}
 	if(CutOn_SL_pT){ if(!cutFlow.CheckCombo("SL_pT", event->Tau2Pt->at(iCombo))){ return result; }}
@@ -206,6 +209,41 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 
 	// ============================= Tau-ID Cuts ============================= //
+
+	// DitauDecayModeIndex
+	if(CutOn_DDMI){
+		int DDMI = -1;
+		if(event->Tau1DecayMode->at(iCombo)<0 || event->Tau2DecayMode->at(iCombo)<0){ DDMI = -1; }
+		else if(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo)==0){ DDMI = 0; }
+		else if(
+				(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 1) ||
+				(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 2) ||
+				(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 3) ||
+				(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo) == 4) ||
+				(event->Tau1DecayMode->at(iCombo)==1 && event->Tau2DecayMode->at(iCombo) == 0) ||
+				(event->Tau1DecayMode->at(iCombo)==2 && event->Tau2DecayMode->at(iCombo) == 0) ||
+				(event->Tau1DecayMode->at(iCombo)==3 && event->Tau2DecayMode->at(iCombo) == 0) ||
+				(event->Tau1DecayMode->at(iCombo)==4 && event->Tau2DecayMode->at(iCombo) == 0) ){ DDMI = 1; }
+		else if(
+				(event->Tau1DecayMode->at(iCombo)==0 && event->Tau2DecayMode->at(iCombo)>=10) ||
+				(event->Tau1DecayMode->at(iCombo)>=10 && event->Tau2DecayMode->at(iCombo)==0) ){ DDMI = 2; }
+		else{ DDMI = 3; }
+
+		if(!cutFlow.CheckCombo("DDMI", DDMI)){ return result; }
+	}
+
+	// Dievent->TauTrackMultiplicityIndex
+	if(CutOn_DTMI){
+		int DTMI = -1;
+		if((event->Tau1NProngs->at(iCombo)<1) || (event->Tau2NProngs->at(iCombo)<1)){ DTMI = -1; }
+		else if(event->Tau1NProngs->at(iCombo)==1 && event->Tau2NProngs->at(iCombo)==1){ DTMI = 0; }
+		else if((event->Tau1NProngs->at(iCombo)==1 && event->Tau2NProngs->at(iCombo)==3) || (event->Tau2NProngs->at(iCombo)==1 && event->Tau1NProngs->at(iCombo)==3)){ DTMI = 1; }
+		else if(event->Tau1NProngs->at(iCombo)==3 && event->Tau2NProngs->at(iCombo)==3){ DTMI = 2; }
+		else{ DTMI = 3; }
+
+		if(!cutFlow.CheckCombo("DTMI", DTMI)){ return result; }
+	}
+
 	
 	// Leading track transverse momentum
 	if(CutOn_LL_LTpT){ if(!cutFlow.CheckCombo("LL_LTpT", event->Tau1LTPt->at(iCombo))){ return result; }}
@@ -278,6 +316,9 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 	if(CutOn_SL_NumProngs){ if(!cutFlow.CheckCombo("SL_NumProngs", event->Tau2NProngs->at(iCombo))){ return result; }}
 
 	// ============================= Topological Cuts ============================= //
+
+	// Delta eta between taus
+	if(CutOn_DeltaEta){ if(!cutFlow.CheckCombo("DeltaEta", event->Tau1Eta->at(iCombo)-event->Tau2Eta->at(iCombo))){ return result; }}
 
 	// Cosine Delta phi
 	if(CutOn_CosDeltaPhi){ if(!cutFlow.CheckCombo("CosDeltaPhi", event->TauTauCosDPhi->at(iCombo))){ return result; }}

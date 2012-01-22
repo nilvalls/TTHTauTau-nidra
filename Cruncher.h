@@ -43,10 +43,10 @@ class Cruncher {
 		string GetTableFooter(string const);
 		string GetOptionsHeader(string const, string const);
 		string GetCutLine(string const, string const, string const);
-		string GetCutTriplet(string const, string const, string const, int const);
+		string GetCutTriplet(string const, string const, string const, CutFlow const *);
 		string GetEfficiencies(string const, string const);
 		string GetCutLineForQCD(string const, string const, string const);
-		string GetCutTripletForQCD(string const, string const, string const, int const);
+		string GetCutTripletForQCD(string const, string const, string const, CutFlow const *);
 		string GetEfficienciesForQCD(string const, string const);
 		bool IsOptionThere(string const, string const);
 		int GetNumberOfOptions(string const);

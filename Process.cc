@@ -22,6 +22,7 @@ Process::Process(Process const & iProcess){
 	hContainerForSignal				= HContainer(*iProcess.GetHContainerForSignal());
 	hContainerForQCD				= HContainer(*iProcess.GetHContainerForQCD());
 	cutFlow							= CutFlow(*iProcess.GetCutFlow());
+	normalizedCutFlow				= CutFlow(*iProcess.GetNormalizedCutFlow());
 
 	shortName						= iProcess.GetShortName();
 	niceName						= iProcess.GetNiceName();
@@ -99,11 +100,14 @@ void Process::SetHContainerForQCD(HContainer const & iHContainer){ hContainerFor
 vector<pair<int, int> > const Process::GetGoodEventsForSignal() const { return goodEventsForSignal; }
 vector<pair<int, int> > const Process::GetGoodEventsForQCD() const {	return goodEventsForQCD; }
 void Process::SetCutFlow(CutFlow const & iCutFlow){ cutFlow	= CutFlow(iCutFlow); }
+void Process::SetNormalizedCutFlow(CutFlow const & iCutFlow){ normalizedCutFlow	= CutFlow(iCutFlow); }
 void Process::SetNOEanalyzed(double const iEvents){ NOEanalyzed = iEvents; }
 void Process::SetNOEinNtuple(double const iEvents){ NOEinNtuple = iEvents; }
 void Process::SetColor(int const iColor){ color = iColor; }
 CutFlow* Process::GetCutFlow() { return &cutFlow; }
 CutFlow const * Process::GetCutFlow() const { return &cutFlow; }
+CutFlow* Process::GetNormalizedCutFlow() { return &normalizedCutFlow; }
+CutFlow const * Process::GetNormalizedCutFlow() const { return &normalizedCutFlow; }
 string const Process::GetShortName() const {	return shortName;		}
 string const Process::GetNiceName() const {			return niceName;		}
 string const Process::GetLabelForLegend() const {	return labelForLegend;	}
@@ -200,5 +204,7 @@ void Process::ScaleBy(double const iScale){
 	hContainerForSignal.ScaleBy(iScale);
 	hContainerForQCD.ScaleBy(iScale);
 }
+
+void Process::BuildNormalizedCutFlow(){ normalizedCutFlow.BuildNormalizedCutFlow(&cutFlow); }
 
 ClassImp(Process)
