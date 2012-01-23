@@ -17,6 +17,8 @@ using namespace std;
 Plotter::Plotter(){
 	file = NULL;
 	proPack = NULL;
+	puCorrector = NULL;
+	ditauTrigger = NULL;
 }
 
 // Default destructor
@@ -24,6 +26,8 @@ Plotter::~Plotter(){
 	if(file!=NULL){ file->Close(); }
 	delete file; file = NULL;
 	delete proPack; proPack = NULL;
+	delete puCorrector; puCorrector = NULL;
+	delete ditauTrigger; ditauTrigger = NULL;
 }
 
 Plotter::Plotter(map<string,string>const & iParams){
@@ -36,8 +40,13 @@ Plotter::Plotter(map<string,string>const & iParams){
 	file->cd();
 
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+	puCorrector = new PUcorrector((params["puList"]));
+	ditauTrigger = new Trigger(proPack->GetIntegratedLumiInInvPb());
 
 	MakePlots(proPack);
+
+	delete puCorrector; puCorrector = NULL;
+	delete ditauTrigger; ditauTrigger = NULL;
 
 	file->cd();
 	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
@@ -46,6 +55,7 @@ Plotter::Plotter(map<string,string>const & iParams){
 
 // Function to make the plots
 void Plotter::MakePlots(ProPack* iProPack){
+
 	if(iProPack->HaveCollisions()){		MakePlots(iProPack->GetCollisions());		}
 	if(iProPack->HaveMCbackgrounds()){	MakePlots((iProPack->GetMCbackgrounds()));	}
 	if(iProPack->HaveSignals()){		MakePlots(iProPack->GetSignals());			}
@@ -79,17 +89,13 @@ void Plotter::MakePlots(Process* iProcess){
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
 
-	// Triggers and PUcorrectors
-	PUcorrector puCorrector;
-	Trigger trigger(4600);
-
 	// Recover the good events for signal and fill histos with them
 	weightCounter weightCounterForSignal;
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
 		event->AlienGetEntry(goodEventsForSignal.at(i).first);
 		event->SetBestCombo(goodEventsForSignal.at(i).second);
-		FillHistos(&hContainerForSignal,event,iProcess->IsMC(), &trigger, &puCorrector, &weightCounterForSignal);
+		FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForSignal);
 	}
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 	double puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
@@ -102,7 +108,7 @@ void Plotter::MakePlots(Process* iProcess){
 	for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
 		event->AlienGetEntry(goodEventsForQCD.at(i).first);
 		event->SetBestCombo(goodEventsForQCD.at(i).second);
-		FillHistos(&hContainerForQCD,event,iProcess->IsMC(), &trigger, &puCorrector, &weightCounterForQCD);
+		FillHistos(&hContainerForQCD, event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForQCD);
 	}
 	iProcess->SetHContainerForQCD(hContainerForQCD);
 	double puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
@@ -145,7 +151,7 @@ void Plotter::BookHistos(HContainer* iHContainer){
 }
 
 // Fill the histograms with the event passed
-void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool iIsMC, Trigger const* iTrigger, PUcorrector const * iPUcorrector, weightCounter* iWeightCounter){
+void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool const iIsMC, Trigger const * iTrigger, PUcorrector const * iPUcorrector, weightCounter* iWeightCounter){
 	HContainer* hContainer = iHContainer;
 	DitauBranches* event = iEvent;
 	int iCombo = event->bestCombo;

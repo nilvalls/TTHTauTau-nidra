@@ -35,6 +35,7 @@ class Trigger{
 	Config*				triggerConfig;
 
 	public:
+		~Trigger();
 		Trigger(float);
 		Trigger(string);
 		Trigger(string, string);

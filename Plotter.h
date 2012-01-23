@@ -45,11 +45,13 @@ class Plotter {
 		void PrintEfficiencies(string const, string const);
 
 	private: 
+		PUcorrector*	puCorrector;
+		Trigger*		ditauTrigger;
 		virtual void MakePlots(ProPack*);
 		virtual void MakePlots(Process*);
 		virtual void MakePlots(vector<Process>*);
 		void		BookHistos(HContainer*);
-		void		FillHistos(HContainer*, DitauBranches*, bool, Trigger const *, PUcorrector const *, weightCounter *);
+		void		FillHistos(HContainer*, DitauBranches*, bool const, Trigger const *, PUcorrector const *, weightCounter *);
 		bool const	IsFlagThere(string const) const;
 
 	protected:

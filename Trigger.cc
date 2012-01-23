@@ -5,6 +5,10 @@
 using namespace std;
 
 // Default constructor
+
+Trigger::~Trigger(){}
+
+
 Trigger::Trigger(float iTotalLumi){
 	lowEdge.clear();
 	weight.clear();
