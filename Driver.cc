@@ -138,11 +138,9 @@ void CrunchNumbers(){
 	ReMakeDir(GetParam("efficiency_output"));
 	Cruncher cruncher(params);
 	cruncher.PrintEfficiencies("HTML","erc");
-	cruncher.PrintEfficiencies("HTML","rc");
 	cruncher.PrintEfficiencies("HTML","e");
-	cruncher.PrintEfficienciesForQCD("HTML","erc");
-	cruncher.PrintEfficienciesForQCD("HTML","rc");
-	cruncher.PrintEfficienciesForQCD("HTML","e");
+	cruncher.PrintEfficiencies("HTML","ercn");
+	cruncher.PrintEfficiencies("HTML","en");
 	Print(GREEN," done!");
 }
 

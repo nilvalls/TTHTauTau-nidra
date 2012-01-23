@@ -176,36 +176,30 @@ pair<double,double> Analyzer::Loop(){
 pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 	///***/// LS QCD business, this is a bit tricky... ///***///
-	bool isForSignal = false;
-	bool isLS = false;
-	bool satisfiesChargeProduct = false;
+	bool isForSignal = true;
+	bool isForQCD = false;
 
 	int chargeProduct = (event->Tau1Charge->at(iCombo))*(event->Tau2Charge->at(iCombo));
-	isLS = (chargeProduct == 1);
+	isForQCD = (chargeProduct == 1);
 
-	satisfiesChargeProduct = cutFlow.CheckCombo("ChargeProduct", chargeProduct); // This line before the next!!!
-	if(CutOn_ChargeProduct && ((chargeProduct == 1) || (chargeProduct == -1))){ cutFlow.ComboIsGood("ChargeProduct"); } // This line after the previous!!!
-
-	isForSignal = ((!CutOn_ChargeProduct) || (satisfiesChargeProduct));
-
-	pair<bool,bool> result = make_pair(isForSignal, isLS);
+	pair<bool,bool> target = make_pair(true, isForQCD);
 	///***/// 	End of LS/QCD business	 ///***///
 
 	// ============================= Acceptance Cuts ============================= //
 
 	// Invariant mass
-	if(CutOn_InvariantMass){ if(!cutFlow.CheckCombo("InvariantMass", event->TauTauVisPlusMetMass->at(iCombo))){ return result; }}
+	if(CutOn_InvariantMass){ if(cutFlow.CheckComboAndStop("InvariantMass", event->TauTauVisPlusMetMass->at(iCombo), target)){ return target; }}
 
 	// Transverse momentum
-	if(CutOn_LL_pT){ if(!cutFlow.CheckCombo("LL_pT", event->Tau1Pt->at(iCombo))){ return result; }}
-	if(CutOn_SL_pT){ if(!cutFlow.CheckCombo("SL_pT", event->Tau2Pt->at(iCombo))){ return result; }}
+	if(CutOn_LL_pT){ if(cutFlow.CheckComboAndStop("LL_pT", event->Tau1Pt->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_pT){ if(cutFlow.CheckComboAndStop("SL_pT", event->Tau2Pt->at(iCombo), target)){ return target; }}
 
 	// Pseudorapidity
-	if(CutOn_LL_Eta){ if(!cutFlow.CheckCombo("LL_Eta", event->Tau1Eta->at(iCombo))){ return result; }}
-	if(CutOn_SL_Eta){ if(!cutFlow.CheckCombo("SL_Eta", event->Tau2Eta->at(iCombo))){ return result; }}
+	if(CutOn_LL_Eta){ if(cutFlow.CheckComboAndStop("LL_Eta", event->Tau1Eta->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_Eta){ if(cutFlow.CheckComboAndStop("SL_Eta", event->Tau2Eta->at(iCombo), target)){ return target; }}
 
 	// Delta R
-	if(CutOn_DeltaR){ if(!cutFlow.CheckCombo("DeltaR", event->TauTauDeltaR->at(iCombo))){ return result; }}
+	if(CutOn_DeltaR){ if(cutFlow.CheckComboAndStop("DeltaR", event->TauTauDeltaR->at(iCombo), target)){ return target; }}
 
 
 	// ============================= Tau-ID Cuts ============================= //
@@ -229,7 +223,7 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 				(event->Tau1DecayMode->at(iCombo)>=10 && event->Tau2DecayMode->at(iCombo)==0) ){ DDMI = 2; }
 		else{ DDMI = 3; }
 
-		if(!cutFlow.CheckCombo("DDMI", DDMI)){ return result; }
+		if(cutFlow.CheckComboAndStop("DDMI", DDMI, target)){ return target; }
 	}
 
 	// Dievent->TauTrackMultiplicityIndex
@@ -241,102 +235,108 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 		else if(event->Tau1NProngs->at(iCombo)==3 && event->Tau2NProngs->at(iCombo)==3){ DTMI = 2; }
 		else{ DTMI = 3; }
 
-		if(!cutFlow.CheckCombo("DTMI", DTMI)){ return result; }
+		if(cutFlow.CheckComboAndStop("DTMI", DTMI, target)){ return target; }
 	}
 
 	
 	// Leading track transverse momentum
-	if(CutOn_LL_LTpT){ if(!cutFlow.CheckCombo("LL_LTpT", event->Tau1LTPt->at(iCombo))){ return result; }}
-	if(CutOn_SL_LTpT){ if(!cutFlow.CheckCombo("SL_LTpT", event->Tau2LTPt->at(iCombo))){ return result; }}
+	if(CutOn_LL_LTpT){ if(cutFlow.CheckComboAndStop("LL_LTpT", event->Tau1LTPt->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_LTpT){ if(cutFlow.CheckComboAndStop("SL_LTpT", event->Tau2LTPt->at(iCombo), target)){ return target; }}
 
 	// Leading track number of hits
-	if(CutOn_LL_LTHits){ if(!cutFlow.CheckCombo("LL_LThits", event->Tau1LTValidHits->at(iCombo))){ return result; }}
-	if(CutOn_SL_LTHits){ if(!cutFlow.CheckCombo("SL_LThits", event->Tau2LTValidHits->at(iCombo))){ return result; }}
+	if(CutOn_LL_LTHits){ if(cutFlow.CheckComboAndStop("LL_LThits", event->Tau1LTValidHits->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_LTHits){ if(cutFlow.CheckComboAndStop("SL_LThits", event->Tau2LTValidHits->at(iCombo), target)){ return target; }}
 
 	// Crack veto
-	if(CutOn_LL_InCracks){ if(!cutFlow.CheckCombo("LL_InCracks", event->Tau1IsInTheCracks->at(iCombo))){ return result; }}
-	if(CutOn_SL_InCracks){ if(!cutFlow.CheckCombo("SL_InCracks", event->Tau2IsInTheCracks->at(iCombo))){ return result; }}
+	if(CutOn_LL_InCracks){ if(cutFlow.CheckComboAndStop("LL_InCracks", event->Tau1IsInTheCracks->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_InCracks){ if(cutFlow.CheckComboAndStop("SL_InCracks", event->Tau2IsInTheCracks->at(iCombo), target)){ return target; }}
 
 	// Against Electron
-	if( CutOn_LL_AgainstTightElectron ){ if(!cutFlow.CheckCombo("LL_AgainstTightElectron",
-		event->Tau1hpsPFTauDiscriminationAgainstTightElectron->at(iCombo))){ return result; }}
-	else if( CutOn_LL_AgainstMediumElectron ){ if(!cutFlow.CheckCombo("LL_AgainstMediumElectron",
-		event->Tau1hpsPFTauDiscriminationAgainstMediumElectron->at(iCombo))){ return result; }}
-	else if( CutOn_LL_AgainstLooseElectron ){ if(!cutFlow.CheckCombo("LL_AgainstLooseElectron",
-		event->Tau1hpsPFTauDiscriminationAgainstLooseElectron->at(iCombo))){ return result; }}
+	if( CutOn_LL_AgainstTightElectron ){ if(cutFlow.CheckComboAndStop("LL_AgainstTightElectron",
+		event->Tau1hpsPFTauDiscriminationAgainstTightElectron->at(iCombo), target)){ return target; }}
+	else if( CutOn_LL_AgainstMediumElectron ){ if(cutFlow.CheckComboAndStop("LL_AgainstMediumElectron",
+		event->Tau1hpsPFTauDiscriminationAgainstMediumElectron->at(iCombo), target)){ return target; }}
+	else if( CutOn_LL_AgainstLooseElectron ){ if(cutFlow.CheckComboAndStop("LL_AgainstLooseElectron",
+		event->Tau1hpsPFTauDiscriminationAgainstLooseElectron->at(iCombo), target)){ return target; }}
 	
-	if( CutOn_SL_AgainstTightElectron ){ if(!cutFlow.CheckCombo("SL_AgainstTightElectron",
-		event->Tau2hpsPFTauDiscriminationAgainstTightElectron->at(iCombo))){ return result; }}
-	else if( CutOn_SL_AgainstMediumElectron ){ if(!cutFlow.CheckCombo("SL_AgainstMediumElectron",
-		event->Tau2hpsPFTauDiscriminationAgainstMediumElectron->at(iCombo))){ return result; }}
-	else if( CutOn_SL_AgainstLooseElectron ){ if(!cutFlow.CheckCombo("SL_AgainstLooseElectron",
-		event->Tau2hpsPFTauDiscriminationAgainstLooseElectron->at(iCombo))){ return result; }}
+	if( CutOn_SL_AgainstTightElectron ){ if(cutFlow.CheckComboAndStop("SL_AgainstTightElectron",
+		event->Tau2hpsPFTauDiscriminationAgainstTightElectron->at(iCombo), target)){ return target; }}
+	else if( CutOn_SL_AgainstMediumElectron ){ if(cutFlow.CheckComboAndStop("SL_AgainstMediumElectron",
+		event->Tau2hpsPFTauDiscriminationAgainstMediumElectron->at(iCombo), target)){ return target; }}
+	else if( CutOn_SL_AgainstLooseElectron ){ if(cutFlow.CheckComboAndStop("SL_AgainstLooseElectron",
+		event->Tau2hpsPFTauDiscriminationAgainstLooseElectron->at(iCombo), target)){ return target; }}
 
 
 	// Against Muon
-	if( CutOn_LL_AgainstTightMuon ){ if(!cutFlow.CheckCombo("LL_AgainstTightMuon",
-		event->Tau1hpsPFTauDiscriminationAgainstTightMuon->at(iCombo))){ return result; }}
-	else if( CutOn_LL_AgainstLooseMuon ){ if(!cutFlow.CheckCombo("LL_AgainstLooseMuon",
-		event->Tau1hpsPFTauDiscriminationAgainstLooseMuon->at(iCombo))){ return result; }}
+	if( CutOn_LL_AgainstTightMuon ){ if(cutFlow.CheckComboAndStop("LL_AgainstTightMuon",
+		event->Tau1hpsPFTauDiscriminationAgainstTightMuon->at(iCombo), target)){ return target; }}
+	else if( CutOn_LL_AgainstLooseMuon ){ if(cutFlow.CheckComboAndStop("LL_AgainstLooseMuon",
+		event->Tau1hpsPFTauDiscriminationAgainstLooseMuon->at(iCombo), target)){ return target; }}
 
-	if( CutOn_SL_AgainstTightMuon ){ if(!cutFlow.CheckCombo("SL_AgainstTightMuon",
-		event->Tau2hpsPFTauDiscriminationAgainstTightMuon->at(iCombo))){ return result; }}
-	else if( CutOn_SL_AgainstLooseMuon ){ if(!cutFlow.CheckCombo("SL_AgainstLooseMuon",
-		event->Tau2hpsPFTauDiscriminationAgainstLooseMuon->at(iCombo))){ return result; }}
+	if( CutOn_SL_AgainstTightMuon ){ if(cutFlow.CheckComboAndStop("SL_AgainstTightMuon",
+		event->Tau2hpsPFTauDiscriminationAgainstTightMuon->at(iCombo), target)){ return target; }}
+	else if( CutOn_SL_AgainstLooseMuon ){ if(cutFlow.CheckComboAndStop("SL_AgainstLooseMuon",
+		event->Tau2hpsPFTauDiscriminationAgainstLooseMuon->at(iCombo), target)){ return target; }}
 
 
 	// Isolation
-	if( CutOn_LL_TightIso){ if(!cutFlow.CheckCombo("LL_TightIso",
-		event->Tau1hpsPFTauDiscriminationByTightIsolation->at(iCombo))){ return result; }}
-	else if( CutOn_LL_MediumIso){ if(!cutFlow.CheckCombo("LL_MediumIso",
-		event->Tau1hpsPFTauDiscriminationByMediumIsolation->at(iCombo))){ return result; }}
-	else if( CutOn_LL_LooseIso){ if(!cutFlow.CheckCombo("LL_LooseIso",
-		event->Tau1hpsPFTauDiscriminationByLooseIsolation->at(iCombo))){ return result; }}
-	else if( CutOn_LL_VLooseIso){ if(!cutFlow.CheckCombo("LL_VLooseIso",
-		event->Tau1hpsPFTauDiscriminationByVLooseIsolation->at(iCombo))){ return result; }}
+	if( CutOn_LL_TightIso){ if(cutFlow.CheckComboAndStop("LL_TightIso",
+		event->Tau1hpsPFTauDiscriminationByTightIsolation->at(iCombo), target)){ return target; }}
+	else if( CutOn_LL_MediumIso){ if(cutFlow.CheckComboAndStop("LL_MediumIso",
+		event->Tau1hpsPFTauDiscriminationByMediumIsolation->at(iCombo), target)){ return target; }}
+	else if( CutOn_LL_LooseIso){ if(cutFlow.CheckComboAndStop("LL_LooseIso",
+		event->Tau1hpsPFTauDiscriminationByLooseIsolation->at(iCombo), target)){ return target; }}
+	else if( CutOn_LL_VLooseIso){ if(cutFlow.CheckComboAndStop("LL_VLooseIso",
+		event->Tau1hpsPFTauDiscriminationByVLooseIsolation->at(iCombo), target)){ return target; }}
 
-	if( CutOn_SL_TightIso){ if(!cutFlow.CheckCombo("SL_TightIso",
-		event->Tau2hpsPFTauDiscriminationByTightIsolation->at(iCombo))){ return result; }}
-	else if( CutOn_SL_MediumIso){ if(!cutFlow.CheckCombo("SL_MediumIso",
-		event->Tau2hpsPFTauDiscriminationByMediumIsolation->at(iCombo))){ return result; }}
-	else if( CutOn_SL_LooseIso){ if(!cutFlow.CheckCombo("SL_LooseIso",
-		event->Tau2hpsPFTauDiscriminationByLooseIsolation->at(iCombo))){ return result; }}
-	else if( CutOn_SL_VLooseIso){ if(!cutFlow.CheckCombo("SL_VLooseIso",
-		event->Tau2hpsPFTauDiscriminationByVLooseIsolation->at(iCombo))){ return result; }}
+	if( CutOn_SL_TightIso){ if(cutFlow.CheckComboAndStop("SL_TightIso",
+		event->Tau2hpsPFTauDiscriminationByTightIsolation->at(iCombo), target)){ return target; }}
+	else if( CutOn_SL_MediumIso){ if(cutFlow.CheckComboAndStop("SL_MediumIso",
+		event->Tau2hpsPFTauDiscriminationByMediumIsolation->at(iCombo), target)){ return target; }}
+	else if( CutOn_SL_LooseIso){ if(cutFlow.CheckComboAndStop("SL_LooseIso",
+		event->Tau2hpsPFTauDiscriminationByLooseIsolation->at(iCombo), target)){ return target; }}
+	else if( CutOn_SL_VLooseIso){ if(cutFlow.CheckComboAndStop("SL_VLooseIso",
+		event->Tau2hpsPFTauDiscriminationByVLooseIsolation->at(iCombo), target)){ return target; }}
 
 
 	// Decay mode
-	if(CutOn_LL_DecayModeFinding){ if(!cutFlow.CheckCombo("LL_DecayModeFinding", event->Tau1hpsPFTauDiscriminationByDecayModeFinding->at(iCombo))){ return result; }}
-	if(CutOn_SL_DecayModeFinding){ if(!cutFlow.CheckCombo("SL_DecayModeFinding", event->Tau2hpsPFTauDiscriminationByDecayModeFinding->at(iCombo))){ return result; }}
-	if(CutOn_LL_DecayMode){ if(!cutFlow.CheckCombo("LL_DecayMode", event->Tau1DecayMode->at(iCombo))){ return result; }}
-	if(CutOn_SL_DecayMode){ if(!cutFlow.CheckCombo("SL_DecayMode", event->Tau2DecayMode->at(iCombo))){ return result; }}
+	if(CutOn_LL_DecayModeFinding){ if(cutFlow.CheckComboAndStop("LL_DecayModeFinding", event->Tau1hpsPFTauDiscriminationByDecayModeFinding->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_DecayModeFinding){ if(cutFlow.CheckComboAndStop("SL_DecayModeFinding", event->Tau2hpsPFTauDiscriminationByDecayModeFinding->at(iCombo), target)){ return target; }}
+	if(CutOn_LL_DecayMode){ if(cutFlow.CheckComboAndStop("LL_DecayMode", event->Tau1DecayMode->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_DecayMode){ if(cutFlow.CheckComboAndStop("SL_DecayMode", event->Tau2DecayMode->at(iCombo), target)){ return target; }}
 
 	// Signal track multiplicity
-	if(CutOn_LL_NumProngs){ if(!cutFlow.CheckCombo("LL_NumProngs", event->Tau1NProngs->at(iCombo))){ return result; }}
-	if(CutOn_SL_NumProngs){ if(!cutFlow.CheckCombo("SL_NumProngs", event->Tau2NProngs->at(iCombo))){ return result; }}
+	if(CutOn_LL_NumProngs){ if(cutFlow.CheckComboAndStop("LL_NumProngs", event->Tau1NProngs->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_NumProngs){ if(cutFlow.CheckComboAndStop("SL_NumProngs", event->Tau2NProngs->at(iCombo), target)){ return target; }}
 
 	// ============================= Topological Cuts ============================= //
 
+	// Charge product
+	if(CutOn_ChargeProduct){
+		target = make_pair(cutFlow.CheckComboDiscretely("ChargeProduct", chargeProduct), isForQCD);
+		if(cutFlow.CheckComboAndStop("ChargeProduct", chargeProduct, target, true)){ return target; }
+	}
+
 	// Delta eta between taus
-	if(CutOn_DeltaEta){ if(!cutFlow.CheckCombo("DeltaEta", event->Tau1Eta->at(iCombo)-event->Tau2Eta->at(iCombo))){ return result; }}
+	if(CutOn_DeltaEta){ if(cutFlow.CheckComboAndStop("DeltaEta", event->Tau1Eta->at(iCombo)-event->Tau2Eta->at(iCombo), target)){ return target; }}
 
 	// Cosine Delta phi
-	if(CutOn_CosDeltaPhi){ if(!cutFlow.CheckCombo("CosDeltaPhi", event->TauTauCosDPhi->at(iCombo))){ return result; }}
+	if(CutOn_CosDeltaPhi){ if(cutFlow.CheckComboAndStop("CosDeltaPhi", event->TauTauCosDPhi->at(iCombo), target)){ return target; }}
 
 	// Missing transverse energy
-	if(CutOn_MET){ if(!cutFlow.CheckCombo("MET", event->MET->at(iCombo))){ return result; }}
+	if(CutOn_MET){ if(cutFlow.CheckComboAndStop("MET", event->MET->at(iCombo), target)){ return target; }}
 
 	// Zeta
 	if(CutOn_Zeta){ 
 		float zeta = event->TauTauPZeta->at(iCombo)-0.875*event->TauTauPZetaVis->at(iCombo);
-		if(!cutFlow.CheckCombo("Zeta",zeta)){ return result; }
+		if(cutFlow.CheckComboAndStop("Zeta",zeta, target)){ return target; }
 	}
 
 	// Btags
-	if(CutOn_Btags){ if(!cutFlow.CheckCombo("Btags",event->nBtagsHiEffTrkCnt->at(iCombo))){ return result; }}
+	if(CutOn_Btags){ if(cutFlow.CheckComboAndStop("Btags",event->nBtagsHiEffTrkCnt->at(iCombo), target)){ return target; }}
 
 	// Return target, first element is for signal analysis, second is for QCD
-	return result;
+	return target;
 }
 
 

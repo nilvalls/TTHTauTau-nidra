@@ -96,7 +96,6 @@ class ProPack : public TObject {
 		bool const					NormalizedToLumi() const;
 		void						SetAnalyzed();
 		void						NormalizeToLumi();
-		void						ApplyRosls();
 
 /*		// Cut flows
 		CutFlow 					GetCollisionsCutFlow() const;

@@ -15,6 +15,7 @@
 #include <iomanip>
 
 #include "HWrapper.h"
+#include "CutFlow.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -56,6 +57,7 @@ class HContainer{
 		void SetLineWidth(int const, int const);
 		void NormalizeTo(double const);
 		void ScaleBy(double const);
+		void ApplyRosls(double const, CutFlow const *);
 		void Add(HContainer const &, double const iFactor=1.0);
 		void Positivize();
 

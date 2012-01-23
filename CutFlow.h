@@ -26,7 +26,8 @@ class CutFlow {
 		map<string, float>	minThresholds;
 		map<string, float>	maxThresholds;
 
-		map<string, bool>	thisCombosResults;
+		map<string, bool>	thisCombosResultsForSignal;
+		map<string, bool>	thisCombosResultsForQCD;
 		map<string, float>	passedCombosForSignal;
 		map<string, float>	passedCombosForQCD;
 		map<string, float>	passedEventsForSignal;
@@ -39,6 +40,9 @@ class CutFlow {
 
 		bool comboIsForSignal;
 		bool comboIsForQCD;		
+
+		bool signalComboLocked;
+		bool qcdComboLocked;
 
 		int heaviestComboForSignal;
 		int heaviestComboForQCD;
@@ -66,7 +70,8 @@ class CutFlow {
 		void UpdateCutNamesMap();
 		void SetCutCounts(string const, double const, double const);
 
-		bool CheckCombo(string const, float const);
+		bool CheckComboAndStop(string const, float const, pair<bool,bool>, bool iBypassQCD=false);
+		bool CheckComboDiscretely(string const, float const);
 		void ComboIsGood(string const);
 		void EndOfCombo(pair<bool, bool>, int const);
 		void StartOfEvent();
@@ -83,6 +88,7 @@ class CutFlow {
 		vector<string> const		GetCutNames() const;
 		map<string, int> const		GetCutRanks() const;
 		int const					GetCutRank(string const) const;
+		int const					GetCutPosition(string const) const;
 		map<string, float> const	GetMinThresholds() const;
 		map<string, float> const	GetMaxThresholds() const;
 		map<string, float> const	GetPassedEventsForSignal() const;
@@ -99,6 +105,7 @@ class CutFlow {
 		double const				GetLastCountForQCD() const;
 		void						Add(CutFlow const &, float const iFactor=1.0);
 		void						BuildNormalizedCutFlow(CutFlow const *);
+		void						ApplyRosls(double const);
 
 
 		pair<float,float> ExtractCutThresholds(string);

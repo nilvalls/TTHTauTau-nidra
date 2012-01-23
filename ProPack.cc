@@ -157,23 +157,20 @@ void ProPack::BuildQCD(){
 	qcd.SetLabelForLegend("QCD");
 	qcd.SetColor(atoi((params["QCDcolor"]).c_str()));
 
-	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
-	HContainer hContainerForQCD = HContainer(*(collisions.GetHContainerForQCD()));
-	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ hContainerForQCD.Add(*(GetMCbackgrounds()->at(b).GetHContainerForQCD()), -1); }
-	//hContainerForQCD.Positivize(); 
-	//hContainerForQCD.ScaleBy(atof((params["osls"]).c_str()));
-
 	// Do the same for the CutFlow
 	CutFlow cutFlow = CutFlow(*(collisions.GetNormalizedCutFlow()));
 	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ cutFlow.Add(*(GetMCbackgrounds()->at(b).GetNormalizedCutFlow()), -1); }
+	cutFlow.ApplyRosls(atof((params["osls"]).c_str()));
 	cutFlow.InvertSignalAndQCD();
 	qcd.SetNormalizedCutFlow(cutFlow);
 
-	// Set colors and put it in process here
+	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
+	HContainer hContainerForQCD = HContainer(*(collisions.GetHContainerForQCD()));
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ hContainerForQCD.Add(*(GetMCbackgrounds()->at(b).GetHContainerForQCD()), -1); }
+	hContainerForQCD.Positivize(); 
+	hContainerForQCD.ApplyRosls(atof((params["osls"]).c_str()), qcd.GetNormalizedCutFlow());
 	qcd.SetHContainerForSignal(hContainerForQCD);
 
-	// Apply Rosls to plots and cutflow
-	ApplyRosls();
 }
 
 Process ProPack::GetAvailableProcess() const {
@@ -271,33 +268,6 @@ void ProPack::NormalizeToLumi(){
 	}
 
 	normalizedToLumi = true;
-
-}
-
-
-void ProPack::ApplyRosls(){
-
-		// Collisions
-		if(PrepareCollisions()){
-			collisions.GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, 1, 1);
-		}
-
-		// QCD
-		if(PrepareQCD()){
-			qcd.GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, atof((params["osls"]).c_str()), atof((params["osls"]).c_str()));
-			qcd.GetHContainerForSignal()->Positivize();
-			qcd.GetHContainerForSignal()->ScaleBy(atof((params["osls"]).c_str()));
-		}
-
-		// MC backgrounds
-		for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ 
-			GetMCbackgrounds()->at(b).GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, 1, 1);
-		}
-
-		// Signals
-		for(unsigned int s = 0; s < GetSignals()->size(); s++){
-			GetSignals()->at(s).GetCutFlow()->RegisterCutFromLast("R_os/ls", 2, 1, 1);
-		}
 
 }
 

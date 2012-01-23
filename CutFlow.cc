@@ -24,11 +24,12 @@ CutFlow::CutFlow(CutFlow const & iCutFlow){
 	minThresholds		= iCutFlow.GetMinThresholds();
 	maxThresholds 		= iCutFlow.GetMaxThresholds();
 
-	thisCombosResults		= map<string, bool>();
-	passedCombosForSignal	= map<string, float>();
-	passedCombosForQCD		= map<string, float>();
-	passedEventsForSignal	= iCutFlow.GetPassedEventsForSignal();
-	passedEventsForQCD		= iCutFlow.GetPassedEventsForQCD();
+	thisCombosResultsForSignal	= map<string, bool>();
+	thisCombosResultsForQCD		= map<string, bool>();
+	passedCombosForSignal		= map<string, float>();
+	passedCombosForQCD			= map<string, float>();
+	passedEventsForSignal		= iCutFlow.GetPassedEventsForSignal();
+	passedEventsForQCD			= iCutFlow.GetPassedEventsForQCD();
 
 	cutsToApply	= iCutFlow.GetCutsToApply();
 
@@ -57,7 +58,8 @@ void CutFlow::Reset(){
 }
 
 void CutFlow::Zero(){
-	thisCombosResults.clear();
+	thisCombosResultsForSignal.clear();
+	thisCombosResultsForQCD.clear();
 
 	passedCombosForSignal.clear();
 	passedCombosForQCD.clear();
@@ -94,9 +96,15 @@ void CutFlow::RegisterCut(string const iName, int const iRank){
 	passedEventsForSignal[iName]	= 0.0;
 	passedEventsForQCD[iName]		= 0.0;
 
-	pair<float,float> thresholds = ExtractCutThresholds(iName);
-	minThresholds[iName] = (thresholds.first);
-	maxThresholds[iName] = (thresholds.second);
+	if(iRank==1){
+		pair<float,float> thresholds = ExtractCutThresholds(iName);
+		minThresholds[iName] = (thresholds.first);
+		maxThresholds[iName] = (thresholds.second);
+	}else{
+		minThresholds[iName] = 0;
+		maxThresholds[iName] = 0;
+	}
+
 	UpdateCutNamesMap();
 
 }
@@ -107,6 +115,16 @@ void CutFlow::RegisterCut(string const iName, int const iRank,  double const iEv
 	cutRanks[iName] = iRank;
 	passedEventsForSignal[iName] = iEventsForSignal;
 	passedEventsForQCD[iName] = iEventsForQCD;
+
+	if(iRank==1){
+		pair<float,float> thresholds = ExtractCutThresholds(iName);
+		minThresholds[iName] = (thresholds.first);
+		maxThresholds[iName] = (thresholds.second);
+	}else{
+		minThresholds[iName] = 0;
+		maxThresholds[iName] = 0;
+	}
+
 	UpdateCutNamesMap();
 }
 
@@ -122,18 +140,38 @@ void CutFlow::SetCutCounts(string const iName, double const iEventsForSignal, do
 	passedEventsForQCD[iName] = iEventsForQCD;
 }
 
-bool CutFlow::CheckCombo(string const iName, float const iValue){
+bool CutFlow::CheckComboAndStop(string const iName, float const iValue, pair<bool,bool> iTarget, bool iBypassQCD){
 	bool result = false;
 
 	// If the value relevant for this cut is within thresholds, set results for this cut to true
-	if( minThresholds[iName] <= iValue && iValue <= maxThresholds[iName] ){ result = true; }
-	thisCombosResults[iName] = result;
+	if( minThresholds.find(iName)->second <= iValue && iValue <= maxThresholds.find(iName)->second ){ result = true; }
 
-	return result;
+	// Bypass result check for specific cases
+	if(iTarget.second && (!qcdComboLocked) && iBypassQCD){ result = true; }
+
+	thisCombosResultsForSignal[iName] = (iTarget.first && (!signalComboLocked) && result);
+	thisCombosResultsForQCD[iName] = (iTarget.second && (!qcdComboLocked) && result);
+
+	if(iTarget.first && (!result)){ signalComboLocked = true; }
+	if(iTarget.second && (!result)){ qcdComboLocked = true; }
+
+	if(signalComboLocked && qcdComboLocked){
+		signalComboLocked = false;
+		qcdComboLocked = false;
+
+		return true;
+	}
+
+	return false;
+}
+
+bool CutFlow::CheckComboDiscretely(string const iName, float const iValue){
+	return ((minThresholds.find(iName)->second <= iValue) && (iValue <= maxThresholds.find(iName)->second));
 }
 
 void CutFlow::ComboIsGood(string const iName){
-	thisCombosResults[iName] = true;
+	thisCombosResultsForSignal[iName] = true;
+	thisCombosResultsForQCD[iName] = true;
 }
 
 // This function is intended to save time if we have already one good combo for signal and one for QCD. Since the heaviest combos come first, no need to check the rest. This will tell the analyzer it's time to move on.
@@ -155,28 +193,21 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 
 	// Loop over all the cuts this combo has gone through
 	for(unsigned int c=0; c<cutNames.size(); c++){
-		if(GetCutRank(cutNames.at(c))!=1){ continue; }
 		string cutName = cutNames.at(c);
+		if(GetCutRank(cutName) != 1){ continue; } // Worry only about rank 1 cuts
 
-		// If this combo has not passed all the requested cuts, stop loop
-		if(!thisCombosResults[cutName]){ break; }
-		// else figure out its target...
-
-		// If this combo is good for signal analysis, add the counts to the signal combo counter
-		if(comboIsForSignal){
-			passedCombosForSignal[cutName]++;
-			
-			// If no combo for signal has yet passed all the cuts and this one passes all the cuts, store its combo number
+		if(thisCombosResultsForSignal.find(cutName)->second){
+			passedCombosForSignal[cutName]++; 
 			if((heaviestComboForSignal < 0) && (c == cutNames.size()-1)){ heaviestComboForSignal = iComboNumber; }
 		}
-
-		// If this combo is good for QCD analysis, add the counts to the QCD combo counter
-		if(comboIsForQCD){
+		if(thisCombosResultsForQCD.find(cutName)->second){
 			passedCombosForQCD[cutName]++;
-
-			// If no combo for QCD has yet passed all the cuts and this one passes all the cuts, store its combo number
 			if((heaviestComboForQCD < 0) && (c == cutNames.size()-1)){ heaviestComboForQCD = iComboNumber; }
 		}
+
+		thisCombosResultsForSignal.find(cutName)->second = false;
+		thisCombosResultsForQCD.find(cutName)->second = false;
+
 	}
 }
 
@@ -195,6 +226,9 @@ void CutFlow::StartOfEvent(){
 		passedCombosForQCD[cutName]		= 0;
 	}
 
+	signalComboLocked = false;
+	qcdComboLocked = false;
+
 }
 
 // At the end of the event, loop over both combo counters (forSignal and forQCD) and check independently which combos have passed which cuts
@@ -203,18 +237,19 @@ void CutFlow::EndOfEvent(){
 	// Loop over all the cuts
 	for(unsigned int c=0; c<cutNames.size(); c++){
 		string cutName = cutNames.at(c);
+		//if(GetCutRank(cutName) != 1){ continue; } // Worry only about rank 1 cuts
 
 		// If at least one combo for signal has passed this cut, increase the event count in the "forSignal" cut map FOR THAT CUT only
-		if(passedCombosForSignal[cutName] > 0){ passedEventsForSignal[cutName]++; }	
+		if(passedCombosForSignal.find(cutName)->second > 0){ passedEventsForSignal[cutName]++; }	
 
 		// Wait for the last registered cut to determine the outcome of the event
-		if(c == cutNames.size()-1){ eventForSignalPassed = (passedCombosForSignal[cutName] > 0); }
+		if(c == cutNames.size()-1){ eventForSignalPassed = (passedCombosForSignal.find(cutName)->second > 0); }
 
 		// If at least one combo for QCD has passed this cut, increase the event count in the "forQCD" cut map FOR THAT CUT only
-		if(passedCombosForQCD[cutName] > 0){ passedEventsForQCD[cutName]++; }	
+		if(passedCombosForQCD.find(cutName)->second > 0){ passedEventsForQCD[cutName]++; }	
 
 		// Wait for the last registered cut to determine the outcome of the event
-		if(c == cutNames.size()-1){ eventForQCDPassed = (passedCombosForQCD[cutName] > 0); }
+		if(c == cutNames.size()-1){ eventForQCDPassed = (passedCombosForQCD.find(cutName)->second > 0); }
 
 		// Reset combo counter
 		passedCombosForSignal[cutName]	= 0;
@@ -250,6 +285,11 @@ map<string, int> const		CutFlow::GetCutRanks() const { return cutRanks; }
 int const CutFlow::GetCutRank(string const iCut) const { 
 	if(cutRanks.find(iCut) == cutRanks.end()){ cerr << "ERROR: Trying to get rank for cut named \"" << iCut << "\" but this cut is not registered in CutFlow." << endl; exit(1); }
 	return (cutRanks.find(iCut)->second);
+}
+
+int const CutFlow::GetCutPosition(string const iCut) const { 
+	if(cutNamesMap.find(iCut) == cutNamesMap.end()){ return -1; }
+	return (cutNamesMap.find(iCut)->second);
 }
 
 map<string, float> const	CutFlow::GetMinThresholds() const { return minThresholds; }
@@ -456,6 +496,8 @@ void CutFlow::BuildNormalizedCutFlow(CutFlow const * iCutFlow){
 
 		Reset();
 
+		cutsToApply = iCutFlow->GetCutsToApply();
+
 		vector<string> iCutNames = iCutFlow->GetCutNames();
 		double scaleFactorForSignal = 1.0;
 		double scaleFactorForQCD = 1.0;
@@ -479,8 +521,29 @@ void CutFlow::BuildNormalizedCutFlow(CutFlow const * iCutFlow){
 		
 		}
 
+
 }
 
+void CutFlow::ApplyRosls(double const iRosls){
+
+	bool chargeProductApplied = (GetCutPosition("ChargeProduct") >= 0);
+	bool osRequested = false;
+	if(chargeProductApplied){ osRequested = (GetMaxThresholds().find("ChargeProduct")->second == -1.0); }
+
+	for(unsigned int c=0; c<cutNames.size(); c++){
+		string cutName = cutNames.at(c);
+
+		if(!chargeProductApplied){  // Need both OS and LS: Scale by 1+Ros/ls
+			SetCutCounts(cutName, (1+iRosls)*GetPassedEventsForSignal(cutName), (1+iRosls)*GetPassedEventsForQCD(cutName));
+		}else if(osRequested){ // Need only OS: Scale by 1+Ros/ls before ChargeProduct cut and only by Ros/ls after
+			if(GetCutPosition(cutName) < GetCutPosition("ChargeProduct")){ 
+				SetCutCounts(cutName, (iRosls)*GetPassedEventsForSignal(cutName), (1+iRosls)*GetPassedEventsForQCD(cutName));
+			}else{
+				SetCutCounts(cutName, (iRosls)*GetPassedEventsForSignal(cutName), (iRosls)*GetPassedEventsForQCD(cutName));
+			}
+		}
+	}
+}
 
 
 ClassImp(CutFlow)
