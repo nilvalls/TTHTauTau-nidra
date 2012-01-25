@@ -13,7 +13,6 @@ using namespace std;
 
 Analyzer::Analyzer(){
 		event = NULL;
-		fChain = NULL;
 		goodEventsForSignal.clear();
 		goodEventsForQCD.clear();
 }
@@ -24,7 +23,6 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 	params = iParams;
 
 	event = NULL;
-	fChain = NULL;
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
@@ -40,7 +38,6 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 // Default destructor
 Analyzer::~Analyzer(){
 	delete event; event = NULL;
-	if (fChain!=NULL){ delete fChain->GetCurrentFile(); }
 }
 
 
@@ -66,7 +63,7 @@ void Analyzer::Analyze(Process& iProcess){
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
-	Init(iProcess.GetNtuplePath());
+	event = new DitauBranches(params, iProcess.GetNtuplePath());
 
 	pair<double,double> loopResults = Loop();
 
@@ -76,8 +73,7 @@ void Analyzer::Analyze(Process& iProcess){
 	iProcess.SetNOEanalyzed(loopResults.second);
 	iProcess.SetCutFlow(cutFlow);
 
-	event = NULL;
-
+	delete event; event = NULL;
 }
 
 void Analyzer::Analyze(vector<Process>& iProcesses){
@@ -94,9 +90,7 @@ pair<double,double> Analyzer::Loop(){
 
 	cout << "\t>>> Starting loop... "; cout.flush();
 
-	if (fChain == 0){ cout << endl << "ERROR: empty TChain. Exiting."; return result; }
-
-	Long64_t nentries = fChain->GetEntries(); 
+	Long64_t nentries = event->GetEntries(); 
 	if(nentries == 0){ cerr << "ERROR: this process has zero events to read" << endl; exit(1); }
 	cout << " " << nentries << " entries available: ";
 	cutFlow.SetCutCounts("nTuple making", nentries, nentries);
@@ -121,7 +115,7 @@ pair<double,double> Analyzer::Loop(){
 		}
 
 		// Get a new entry
-		event->AlienGetEntry(jentry);
+		event->GetEntry(jentry);
 
 		// Inform cutFlow that a new event is starting
 		cutFlow.StartOfEvent();
@@ -153,7 +147,6 @@ pair<double,double> Analyzer::Loop(){
 			int heaviestComboForSignal = cutFlow.GetHeaviestComboForSignal();
 			event->SetBestCombo(heaviestComboForSignal);
 			goodEventsForSignal.push_back(make_pair(jentry, heaviestComboForSignal));
-
 		}
 
 		// Fill good event vectors for QCD analysis
@@ -342,63 +335,10 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 
 void Analyzer::SetCutsToApply(string iCutsToApply){
-
 	#include "clarity/setCutsToApply.h"
-
-//	MakeCutsPave();
 }
 
 
-DitauBranches const * Analyzer::GetDitauBranches(double iEntry) const {
-	if(fChain == NULL){ cerr << "ERROR: trying to obtain DitauBranches but fChain has not been initialized" << endl; exit(1); }	
-	if(iEntry < 0){ cerr << "ERROR: trying to obtain a negative entry (" << iEntry << ") from tree" << endl; exit(1); }
-	if(iEntry > fChain->GetEntries()){ cerr << "ERROR: trying to obtain entry " << iEntry << " but TChain only contains " << fChain->GetEntries() << endl; exit(1); }
-	event->AlienGetEntry(iEntry);
-
-	return event;
-}
-
-TChain* Analyzer::GetTChain(string iPath){
-
-	// Chain to return
-	TChain* result = new TChain((params["treeName"]).c_str());
-
-	// Add all *.root files in iPath
-	string pathToRootFiles = iPath + "/*.root";
-	result->Add(pathToRootFiles.c_str());
-
-	// Return TChain
-	return result;
-}
-
-
-DitauBranches* Analyzer::Init(string iPath){
-
-	fChain = GetTChain(iPath);
-	event = new DitauBranches();
-
-	// Set branch addresses and branch pointers
-	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }
-	fCurrent = -1; 
-	fChain->SetMakeClass(1);
-	event->AlienSetChain(fChain);
-	event->AlienInit();
-
-	return event;
-}
-
-Long64_t Analyzer::LoadTree(Long64_t entry){
-	// Set the environment to read one entry
-	if (!fChain) return -5;
-	Long64_t centry = fChain->LoadTree(entry);
-	if (centry < 0) return centry;
-	if (!fChain->InheritsFrom(TChain::Class()))  return centry;
-	TChain *chain = (TChain*)fChain;
-	if (chain->GetTreeNumber() != fCurrent) {
-		fCurrent = chain->GetTreeNumber();
-	}
-	return centry;
-}
 
 
 

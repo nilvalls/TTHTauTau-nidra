@@ -99,6 +99,7 @@ void Analyze(){
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
 	delete proPack; proPack = NULL;
 	Print(GREEN," done!");
+	cout << __FILE__ << ":" << __LINE__ << endl; 
 }
 
 void DistributeProcesses(){

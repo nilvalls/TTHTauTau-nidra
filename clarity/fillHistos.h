@@ -17,6 +17,7 @@ FillHisto(hContainer, "NumPV_afRW", event->NumPV->at(iCombo), weightFull); //*/
    (*(hContainer->find("NumPV_afRW"))).second->GetHisto()->Fill(NumPV->at(iCombo), puCorrector->GetWeight(numInteractionsBX0));
    }//*/
 
+
 // Physics =========================================================================================================================
 hContainer->Fill("Events", 0, weightFull);
 hContainer->Fill("MET_M", event->MET->at(iCombo), weightFull);
@@ -65,7 +66,6 @@ hContainer->Fill("NumProngs_L", event->Tau1NProngs->at(iCombo), weightFull);
 hContainer->Fill("NumProngs_S", event->Tau2NProngs->at(iCombo), weightFull);
 hContainer->Fill("CosDeltaPhi_LM", event->Tau1MetCosDphi->at(iCombo), weightFull);
 hContainer->Fill("CosDeltaPhi_SM", event->Tau2MetCosDphi->at(iCombo), weightFull);
-
 hContainer->Fill("DeltaPhi_LM", acos(event->Tau1MetCosDphi->at(iCombo)), weightFull);
 hContainer->Fill("DeltaPhi_SM", acos(event->Tau2MetCosDphi->at(iCombo)), weightFull);
 hContainer->Fill("SumETotherJets", event->jetSumEt->at(iCombo), weightFull);
@@ -83,6 +83,7 @@ hContainer->Fill("SumPtIsoTracks_LS", event->Tau1SumPtIsoTracks->at(iCombo), wei
 hContainer->Fill("SumPtIsoTracks_LS", event->Tau2SumPtIsoTracks->at(iCombo), weightFull);
 hContainer->Fill("SumPtIsoTracks_L", event->Tau1SumPtIsoTracks->at(iCombo), weightFull);
 hContainer->Fill("SumPtIsoTracks_S", event->Tau2SumPtIsoTracks->at(iCombo), weightFull);//*/
+
 
 hContainer->Fill("Eta_LS", event->Tau1Eta->at(iCombo), weightFull);
 hContainer->Fill("Eta_LS", event->Tau2Eta->at(iCombo), weightFull);
@@ -141,15 +142,5 @@ hContainer->Fill("AbsDeltaLTdxy_LS", fabs((event->Tau1LTIpVtdxy->at(iCombo)) - (
 hContainer->Fill("LTdz_L", event->Tau1LTIpVtdz->at(iCombo), weightFull);
 hContainer->Fill("LTdz_S", event->Tau2LTIpVtdz->at(iCombo), weightFull);
 hContainer->Fill("AbsDeltaLTdz_LS", fabs((event->Tau1LTIpVtdz->at(iCombo)) - (event->Tau2LTIpVtdz->at(iCombo))), weightFull);
-
-hContainer->Fill("LTd0_L", event->Tau1LTIpVtd0->at(iCombo), weightFull);
-hContainer->Fill("LTd0_S", event->Tau2LTIpVtd0->at(iCombo), weightFull);
-hContainer->Fill("AbsDeltaLTd0_LS", fabs((event->Tau1LTIpVtd0->at(iCombo)) - (event->Tau2LTIpVtd0->at(iCombo))), weightFull);
-hContainer->Fill("LTd0_LvsS", event->Tau1LTIpVtd0->at(iCombo)/event->Tau2LTIpVtd0->at(iCombo), weightFull);
-
-float deltaXY	= sqrt(pow(event->Tau1x-event->Tau2x,2) + pow(event->Tau1y-event->Tau2y,2));
-float deltaXYZ	= sqrt(pow(event->Tau1x-event->Tau2x,2) + pow(event->Tau1y-event->Tau2y,2) + pow(event->Tau1z-event->Tau2z,2));
-hContainer->Fill("DeltaXY_LS", deltaXY, weightFull);
-hContainer->Fill("DeltaXYZ_LS", deltaXYZ, weightFull);
 
 

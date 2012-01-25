@@ -64,7 +64,7 @@ libConfigParser.so: configParser/config.h
 .Process.o: Process.cc Process.h 
 	$(CXX) $(CXXFLAGS) -c Process.cc -o $@
 
-.DitauBranches.o: DitauBranches.cc DitauBranches.h 
+.DitauBranches.o: DitauBranches.cc DitauBranches.h clarity/ditauBranches_*
 	$(CXX) $(CXXFLAGS) -c DitauBranches.cc -o $@
 
 .ProPack.o: ProPack.cc ProPack.h 

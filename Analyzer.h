@@ -25,16 +25,14 @@ class Analyzer {
 
 	private:
 		map<string,string>		params;
-		TChain*          		fChain;
-		Int_t           		fCurrent;
 		vector<pair<int,int> >	goodEventsForSignal;
 		vector<pair<int,int> >	goodEventsForQCD;
-		DitauBranches*			event;
 	
 		#include "clarity/cuts.h"
-		CutFlow						cutFlow;
+		CutFlow					cutFlow;
 
 	public:
+		DitauBranches*			event;
 		Analyzer();
 		Analyzer(map<string,string> const &);
 		virtual ~Analyzer();
@@ -45,9 +43,6 @@ class Analyzer {
 		DitauBranches const *	GetDitauBranches(double) const;
 		void					Reset();
 		pair<double,double>		Loop();
-		DitauBranches*			Init(string);
-		Long64_t				LoadTree(Long64_t entry);
-		TChain*					GetTChain(string);
 		pair<bool,bool>			ComboPassesCuts(unsigned int);
 		void					SetCutsToApply(string);
 		bool					ApplyThisCut(string);

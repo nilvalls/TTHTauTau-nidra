@@ -17,9 +17,9 @@ int main(int argc, char **argv){
 	if(IsArgumentThere("-p")){
 		PreparePlots();
 		CrunchNumbers();
-		PlotStacks();
+//		PlotStacks();
 //		PlotStamps();
-//		Optimize();
+		Optimize();
 	}
 
 	Finalize();
