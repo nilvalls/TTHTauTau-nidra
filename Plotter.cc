@@ -83,7 +83,8 @@ void Plotter::MakePlots(Process* iProcess){
 	BookHistos(&hContainerForQCD);
 
 	// Instantiante DitauBranches to read events more easily
-	DitauBranches * event = new DitauBranches(params, iProcess->GetNtuplePath());
+	//DitauBranches * event = new DitauBranches(params, iProcess->GetNtuplePath());
+	DitauBranches event = DitauBranches(params, iProcess->GetNtuplePath());
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
@@ -92,11 +93,11 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounter weightCounterForSignal;
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		//cout << __FILE__ << ":" << __LINE__ << endl;
-		event->GetEntry(goodEventsForSignal.at(i).first);
-		//cout << __FILE__ << ":" << __LINE__ << endl;
-		event->SetBestCombo(goodEventsForSignal.at(i).second);
-		FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForSignal);
+		cout << __FILE__ << ":" << __LINE__ << endl;
+		event.GetEntry(goodEventsForSignal.at(i).first);
+		cout << __FILE__ << ":" << __LINE__ << endl;
+		event.SetBestCombo(goodEventsForSignal.at(i).second);
+		FillHistos(&hContainerForSignal, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForSignal);
 	}
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 	double puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
@@ -107,9 +108,9 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounter weightCounterForQCD;
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
 	for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
-		event->GetEntry(goodEventsForQCD.at(i).first);
-		event->SetBestCombo(goodEventsForQCD.at(i).second);
-		FillHistos(&hContainerForQCD, event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForQCD);
+		event.GetEntry(goodEventsForQCD.at(i).first);
+		event.SetBestCombo(goodEventsForQCD.at(i).second);
+		FillHistos(&hContainerForQCD, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForQCD);
 	}
 	iProcess->SetHContainerForQCD(hContainerForQCD);
 	double puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;

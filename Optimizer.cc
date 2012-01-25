@@ -145,10 +145,11 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 		leftIntegratedSoverRootB.GetHisto()->Draw("HISTsame");
 
 		TLegend* legend = new TLegend(0.2,0.92,0.8,1);
+		legend->SetBorderSize(0);
 		legend->SetFillColor(0);
 		legend->SetNColumns(2);
-		legend->AddEntry(leftIntegratedSoverRootB.GetHisto(), "Integral x #rightarrow #infty", "l");
-		legend->AddEntry(rightIntegratedSoverRootB.GetHisto(), "Integral 0 #rightarrow x", "l");
+		legend->AddEntry(rightIntegratedSoverRootB.GetHisto(), "Integral x #rightarrow #infty", "l");
+		legend->AddEntry(leftIntegratedSoverRootB.GetHisto(), "Integral 0 #rightarrow x", "l");
 		legend->Draw();
 
 

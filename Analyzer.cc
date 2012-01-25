@@ -63,7 +63,9 @@ void Analyzer::Analyze(Process& iProcess){
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
-	event = new DitauBranches(params, iProcess.GetNtuplePath());
+	DitauBranches event2 = DitauBranches(params, iProcess.GetNtuplePath());
+//	event = new DitauBranches(params, iProcess.GetNtuplePath());
+	event = &event2;
 
 	pair<double,double> loopResults = Loop();
 
@@ -73,7 +75,8 @@ void Analyzer::Analyze(Process& iProcess){
 	iProcess.SetNOEanalyzed(loopResults.second);
 	iProcess.SetCutFlow(cutFlow);
 
-	delete event; event = NULL;
+	//delete event;
+	event = NULL;
 }
 
 void Analyzer::Analyze(vector<Process>& iProcesses){
