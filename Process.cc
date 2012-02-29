@@ -11,6 +11,7 @@ Process::Process(){
 	analyzed			= false;
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
+	plot				= false;
 }
 
 Process::Process(Process const & iProcess){
@@ -42,6 +43,7 @@ Process::Process(Process const & iProcess){
 	NOEanalyzed						= iProcess.GetNOEanalyzed();
 	NOEexpectedForSignal			= iProcess.GetNOEexpectedForSignal();
 	NOEexpectedForQCD				= iProcess.GetNOEexpectedForQCD();
+	plot							= iProcess.Plot();
 
 	obtainedGoodEventsForSignal		= iProcess.ObtainedGoodEventsForSignal();
 	obtainedGoodEventsForQCD		= iProcess.ObtainedGoodEventsForQCD();
@@ -79,6 +81,7 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	NOEanalyzed					= 0;
 	NOEexpectedForSignal		= 0;
 	NOEexpectedForQCD			= 0;
+	plot						= PlotProcess(shortName);
 
 	obtainedGoodEventsForSignal	= false;
 	obtainedGoodEventsForQCD	= false;
@@ -86,6 +89,7 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	filledHistosForQCD			= false;
 	normalizedHistosForSignal	= false;
 	normalizedHistosForQCD		= false;
+
 
 }
 
@@ -113,6 +117,22 @@ string const Process::GetNiceName() const {			return niceName;		}
 string const Process::GetLabelForLegend() const {	return labelForLegend;	}
 string const Process::GetType() const {				return type;			}
 bool const Process::IsMC() const { return ((type.compare("mcBackground")==0) || (type.compare("signal")==0)); }
+bool const Process::Plot() const { return plot; }
+
+void Process::SetPlot(map<string,string> const & iParams){
+	bool result;
+	if(iParams.find("plot")->second.compare("All")==0){
+		result = true;
+	}else{
+		string enabledProcesses = " " + iParams.find("plot")->second + " ";
+		cout << enabledProcesses << endl;
+		string thisProcess			 = " " + shortName + " ";
+		result = IsStringThere(thisProcess,enabledProcesses);
+	}
+	plot = result;
+	cout << "Plot? " << plot << endl;
+}
+
 bool const Process::IsCollisions() const { return ((type.compare("collisions")==0)); }
 bool const Process::IsQCD() const { return ((type.compare("qcd")==0)); }
 bool const Process::IsMCbackground() const { return ((type.compare("mcBackground")==0)); }
@@ -150,7 +170,12 @@ HContainer const * Process::GetHContainerForQCD() const { return &hContainerForQ
 HWrapper const * Process::GetHistoForSignal(string const iName) const { return (hContainerForSignal.Get(iName)); }
 HWrapper const * Process::GetHistoForQCD(string const iName) const { return (hContainerForQCD.Get(iName)); }
 
-
+bool const Process::IsStringThere(string iNeedle, string iHaystack) const {
+	string haystack = iHaystack;
+	string needle = iNeedle;
+	bool const result = ((haystack.find(needle) < haystack.length()));
+	return result;
+}
 
 
 int const Process::GetNumberOfPlots() const {
@@ -206,5 +231,17 @@ void Process::ScaleBy(double const iScale){
 }
 
 void Process::BuildNormalizedCutFlow(){ normalizedCutFlow.BuildNormalizedCutFlow(&cutFlow); }
+
+bool Process::PlotProcess(string const iThisProcess){
+	bool result;
+	if(params["plot"].compare("All")==0){
+		result = true;
+	}else{
+		string enabledProcesses = " " + params["plot"] + " ";
+		string thisProcess			 = " " + iThisProcess + " ";
+		result = IsStringThere(thisProcess,enabledProcesses);
+	}
+	return result;
+}
 
 ClassImp(Process)

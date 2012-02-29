@@ -59,11 +59,8 @@ TH1F  * HMath::IntegratedFromRight(TH1F  * iHisto)  { return Integrated(iHisto,f
 
 
 TH1F  * HMath::RightIntegratedStoRootB(TH1F  * iSignal, TH1F  * iBackground)  {
-		cout << __FILE__ << ":" << __LINE__ << endl;
 		IntegratedFromRight(iSignal);
-		cout << __FILE__ << ":" << __LINE__ << endl;
 		IntegratedFromRight(iBackground);
-		cout << __FILE__ << ":" << __LINE__ << endl;
 	return StoRootB(IntegratedFromRight(iSignal),IntegratedFromRight(iBackground));
 }
 
@@ -72,10 +69,7 @@ TH1F  * HMath::LeftIntegratedStoRootB(TH1F  * iSignal, TH1F  * iBackground)  {
 }
 
 TH1F * HMath::StoRootB(TH1F  * iSignal, TH1F  * iBackground)  {
-		cout << __FILE__ << ":" << __LINE__ << endl;
 	TH1F * result	= new TH1F(*iSignal);
-		cout << __FILE__ << ":" << __LINE__ << endl;
-		cout << "result content: " << result->GetBinLowEdge(1) << " " << result->GetBinContent(1) << endl;
 
 	for(int bin=0; bin <= iBackground->GetNbinsX()+1; bin++){
 		double bkgContent = iBackground->GetBinContent(bin);
@@ -88,14 +82,9 @@ TH1F * HMath::StoRootB(TH1F  * iSignal, TH1F  * iBackground)  {
 			content = sigContent/(double)sqrt(bkgContent);
 			error	= sqrt(pow(sigError,2)/bkgContent + (0.25*pow(sigContent*bkgError,2)/pow(bkgContent,3)));
 		}
-		cout << __FILE__ << ":" << __LINE__ << endl;
-		cout << bin << " " << content << " " << error << endl;
 		result->SetBinContent(bin, content);	
-		cout << __FILE__ << ":" << __LINE__ << endl;
 		result->SetBinError(bin, error);	
-		cout << __FILE__ << ":" << __LINE__ << endl;
 	}
-		cout << __FILE__ << ":" << __LINE__ << endl;
 	result->SetName((string(string(result->GetName())+"_StoRootB")).c_str());
 	result->SetMaximum(result->GetBinContent(result->GetMaximumBin()));
 

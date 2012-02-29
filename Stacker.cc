@@ -90,26 +90,43 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 			}
 		}
 
+		//TFile* file = new TFile("./test.root","RECREATE");
+		//file->cd();
 		// Then, if we have signals, plot them next
 		if(haveSignals){
 			HContainer signalHistos = iProPack->GetSignalsHWrappers(plotName);
 			for(unsigned int s = 0; s < signalHistos.size(); s++){
+				cout << "signal " << s << " " << iProPack->GetSignals()->at(s).Plot() << endl;
+				if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
+				cout << "signal " << s << " " << iProPack->GetSignals()->at(s).Plot() << endl;
 				string name = signalHistos.GetNames().at(s);
 				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
 				toDraw->SetFillStyle(0);	
 				toDraw->SetLineWidth(3, iProPack->GetSignals()->at(s).GetColor());	
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
 
+				cout << "integral " << toDraw->GetHisto()->Integral()
+				<< " max " << toDraw->GetMaximum()<< endl;
 				// If we want the signals on top of the stack, add the background sum
 				if(stackSignals){ toDraw->Add(GetBackgroundSum(iProPack, plotName)); }
 
 				// Draw signal curves
-				if(toDraw->GetHisto()->Integral()>0){ toDraw->GetHisto()->Draw("HISTsame"); }
+				if(toDraw->GetHisto()->Integral()>0){
+					cout << "draw signal " << endl;	
+					toDraw->GetHisto()->Draw("HISTsame"); }
+
+				TH1F* histo = new TH1F(*(TH1F*)(toDraw->GetHisto()));
+				histo->GetXaxis()->SetRangeUser(0,2000);
+				//histo->Write();
 			}
 		}
+
+		//file->Close();
+
 		
 		// Finally plot the collisions if we have them
 		if(haveCollisions){ 
+			if(!iProPack->GetCollisions()->Plot()){ continue; }
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
 			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
@@ -127,6 +144,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 		// Save canvas
 		canvas->SetGrid(1,1);
+		cout << "save canvas" << endl;
 		SaveCanvas(canvas, params["stacks_output"], plotName);
 
 		// Do we want a log version?
@@ -241,6 +259,7 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 	// Add each MC background first if we have them
 	if(iProPack->PrepareMCbackgrounds()){
 		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
+			if(!iProPack->GetMCbackgrounds()->at(b).Plot()){ continue; }
 			int color = iProPack->GetMCbackgrounds()->at(b).GetColor();
 			HWrapper toAdd(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)));
 			toAdd.SetFillStyle(1001,color);
@@ -248,6 +267,7 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 			toAdd.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
 			toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
 			result->Add((TH1F*)toAdd.GetHisto());
+			cout << "added" << endl;
 		}
 	}
 

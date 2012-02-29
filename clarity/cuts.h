@@ -12,6 +12,8 @@
 	bool CutOn_LL_InCracks;					float Min_LL_InCracks;					float Max_LL_InCracks;
 	bool CutOn_SL_InCracks;					float Min_SL_InCracks;					float Max_SL_InCracks;
 	bool CutOn_DeltaR;						float Min_DeltaR;						float Max_DeltaR;
+	bool CutOn_LL_LTvalid;					float Min_LL_LTvalid;					float Max_LL_LTvalid;
+	bool CutOn_SL_LTvalid;					float Min_SL_LTvalid;					float Max_SL_LTvalid;
 	bool CutOn_LL_LTpT;						float Min_LL_LTpT;						float Max_LL_LTpT;
 	bool CutOn_SL_LTpT;						float Min_SL_LTpT;						float Max_SL_LTpT;
 	bool CutOn_LL_LTHits;					float Min_LL_LTHits;					float Max_LL_LTHits;
@@ -50,4 +52,5 @@
 	bool CutOn_MET;							float Min_MET;							float Max_MET;
 	bool CutOn_Zeta;						float Min_Zeta;							float Max_Zeta;
 	bool CutOn_Btags;						float Min_Btags;						float Max_Btags;
+	bool CutOn_SVFitStatus;					float Min_SVFitStatus;					float Max_SVFitStatus;
 	//NEWCUT

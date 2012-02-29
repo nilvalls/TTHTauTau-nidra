@@ -148,3 +148,10 @@ delete Tau1hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr;
 delete Tau2hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr;
 delete Tau2hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr;
 delete Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr;
+
+delete NSVFitStatus;
+delete NSVFitMass;
+delete NSVFitMET;
+delete NSVFitMETphi;
+delete NSVFitSystemPt;
+

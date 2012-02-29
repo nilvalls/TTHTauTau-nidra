@@ -47,6 +47,7 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "ntuplesDir");
 	SetParam(theConfig, "treeName");
 	SetParam(theConfig, "histoCfg");
+	SetParam(theConfig, "histoList");
 	SetParam(theConfig, "cutsToApply");
 	SetParam(theConfig, "osls");
 	SetParam(theConfig, "QCDcolor");
@@ -73,14 +74,8 @@ void ReadConfig(string iPath){
 	SetParam("stamps_output",string(GetParam("webDir")+"stamps/"));
 	SetParam("efficiency_output",string(GetParam("webDir")+"efficiency/"));
 	SetParam("optimization_output",string(GetParam("webDir")+"optimization/")); 
+	SetParam("config_output",string(GetParam("webDir")+"config/"));
 	SetParam("propack_name","HtoTauTau");
-
-	// Build the topopack from the info in the config file
-	proPack = new ProPack(params);
-	BuildProPack(*proPack, theConfig);
-
-	// Init root file maker
-	rootFileMaker = RootFileMaker(params);
 
 }
 
@@ -99,7 +94,6 @@ void Analyze(){
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
 	delete proPack; proPack = NULL;
 	Print(GREEN," done!");
-	cout << __FILE__ << ":" << __LINE__ << endl; 
 }
 
 void DistributeProcesses(){
@@ -114,6 +108,7 @@ void DistributeProcesses(){
 	file->cd();
 
 	ProPack* tempProPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+		
 	tempProPack->DistributeProcesses();
 
 	file->cd();
@@ -267,7 +262,12 @@ void NewSection(TStopwatch & iStopWatch){
 }
 
 
-void BuildProPack(ProPack& iProPack, Config const & theConfig){
+void BuildProPack(string iPath){
+
+	Config theConfig(iPath);
+
+	// Build the topopack from the info in the config file
+	proPack = new ProPack(params);
 
 	// Loop over all the topologies in the config file
 	vector<pair<string,Config*> > topoConfigs = theConfig.getGroupsVec();
@@ -279,11 +279,14 @@ void BuildProPack(ProPack& iProPack, Config const & theConfig){
 		Process process(shortName, params, *topoConfig);
 
 		// Put process in ProPack's PContainer if we want it analyzed
-		if(AnalyzeProcess(shortName)){ iProPack.GetPContainer()->Add(process); }
+		if(AnalyzeProcess(shortName)){ proPack->GetPContainer()->Add(process); }
 	}
 
 	// In-function cleanup
 	topoConfigs.clear();
+
+	// Init root file maker
+	rootFileMaker = RootFileMaker(params);
 
 }
 

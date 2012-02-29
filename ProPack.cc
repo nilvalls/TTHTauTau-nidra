@@ -138,11 +138,14 @@ bool const ProPack::HaveBackgrounds() const {	return (mcBackgrounds.size()>0 || 
 bool const ProPack::HaveSignals() const {		return (signals.size()>0); }
 bool const ProPack::PrepareCollisions() const {	return prepareCollisions; }
 bool const ProPack::PrepareQCD() const {		return prepareQCD; }
-bool const ProPack::PrepareMCbackgrounds() const {	return HaveMCbackgrounds(); }
+bool const ProPack::PrepareMCbackgrounds() const {	
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ if(GetMCbackgrounds()->at(b).Plot()){ return true; } }
+	return false;
+}
 bool const ProPack::PrepareSignals() const {	return HaveSignals(); }
 bool const ProPack::PrepareBackgrounds() const {	return HaveBackgrounds(); }
-void ProPack::PrepareCollisions(bool const iVal){	prepareCollisions = (iVal && haveCollisions);	}
-void ProPack::PrepareQCD(bool const iVal){			prepareQCD = (iVal && haveCollisions);			}
+void ProPack::PrepareCollisions(bool const iVal){	prepareCollisions = (iVal && haveCollisions && GetCollisions()->Plot());	}
+void ProPack::PrepareQCD(bool const iVal){	prepareQCD = (iVal && (pContainer.GetNumberOfCollisionProcesses() == 1) && PlotProcess("QCD")); }
 
 map<string,string> const ProPack::GetParams() const { return params; }
 double const ProPack::GetIntegratedLumiInInvPb() const { return integratedLumiInInvPb; }
@@ -157,6 +160,9 @@ void ProPack::BuildQCD(){
 	qcd.SetLabelForLegend("QCD");
 	qcd.SetColor(atoi((params["QCDcolor"]).c_str()));
 
+
+	if(pContainer.GetCollisionProcesses().size() != 1){ cout << "ERROR: Number of collision processes in pContainer is not exactly 1 but ." <<  endl; exit(1); }
+	
 	// Do the same for the CutFlow
 	CutFlow cutFlow = CutFlow(*(collisions.GetNormalizedCutFlow()));
 	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ cutFlow.Add(*(GetMCbackgrounds()->at(b).GetNormalizedCutFlow()), -1); }
@@ -170,6 +176,7 @@ void ProPack::BuildQCD(){
 	hContainerForQCD.Positivize(); 
 	hContainerForQCD.ApplyRosls(atof((params["osls"]).c_str()), qcd.GetNormalizedCutFlow());
 	qcd.SetHContainerForSignal(hContainerForQCD);
+
 
 }
 
@@ -224,20 +231,29 @@ int const ProPack::GetNumberOfPlots() const { return GetAvailableProcess().GetNu
 
 HContainer const ProPack::GetSignalsHWrappers(string const iName) const {
 	HContainer result;
-	for(unsigned int s = 0; s < signals.size(); s++){ result.Add(signals.at(s).GetLabelForLegend(), *(signals.at(s).GetHContainerForSignal()->Get(iName))); }
+	for(unsigned int s = 0; s < signals.size(); s++){ 
+		//if(!signals.at(s).Plot()){ continue; }
+		result.Add(signals.at(s).GetLabelForLegend(), *(signals.at(s).GetHContainerForSignal()->Get(iName)));
+	}
 	return result;
 }
 
 HContainer const ProPack::GetMCbackgroundsHWrappers(string const iName) const {
 	HContainer result;
-	for(unsigned int s = 0; s < mcBackgrounds.size(); s++){ result.Add(mcBackgrounds.at(s).GetLabelForLegend(), *(mcBackgrounds.at(s).GetHContainerForSignal()->Get(iName))); }
+	for(unsigned int s = 0; s < mcBackgrounds.size(); s++){
+		//if(!mcBackgrounds.at(s).Plot()){ continue; }
+		result.Add(mcBackgrounds.at(s).GetLabelForLegend(), *(mcBackgrounds.at(s).GetHContainerForSignal()->Get(iName)));
+	}
 	return result;
 }
 
 HContainer const ProPack::GetBackgroundsHWrappers(string const iName) const {
 	HContainer result;
-	for(unsigned int s = 0; s < mcBackgrounds.size(); s++){ result.Add(mcBackgrounds.at(s).GetLabelForLegend(), *(mcBackgrounds.at(s).GetHContainerForSignal()->Get(iName))); }
-	if(prepareQCD){ result.Add(qcd.GetLabelForLegend(), *(qcd.GetHContainerForSignal()->Get(iName))); }
+	for(unsigned int s = 0; s < mcBackgrounds.size(); s++){
+		//if(!mcBackgrounds.at(s).Plot()){ continue; }
+		result.Add(mcBackgrounds.at(s).GetLabelForLegend(), *(mcBackgrounds.at(s).GetHContainerForSignal()->Get(iName)));
+	}
+	if(PrepareQCD()){ result.Add(qcd.GetLabelForLegend(), *(qcd.GetHContainerForSignal()->Get(iName))); }
 	return result;
 }
 
@@ -285,10 +301,15 @@ void ProPack::DistributeProcesses(){
 	cout << endl;
 	for(unsigned int n = 0; n < names.size(); n++){
 		Process * process = pContainer.Get(names.at(n));
-		if(!PlotProcess(names.at(n))){ continue; }
-		if(process->IsCollisions()){		cout << "\tSetting  collisions    with name: " << process->GetShortName() << endl; SetCollisions(*process); }
-		if(process->IsMCbackground()){ 		cout << "\tAdding   mcBackground  with name: " << process->GetShortName() << endl; AddMCbackground(*process); }
-		if(process->IsSignal()){			cout << "\tAdding   signal        with name: " << process->GetShortName() << endl; AddSignal(*process); }
+		process->SetPlot(params);
+		string name = string(30-process->GetShortName().length(), ' ');
+		name += process->GetShortName() + "  ";
+		if(process->Plot()){ name += "[ plotting ]"; }
+		else{ name += "[ NOT plotting ]"; }
+
+		if(process->IsCollisions()){		cout << "\tSetting  collisions    with name: " << name << endl; SetCollisions(*process); }
+		if(process->IsMCbackground()){ 		cout << "\tAdding   mcBackground  with name: " << name << endl; AddMCbackground(*process); }
+		if(process->IsSignal()){			cout << "\tAdding   signal        with name: " << name << endl; AddSignal(*process); }
 	}
 	PrepareQCD(true);
 	cout << endl;
@@ -316,6 +337,7 @@ string ProPack::GetProccessNamesToAnalyze(){
 }
 
 string ProPack::GetProccessNamesToPlot(){
+	cout << "getting process Name to plot" << endl;
 	string result = "";
 	vector<string> names = pContainer.GetNames();
 	for(unsigned int n = 0; n < names.size(); n++){ 

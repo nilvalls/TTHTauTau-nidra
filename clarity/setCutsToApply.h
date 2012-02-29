@@ -16,6 +16,8 @@
 	 if(ApplyThisCut("DeltaR"					)){ CutOn_DeltaR					= 	true; cutFlow.RegisterCut("DeltaR", 1);						}
 	 if(ApplyThisCut("DDMI"						)){ CutOn_DDMI                      =   true; cutFlow.RegisterCut("DDMI", 1);              		    }
 	 if(ApplyThisCut("DTMI"						)){ CutOn_DTMI                      =   true; cutFlow.RegisterCut("DTMI", 1);  			            }
+	 if(ApplyThisCut("LL_LTvalid"				)){ CutOn_LL_LTvalid				= 	true; cutFlow.RegisterCut("LL_LTvalid", 1);					}
+	 if(ApplyThisCut("SL_LTvalid"				)){ CutOn_SL_LTvalid				= 	true; cutFlow.RegisterCut("SL_LTvalid", 1);					}
 	 if(ApplyThisCut("LL_LTpT"					)){ CutOn_LL_LTpT					= 	true; cutFlow.RegisterCut("LL_LTpT", 1);					}
 	 if(ApplyThisCut("SL_LTpT"					)){ CutOn_SL_LTpT					= 	true; cutFlow.RegisterCut("SL_LTpT", 1);					}
 	 if(ApplyThisCut("LL_LTHits"				)){ CutOn_LL_LTHits					= 	true; cutFlow.RegisterCut("LL_LTHits", 1);					}
@@ -54,4 +56,5 @@ else if(ApplyThisCut("SL_VLooseIso"				)){ CutOn_SL_VLooseIso				= 	true; cutFlo
 	 if(ApplyThisCut("MET"						)){ CutOn_MET						= 	true; cutFlow.RegisterCut("MET", 1);						}
 	 if(ApplyThisCut("Zeta"						)){ CutOn_Zeta						= 	true; cutFlow.RegisterCut("Zeta", 1);						}
 	 if(ApplyThisCut("Btags"					)){ CutOn_Btags						= 	true; cutFlow.RegisterCut("Btags", 1);						}
+	 if(ApplyThisCut("SVFitStatus"				)){ CutOn_SVFitStatus				= 	true; cutFlow.RegisterCut("SVFitStatus", 1);					}
 	 //NEWCUT

@@ -183,9 +183,9 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 	stringstream result; result.str("");
 
 	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e", iOptions)){ result << "<TD bgcolor=\"#F0FFF0\">" << iCutFlow->GetPassedEventsForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("r", iOptions)){ result << "<TD bgcolor=\"#E0FFFF\">" << iCutFlow->GetRelEffForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("c", iOptions)){ result << "<TD bgcolor=\"#FFDAB9\">" << iCutFlow->GetCumEffForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("e", iOptions)){ result << "<TD bgcolor=\"#F0FFF0\">" << setprecision(4) << iCutFlow->GetPassedEventsForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("r", iOptions)){ result << "<TD bgcolor=\"#E0FFFF\">" << setprecision(4) << 100*iCutFlow->GetRelEffForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("c", iOptions)){ result << "<TD bgcolor=\"#FFDAB9\">" << setprecision(4) << 100*iCutFlow->GetCumEffForSignal(iCut) << "</TD>"; }
 	}else if(iFormat.compare("TEX")==0){
 
 	}else if(iFormat.compare("TXT")==0){

@@ -154,3 +154,10 @@ vector<float>* Tau1hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr;
 vector<float>* Tau2hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr;
 vector<float>* Tau2hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr;
 vector<float>* Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr;
+
+vector<bool>*   NSVFitStatus;
+vector<float>*  NSVFitMass;
+vector<float>*  NSVFitMET;
+vector<float>*  NSVFitMETphi;
+vector<float>*  NSVFitSystemPt;
+

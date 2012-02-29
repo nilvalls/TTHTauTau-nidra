@@ -17,7 +17,7 @@ void RootFileMaker::MakeFile(ProPack* iProPack, string iOutputFile){
 	TFile* file = new TFile(iOutputFile.c_str(), "RECREATE");
 	file->cd();
 
-	iProPack->Write((params["propack_name"]).c_str());
+	iProPack->Write((params.find("propack_name")->second).c_str());
 
 	file->Close();
 

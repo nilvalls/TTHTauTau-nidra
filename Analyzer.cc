@@ -68,6 +68,7 @@ void Analyzer::Analyze(Process& iProcess){
 	event = &event2;
 
 	pair<double,double> loopResults = Loop();
+	cout << endl;
 
 	iProcess.SetGoodEventsForSignal(goodEventsForSignal);
 	iProcess.SetGoodEventsForQCD(goodEventsForQCD);
@@ -234,6 +235,9 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 		if(cutFlow.CheckComboAndStop("DTMI", DTMI, target)){ return target; }
 	}
 
+	// Leading track transverse momentum
+	if(CutOn_LL_LTvalid){ if(cutFlow.CheckComboAndStop("LL_LTvalid", event->Tau1LTvalid->at(iCombo), target)){ return target; }}
+	if(CutOn_SL_LTvalid){ if(cutFlow.CheckComboAndStop("SL_LTvalid", event->Tau2LTvalid->at(iCombo), target)){ return target; }}
 	
 	// Leading track transverse momentum
 	if(CutOn_LL_LTpT){ if(cutFlow.CheckComboAndStop("LL_LTpT", event->Tau1LTPt->at(iCombo), target)){ return target; }}
@@ -330,6 +334,9 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 	// Btags
 	if(CutOn_Btags){ if(cutFlow.CheckComboAndStop("Btags",event->nBtagsHiEffTrkCnt->at(iCombo), target)){ return target; }}
+
+	// Valid SVFit solution
+	if(CutOn_SVFitStatus){ if(cutFlow.CheckComboAndStop("SVFitStatus",event->NSVFitStatus->at(iCombo), target)){ return target; }}
 
 	// Return target, first element is for signal analysis, second is for QCD
 	return target;

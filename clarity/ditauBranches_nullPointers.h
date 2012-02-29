@@ -154,3 +154,9 @@ Tau1hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = NULL;
 Tau2hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr = NULL;
 Tau2hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr = NULL;
 Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = NULL;
+
+NSVFitStatus = NULL;
+NSVFitMass = NULL;
+NSVFitMET = NULL;
+NSVFitMETphi = NULL;
+NSVFitSystemPt = NULL;

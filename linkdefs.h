@@ -20,9 +20,4 @@
 #pragma link C++ class Process+;
 #pragma link C++ class ProPack+;
 
-
-
-//#pragma read source="runNumber" sourceClass="DitauBranches" target="runNumber" targetClass="DitauBranches" attributes="Owner";
-
-//*/
 #endif

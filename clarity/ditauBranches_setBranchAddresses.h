@@ -154,3 +154,10 @@ fChain->SetBranchAddress("Tau1hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCo
 fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr", &Tau2hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr);
 fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr", &Tau2hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr);
 fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr", &Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr);
+
+
+fChain->SetBranchAddress("NSVFitStatus", &NSVFitStatus);
+fChain->SetBranchAddress("NSVFitMass", &NSVFitMass);
+fChain->SetBranchAddress("NSVFitMET", &NSVFitMET);
+fChain->SetBranchAddress("NSVFitMETphi", &NSVFitMETphi);
+fChain->SetBranchAddress("NSVFitSystemPt", &NSVFitSystemPt);

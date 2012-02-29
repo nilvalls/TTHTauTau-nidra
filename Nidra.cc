@@ -9,16 +9,17 @@ int main(int argc, char **argv){
 	Initialize(argc,argv);
 
 	ReadConfig(string(argv[1]));
+	BuildProPack(string(argv[1]));
 	
 	if(IsArgumentThere("-a")){ Analyze(); }
 
-	DistributeProcesses();
-
 	if(IsArgumentThere("-p")){
+		ReadConfig(string(argv[1]));
+		DistributeProcesses();
 		PreparePlots();
 		CrunchNumbers();
-//		PlotStacks();
-//		PlotStamps();
+	//	PlotStacks();
+	//	PlotStamps();
 		Optimize();
 	}
 

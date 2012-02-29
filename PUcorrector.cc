@@ -105,7 +105,11 @@ PUcorrector::PUcorrector(string const iFile){
 	double s = 0.0;
 	for(int npu=0; npu<25; ++npu){
 		double npu_estimated = data_npu_estimated->GetBinContent(data_npu_estimated->GetXaxis()->FindBin(npu));                              
-		weight[npu] = npu_estimated / npu_probs[npu];
+		if(npu_probs[npu] > 0){
+			weight[npu] = npu_estimated / npu_probs[npu];
+		}else{
+			weight[npu] = 1.0;
+		}
 		//cout << npu << "  " << npu_estimated << "  " << npu_probs[npu] << "  " << weight[npu] << endl;
 		s += npu_estimated;
 		//cout << "SUM: " << s << endl;
@@ -113,6 +117,7 @@ PUcorrector::PUcorrector(string const iFile){
 
 	// normalize weights such that the total sum of weights over thw whole sample is 1.0, i.e., sum_i  weight[i] * npu_probs[i] should be 1.0 (!)
 	for(int npu=0; npu<25; ++npu){ weight[npu] /= s; }
+	
 }
 
 
@@ -129,7 +134,7 @@ float const PUcorrector::GetWeight(float const iNumPV) const{
 
 	float result = 1.0;
 
-	if(iNumPV>24){ return 0; }
+	if((iNumPV==0) || (iNumPV>=24)){ result = 0; }
 	else{ result = weight.find(iNumPV)->second; }
 
 	return result;

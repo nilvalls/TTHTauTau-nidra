@@ -93,16 +93,22 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounter weightCounterForSignal;
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		cout << __FILE__ << ":" << __LINE__ << endl;
+		//cout << __FILE__ << ":" << __LINE__ << endl;
 		event.GetEntry(goodEventsForSignal.at(i).first);
-		cout << __FILE__ << ":" << __LINE__ << endl;
+		//cout << __FILE__ << ":" << __LINE__ << endl;
 		event.SetBestCombo(goodEventsForSignal.at(i).second);
 		FillHistos(&hContainerForSignal, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForSignal);
 	}
+
 	iProcess->SetHContainerForSignal(hContainerForSignal);
-	double puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
-	double tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.total;
-	double tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.total;
+	double puEfficiencyForSignal			= 0;
+	double tau1TriggerEfficiencyForSignal	= 0;
+	double tau2TriggerEfficiencyForSignal	= 0;
+	if(weightCounterForSignal.total > 0){
+		puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
+		tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.total;
+		tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.total;
+	}
 
 	// Recover the good events for QCD and fill histos with them
 	weightCounter weightCounterForQCD;
@@ -113,9 +119,14 @@ void Plotter::MakePlots(Process* iProcess){
 		FillHistos(&hContainerForQCD, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForQCD);
 	}
 	iProcess->SetHContainerForQCD(hContainerForQCD);
-	double puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
-	double tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.total;
-	double tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.total;
+	double puEfficiencyForQCD			= 0;
+	double tau1TriggerEfficiencyForQCD	= 0;
+	double tau2TriggerEfficiencyForQCD	= 0;
+	if(weightCounterForQCD.total > 0){
+		puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
+		tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.total;
+		tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.total;
+	}
 
 	// Add postCuts
 	if(IsFlagThere("PUcorr")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal(), puEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
@@ -131,25 +142,39 @@ void Plotter::BookHistos(HContainer* iHContainer){
 	// Reset input HContainer
 	iHContainer->clear();
 
-	// Obtain config file where histos are configured
-	Config histosConfigFile = Config(params["histoCfg"]);
-	map<string, Config*> histosConfigMap = histosConfigFile.getGroups();
+	// Vector storing nams of histo config files
+	vector<string> files;
 
-	// Loop over histos in config file, and add them to HContainer
-	string th1fPrefix = "th1f_";
-	string th2fPrefix = "th2f_";
-	for (map<string, Config*>::iterator i = histosConfigMap.begin(); i != histosConfigMap.end(); ++i){
-		string groupName = i->first;
-		Config* histoConfig = i->second;
+	if((params.find("histoCfg")->second).length() > 0){
+		files.push_back(params.find("histoCfg")->second);
+	}else{
+		files.push_back(params.find("histoCfg")->second);
+	}
 
-		if (groupName.substr(0,th1fPrefix.length()) == th1fPrefix) {
-			string name	= groupName.substr(th1fPrefix.length());
-			iHContainer->Add(name, HWrapper(name, "th1f", *histoConfig));
-		}else if (groupName.substr(0,th2fPrefix.length()) == th2fPrefix){
-			string name	= groupName.substr(th2fPrefix.length());
-			iHContainer->Add(name, HWrapper(name, "th2f", *histoConfig));
+	for(unsigned int f=0; f < files.size(); f++){
+		// Obtain config file where histos are configured
+		Config histosConfigFile = Config(files.at(f));
+		map<string, Config*> histosConfigMap = histosConfigFile.getGroups();
+
+		// Loop over histos in config file, and add them to HContainer
+		string th1fPrefix = "th1f_";
+		string th2fPrefix = "th2f_";
+		for (map<string, Config*>::iterator i = histosConfigMap.begin(); i != histosConfigMap.end(); ++i){
+			string groupName = i->first;
+			Config* histoConfig = i->second;
+
+			if (groupName.substr(0,th1fPrefix.length()) == th1fPrefix) {
+				string name	= groupName.substr(th1fPrefix.length());
+				iHContainer->Add(name, HWrapper(name, "th1f", *histoConfig));
+			}else if (groupName.substr(0,th2fPrefix.length()) == th2fPrefix){
+				string name	= groupName.substr(th2fPrefix.length());
+				iHContainer->Add(name, HWrapper(name, "th2f", *histoConfig));
+			}
 		}
 	}
+
+
+
 }
 
 // Fill the histograms with the event passed
@@ -180,6 +205,9 @@ void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool co
 
 // Save canvas
 void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename) const {
+
+	
+
 
 	// Create output dir if it doesn't exists already
 	TString sysCommand = "if [ ! -d " + iDir + " ]; then mkdir -p " + iDir + "; fi";
@@ -214,6 +242,7 @@ HWrapper const Plotter::GetBackgroundSum(ProPack const * iProPack, string const 
 	// Add each MC background first if we have them
 	if(iProPack->HaveMCbackgrounds()){
 		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
+			if(!iProPack->GetMCbackgrounds()->at(b).Plot()){ continue; }
 			if(buffer == NULL){	buffer = new HWrapper(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
 			else{ buffer->Add(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
 		}

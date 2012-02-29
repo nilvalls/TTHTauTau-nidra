@@ -9,6 +9,8 @@
 	CutOn_LL_Eta					= false; //	Max_LL_Eta						= -FLT_MAX;	Max_LL_Eta						= FLT_MAX;
 	CutOn_SL_Eta					= false; //	Max_SL_Eta						= -FLT_MAX;	Max_SL_Eta						= FLT_MAX;
 	CutOn_DeltaR					= false; //	Max_DeltaR						= 0;		Max_DeltaR						= FLT_MAX;
+	CutOn_LL_LTvalid				= false; //	Max_LL_LTvalid					= 0;		Max_LL_LTvalid					= FLT_MAX;
+	CutOn_SL_LTvalid				= false; //	Max_SL_LTvalid					= 0;		Max_SL_LTvalid					= FLT_MAX;
 	CutOn_LL_LTpT					= false; //	Max_LL_LTpT						= 0;		Max_LL_LTpT						= FLT_MAX;
 	CutOn_SL_LTpT					= false; //	Max_SL_LTpT						= 0;		Max_SL_LTpT						= FLT_MAX;
 	CutOn_LL_LTHits					= false; //	Max_LL_LTHits					= 0;		Max_LL_LTHits					= FLT_MAX;
@@ -49,4 +51,5 @@
 	CutOn_MET						= false; //	Max_MET							= 0;		Max_MET							= FLT_MAX;
 	CutOn_Zeta						= false; //	Max_Zeta						= -FLT_MAX;	Max_Zeta						= FLT_MAX;
 	CutOn_Btags						= false; //	Max_Btags						= 0;		Max_Btags						= FLT_MAX;
+	CutOn_SVFitStatus				= false; //	Max_SVFitStatus					= 0;		Max_SVFitStatus					= FLT_MAX;
 	//NEWCUT

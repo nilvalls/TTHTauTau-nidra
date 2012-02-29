@@ -45,6 +45,41 @@ void PContainer::clear(){ container.clear(); }
 map<string, Process>::const_iterator PContainer::begin() const { return (container.begin()); }
 map<string, Process>::const_iterator PContainer::end() const { return (container.end()); }
 
+
+vector<Process*> PContainer::GetCollisionProcesses(){
+	vector<Process*> result; result.clear();
+	for(map<string,Process>::iterator p = container.begin(); p != container.end(); p++){
+		if(p->second.IsCollisions()){ result.push_back(&(p->second)); }
+	}
+	return result;
+}
+
+vector<Process*> PContainer::GetQCDProcesses(){
+	vector<Process*> result; result.clear();
+	for(map<string,Process>::iterator p = container.begin(); p != container.end(); p++){
+		if(p->second.IsQCD()){ result.push_back(&(p->second)); }
+	}
+	return result;
+}
+
+vector<Process*> PContainer::GetMCbackgroundProcesses(){
+	vector<Process*> result; result.clear();
+	for(map<string,Process>::iterator p = container.begin(); p != container.end(); p++){
+		if(p->second.IsMCbackground()){ result.push_back(&(p->second)); } 
+	}
+	return result;
+}
+
+vector<Process*> PContainer::GetSignalProcesses(){
+	vector<Process*> result; result.clear();
+	for(map<string,Process>::iterator p = container.begin(); p != container.end(); p++){
+		if(p->second.IsSignal()){ result.push_back(&(p->second)); }
+	}
+	return result;
+}
+
+
+
 int PContainer::GetNumberOfCollisionProcesses(){
 	int result = 0;
 	for(map<string,Process>::const_iterator p = container.begin(); p != container.end(); p++){

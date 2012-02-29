@@ -47,6 +47,11 @@ class PContainer{
 		int								GetNumberOfMCbackgroundProcesses();
 		int								GetNumberOfSignalProcesses();
 
+		vector<Process*>				GetCollisionProcesses();
+		vector<Process*>				GetQCDProcesses();
+		vector<Process*>				GetMCbackgroundProcesses();
+		vector<Process*>				GetSignalProcesses();
+
 		ClassDef(PContainer, 1);
 };
 

@@ -83,7 +83,7 @@ using namespace std;
 	void			BackUpConfigFile(string, string);
 	void			NewSection(TStopwatch&);
 	bool			AnalyzeProcess(string const);
-	bool			PlotProcess(string const);
+	//bool			PlotProcess(string const);
 	//*/
 
 #endif

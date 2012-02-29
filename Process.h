@@ -45,6 +45,7 @@ class Process {
 		string ntuplePath;
 		int color;
 		bool analyzed;
+		bool plot;
 
 
 		float crossSection;
@@ -68,6 +69,10 @@ class Process {
 
 		void NormalizeTo(double const);
 		void BookHistos(HContainer const *);
+
+
+		bool const IsStringThere(string, string) const;
+		bool PlotProcess(string const);
 
 	public :
 		// Default constructor
@@ -119,6 +124,8 @@ class Process {
 		bool const			IsMCbackground() const;
 		bool const			IsSignal() const;
 		bool const			IsMC() const;
+		bool const			Plot() const;
+		void				SetPlot(map<string,string> const &);
 
 		double const		GetCrossSection() const;
 		double const		GetBranchingRatio() const;

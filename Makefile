@@ -80,7 +80,7 @@ libConfigParser.so: configParser/config.h
 	$(CXX) $(CXXFLAGS) -c Trigger.cc -o $@
 
 
-.Plotter.o: Plotter.cc Plotter.h
+.Plotter.o: Plotter.cc Plotter.h clarity/fillHistos.h
 	$(CXX) $(CXXFLAGS) -c Plotter.cc -o $@
 
 .Stacker.o: Stacker.cc Stacker.h
