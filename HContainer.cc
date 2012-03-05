@@ -77,6 +77,12 @@ void HContainer::ScaleBy(double const iValue){
 	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){ ite->second.ScaleBy(iValue); }
 }
 
+void HContainer::ScaleErrorBy(double const iValue){
+	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){ 
+		ite->second.ScaleErrorBy(iValue);
+	}
+}
+
 void HContainer::ApplyRosls(double const iValue, CutFlow const * iCutFlow){
 	bool chargeProductApplied = (iCutFlow->GetCutPosition("ChargeProduct") >= 0);
 	bool osRequested = false;

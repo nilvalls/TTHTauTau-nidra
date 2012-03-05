@@ -125,12 +125,10 @@ void Process::SetPlot(map<string,string> const & iParams){
 		result = true;
 	}else{
 		string enabledProcesses = " " + iParams.find("plot")->second + " ";
-		cout << enabledProcesses << endl;
 		string thisProcess			 = " " + shortName + " ";
 		result = IsStringThere(thisProcess,enabledProcesses);
 	}
 	plot = result;
-	cout << "Plot? " << plot << endl;
 }
 
 bool const Process::IsCollisions() const { return ((type.compare("collisions")==0)); }
@@ -162,7 +160,8 @@ void Process::SetNiceName(string const iVal){ niceName = iVal; }
 void Process::SetLabelForLegend(string const iVal){ labelForLegend = iVal; }
 void Process::SetAnalyzed(){ analyzed = true; }
 bool const Process::Analyzed() const { return analyzed; }
-HContainer* Process::GetHContainerForSignal(){ return &hContainerForSignal; }
+HContainer* Process::GetHContainerForSignal(){ 
+return &hContainerForSignal; }
 HContainer* Process::GetHContainerForQCD(){ return &hContainerForQCD; }
 HContainer const * Process::GetHContainerForSignal() const { return &hContainerForSignal; }
 HContainer const * Process::GetHContainerForQCD() const { return &hContainerForQCD; }

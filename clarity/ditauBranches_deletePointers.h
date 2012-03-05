@@ -154,4 +154,14 @@ delete NSVFitMass;
 delete NSVFitMET;
 delete NSVFitMETphi;
 delete NSVFitSystemPt;
+delete NSVFitSystemMag;
+delete NSVFitSystemPhi;
+delete NSVFitSystemEta;
 
+
+delete DeltaOmegaBoostAndBoostedSVFitTau1;
+delete DeltaOmegaBoostAndBoostedSVFitTau2;
+delete DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2;
+delete DeltaPhiBoostAndBoostedSVFitTau1;
+delete DeltaPhiBoostAndBoostedSVFitTau2;
+delete DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2;

@@ -100,6 +100,7 @@ class HWrapper{
 		void	Add(HWrapper const &, double const iFactor=1.0);
 		void	NormalizeTo(double const);
 		void	ScaleBy(double const);
+		void	ScaleErrorBy(double const);
 		void	Positivize();
 		void	FillRandom(string const);
 

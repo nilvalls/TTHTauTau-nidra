@@ -160,4 +160,15 @@ vector<float>*  NSVFitMass;
 vector<float>*  NSVFitMET;
 vector<float>*  NSVFitMETphi;
 vector<float>*  NSVFitSystemPt;
+vector<float>*  NSVFitSystemMag;
+vector<float>*  NSVFitSystemPhi;
+vector<float>*  NSVFitSystemEta;
+
+
+vector<float>*  DeltaOmegaBoostAndBoostedSVFitTau1;
+vector<float>*  DeltaOmegaBoostAndBoostedSVFitTau2;
+vector<float>*  DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2;
+vector<float>*  DeltaPhiBoostAndBoostedSVFitTau1;
+vector<float>*  DeltaPhiBoostAndBoostedSVFitTau2;
+vector<float>*  DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2;
 

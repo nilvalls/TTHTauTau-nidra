@@ -65,6 +65,10 @@ HWrapper::HWrapper(string iName, string iType, const Config& iConfig){
 		cerr << "ERROR: trying to make a HWrapper but TH1 type \"" << iType << "\" invalid" << endl; exit(1);
 	}
 
+	// Error setup
+	histo->SetDefaultSumw2(kFALSE);
+	//histo->Sumw2();
+
 	// Visible x axis range
 	xMinVis = iConfig.pDouble("xMinVis");
 	xMaxVis = iConfig.pDouble("xMaxVis");
@@ -188,7 +192,13 @@ void HWrapper::SetMarkerStyle(int const iValue){ histo->SetMarkerStyle(iValue); 
 void HWrapper::Add(TH1 const & iHisto, double iFactor){ histo->Add(&iHisto, iFactor); }
 void HWrapper::Add(HWrapper const & iHisto, double const iFactor){ histo->Add((iHisto.GetHisto()), iFactor); }
 void HWrapper::ScaleBy(double const iFactor){	histo->Scale(iFactor); }
-void HWrapper::NormalizeTo(double const iNormalization){	histo->Scale(iNormalization/(double)histo->Integral()); }
+
+void HWrapper::ScaleErrorBy(double const iFactor){	
+	for(unsigned int b=0; b<=histo->GetNbinsX(); b++){ histo->SetBinError(b, iFactor*(histo->GetBinError(b))); }
+}
+
+void HWrapper::NormalizeTo(double const iNormalization){	ScaleBy(iNormalization/(double)histo->Integral()); }
+
 void HWrapper::Fill(double iValue, double iWeight){ 
 	if(!isTH1F){ cerr << "ERROR: trying to use Fill(double, double) on a TH2F. Must use Fill(double, double, double)" << endl; exit(1); }
 	((TH1F*)histo)->Fill(iValue, iWeight);

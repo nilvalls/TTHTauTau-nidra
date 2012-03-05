@@ -91,42 +91,53 @@ void Plotter::MakePlots(Process* iProcess){
 
 	// Recover the good events for signal and fill histos with them
 	weightCounter weightCounterForSignal;
+	weightCounterForSignal.puCorrection	= 0;
+	weightCounterForSignal.tau1Trigger	= 0;
+	weightCounterForSignal.tau2Trigger	= 0;
+	weightCounterForSignal.total		= 0;
+
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		//cout << __FILE__ << ":" << __LINE__ << endl;
 		event.GetEntry(goodEventsForSignal.at(i).first);
-		//cout << __FILE__ << ":" << __LINE__ << endl;
 		event.SetBestCombo(goodEventsForSignal.at(i).second);
 		FillHistos(&hContainerForSignal, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForSignal);
 	}
 
-	iProcess->SetHContainerForSignal(hContainerForSignal);
 	double puEfficiencyForSignal			= 0;
 	double tau1TriggerEfficiencyForSignal	= 0;
 	double tau2TriggerEfficiencyForSignal	= 0;
 	if(weightCounterForSignal.total > 0){
 		puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
-		tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.total;
-		tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.total;
+		tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.puCorrection;
+		tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.tau1Trigger;//*/
 	}
+	hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
+	iProcess->SetHContainerForSignal(hContainerForSignal);
 
 	// Recover the good events for QCD and fill histos with them
 	weightCounter weightCounterForQCD;
+	weightCounterForQCD.puCorrection	= 0;
+	weightCounterForQCD.tau1Trigger		= 0;
+	weightCounterForQCD.tau2Trigger		= 0;
+	weightCounterForQCD.total			= 0;
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
 	for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
 		event.GetEntry(goodEventsForQCD.at(i).first);
 		event.SetBestCombo(goodEventsForQCD.at(i).second);
 		FillHistos(&hContainerForQCD, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForQCD);
 	}
-	iProcess->SetHContainerForQCD(hContainerForQCD);
+
 	double puEfficiencyForQCD			= 0;
 	double tau1TriggerEfficiencyForQCD	= 0;
 	double tau2TriggerEfficiencyForQCD	= 0;
 	if(weightCounterForQCD.total > 0){
 		puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
-		tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.total;
-		tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.total;
+		tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
+		tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
 	}
+	
+	hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
+	iProcess->SetHContainerForQCD(hContainerForQCD);
 
 	// Add postCuts
 	if(IsFlagThere("PUcorr")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal(), puEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
@@ -134,6 +145,7 @@ void Plotter::MakePlots(Process* iProcess){
 		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau1TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 		cutFlow->RegisterCut("SL trigger", 2, tau2TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau2TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 	}
+
 }
 
 // Set up the configured histos and add them to the process
@@ -196,8 +208,8 @@ void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool co
 	}
 
 	iWeightCounter->puCorrection	+= iPuWeight;
-	iWeightCounter->tau1Trigger		+= iTau1TriggerWeight;
-	iWeightCounter->tau2Trigger		+= iTau2TriggerWeight;
+	iWeightCounter->tau1Trigger		+= iTau1TriggerWeight*iPuWeight;
+	iWeightCounter->tau2Trigger		+= iTau2TriggerWeight*iTau1TriggerWeight*iPuWeight;
 	iWeightCounter->total++;
 	
 	#include "clarity/fillHistos.h"

@@ -4,6 +4,7 @@ float weightTrigger = iTau1TriggerWeight*iTau2TriggerWeight;
 float weightTau1	= iPuWeight*iTau1TriggerWeight;
 float weightTau2	= iPuWeight*iTau1TriggerWeight;
 
+
 /*
 // Non-physics
 FillHisto(hContainer, "NumInteractionsBX0_b4RW", event->numInteractionsBX0, weightTrigger);
@@ -27,6 +28,9 @@ hContainer->Fill("SVFitMass_LSM", event->NSVFitMass->at(iCombo), weightFull);
 hContainer->Fill("SVFitStatus_LSM", event->NSVFitStatus->at(iCombo), weightFull);
 hContainer->Fill("SVFitMET_LSM", event->NSVFitMET->at(iCombo), weightFull);
 hContainer->Fill("SVFitSystemPt_LSM", event->NSVFitSystemPt->at(iCombo), weightFull);
+hContainer->Fill("SVFitSystemMag_LSM", event->NSVFitSystemMag->at(iCombo), weightFull);
+hContainer->Fill("SVFitSystemPhi_LSM", fabs(event->NSVFitSystemPhi->at(iCombo)), weightFull);
+hContainer->Fill("SVFitSystemEta_LSM", fabs(event->NSVFitSystemEta->at(iCombo)), weightFull);
 
 hContainer->Fill("InvariantMass_LSM_forTTbar", event->TauTauVisPlusMetMass->at(iCombo), weightFull);
 hContainer->Fill("InvariantMass_LSM_forNote1", event->TauTauVisPlusMetMass->at(iCombo), weightFull);
@@ -139,20 +143,18 @@ else{ DTMI = 3; }
 hContainer->Fill("DTMI", DTMI, weightFull);
 
 // Vertex-track stuff
-hContainer->Fill("AbsLTdxy_L", fabs(event->Tau1LTIpVtdxy->at(iCombo)), weightFull);
-hContainer->Fill("AbsLTdxy_S", fabs(event->Tau2LTIpVtdxy->at(iCombo)), weightFull);
-hContainer->Fill("AbsLTdz_L", fabs(event->Tau1LTIpVtdz->at(iCombo)), weightFull);
-hContainer->Fill("AbsLTdz_S", fabs(event->Tau2LTIpVtdz->at(iCombo)), weightFull);
-hContainer->Fill("AbsLTdxyz_L", sqrt(pow(event->Tau1LTIpVtdxy->at(iCombo),2) + pow(event->Tau1LTIpVtdz->at(iCombo),2)), weightFull);
-hContainer->Fill("AbsLTdxyz_S", sqrt(pow(event->Tau2LTIpVtdxy->at(iCombo),2) + pow(event->Tau2LTIpVtdz->at(iCombo),2)), weightFull);
-hContainer->Fill("AbsDeltaLTdz_LS", fabs(event->Tau1LTIpVtdz->at(iCombo)-event->Tau2LTIpVtdz->at(iCombo)), weightFull);
+hContainer->Fill("LTdxy_L", (event->Tau1LTIpVtdxy->at(iCombo)), weightFull);
+hContainer->Fill("LTdxy_S", (event->Tau2LTIpVtdxy->at(iCombo)), weightFull);
+hContainer->Fill("LTdz_L", (event->Tau1LTIpVtdz->at(iCombo)), weightFull);
+hContainer->Fill("LTdz_S", (event->Tau2LTIpVtdz->at(iCombo)), weightFull);
+hContainer->Fill("DeltaLTdz_LS", (event->Tau1LTIpVtdz->at(iCombo)-event->Tau2LTIpVtdz->at(iCombo)), weightFull);
 
 
-hContainer->Fill("SigLTdz_L", fabs(event->Tau1LTIpVtdz->at(iCombo))/event->Tau1LTIpVtdzError->at(iCombo), weightFull);
-hContainer->Fill("SigLTdz_S", fabs(event->Tau2LTIpVtdz->at(iCombo))/event->Tau2LTIpVtdzError->at(iCombo), weightFull);
+hContainer->Fill("SigLTdz_L", (event->Tau1LTIpVtdz->at(iCombo))/event->Tau1LTIpVtdzError->at(iCombo), weightFull);
+hContainer->Fill("SigLTdz_S", (event->Tau2LTIpVtdz->at(iCombo))/event->Tau2LTIpVtdzError->at(iCombo), weightFull);
 
-hContainer->Fill("SigLTdxy_L", fabs(event->Tau1LTIpVtdxy->at(iCombo))/event->Tau1LTIpVtdxyError->at(iCombo), weightFull);
-hContainer->Fill("SigLTdxy_S", fabs(event->Tau2LTIpVtdxy->at(iCombo))/event->Tau2LTIpVtdxyError->at(iCombo), weightFull);
+hContainer->Fill("SigLTdxy_L", (event->Tau1LTIpVtdxy->at(iCombo))/event->Tau1LTIpVtdxyError->at(iCombo), weightFull);
+hContainer->Fill("SigLTdxy_S", (event->Tau2LTIpVtdxy->at(iCombo))/event->Tau2LTIpVtdxyError->at(iCombo), weightFull);
 
 double a1 = event->Tau1LTIpVtdxy->at(iCombo);
 double b1 = event->Tau1LTIpVtdz->at(iCombo);
@@ -164,10 +166,6 @@ double b2 = event->Tau2LTIpVtdz->at(iCombo);
 double da2 = event->Tau2LTIpVtdxyError->at(iCombo);
 double db2 = event->Tau2LTIpVtdzError->at(iCombo);
 double error2 = sqrt((pow(a2*da2,2)+pow(b2*db2,2))/(pow(a2,2)+pow(b2,2)));
-
-hContainer->Fill("SigLTdxyz_L", sqrt(pow(event->Tau1LTIpVtdxy->at(iCombo),2) + pow(event->Tau1LTIpVtdz->at(iCombo),2))/error1, weightFull);
-hContainer->Fill("SigLTdxyz_S", sqrt(pow(event->Tau2LTIpVtdxy->at(iCombo),2) + pow(event->Tau2LTIpVtdz->at(iCombo),2))/error2, weightFull);
-hContainer->Fill("SigDeltaLTdz_LS", fabs(event->Tau1LTIpVtdz->at(iCombo)-event->Tau2LTIpVtdz->at(iCombo))/(sqrt(pow(event->Tau1LTIpVtdzError->at(iCombo),2)+pow(event->Tau2LTIpVtdzError->at(iCombo),2))), weightFull);
 
 
 double deltaLTvxy = sqrt(
@@ -183,6 +181,20 @@ double deltaLTvxyz = sqrt(
 
 hContainer->Fill("AbsDeltaLTvxy_LS", deltaLTvxy, weightFull);
 hContainer->Fill("AbsDeltaLTvxyz_LS", deltaLTvxyz, weightFull);
+
+
+hContainer->Fill("DeltaOmegaBoostAndBoostedSVFitTau1_LSM",				fabs(event->DeltaOmegaBoostAndBoostedSVFitTau1->at(iCombo)), weightFull);
+hContainer->Fill("DeltaOmegaBoostAndBoostedSVFitTau2_LSM",				fabs(event->DeltaOmegaBoostAndBoostedSVFitTau2->at(iCombo)), weightFull);
+hContainer->Fill("DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2_LSM",	fabs(event->DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2->at(iCombo)), weightFull);
+
+hContainer->Fill("DeltaPhiBoostAndBoostedSVFitTau1_LSM",			fabs(event->DeltaPhiBoostAndBoostedSVFitTau1->at(iCombo)), weightFull);
+hContainer->Fill("DeltaPhiBoostAndBoostedSVFitTau2_LSM",			fabs(event->DeltaPhiBoostAndBoostedSVFitTau2->at(iCombo)), weightFull);
+hContainer->Fill("DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2_LSM",	fabs(event->DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2->at(iCombo)), weightFull);
+
+
+
+
+
 
 
 

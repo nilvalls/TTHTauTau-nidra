@@ -24,7 +24,7 @@ TH1F  * HMath::Integrated(TH1F * iHisto, bool  fromLeft) {
 	if(fromLeft){
 		for(int bin=0; bin <= result->GetNbinsX()+1; bin++){
 			sum += result->GetBinContent(bin);	
-			error = sqrt(pow(error,2)+pow(result->GetBinContent(bin),2)); 
+			error = sqrt(pow(error,2)+pow(result->GetBinError(bin),2)); 
 			result->SetBinContent(bin, sum);	
 			result->SetBinError(bin, error);	
 		}
@@ -32,7 +32,7 @@ TH1F  * HMath::Integrated(TH1F * iHisto, bool  fromLeft) {
 	}else{
 		for(int bin=result->GetNbinsX()+1; bin >= 0; bin--){
 			sum += result->GetBinContent(bin);	
-			error = sqrt(pow(error,2)+pow(result->GetBinContent(bin),2)); 
+			error = sqrt(pow(error,2)+pow(result->GetBinError(bin),2)); 
 			result->SetBinContent(bin, sum);	
 			result->SetBinError(bin, error);	
 		}

@@ -161,3 +161,16 @@ fChain->SetBranchAddress("NSVFitMass", &NSVFitMass);
 fChain->SetBranchAddress("NSVFitMET", &NSVFitMET);
 fChain->SetBranchAddress("NSVFitMETphi", &NSVFitMETphi);
 fChain->SetBranchAddress("NSVFitSystemPt", &NSVFitSystemPt);
+fChain->SetBranchAddress("NSVFitSystemMag", &NSVFitSystemMag);
+fChain->SetBranchAddress("NSVFitSystemPhi", &NSVFitSystemPhi);
+fChain->SetBranchAddress("NSVFitSystemEta", &NSVFitSystemEta);
+
+
+
+fChain->SetBranchAddress("DeltaOmegaBoostAndBoostedSVFitTau1", &DeltaOmegaBoostAndBoostedSVFitTau1);
+fChain->SetBranchAddress("DeltaOmegaBoostAndBoostedSVFitTau2", &DeltaOmegaBoostAndBoostedSVFitTau2);
+fChain->SetBranchAddress("DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2", &DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2);
+fChain->SetBranchAddress("DeltaPhiBoostAndBoostedSVFitTau1", &DeltaPhiBoostAndBoostedSVFitTau1);
+fChain->SetBranchAddress("DeltaPhiBoostAndBoostedSVFitTau2", &DeltaPhiBoostAndBoostedSVFitTau2);
+fChain->SetBranchAddress("DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2", &DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2);
+

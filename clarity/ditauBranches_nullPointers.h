@@ -160,3 +160,19 @@ NSVFitMass = NULL;
 NSVFitMET = NULL;
 NSVFitMETphi = NULL;
 NSVFitSystemPt = NULL;
+NSVFitSystemMag = NULL;
+NSVFitSystemPhi = NULL;
+NSVFitSystemEta = NULL;
+
+ 
+DeltaOmegaBoostAndBoostedSVFitTau1 = NULL;
+DeltaOmegaBoostAndBoostedSVFitTau2 = NULL;
+DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2 = NULL;
+DeltaPhiBoostAndBoostedSVFitTau1 = NULL;
+DeltaPhiBoostAndBoostedSVFitTau2 = NULL;
+DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2 = NULL;
+ 
+ 
+ 
+ 
+ 

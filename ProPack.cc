@@ -161,7 +161,8 @@ void ProPack::BuildQCD(){
 	qcd.SetColor(atoi((params["QCDcolor"]).c_str()));
 
 
-	if(pContainer.GetCollisionProcesses().size() != 1){ cout << "ERROR: Number of collision processes in pContainer is not exactly 1 but ." <<  endl; exit(1); }
+	if(pContainer.GetCollisionProcesses().size() != 1){ cout << "ERROR: Number of collision processes in pContainer is not exactly 1 but " << pContainer.GetCollisionProcesses().size() << endl; exit(1); }
+	if(pContainer.GetNumberOfMCbackgroundProcesses() < 1){ cout << "ERROR: Number of MC background processes in pContainer is not at least 1 but " << pContainer.GetNumberOfMCbackgroundProcesses() << endl; exit(1); }
 	
 	// Do the same for the CutFlow
 	CutFlow cutFlow = CutFlow(*(collisions.GetNormalizedCutFlow()));
