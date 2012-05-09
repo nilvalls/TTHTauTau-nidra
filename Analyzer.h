@@ -18,6 +18,7 @@
 #include "Process.h"
 #include "PContainer.h"
 #include "ProPack.h"
+#include "TMVAEvaluator.h"
 
 using namespace std;
 
@@ -27,9 +28,12 @@ class Analyzer {
 		map<string,string>		params;
 		vector<pair<int,int> >	goodEventsForSignal;
 		vector<pair<int,int> >	goodEventsForQCD;
+		bool					isSignal;
+		bool					isMC;
 	
-		#include "clarity/cuts.h"
+		#include "clarity/cuts_declarations.h"
 		CutFlow					cutFlow;
+		TMVAEvaluator*			tmvaEvaluator;
 
 	public:
 		DitauBranches*			event;

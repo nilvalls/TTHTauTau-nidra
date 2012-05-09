@@ -54,6 +54,8 @@ class ProPack : public TObject {
 		ProPack(const map<string,string>&);
 		virtual ~ProPack();
 
+		void Update(ProPack *);
+
 		map<string,string> const 	GetParams() const;
 		Process const *				GetCollisions() const;
 		Process const *				GetQCD() const;
@@ -67,10 +69,10 @@ class ProPack : public TObject {
 		vector<Process>*			GetSignals();
 		PContainer *				GetPContainer();
 
-		void						SetCollisions(Process&);
+		void						SetCollisions(Process&, string const iNtuplePath="");
 		void						SetQCD(Process&);
-		void						AddMCbackground(Process&);
-		void						AddSignal(Process&);
+		void						AddMCbackground(Process&, string const iNtuplePath="");
+		void						AddSignal(Process&, string const iNtuplePath="");
 
 		bool const					HaveCollisions() const;
 		bool const					PrepareCollisions() const;
@@ -117,10 +119,12 @@ class ProPack : public TObject {
 		void						DistributeProcesses();
 		//vector<Process>				GetProcesses();
 		vector<Process*>				GetProcesses();
+		Process*					GetProcess(string const);
 		string						GetProccessNamesToAnalyze();
 		string						GetProccessNamesToPlot();
 		bool 						PlotProcess(string const);
 		bool const					IsStringThere(string const, string const) const;
+		void						PrintProcessList() const;
 
 		ClassDef(ProPack, 1);
 };

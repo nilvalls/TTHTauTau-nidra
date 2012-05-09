@@ -50,8 +50,9 @@ class DitauBranches {
 	
 		#include "clarity/ditauBranches_declarations.h"
 
-		void		SetBestCombo(int);
-		int			bestCombo;
+		void				SetBestCombo(int);
+		unsigned int const	GetBestCombo() const;
+		int					bestCombo;
 
 };
 

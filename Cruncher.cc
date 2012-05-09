@@ -78,6 +78,7 @@ string Cruncher::GetTableHeader(string const iFormat, string const iOptions){
 		result << "<TABLE border=1 cellspacing=0>" << endl;
 		result << "<TR><TH rowspan=2>Cut</TH>";
 		for(unsigned int p = 0; p < processes.size(); p++){
+			if(!processes.at(p)->Plot()){ continue; }	
 			result << "<TH colspan=" << GetNumberOfOptions(iOptions) << ">"
 			<< processes.at(p)->GetNiceName()
 			<< "</TH>";
@@ -96,7 +97,10 @@ string Cruncher::GetTableHeader(string const iFormat, string const iOptions){
 
 string Cruncher::GetTableSubHeader(string const iFormat, string const iOptions){
 	stringstream result; result.str("");
-	for(unsigned int p = 0; p < processes.size(); p++){ result << GetOptionsHeader(iFormat, iOptions); }
+	for(unsigned int p = 0; p < processes.size(); p++){ 
+		if(!processes.at(p)->Plot()){ continue; }	
+		result << GetOptionsHeader(iFormat, iOptions);
+	}
 	return result.str();
 }
 
@@ -142,6 +146,7 @@ string Cruncher::GetCutLine(string const iFormat, string const iOptions, string 
 		result << "<TR>"; 
 		result << "<TD>" << iCut << "</TD>";
 		for(unsigned int p = 0; p < processes.size(); p++){
+			if(!processes.at(p)->Plot()){ continue; }	
 			if(IsOptionThere("n", iOptions)){ result << GetCutTriplet(iFormat, iOptions, iCut, processes.at(p)->GetNormalizedCutFlow()); }
 			else{ result << GetCutTriplet(iFormat, iOptions, iCut, processes.at(p)->GetCutFlow()); }
 		}
@@ -164,6 +169,7 @@ string Cruncher::GetCutLineForQCD(string const iFormat, string const iOptions, s
 		result << "<TR>"; 
 		result << "<TD>" << iCut << "</TD>";
 		for(unsigned int p = 0; p < processes.size(); p++){
+			if(!processes.at(p)->Plot()){ continue; }	
 			if(IsOptionThere("n", iOptions)){ result << GetCutTripletForQCD(iFormat, iOptions, iCut, processes.at(p)->GetNormalizedCutFlow()); }
 			else{ result << GetCutTripletForQCD(iFormat, iOptions, iCut, processes.at(p)->GetCutFlow()); }
 		}

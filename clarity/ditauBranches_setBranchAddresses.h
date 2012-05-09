@@ -17,6 +17,29 @@ fChain->SetBranchAddress("Tau2GenPhi", &Tau2GenPhi);
 fChain->SetBranchAddress("Tau1GenParentMass", &Tau1GenParentMass);
 fChain->SetBranchAddress("Tau2GenParentMass", &Tau2GenParentMass);
 fChain->SetBranchAddress("TauTauPlusMetGenMass", &TauTauPlusMetGenMass);
+fChain->SetBranchAddress("NumberOfHadronicGenTaus", &NumberOfHadronicGenTaus);
+
+fChain->SetBranchAddress("GenTau1P", &GenTau1P);
+fChain->SetBranchAddress("GenTau2P", &GenTau2P);
+fChain->SetBranchAddress("GenTau1Pt", &GenTau1Pt);
+fChain->SetBranchAddress("GenTau2Pt", &GenTau2Pt);
+fChain->SetBranchAddress("GenTau2Pt", &GenTau2Pt);
+fChain->SetBranchAddress("GenTau1Phi", &GenTau1Phi);
+fChain->SetBranchAddress("GenTau2Phi", &GenTau2Phi);
+fChain->SetBranchAddress("GenTau1Theta", &GenTau1Theta);
+fChain->SetBranchAddress("GenTau2Theta", &GenTau2Theta);
+fChain->SetBranchAddress("GenTausOmega", &GenTausOmega);
+
+fChain->SetBranchAddress("BoostedGenTau1P", &BoostedGenTau1P);
+fChain->SetBranchAddress("BoostedGenTau2P", &BoostedGenTau2P);
+fChain->SetBranchAddress("BoostedGenTau1Pt", &BoostedGenTau1Pt);
+fChain->SetBranchAddress("BoostedGenTau2Pt", &BoostedGenTau2Pt);
+fChain->SetBranchAddress("BoostedGenTau1Phi", &BoostedGenTau1Phi);
+fChain->SetBranchAddress("BoostedGenTau2Phi", &BoostedGenTau2Phi);
+fChain->SetBranchAddress("BoostedGenTau1Theta", &BoostedGenTau1Theta);
+fChain->SetBranchAddress("BoostedGenTau2Theta", &BoostedGenTau2Theta);
+fChain->SetBranchAddress("BoostedGenTausOmega", &BoostedGenTausOmega);//*/
+
 fChain->SetBranchAddress("Tau1Matched", &Tau1Matched);
 fChain->SetBranchAddress("Tau2Matched", &Tau2Matched);
 fChain->SetBranchAddress("Tau1MotherId", &Tau1MotherId);
@@ -34,12 +57,19 @@ fChain->SetBranchAddress("Tau2_ZeMatched", &Tau2_ZeMatched);
 fChain->SetBranchAddress("Tau1_MatchesGenHadronic", &Tau1_MatchesGenHadronic);
 fChain->SetBranchAddress("Tau2_MatchesGenHadronic", &Tau2_MatchesGenHadronic);
 fChain->SetBranchAddress("NumPV", &NumPV);
+
+fChain->SetBranchAddress("DeltaR_recoTau1_genTau1", &DeltaR_recoTau1_genTau1);
+fChain->SetBranchAddress("DeltaR_recoTau2_genTau1", &DeltaR_recoTau2_genTau1);
+fChain->SetBranchAddress("DeltaR_recoTau1_genTau2", &DeltaR_recoTau1_genTau2);
+fChain->SetBranchAddress("DeltaR_recoTau2_genTau2", &DeltaR_recoTau2_genTau2);
+
 fChain->SetBranchAddress("Tau1E", &Tau1E);
 fChain->SetBranchAddress("Tau2E", &Tau2E);
 fChain->SetBranchAddress("Tau1Et", &Tau1Et);
 fChain->SetBranchAddress("Tau2Et", &Tau2Et);
 fChain->SetBranchAddress("Tau1Pt", &Tau1Pt);
 fChain->SetBranchAddress("Tau2Pt", &Tau2Pt);
+fChain->SetBranchAddress("DitauPt", &DitauPt);
 fChain->SetBranchAddress("Tau1LTvalid", &Tau1LTvalid);
 fChain->SetBranchAddress("Tau2LTvalid", &Tau2LTvalid);
 fChain->SetBranchAddress("Tau1LTPt", &Tau1LTPt);
@@ -48,8 +78,10 @@ fChain->SetBranchAddress("Tau1Charge", &Tau1Charge);
 fChain->SetBranchAddress("Tau2Charge", &Tau2Charge);
 fChain->SetBranchAddress("Tau1Eta", &Tau1Eta);
 fChain->SetBranchAddress("Tau2Eta", &Tau2Eta);
+fChain->SetBranchAddress("DitauEta", &DitauEta);
 fChain->SetBranchAddress("Tau1Phi", &Tau1Phi);
 fChain->SetBranchAddress("Tau2Phi", &Tau2Phi);
+fChain->SetBranchAddress("DitauPhi", &DitauPhi);
 fChain->SetBranchAddress("Tau1LTIpVtdxy", &Tau1LTIpVtdxy);
 fChain->SetBranchAddress("Tau1LTIpVtdz", &Tau1LTIpVtdz);
 fChain->SetBranchAddress("Tau1LTIpVtdxyError", &Tau1LTIpVtdxyError);
@@ -158,6 +190,7 @@ fChain->SetBranchAddress("Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCo
 
 fChain->SetBranchAddress("NSVFitStatus", &NSVFitStatus);
 fChain->SetBranchAddress("NSVFitMass", &NSVFitMass);
+fChain->SetBranchAddress("NSVFitMassUncert", &NSVFitMassUncert);
 fChain->SetBranchAddress("NSVFitMET", &NSVFitMET);
 fChain->SetBranchAddress("NSVFitMETphi", &NSVFitMETphi);
 fChain->SetBranchAddress("NSVFitSystemPt", &NSVFitSystemPt);
@@ -165,12 +198,30 @@ fChain->SetBranchAddress("NSVFitSystemMag", &NSVFitSystemMag);
 fChain->SetBranchAddress("NSVFitSystemPhi", &NSVFitSystemPhi);
 fChain->SetBranchAddress("NSVFitSystemEta", &NSVFitSystemEta);
 
+fChain->SetBranchAddress("SVFitTau1P", &SVFitTau1P);
+fChain->SetBranchAddress("SVFitTau2P", &SVFitTau2P);
+fChain->SetBranchAddress("SVFitTau1Pt", &SVFitTau1Pt);
+fChain->SetBranchAddress("SVFitTau2Pt", &SVFitTau2Pt);
+fChain->SetBranchAddress("SVFitTau1Phi", &SVFitTau1Phi);
+fChain->SetBranchAddress("SVFitTau2Phi", &SVFitTau2Phi);
+fChain->SetBranchAddress("SVFitTau1Theta", &SVFitTau1Theta);
+fChain->SetBranchAddress("SVFitTau2Theta", &SVFitTau2Theta);
+fChain->SetBranchAddress("SVFitTausOmega", &SVFitTausOmega);
 
 
-fChain->SetBranchAddress("DeltaOmegaBoostAndBoostedSVFitTau1", &DeltaOmegaBoostAndBoostedSVFitTau1);
-fChain->SetBranchAddress("DeltaOmegaBoostAndBoostedSVFitTau2", &DeltaOmegaBoostAndBoostedSVFitTau2);
-fChain->SetBranchAddress("DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2", &DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2);
-fChain->SetBranchAddress("DeltaPhiBoostAndBoostedSVFitTau1", &DeltaPhiBoostAndBoostedSVFitTau1);
-fChain->SetBranchAddress("DeltaPhiBoostAndBoostedSVFitTau2", &DeltaPhiBoostAndBoostedSVFitTau2);
-fChain->SetBranchAddress("DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2", &DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2);
+fChain->SetBranchAddress("BoostedSVFitTau1P", &BoostedSVFitTau1P);
+fChain->SetBranchAddress("BoostedSVFitTau2P", &BoostedSVFitTau2P);
+fChain->SetBranchAddress("BoostedSVFitTau1Pt", &BoostedSVFitTau1Pt);
+fChain->SetBranchAddress("BoostedSVFitTau2Pt", &BoostedSVFitTau2Pt);
+fChain->SetBranchAddress("BoostedSVFitTau1Phi", &BoostedSVFitTau1Phi);
+fChain->SetBranchAddress("BoostedSVFitTau2Phi", &BoostedSVFitTau2Phi);
+fChain->SetBranchAddress("BoostedSVFitTau1Theta", &BoostedSVFitTau1Theta);
+fChain->SetBranchAddress("BoostedSVFitTau2Theta", &BoostedSVFitTau2Theta);
+fChain->SetBranchAddress("BoostedSVFitTausOmega", &BoostedSVFitTausOmega);
+
+fChain->SetBranchAddress("DeltaR_recoTau1_SVFitTau1", &DeltaR_recoTau1_SVFitTau1);
+fChain->SetBranchAddress("DeltaR_recoTau2_SVFitTau1", &DeltaR_recoTau2_SVFitTau1);
+fChain->SetBranchAddress("DeltaR_recoTau1_SVFitTau2", &DeltaR_recoTau1_SVFitTau2);
+fChain->SetBranchAddress("DeltaR_recoTau2_SVFitTau2", &DeltaR_recoTau2_SVFitTau2);
+
 

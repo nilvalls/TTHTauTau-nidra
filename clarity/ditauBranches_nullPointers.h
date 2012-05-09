@@ -17,6 +17,25 @@ Tau2GenPhi = NULL;
 Tau1GenParentMass = NULL;
 Tau2GenParentMass = NULL;
 TauTauPlusMetGenMass = NULL;
+NumberOfHadronicGenTaus = 0;
+GenTau1P = 0;
+GenTau2P = 0;
+GenTau1Pt = 0;
+GenTau2Pt = 0;
+GenTau1Phi = 0;
+GenTau2Phi = 0;
+GenTau1Theta = 0;
+GenTau2Theta = 0;
+
+BoostedGenTau1P = 0;
+BoostedGenTau2P = 0;
+BoostedGenTau1Pt = 0;
+BoostedGenTau2Pt = 0;
+BoostedGenTau1Phi = 0;
+BoostedGenTau2Phi = 0;
+BoostedGenTau1Theta = 0;
+BoostedGenTau2Theta = 0;
+
 Tau1Matched = NULL;
 Tau2Matched = NULL;
 Tau1MotherId = NULL;
@@ -34,12 +53,19 @@ Tau2_ZeMatched = NULL;
 Tau1_MatchesGenHadronic = NULL;
 Tau2_MatchesGenHadronic = NULL;
 NumPV = NULL;
+
+DeltaR_recoTau1_genTau1 = NULL;
+DeltaR_recoTau2_genTau1 = NULL;
+DeltaR_recoTau1_genTau2 = NULL;
+DeltaR_recoTau2_genTau2 = NULL;
+
 Tau1E = NULL;
 Tau2E = NULL;
 Tau1Et = NULL;
 Tau2Et = NULL;
 Tau1Pt = NULL;
 Tau2Pt = NULL;
+DitauPt = NULL;
 Tau1LTvalid = NULL;
 Tau2LTvalid = NULL;
 Tau1LTPt = NULL;
@@ -48,8 +74,10 @@ Tau1Charge = NULL;
 Tau2Charge = NULL;
 Tau1Eta = NULL;
 Tau2Eta = NULL;
+DitauEta = NULL;
 Tau1Phi = NULL;
 Tau2Phi = NULL;
+DitauPhi = NULL;
 Tau1LTIpVtdxy = NULL;
 Tau1LTIpVtdz = NULL;
 Tau1LTIpVtdxyError = NULL;
@@ -157,6 +185,7 @@ Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = NULL;
 
 NSVFitStatus = NULL;
 NSVFitMass = NULL;
+NSVFitMassUncert = NULL;
 NSVFitMET = NULL;
 NSVFitMETphi = NULL;
 NSVFitSystemPt = NULL;
@@ -164,15 +193,30 @@ NSVFitSystemMag = NULL;
 NSVFitSystemPhi = NULL;
 NSVFitSystemEta = NULL;
 
- 
-DeltaOmegaBoostAndBoostedSVFitTau1 = NULL;
-DeltaOmegaBoostAndBoostedSVFitTau2 = NULL;
-DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2 = NULL;
-DeltaPhiBoostAndBoostedSVFitTau1 = NULL;
-DeltaPhiBoostAndBoostedSVFitTau2 = NULL;
-DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2 = NULL;
- 
- 
- 
- 
- 
+
+SVFitTau1P = NULL;
+SVFitTau2P = NULL;
+SVFitTau1Pt = NULL;
+SVFitTau2Pt = NULL;
+SVFitTau1Phi = NULL;
+SVFitTau2Phi = NULL;
+SVFitTau1Theta = NULL;
+SVFitTau2Theta = NULL;
+SVFitTausOmega = NULL;
+
+BoostedSVFitTau1P = NULL;
+BoostedSVFitTau2P = NULL;
+BoostedSVFitTau1Pt = NULL;
+BoostedSVFitTau2Pt = NULL;
+BoostedSVFitTau1Phi = NULL;
+BoostedSVFitTau2Phi = NULL;
+BoostedSVFitTau1Theta = NULL;
+BoostedSVFitTau2Theta = NULL;
+BoostedSVFitTausOmega = NULL;
+
+
+DeltaR_recoTau1_SVFitTau1 = NULL;
+DeltaR_recoTau2_SVFitTau1 = NULL;
+DeltaR_recoTau1_SVFitTau2 = NULL;
+DeltaR_recoTau2_SVFitTau2 = NULL;
+

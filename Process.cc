@@ -97,6 +97,26 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 // Default destructor
 Process::~Process(){}
 
+// Update process
+void Process::Update(Process const * iProcess){
+	params							= iProcess->GetParams();
+
+	niceName						= iProcess->GetNiceName();
+	labelForLegend					= iProcess->GetLabelForLegend();
+	type							= iProcess->GetType();
+	color							= iProcess->GetColor();
+
+	crossSection					= iProcess->GetCrossSection();
+	branchingRatio					= iProcess->GetBranchingRatio();
+	otherScaleFactor				= iProcess->GetOtherScaleFactor();
+
+	plot							= iProcess->Plot();
+
+	normalizedHistosForSignal		= false;
+	normalizedHistosForQCD			= false;
+	
+}
+
 
 map<string, string> const Process::GetParams() const { return params; }
 void Process::SetHContainerForSignal(HContainer const & iHContainer){ hContainerForSignal = HContainer(iHContainer); }
@@ -118,6 +138,7 @@ string const Process::GetLabelForLegend() const {	return labelForLegend;	}
 string const Process::GetType() const {				return type;			}
 bool const Process::IsMC() const { return ((type.compare("mcBackground")==0) || (type.compare("signal")==0)); }
 bool const Process::Plot() const { return plot; }
+void Process::SetNtuplePath(string const iPath){ ntuplePath = iPath; }
 
 void Process::SetPlot(map<string,string> const & iParams){
 	bool result;

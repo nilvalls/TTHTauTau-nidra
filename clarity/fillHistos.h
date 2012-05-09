@@ -21,16 +21,20 @@ FillHisto(hContainer, "NumPV_afRW", event->NumPV->at(iCombo), weightFull); //*/
 
 // Physics =========================================================================================================================
 hContainer->Fill("Events", 0, weightFull);
+hContainer->Fill("ComboRank", iCombo, weightFull);
 hContainer->Fill("MET_M", event->MET->at(iCombo), weightFull);
 hContainer->Fill("Btags", event->nBtagsHiEffTrkCnt->at(iCombo), weightFull);
 hContainer->Fill("InvariantMass_LSM", event->TauTauVisPlusMetMass->at(iCombo), weightFull);
-hContainer->Fill("SVFitMass_LSM", event->NSVFitMass->at(iCombo), weightFull);
-hContainer->Fill("SVFitStatus_LSM", event->NSVFitStatus->at(iCombo), weightFull);
-hContainer->Fill("SVFitMET_LSM", event->NSVFitMET->at(iCombo), weightFull);
-hContainer->Fill("SVFitSystemPt_LSM", event->NSVFitSystemPt->at(iCombo), weightFull);
-hContainer->Fill("SVFitSystemMag_LSM", event->NSVFitSystemMag->at(iCombo), weightFull);
-hContainer->Fill("SVFitSystemPhi_LSM", fabs(event->NSVFitSystemPhi->at(iCombo)), weightFull);
-hContainer->Fill("SVFitSystemEta_LSM", fabs(event->NSVFitSystemEta->at(iCombo)), weightFull);
+
+hContainer->Fill("SVFitMass", event->NSVFitMass->at(iCombo), weightFull);
+hContainer->Fill("SVFitStatus", event->NSVFitStatus->at(iCombo), weightFull);
+hContainer->Fill("SVFitMET", event->NSVFitMET->at(iCombo), weightFull);
+hContainer->Fill("SVFitSystemPt", event->NSVFitSystemPt->at(iCombo), weightFull);
+hContainer->Fill("SVFitSystemMag", event->NSVFitSystemMag->at(iCombo), weightFull);
+hContainer->Fill("SVFitSystemPhi", fabs(event->NSVFitSystemPhi->at(iCombo)), weightFull);
+hContainer->Fill("SVFitSystemAbsEta", fabs(event->NSVFitSystemEta->at(iCombo)), weightFull);
+hContainer->Fill("SVFitSystemPhiVsEta", (event->NSVFitSystemEta->at(iCombo)), (event->NSVFitSystemPhi->at(iCombo)), weightFull);
+hContainer->Fill("SVFitSystemPtVsEta", (event->NSVFitSystemEta->at(iCombo)), (event->NSVFitSystemPt->at(iCombo)), weightFull);
 
 hContainer->Fill("InvariantMass_LSM_forTTbar", event->TauTauVisPlusMetMass->at(iCombo), weightFull);
 hContainer->Fill("InvariantMass_LSM_forNote1", event->TauTauVisPlusMetMass->at(iCombo), weightFull);
@@ -183,17 +187,54 @@ hContainer->Fill("AbsDeltaLTvxy_LS", deltaLTvxy, weightFull);
 hContainer->Fill("AbsDeltaLTvxyz_LS", deltaLTvxyz, weightFull);
 
 
-hContainer->Fill("DeltaOmegaBoostAndBoostedSVFitTau1_LSM",				fabs(event->DeltaOmegaBoostAndBoostedSVFitTau1->at(iCombo)), weightFull);
-hContainer->Fill("DeltaOmegaBoostAndBoostedSVFitTau2_LSM",				fabs(event->DeltaOmegaBoostAndBoostedSVFitTau2->at(iCombo)), weightFull);
-hContainer->Fill("DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2_LSM",	fabs(event->DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2->at(iCombo)), weightFull);
 
-hContainer->Fill("DeltaPhiBoostAndBoostedSVFitTau1_LSM",			fabs(event->DeltaPhiBoostAndBoostedSVFitTau1->at(iCombo)), weightFull);
-hContainer->Fill("DeltaPhiBoostAndBoostedSVFitTau2_LSM",			fabs(event->DeltaPhiBoostAndBoostedSVFitTau2->at(iCombo)), weightFull);
-hContainer->Fill("DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2_LSM",	fabs(event->DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2->at(iCombo)), weightFull);
+hContainer->Fill("SVFitTau1Pt", event->SVFitTau1Pt->at(iCombo), weightFull);
+hContainer->Fill("SVFitTau2Pt", event->SVFitTau2Pt->at(iCombo), weightFull);
+hContainer->Fill("SVFitTau1PtVsTau2Pt", min(event->SVFitTau1Pt->at(iCombo), event->SVFitTau2Pt->at(iCombo)), max(event->SVFitTau1Pt->at(iCombo), event->SVFitTau2Pt->at(iCombo)), weightFull);
+hContainer->Fill("BoostedSVFitTau1Pt", event->BoostedSVFitTau1Pt->at(iCombo), weightFull);
+hContainer->Fill("BoostedSVFitTau2Pt", event->BoostedSVFitTau2Pt->at(iCombo), weightFull);
+hContainer->Fill("BoostedSVFitTau1Phi", event->BoostedSVFitTau1Phi->at(iCombo), weightFull);
+hContainer->Fill("BoostedSVFitTau2Phi", event->BoostedSVFitTau2Phi->at(iCombo), weightFull);
+hContainer->Fill("BoostedSVFitTau1Theta", event->BoostedSVFitTau1Theta->at(iCombo), weightFull);
+hContainer->Fill("BoostedSVFitTau2Theta", event->BoostedSVFitTau2Theta->at(iCombo), weightFull);
+hContainer->Fill("BoostedSVFitTausOmega", event->BoostedSVFitTausOmega->at(iCombo), weightFull);
+
+hContainer->Fill("BoostedSVFitTausDeltaPhi", event->BoostedSVFitTau1Phi->at(iCombo)-event->BoostedSVFitTau2Phi->at(iCombo), weightFull); 
+hContainer->Fill("BoostedSVFitTausDeltaTheta", ((event->BoostedSVFitTau1Theta->at(iCombo))+(event->BoostedSVFitTau2Theta->at(iCombo))), weightFull); 
+hContainer->Fill("BoostedSVFitTausDeltaPt", event->BoostedSVFitTau1Pt->at(iCombo)-event->BoostedSVFitTau2Pt->at(iCombo), weightFull); 
+hContainer->Fill("BoostedSVFitTau1PhiVsTheta", event->BoostedSVFitTau1Theta->at(iCombo), event->BoostedSVFitTau1Phi->at(iCombo), weightFull); 
+
+if(event->DeltaR_recoTau1_SVFitTau1->at(iCombo) < event->DeltaR_recoTau2_SVFitTau1->at(iCombo)){
+	hContainer->Fill("DeltaR_recoSVFit_L", event->DeltaR_recoTau1_SVFitTau1->at(iCombo), weightFull);
+	hContainer->Fill("DeltaR_recoSVFit_S", event->DeltaR_recoTau2_SVFitTau2->at(iCombo), weightFull);
+}else{
+	hContainer->Fill("DeltaR_recoSVFit_L", event->DeltaR_recoTau1_SVFitTau2->at(iCombo), weightFull);
+	hContainer->Fill("DeltaR_recoSVFit_S", event->DeltaR_recoTau2_SVFitTau1->at(iCombo), weightFull);
+}
 
 
+hContainer->Fill("GenTau1Pt", event->GenTau1Pt, weightFull);
+hContainer->Fill("GenTau2Pt", event->GenTau2Pt, weightFull);
+hContainer->Fill("GenTau1PtVsTau2Pt", min(event->GenTau1Pt, event->GenTau2Pt), max(event->GenTau1Pt, event->GenTau2Pt), weightFull);
+hContainer->Fill("BoostedGenTau1Pt", event->BoostedGenTau1Pt, weightFull);
+hContainer->Fill("BoostedGenTau2Pt", event->BoostedGenTau2Pt, weightFull);
+hContainer->Fill("BoostedGenTau1Phi", event->BoostedGenTau1Phi, weightFull);
+hContainer->Fill("BoostedGenTau2Phi", event->BoostedGenTau2Phi, weightFull);
+hContainer->Fill("BoostedGenTau1Theta", event->BoostedGenTau1Theta, weightFull);
+hContainer->Fill("BoostedGenTau2Theta", event->BoostedGenTau2Theta, weightFull);
+hContainer->Fill("BoostedGenTausOmega", event->BoostedGenTausOmega, weightFull);
 
+hContainer->Fill("BoostedGenTausDeltaPhi", event->BoostedGenTau1Phi-event->BoostedGenTau2Phi, weightFull); 
+hContainer->Fill("BoostedGenTausDeltaTheta", ((event->BoostedGenTau1Theta)+(event->BoostedGenTau2Theta)), weightFull); 
+hContainer->Fill("BoostedGenTausDeltaPt", event->BoostedGenTau1Pt-event->BoostedGenTau2Pt, weightFull); 
 
+if(event->DeltaR_recoTau1_genTau1->at(iCombo) < event->DeltaR_recoTau2_genTau1->at(iCombo)){
+	hContainer->Fill("DeltaR_recoGen_L", event->DeltaR_recoTau1_genTau1->at(iCombo), weightFull);
+	hContainer->Fill("DeltaR_recoGen_S", event->DeltaR_recoTau2_genTau2->at(iCombo), weightFull);
+}else{
+	hContainer->Fill("DeltaR_recoGen_L", event->DeltaR_recoTau1_genTau2->at(iCombo), weightFull);
+	hContainer->Fill("DeltaR_recoGen_S", event->DeltaR_recoTau2_genTau1->at(iCombo), weightFull);
+}
 
 
 

@@ -33,6 +33,7 @@
 #include "Stacker.h"
 #include "Stamper.h"
 #include "Optimizer.h"
+#include "TMVASampler.h"
 
 #include "configParser/config.h"
 
@@ -84,6 +85,7 @@ using namespace std;
 	void			NewSection(TStopwatch&);
 	bool			AnalyzeProcess(string const);
 	//bool			PlotProcess(string const);
+	void			MakeTMVATrainingSample();
 	//*/
 
 #endif

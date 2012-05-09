@@ -17,8 +17,11 @@ HContainer::HContainer(HContainer const & iHContainer){
 // Default destructor
 HContainer::~HContainer(){}
 
-void HContainer::Add(HWrapper const & iHWrapper) { container.insert(make_pair(iHWrapper.GetName(), HWrapper(iHWrapper))); }
-void HContainer::Add(string const iName, HWrapper const & iHWrapper) { container.insert(make_pair(iName, HWrapper(iHWrapper))); }
+void HContainer::Add(HWrapper const & iHWrapper) { Add(iHWrapper.GetName(), HWrapper(iHWrapper)); }
+void HContainer::Add(string const iName, HWrapper const & iHWrapper) { 
+	if(container.find(iName) != container.end()){ cout << "WARNING: HContainer already has a plot named '" << iName << "'. First configuration will be used." << endl; }
+	container.insert(make_pair(iName, HWrapper(iHWrapper)));
+}
 
 HWrapper * HContainer::Get(string const iName){
 	if(container.find(iName) == container.end()){ cerr << "ERROR: HWrapper named " << iName << " not found" << endl; exit(1); }

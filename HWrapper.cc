@@ -20,6 +20,7 @@ HWrapper::HWrapper(HWrapper const & iHWrapper){
 	this->SetHisto(*iHWrapper.GetHisto());
 
 	name					= iHWrapper.GetName();
+	subdir					= iHWrapper.GetSubDir();
 	xMinVis					= iHWrapper.GetMinXVis();
 	xMaxVis					= iHWrapper.GetMaxXVis();
 	yMinVis					= iHWrapper.GetMinYVis();
@@ -37,9 +38,10 @@ HWrapper::HWrapper(HWrapper const & iHWrapper){
 }
 
 
-HWrapper::HWrapper(string iName, string iType, const Config& iConfig){
+HWrapper::HWrapper(string iName, string iSubDir, string iType, const Config& iConfig){
 	histo = NULL;
 	name = iName;
+	subdir = iSubDir;
 	const int nBinsX = iConfig.pInt("numBinsX");
 	const float xMin = iConfig.pDouble("xMin");
 	const float xMax = iConfig.pDouble("xMax");
@@ -67,6 +69,9 @@ HWrapper::HWrapper(string iName, string iType, const Config& iConfig){
 
 	// Error setup
 	histo->SetDefaultSumw2(kFALSE);
+	for(unsigned bin=0; bin <= histo->GetNbinsX(); bin++){
+		histo->SetBinError(bin,0);	
+	}
 	//histo->Sumw2();
 
 	// Visible x axis range
@@ -105,6 +110,7 @@ TH1 const * 	HWrapper::GetHisto() const { return (histo); }
 bool const		HWrapper::IsTH1F() const { return isTH1F; }
 bool const		HWrapper::IsTH2F() const { return isTH2F; }
 string			HWrapper::GetName() const { return name; }
+string			HWrapper::GetSubDir() const { return subdir; }
 string			HWrapper::GetXTitle() const { return string(histo->GetXaxis()->GetTitle()); }
 string			HWrapper::GetYTitle() const { return string(histo->GetYaxis()->GetTitle()); }
 string			HWrapper::GetZTitle() const { return string(histo->GetZaxis()->GetTitle()); }
@@ -164,6 +170,7 @@ void HWrapper::SetHisto(TH1* iHisto){
 		histo = &histo2;
 	}else { cerr << "ERROR: trying to set histo in HWrapper but it's neither a TH1F nor a TH2F" << endl; exit(1); }
 
+
 }
 
 void HWrapper::SetLineWidth(int iVal, int iColor){
@@ -189,11 +196,18 @@ void HWrapper::SetMarkerStyle(int const iValue){ histo->SetMarkerStyle(iValue); 
 
 
 // Other methods
-void HWrapper::Add(TH1 const & iHisto, double iFactor){ histo->Add(&iHisto, iFactor); }
+void HWrapper::Add(TH1 const & iHisto, double iFactor){ 
+	if(iFactor != iFactor){ cerr << "ERROR: trying to Add(TH1&, nan)" << endl; exit(1); }
+	histo->Add(&iHisto, iFactor);
+}
 void HWrapper::Add(HWrapper const & iHisto, double const iFactor){ histo->Add((iHisto.GetHisto()), iFactor); }
-void HWrapper::ScaleBy(double const iFactor){	histo->Scale(iFactor); }
+void HWrapper::ScaleBy(double const iFactor){
+	if(iFactor != iFactor){ cerr << "ERROR: trying to ScaleBy(nan)" << endl; exit(1); }
+	histo->Scale(iFactor);
+}
 
 void HWrapper::ScaleErrorBy(double const iFactor){	
+	if(iFactor != iFactor){ cerr << "ERROR: trying to ScaleErrorBy(nan)" << endl; exit(1); }
 	for(unsigned int b=0; b<=histo->GetNbinsX(); b++){ histo->SetBinError(b, iFactor*(histo->GetBinError(b))); }
 }
 
@@ -214,9 +228,19 @@ void HWrapper::Fill(double iValue1, double iValue2, double iWeight){
 
 // Zero negative bins only
 void HWrapper::Positivize(){
-	for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
-		float oldContent = histo->GetBinContent(b);
-		if(oldContent < 0){ histo->SetBinContent(b, 0); }
+	if(isTH1F){
+		for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
+			float oldContent = histo->GetBinContent(b);
+			if(oldContent < 0){ histo->SetBinContent(b, 0); }
+		}
+	}else{
+		for(unsigned int bx = 1; bx <= histo->GetNbinsX(); bx++){
+			for(unsigned int by = 1; by <= histo->GetNbinsY(); by++){
+				float oldContent = histo->GetBinContent(bx,by);
+				if(oldContent < 0){ histo->SetBinContent(bx, by, 0); }
+			}
+		}
+	
 	}
 }
 
@@ -231,6 +255,27 @@ double const HWrapper::GetMaximumWithError() const {
 		if((content+error) > result){ result = content+error; }
 	}
 	return result;
+}
+
+void HWrapper::PrintInfo(){
+	cout << "\n\n" << endl;
+	cout << "\tName......." << GetName() << endl;
+	cout << "\tType......." << TH1Type  << endl;
+	cout << "\tNbinsX....." << histo->GetNbinsX() << endl;
+	cout << "\tMin X......" << histo->GetBinLowEdge(1) << endl;
+	cout << "\tMax X......" << histo->GetBinLowEdge(histo->GetNbinsX()) << endl;
+	cout << "\tIntegral..." << histo->Integral() << endl;
+	cout << "\tMax........" << GetMaximum() << endl;
+	cout << "\tMax w err.." << GetMaximumWithError() << endl;
+	cout << "--------------------------" << endl;
+
+	for(unsigned int b=0; b <= histo->GetNbinsX(); b++){
+		cout << "\t" << b << "\t" << histo->GetBinLowEdge(b) << "\t" << histo->GetBinContent(b) << "\t+/-\t" << histo->GetBinError(b) << endl;
+	}
+	cout << "==========================\n\n" << endl;
+
+
+
 }
 
 ClassImp(HWrapper)

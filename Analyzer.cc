@@ -15,6 +15,7 @@ Analyzer::Analyzer(){
 		event = NULL;
 		goodEventsForSignal.clear();
 		goodEventsForQCD.clear();
+		tmvaEvaluator = NULL;
 }
 
 // Default constructor
@@ -29,8 +30,12 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 	cutFlow		= CutFlow(params["cutsToApply"]);
 	cutFlow.Reset();
 
-	#include "clarity/falseCuts.h"
+	#include "clarity/cuts_false.h"
 	SetCutsToApply(params["cutsToApply"]);
+
+	// If a cut on the MVA is requested, initialize TMVA reader
+	if(CutOn_MVA){ tmvaEvaluator = new TMVAEvaluator(iParams); }
+	else{ tmvaEvaluator = NULL; }
 
 }
 
@@ -38,6 +43,7 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 // Default destructor
 Analyzer::~Analyzer(){
 	delete event; event = NULL;
+	delete tmvaEvaluator; tmvaEvaluator = NULL;
 }
 
 
@@ -63,10 +69,12 @@ void Analyzer::Analyze(Process& iProcess){
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
-	DitauBranches event2 = DitauBranches(params, iProcess.GetNtuplePath());
+	DitauBranches event2 = DitauBranches(params, ((params.find("ntuplesDir")->second) + (iProcess.GetNtuplePath())));
 //	event = new DitauBranches(params, iProcess.GetNtuplePath());
 	event = &event2;
 
+	isSignal = iProcess.IsSignal();
+	isMC = iProcess.IsMC();
 	pair<double,double> loopResults = Loop();
 	cout << endl;
 
@@ -181,6 +189,19 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 	pair<bool,bool> target = make_pair(true, isForQCD);
 	///***/// 	End of LS/QCD business	 ///***///
+
+
+
+	// ============================= Generator Cuts ============================= //
+	// Number of hadronic taus
+	if(CutOn_NumHadronicGenTaus){
+		//if(isMC){
+		if(isSignal){
+			if(cutFlow.CheckComboAndStop("NumHadronicGenTaus", event->NumberOfHadronicGenTaus, target)){ return target; }
+		}else{
+			cutFlow.ComboIsGood("NumHadronicGenTaus");
+		}
+	}
 
 	// ============================= Acceptance Cuts ============================= //
 
@@ -338,6 +359,9 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 	// Valid SVFit solution
 	if(CutOn_SVFitStatus){ if(cutFlow.CheckComboAndStop("SVFitStatus",event->NSVFitStatus->at(iCombo), target)){ return target; }}
 
+	// Valid SVFit solution
+	if(CutOn_MVA){ if(cutFlow.CheckComboAndStop("MVA", tmvaEvaluator->Evaluate(event, iCombo), target)){ return target; }}
+
 	// Return target, first element is for signal analysis, second is for QCD
 	return target;
 }
@@ -345,7 +369,7 @@ pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
 
 
 void Analyzer::SetCutsToApply(string iCutsToApply){
-	#include "clarity/setCutsToApply.h"
+	#include "clarity/cuts_setCutsToApply.h"
 }
 
 

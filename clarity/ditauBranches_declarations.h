@@ -17,6 +17,29 @@ vector<float>* Tau2GenPhi;
 vector<float>* Tau1GenParentMass;
 vector<float>* Tau2GenParentMass;
 vector<float>* TauTauPlusMetGenMass;
+unsigned int   NumberOfHadronicGenTaus;
+
+float GenTau1P;
+float GenTau2P;
+float GenTau1Pt;
+float GenTau2Pt;
+float GenTau1Phi;
+float GenTau2Phi;
+float GenTau1Theta;
+float GenTau2Theta;
+float GenTausOmega;
+
+float BoostedGenTau1P;
+float BoostedGenTau2P;
+float BoostedGenTau1Pt;
+float BoostedGenTau2Pt;
+float BoostedGenTau1Phi;
+float BoostedGenTau2Phi;
+float BoostedGenTau1Theta;
+float BoostedGenTau2Theta;
+float BoostedGenTausOmega;
+
+
 vector<bool>* Tau1Matched;
 vector<bool>* Tau2Matched;
 vector<int>* Tau1MotherId;
@@ -34,12 +57,19 @@ vector<bool>* Tau2_ZeMatched;
 vector<bool>* Tau1_MatchesGenHadronic;
 vector<bool>* Tau2_MatchesGenHadronic;
 vector<int>* NumPV;
+
+vector<float>* DeltaR_recoTau1_genTau1;
+vector<float>* DeltaR_recoTau2_genTau1;
+vector<float>* DeltaR_recoTau1_genTau2;
+vector<float>* DeltaR_recoTau2_genTau2;
+
 vector<float>* Tau1E;
 vector<float>* Tau2E;
 vector<float>* Tau1Et;
 vector<float>* Tau2Et;
 vector<float>* Tau1Pt;
 vector<float>* Tau2Pt;
+vector<float>* DitauPt;
 vector<bool>* Tau1LTvalid;
 vector<bool>* Tau2LTvalid;
 vector<float>* Tau1LTPt;
@@ -48,8 +78,10 @@ vector<int>* Tau1Charge;
 vector<int>* Tau2Charge;
 vector<float>* Tau1Eta;
 vector<float>* Tau2Eta;
+vector<float>* DitauEta;
 vector<float>* Tau1Phi;
 vector<float>* Tau2Phi;
+vector<float>* DitauPhi;
 vector<float>* Tau1LTIpVtdxy;
 vector<float>* Tau1LTIpVtdz;
 vector<float>* Tau1LTIpVtdxyError;
@@ -157,6 +189,7 @@ vector<float>* Tau2hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr;
 
 vector<bool>*   NSVFitStatus;
 vector<float>*  NSVFitMass;
+vector<float>*  NSVFitMassUncert;
 vector<float>*  NSVFitMET;
 vector<float>*  NSVFitMETphi;
 vector<float>*  NSVFitSystemPt;
@@ -165,10 +198,28 @@ vector<float>*  NSVFitSystemPhi;
 vector<float>*  NSVFitSystemEta;
 
 
-vector<float>*  DeltaOmegaBoostAndBoostedSVFitTau1;
-vector<float>*  DeltaOmegaBoostAndBoostedSVFitTau2;
-vector<float>*  DeltaOmegaBoostedSVFitTau1AndBoostedSVFitTau2;
-vector<float>*  DeltaPhiBoostAndBoostedSVFitTau1;
-vector<float>*  DeltaPhiBoostAndBoostedSVFitTau2;
-vector<float>*  DeltaPhiBoostedSVFitTau1AndBoostedSVFitTau2;
+vector<float>*  SVFitTau1P;
+vector<float>*  SVFitTau2P;
+vector<float>*  SVFitTau1Pt;
+vector<float>*  SVFitTau2Pt;
+vector<float>*  SVFitTau1Phi;
+vector<float>*  SVFitTau2Phi;
+vector<float>*  SVFitTau1Theta;
+vector<float>*  SVFitTau2Theta;
+vector<float>*  SVFitTausOmega;
+
+vector<float>*  BoostedSVFitTau1P;
+vector<float>*  BoostedSVFitTau2P;
+vector<float>*  BoostedSVFitTau1Pt;
+vector<float>*  BoostedSVFitTau2Pt;
+vector<float>*  BoostedSVFitTau1Phi;
+vector<float>*  BoostedSVFitTau2Phi;
+vector<float>*  BoostedSVFitTau1Theta;
+vector<float>*  BoostedSVFitTau2Theta;
+vector<float>*  BoostedSVFitTausOmega;
+
+vector<float>*  DeltaR_recoTau1_SVFitTau1;
+vector<float>*  DeltaR_recoTau2_SVFitTau1;
+vector<float>*  DeltaR_recoTau1_SVFitTau2;
+vector<float>*  DeltaR_recoTau2_SVFitTau2;
 

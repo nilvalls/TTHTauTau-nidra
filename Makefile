@@ -24,6 +24,7 @@ LIBS           = $(ROOTLIBS)
 NGLIBS         = $(ROOTGLIBS) -lMinuit
 NGLIBS		  += -L./ -lNidra
 NGLIBS		  += -L./configParser/ -lconfigParser
+NGLIBS		  += -lTMVA
 
 GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
@@ -31,11 +32,11 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
 			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o .Stamper.o .Optimizer.o \
-			.RootFileMaker.o
+			.RootFileMaker.o .RawHistoSaver.o .TMVASampler.o .TMVAEvaluator.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
 			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o .Stamper.o .Optimizer.o \
-			.RootFileMaker.o $(GLIBS)
+			.RootFileMaker.o .RawHistoSaver.o .TMVASampler.o .TMVAEvaluator.o $(GLIBS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
@@ -76,9 +77,11 @@ libConfigParser.so: configParser/config.h
 .RootFileMaker.o: RootFileMaker.cc RootFileMaker.h 
 	$(CXX) $(CXXFLAGS) -c RootFileMaker.cc -o $@
 
+.RawHistoSaver.o: RawHistoSaver.cc RawHistoSaver.h
+	$(CXX) $(CXXFLAGS) -c RawHistoSaver.cc -o $@
+
 .Trigger.o: Trigger.cc Trigger.h
 	$(CXX) $(CXXFLAGS) -c Trigger.cc -o $@
-
 
 .Plotter.o: Plotter.cc Plotter.h clarity/fillHistos.h
 	$(CXX) $(CXXFLAGS) -c Plotter.cc -o $@
@@ -100,6 +103,12 @@ libConfigParser.so: configParser/config.h
 
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
 	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
+
+.TMVASampler.o: TMVASampler.cc TMVASampler.h
+	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
+
+.TMVAEvaluator.o: TMVAEvaluator.cc TMVAEvaluator.h
+	$(CXX) $(CXXFLAGS) -c TMVAEvaluator.cc -o $@
 
 all: .nidra.exe
 

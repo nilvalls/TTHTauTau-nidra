@@ -14,13 +14,18 @@ int main(int argc, char **argv){
 	if(IsArgumentThere("-a")){ Analyze(); }
 
 	if(IsArgumentThere("-p")){
-		ReadConfig(string(argv[1]));
+	// Needed?	ReadConfig(string(argv[1]));
 		DistributeProcesses();
 		PreparePlots();
 		CrunchNumbers();
-	//	PlotStacks();
+		PlotStacks();
 	//	PlotStamps();
 		Optimize();
+	}
+
+	if(IsArgumentThere("-t")){
+		DistributeProcesses();
+		MakeTMVATrainingSample();
 	}
 
 	Finalize();

@@ -53,6 +53,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 	// Loop over all the HWrappers and plot each
 	vector<string> plotNames = iProPack->GetAvailableProcess().GetHContainerForSignal()->GetNames();
 
+	string subdir = "";
 	string lastSavedPlotName = "";
 	for(unsigned int p=0; p<plotNames.size(); p++){
 		string plotName = plotNames.at(p);
@@ -63,6 +64,10 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		// Get some generic information
 		double maxY = max(1.2*GetMaximumWithError(iProPack, plotName),0.1);
 		HWrapper baseHisto((iProPack->GetAvailableHWrapper(plotName))); baseHisto.ScaleBy(0);
+		subdir = baseHisto.GetSubDir();
+
+		// Skip if 2D (gotta change this)
+		if(baseHisto.IsTH2F()){ continue; }
 
 		// Plot a base histogram with only the axis
 		TCanvas* canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
@@ -96,23 +101,18 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		if(haveSignals){
 			HContainer signalHistos = iProPack->GetSignalsHWrappers(plotName);
 			for(unsigned int s = 0; s < signalHistos.size(); s++){
-				cout << "signal " << s << " " << iProPack->GetSignals()->at(s).Plot() << endl;
 				if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
-				cout << "signal " << s << " " << iProPack->GetSignals()->at(s).Plot() << endl;
 				string name = signalHistos.GetNames().at(s);
 				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
 				toDraw->SetFillStyle(0);	
 				toDraw->SetLineWidth(3, iProPack->GetSignals()->at(s).GetColor());	
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
 
-				cout << "integral " << toDraw->GetHisto()->Integral()
-				<< " max " << toDraw->GetMaximum()<< endl;
 				// If we want the signals on top of the stack, add the background sum
 				if(stackSignals){ toDraw->Add(GetBackgroundSum(iProPack, plotName)); }
 
 				// Draw signal curves
 				if(toDraw->GetHisto()->Integral()>0){
-					cout << "draw signal " << endl;	
 					toDraw->GetHisto()->Draw("HISTsame"); }
 
 				TH1F* histo = new TH1F(*(TH1F*)(toDraw->GetHisto()));
@@ -144,11 +144,10 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 		// Save canvas
 		canvas->SetGrid(1,1);
-		cout << "save canvas" << endl;
-		SaveCanvas(canvas, params["stacks_output"], plotName);
+		SaveCanvas(canvas, params["stacks_output"]+subdir, plotName);
 
 		// Do we want a log version?
-		SaveCanvasLog(canvas, params["stacks_output"], plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ());
+		SaveCanvasLog(canvas, params["stacks_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ());
 
 		// Clean up canvas
 		delete canvas;
@@ -249,7 +248,7 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 
 	// Obtain a reference HWrapper from which to extract options
 	HWrapper refHisto = HWrapper(*(iProPack->GetAvailableProcess().GetHistoForSignal(iName)));
-	if(refHisto.IsTH2F()){ cerr << "ERROR: trying to build THStack from TH2F" << endl; exit(1); }
+	if(refHisto.IsTH2F()){ cerr << "ERROR: trying to build THStack from TH2F with plot named '" << iName << "'" << endl; exit(1); }
 
 	// Figure out the maximum Y value
 	double maxY = max(1.2*GetMaximumWithError(iProPack,iName),0.1);
@@ -267,7 +266,6 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 			toAdd.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
 			toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
 			result->Add((TH1F*)toAdd.GetHisto());
-			cout << "added" << endl;
 		}
 	}
 

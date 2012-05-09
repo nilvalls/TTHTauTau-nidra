@@ -29,6 +29,7 @@ using namespace std;
 class HWrapper{
 	private:
 		string  name;
+		string	subdir;
 		TH1*	histo;
 		TH1F	histo1;
 		TH2F	histo2;
@@ -58,12 +59,13 @@ class HWrapper{
 		// Default constructor
 		HWrapper();
 		HWrapper(const HWrapper&);
-		HWrapper(string, string, const Config&);
+		HWrapper(string, string, string, const Config&);
 		virtual ~HWrapper();
 
 		TH1 const *		GetHisto() const;
 		TH1 *			GetHisto();
 		string			GetName() const;
+		string			GetSubDir() const;
 		float const		GetMinXVis() const;
 		float const		GetMaxXVis() const;
 		float const		GetMinYVis() const;
@@ -109,6 +111,8 @@ class HWrapper{
 		void	SetFillColor(int const);
 		void	SetLineColor(int const);
 		void	SetMarkerStyle(int const);
+
+		void	PrintInfo();
 
 
 		ClassDef(HWrapper, 1);

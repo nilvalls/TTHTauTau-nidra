@@ -24,7 +24,8 @@ class Optimizer : public Plotter {
 		void MakeLeftIntegratedSoverB(Process const *, Process const *);
 		void MakeRightIntegratedSoverB(Process const *, Process const *);
 		void MakeIntegratedSoverB(Process const *, Process const *, int);
-		void MakeSoverB(Process const *, Process const *);
+//		void MakeSoverB(Process const *, Process const *);
+		void Overlap2D(Process const *, Process const *);
 
 
 };

@@ -80,6 +80,7 @@ class Process {
 		Process(Process const &);
 		Process(string const, map<string,string> const &, Config const &);
 		virtual ~Process();
+		void Update(Process const *);
 
 
 		map<string, string> const GetParams() const;
@@ -94,6 +95,7 @@ class Process {
 		void				SetColor(int const);
 		void				SetNOEanalyzed(double const);
 		void				SetNOEinNtuple(double const);
+		void				SetNtuplePath(string const);
 
 		void				NormalizeToLumi(double const);
 		void				NormalizeToOne();

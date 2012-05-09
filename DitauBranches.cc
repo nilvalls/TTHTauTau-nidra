@@ -60,6 +60,12 @@ void DitauBranches::SetBranchAddresses(){
 
 
 void DitauBranches::SetBestCombo(int const iValue){ bestCombo = iValue; }
+unsigned int const DitauBranches::GetBestCombo() const { 
+
+	if (bestCombo < 0){ cerr << "ERROR: 'bestCombo' is " << bestCombo << "." << endl; exit(1); }
+
+	return bestCombo; 
+}
 
 void DitauBranches::SetChain(TChain* iChain){ fChain = iChain; } 
 

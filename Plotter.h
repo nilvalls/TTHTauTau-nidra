@@ -25,6 +25,7 @@
 #include "PUcorrector.h"
 #include "TLegend.h"
 #include "TStyle.h"
+#include "RawHistoSaver.h"
 
 using namespace std;
 
@@ -53,6 +54,9 @@ class Plotter {
 		void		BookHistos(HContainer*);
 		void		FillHistos(HContainer*, DitauBranches*, bool const, Trigger const *, PUcorrector const *, weightCounter *);
 		bool const	IsFlagThere(string const) const;
+		void		LoopOverHistoCfgFile(const string, HContainer*);
+		float const	DeltaR(const float, const float, const float, const float) const;
+		float const	ThetaToEta(const float) const;		
 
 	protected:
 		TFile* file;

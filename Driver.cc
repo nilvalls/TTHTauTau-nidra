@@ -57,6 +57,10 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "dyLegend");
 	SetParam(theConfig, "showBackgroundError");
 	SetParam(theConfig, "stackSignals");
+	SetParam(theConfig, "MVAmethod");
+	SetParam(theConfig, "MVAweights");
+	SetParam(theConfig, "MVAbackground");
+	SetParam(theConfig, "MVAsignal");
 
 	// Copy original config file to output dir
 	BackUpConfigFile(iPath, GetParam("webDir")); 
@@ -76,6 +80,8 @@ void ReadConfig(string iPath){
 	SetParam("optimization_output",string(GetParam("webDir")+"optimization/")); 
 	SetParam("config_output",string(GetParam("webDir")+"config/"));
 	SetParam("propack_name","HtoTauTau");
+	SetParam("rawHisto_file",string(GetParam("bigDir")+"nidra_rawHistos.root"));
+	SetParam("tmva_trainer",string(GetParam("bigDir")+"nidra_tmvaTrainer"));
 
 }
 
@@ -110,6 +116,7 @@ void DistributeProcesses(){
 	ProPack* tempProPack = (ProPack*)file->Get((params["propack_name"]).c_str());
 		
 	tempProPack->DistributeProcesses();
+	tempProPack->Update(proPack);
 
 	file->cd();
 	tempProPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
@@ -161,6 +168,13 @@ void Optimize(){
 	Print(CYAN,">>>>>>>> Making optimization plots...");
 	ReMakeDir(GetParam("optimization_output"));
 	Optimizer optimizer = Optimizer(params);
+	Print(GREEN," done!");
+}
+
+void MakeTMVATrainingSample(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Making TMVA training sample...");
+	TMVASampler tmvaSampler(params);
 	Print(GREEN," done!");
 }
 
@@ -312,4 +326,5 @@ bool const IsStringThere(string iNeedle, string iHaystack){
 	bool const result = ((haystack.find(needle) < haystack.length()));
 	return result;
 }
+
 

@@ -79,6 +79,17 @@ ProPack::ProPack(const map<string,string>& iParams){
 ProPack::~ProPack(){
 }
 
+// Update this ProPack with info from input ProPack
+void ProPack::Update(ProPack * iProPack){
+	vector<Process*> processes = GetProcesses();
+
+	for(unsigned int p=0; p < processes.size(); p++){
+		Process* processToUpdate = processes.at(p);
+		string const processToUpdateName = processToUpdate->GetShortName();
+		processToUpdate->Update((iProPack->GetPContainer()->Get(processToUpdateName)));
+	}
+}
+
 bool const ProPack::Analyzed() const{ return analyzed; }
 bool const ProPack::NormalizedToLumi() const{ return normalizedToLumi; }
 
@@ -98,8 +109,9 @@ void ProPack::SetAnalyzed(){
 	analyzed = true;
 }
 
-void ProPack::SetCollisions(Process& iProcess){
+void ProPack::SetCollisions(Process& iProcess, string const iNtuplePath){
 	collisions = Process(iProcess);
+	if(iNtuplePath.length() != 0){ collisions.SetNtuplePath(iNtuplePath); }
 	haveCollisions = true;
 	prepareCollisions = true;
 }
@@ -109,7 +121,7 @@ void ProPack::SetQCD(Process& iProcess){
 	haveQCD = true;
 }
 
-void ProPack::AddMCbackground(Process& iProcess){
+void ProPack::AddMCbackground(Process& iProcess, string iNtuplePath){
 
 	// Check that incoming process is not already present in the vector
 	string newTopoShortName = iProcess.GetShortName();
@@ -118,10 +130,11 @@ void ProPack::AddMCbackground(Process& iProcess){
 		if(thisTopoShortName.compare(newTopoShortName)==0){ cerr << "ERROR: trying to add process \"" << newTopoShortName << "\" but it already exists in the vector of MC backgrounds" << endl; exit(1);}
 	}
 	mcBackgrounds.push_back(iProcess);
+	if(iNtuplePath.length() != 0){ mcBackgrounds.back().SetNtuplePath(iNtuplePath); }
 
 }
 
-void ProPack::AddSignal(Process& iProcess){
+void ProPack::AddSignal(Process& iProcess, string iNtuplePath){
 	// Check that incoming process is not already present in the vector
 	string newTopoShortName = iProcess.GetShortName();
 	for(unsigned int t=0; t<signals.size(); t++){
@@ -129,6 +142,7 @@ void ProPack::AddSignal(Process& iProcess){
 		if(thisTopoShortName.compare(newTopoShortName)==0){ cerr << "ERROR: trying to add process \"" << newTopoShortName << "\" but it already exists in the vector of signals" << endl; exit(1);}
 	}
 	signals.push_back(iProcess);
+	if(iNtuplePath.length() != 0){ signals.back().SetNtuplePath(iNtuplePath); }
 }
 
 bool const ProPack::HaveCollisions() const { return haveCollisions; }
@@ -152,6 +166,7 @@ double const ProPack::GetIntegratedLumiInInvPb() const { return integratedLumiIn
 
 void ProPack::BuildQCD(){
 	if(!PrepareQCD()){ return; }
+	qcd.SetPlot(params);
 	NormalizeToLumi();
 	cout << "\tBuilding QCD..." << endl;
 
@@ -161,8 +176,8 @@ void ProPack::BuildQCD(){
 	qcd.SetColor(atoi((params["QCDcolor"]).c_str()));
 
 
-	if(pContainer.GetCollisionProcesses().size() != 1){ cout << "ERROR: Number of collision processes in pContainer is not exactly 1 but " << pContainer.GetCollisionProcesses().size() << endl; exit(1); }
-	if(pContainer.GetNumberOfMCbackgroundProcesses() < 1){ cout << "ERROR: Number of MC background processes in pContainer is not at least 1 but " << pContainer.GetNumberOfMCbackgroundProcesses() << endl; exit(1); }
+	if(pContainer.GetCollisionProcesses().size() != 1){ cerr << "ERROR: Number of collision processes in pContainer is not exactly 1 but " << pContainer.GetCollisionProcesses().size() << endl; exit(1); }
+	if(pContainer.GetNumberOfMCbackgroundProcesses() < 1){ cerr << "ERROR: Number of MC background processes in pContainer is not at least 1 but " << pContainer.GetNumberOfMCbackgroundProcesses() << endl; exit(1); }
 	
 	// Do the same for the CutFlow
 	CutFlow cutFlow = CutFlow(*(collisions.GetNormalizedCutFlow()));
@@ -173,6 +188,8 @@ void ProPack::BuildQCD(){
 
 	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
 	HContainer hContainerForQCD = HContainer(*(collisions.GetHContainerForQCD()));
+
+
 	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ hContainerForQCD.Add(*(GetMCbackgrounds()->at(b).GetHContainerForQCD()), -1); }
 	hContainerForQCD.Positivize(); 
 	hContainerForQCD.ApplyRosls(atof((params["osls"]).c_str()), qcd.GetNormalizedCutFlow());
@@ -305,7 +322,7 @@ void ProPack::DistributeProcesses(){
 		process->SetPlot(params);
 		string name = string(30-process->GetShortName().length(), ' ');
 		name += process->GetShortName() + "  ";
-		if(process->Plot()){ name += "[ plotting ]"; }
+		if(process->Plot()){ name += "[   plotting   ]"; }
 		else{ name += "[ NOT plotting ]"; }
 
 		if(process->IsCollisions()){		cout << "\tSetting  collisions    with name: " << name << endl; SetCollisions(*process); }
@@ -330,6 +347,50 @@ vector<Process*> ProPack::GetProcesses(){
 	return result;
 }
 
+
+Process* ProPack::GetProcess(string const iName) {
+	
+	
+	Process* result = NULL;
+
+	// Look in Collisions
+	if(PrepareCollisions()){
+		if(GetCollisions()->GetShortName().compare(iName) == 0){ result = GetCollisions(); }
+	}
+		
+	// Look in QCD
+	if(PrepareQCD()){
+		if(GetQCD()->GetShortName().compare(iName) == 0){ 
+			if(result != NULL){ cerr << "ERROR: Trying to get process with short name '" << iName << "' but there is more than one process with that name." << endl; PrintProcessList(); exit(1); }
+			result = GetQCD();
+		}
+	}
+
+	// Look in MC backgrounds
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++ ){ 
+		Process* thisProcess = &GetMCbackgrounds()->at(b);
+		if(thisProcess->GetShortName().compare(iName)==0){
+			if(result != NULL){ cerr << "ERROR: Trying to get process with short name '" << iName << "' but there is more than one process with that name." << endl; PrintProcessList(); exit(1); }
+			result = thisProcess;
+		}
+	}
+
+	// Look in Signals
+	for(unsigned int s = 0; s < GetSignals()->size(); s++ ){
+		Process* thisProcess = &GetSignals()->at(s);
+		if(thisProcess->GetShortName().compare(iName)==0){
+			if(result != NULL){ cerr << "ERROR: Trying to get process with short name '" << iName << "' but there is more than one process with that name." << endl; PrintProcessList(); exit(1); }
+			result = thisProcess;
+		}
+	}
+
+	// Check we found one!
+	if(result == NULL){ cerr << "ERROR: Trying to get process with short name '" << iName << "' but there is no process with that name." << endl; PrintProcessList(); exit(1); }
+
+	return result;
+	
+}
+
 string ProPack::GetProccessNamesToAnalyze(){
 	string result = "";
 	vector<string> names = pContainer.GetNames();
@@ -338,7 +399,6 @@ string ProPack::GetProccessNamesToAnalyze(){
 }
 
 string ProPack::GetProccessNamesToPlot(){
-	cout << "getting process Name to plot" << endl;
 	string result = "";
 	vector<string> names = pContainer.GetNames();
 	for(unsigned int n = 0; n < names.size(); n++){ 
@@ -364,6 +424,15 @@ bool const ProPack::IsStringThere(string const iNeedle, string const iHaystack) 
 	string needle = iNeedle;
 	bool const result = ((haystack.find(needle) < haystack.length()));
 	return result;
+}
+
+void ProPack::PrintProcessList() const {
+	cout << "\t--- Process List ---" << endl;
+	if(PrepareCollisions()){	cout << "\tCollisions........" << GetCollisions()->GetShortName() << endl; }
+	if(PrepareQCD()){			cout << "\tQCD..............." << GetQCD()->GetShortName() << endl; }
+	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++ ){ cout << "\tMC background....." << (GetMCbackgrounds()->at(b).GetShortName()) << endl; }
+	for(unsigned int s = 0; s < GetSignals()->size(); s++ ){ cout << "\tSignal............" << (GetSignals()->at(s).GetShortName()) << endl; }
+
 }
 
 ClassImp(ProPack)

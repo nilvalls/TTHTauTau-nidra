@@ -28,6 +28,7 @@ Plotter::~Plotter(){
 	delete proPack; proPack = NULL;
 	delete puCorrector; puCorrector = NULL;
 	delete ditauTrigger; ditauTrigger = NULL;
+
 }
 
 Plotter::Plotter(map<string,string>const & iParams){
@@ -50,6 +51,8 @@ Plotter::Plotter(map<string,string>const & iParams){
 
 	file->cd();
 	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
+
+	RawHistoSaver rawHistoSaver(params, *proPack);
 
 }
 
@@ -83,8 +86,8 @@ void Plotter::MakePlots(Process* iProcess){
 	BookHistos(&hContainerForQCD);
 
 	// Instantiante DitauBranches to read events more easily
-	//DitauBranches * event = new DitauBranches(params, iProcess->GetNtuplePath());
-	DitauBranches event = DitauBranches(params, iProcess->GetNtuplePath());
+	//DitauBranches event = DitauBranches(params, iProcess->GetNtuplePath());
+	DitauBranches event = DitauBranches(params, ((params.find("ntuplesDir")->second) + (iProcess->GetNtuplePath())));
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
@@ -111,7 +114,9 @@ void Plotter::MakePlots(Process* iProcess){
 		tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.puCorrection;
 		tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.tau1Trigger;//*/
 	}
-	hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
+	if(weightCounterForSignal.total > 0){
+		hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
+	}
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 
 	// Recover the good events for QCD and fill histos with them
@@ -135,8 +140,9 @@ void Plotter::MakePlots(Process* iProcess){
 		tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
 		tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
 	}
-	
-	hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
+	if(weightCounterForQCD.total > 0){
+		hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
+	}
 	iProcess->SetHContainerForQCD(hContainerForQCD);
 
 	// Add postCuts
@@ -154,19 +160,35 @@ void Plotter::BookHistos(HContainer* iHContainer){
 	// Reset input HContainer
 	iHContainer->clear();
 
-	// Vector storing nams of histo config files
-	vector<string> files;
-
 	if((params.find("histoCfg")->second).length() > 0){
-		files.push_back(params.find("histoCfg")->second);
+		LoopOverHistoCfgFile((params.find("histoCfg")->second), iHContainer);
+	}else if((params.find("histoList")->second).length() > 0){
+
+		string line;
+		ifstream file((params.find("histoList")->second).c_str());
+		if (file.is_open()){
+			while ( file.good() ){
+				getline(file, line);
+				if(line.substr(0,1).compare("#")==0){ continue; }
+				if(line.length()==0){ continue; }
+				LoopOverHistoCfgFile(line, iHContainer);
+			}
+			file.close();
+		}else{ cerr << "ERROR: Unable to open histoList file '" << (params.find("histoList")->second) << "'." << endl; exit(1); }
 	}else{
-		files.push_back(params.find("histoCfg")->second);
+		cerr << "ERROR: No valid histoCfg or histoList." << endl; exit(1);	
 	}
 
-	for(unsigned int f=0; f < files.size(); f++){
+}
+
+void Plotter::LoopOverHistoCfgFile(const string iPath, HContainer* iHContainer){
+
 		// Obtain config file where histos are configured
-		Config histosConfigFile = Config(files.at(f));
+		if(iPath.substr(iPath.length()-4).compare(".cfg") != 0){ cerr << "ERROR: Histo config file '" << iPath << "' must have extension '.cfg'" << endl; exit(1); }
+		Config histosConfigFile = Config(iPath);
 		map<string, Config*> histosConfigMap = histosConfigFile.getGroups();
+
+		string subdir = iPath.substr(0,iPath.length()-4)+"/"; subdir = subdir.substr(subdir.find("/")+1);
 
 		// Loop over histos in config file, and add them to HContainer
 		string th1fPrefix = "th1f_";
@@ -177,15 +199,12 @@ void Plotter::BookHistos(HContainer* iHContainer){
 
 			if (groupName.substr(0,th1fPrefix.length()) == th1fPrefix) {
 				string name	= groupName.substr(th1fPrefix.length());
-				iHContainer->Add(name, HWrapper(name, "th1f", *histoConfig));
+				iHContainer->Add(name, HWrapper(name, subdir, "th1f", *histoConfig));
 			}else if (groupName.substr(0,th2fPrefix.length()) == th2fPrefix){
 				string name	= groupName.substr(th2fPrefix.length());
-				iHContainer->Add(name, HWrapper(name, "th2f", *histoConfig));
+				iHContainer->Add(name, HWrapper(name, subdir, "th2f", *histoConfig));
 			}
 		}
-	}
-
-
 
 }
 
@@ -212,6 +231,7 @@ void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool co
 	iWeightCounter->tau2Trigger		+= iTau2TriggerWeight*iTau1TriggerWeight*iPuWeight;
 	iWeightCounter->total++;
 	
+
 	#include "clarity/fillHistos.h"
 }
 
@@ -372,7 +392,7 @@ TPaveText * Plotter::GetPlotText(){
 
 		stringstream textSS; textSS.str("");
 		textSS	<< "CMS Preliminary"
-				<< "    4.6/fb" << " p-p #sqrt{s} = 7TeV"	
+				<< "    4.9/fb" << " p-p #sqrt{s} = 7TeV"	
 				<< "    #tau_{h}#tau_{h} channel";
 		plotInfo->AddText((textSS.str()).c_str());
 
@@ -385,4 +405,8 @@ bool const Plotter::IsFlagThere(string const iFlag) const {
 	size_t found = flags.find(iFlag);
 	return ((0 <= found) && (found < flags.length()));
 }
+
+
+float const Plotter::DeltaR(const float iPhi1, const float iEta1, const float iPhi2, const float iEta2) const { return sqrt(pow((iPhi1-iPhi2),2)+pow((iEta1-iEta2),2)); }
+float const Plotter::ThetaToEta(const float iTheta) const { return (-log(tan(iTheta/2.0))); }
 

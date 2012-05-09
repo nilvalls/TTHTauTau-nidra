@@ -26,7 +26,7 @@ Optimizer::Optimizer(map<string,string> const & iParams){
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
 	if(badFile){ cerr << "ERROR: trying to make optimization plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
 
-	file = new TFile((params["process_file"]).c_str(), "UPDATE");
+	file = new TFile((params["process_file"]).c_str(), "READ");
 	file->cd();
 
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
@@ -43,6 +43,7 @@ Optimizer::~Optimizer(){
 
 void Optimizer::MakePlots(ProPack const * iProPack) {
 	MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
+	Overlap2D(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 	//MakeSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 }
 
@@ -59,19 +60,26 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 	// Loop over all the HWrappers and plot each
 	vector<string> plotNames = iSignal->GetHContainerForSignal()->GetNames();
 
+	string subdir = "";
 	string lastSavedPlotName = "";
 	for(unsigned int p=0; p<plotNames.size(); p++){
 		string plotName = plotNames.at(p);
 
-		// If the plot will be empty, skip it
-		if(max(iSignal->GetAvailableHWrapper()->GetHisto()->Integral(), iBackground->GetAvailableHWrapper()->GetHisto()->Integral()) <= 0){ continue; }
-
 		// Skip it if it's not a TH1F
-		if(!iSignal->GetAvailableHWrapper()->IsTH1F()){ continue; }
+		if(!iSignal->GetAvailableHWrapper(plotName)->IsTH1F()){ continue; }
 
-		// Get HWrappers, obtain sOverRootB
+		// Get HWrappers
 		HWrapper signal = HWrapper(*(iSignal->GetHistoForSignal(plotName)));
 		HWrapper background = HWrapper(*(iBackground->GetHistoForSignal(plotName)));
+
+
+		if((signal.GetHisto()->Integral() <= 0) && (background.GetHisto()->Integral() <= 0)){ 
+			cout << "\nWARNING: HWrapper with name '" << plotName << "' not filled. Perhaps it's a good idea to remove it from '" << string(signal.GetSubDir()+"\b.cfg") << "'." << endl;
+			continue;
+		}
+		subdir = signal.GetSubDir();
+
+		// Obtain sOverRootB
 		HWrapper rightIntegratedSoverRootB = HWrapper(signal);
 		HWrapper leftIntegratedSoverRootB = HWrapper(signal);
 
@@ -112,35 +120,54 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 		// First pad (signal)
 		TVirtualPad* p1 = canvas->cd(1);
 		p1->SetGridx(); p1->SetGridy();
-		signalError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*signalError.GetMaximumWithError());
+		signalError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*signal.GetMaximumWithError());
 		signalError.GetHisto()->GetYaxis()->SetTitle("Signal Events");
 		signalError.GetHisto()->GetYaxis()->SetTitleSize(0.14);
 		signalError.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
 		signalError.GetHisto()->Draw("E2");
-		signal.GetHisto()->Draw("HISTsame");
+		if(signal.GetHisto()->Integral() > 0){ signal.GetHisto()->Draw("HISTsame"); }
 
 		// Second pad (background)
 		TVirtualPad* p2 = canvas->cd(2);
 		p2->SetGridx(); p2->SetGridy();
-		backgroundError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*backgroundError.GetMaximumWithError());
+		backgroundError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*background.GetMaximumWithError());
 		backgroundError.GetHisto()->GetYaxis()->SetTitle("QCD Events");
 		backgroundError.GetHisto()->GetYaxis()->SetTitleSize(0.14);
 		backgroundError.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
-		backgroundError.GetHisto()->Draw("E2");
-		background.GetHisto()->Draw("HISTsame");
+
+		bool skipBackground = false;
+		if(background.GetHisto()->Integral() > 0){
+			backgroundError.GetHisto()->Draw("E2");
+			background.GetHisto()->Draw("HISTsame");
+		}else{
+			skipBackground = true;
+			backgroundError.GetHisto()->GetYaxis()->SetLimits(0.001,1);
+			backgroundError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1);
+			backgroundError.GetHisto()->GetXaxis()->SetLimits(backgroundError.GetMinXVis(), backgroundError.GetMaxXVis());
+			backgroundError.GetHisto()->GetXaxis()->SetRangeUser(backgroundError.GetMinXVis(), backgroundError.GetMaxXVis());
+			backgroundError.GetHisto()->Draw("AXIS");
+		}
 
 		// Third pad (rightIntegratedSoverRootB)
 		TVirtualPad* p3 = canvas->cd(3);
 		p3->SetGridx(); p3->SetGridy();
-		double maxY = max(rightIntegratedSoverRootBerror.GetMaximumWithError(), leftIntegratedSoverRootBerror.GetMaximumWithError());
-		rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*maxY);
 		rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetTitle("s / #sqrt{b}");
 		rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetTitleSize(0.14);
 		rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
-		rightIntegratedSoverRootBerror.GetHisto()->Draw("E2");
-		leftIntegratedSoverRootBerror.GetHisto()->Draw("E2same");
-		rightIntegratedSoverRootB.GetHisto()->Draw("HISTsame");
-		leftIntegratedSoverRootB.GetHisto()->Draw("HISTsame");
+		if(!skipBackground){
+			double maxY = max(rightIntegratedSoverRootBerror.GetMaximumWithError(), leftIntegratedSoverRootBerror.GetMaximumWithError());
+			rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*maxY);
+			rightIntegratedSoverRootBerror.GetHisto()->Draw("E2");
+			leftIntegratedSoverRootBerror.GetHisto()->Draw("E2same");
+			rightIntegratedSoverRootB.GetHisto()->Draw("HISTsame");
+			leftIntegratedSoverRootB.GetHisto()->Draw("HISTsame");
+		}else{
+			rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetLimits(0.001,1);
+			rightIntegratedSoverRootBerror.GetHisto()->GetYaxis()->SetRangeUser(0.001,1);
+			rightIntegratedSoverRootBerror.GetHisto()->GetXaxis()->SetLimits(rightIntegratedSoverRootBerror.GetMinXVis(), rightIntegratedSoverRootBerror.GetMaxXVis());
+			rightIntegratedSoverRootBerror.GetHisto()->GetXaxis()->SetRangeUser(rightIntegratedSoverRootBerror.GetMinXVis(), rightIntegratedSoverRootBerror.GetMaxXVis());
+			rightIntegratedSoverRootBerror.GetHisto()->Draw("AXIS");
+		}
 
 		TLegend* legend = new TLegend(0.3,0.92,0.8,1);
 		legend->SetBorderSize(1);
@@ -151,14 +178,10 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 		legend->Draw();
 
 
-		// Take care of the legend
-		//GetLegend(iProPack)->Draw();
-
-		// Take care of plot info
-		//GetPlotText()->Draw();
-
 		// Save canvas
-		SaveCanvas(canvas, params["optimization_output"], string(plotName+"_int"));
+	//	if((signal.GetHisto()->Integral() > 0) || (background.GetHisto()->Integral() > 0)){
+			SaveCanvas(canvas, params["optimization_output"]+subdir, string(plotName+"_int"));
+	//	}
 
 		// Do we want a log version?
 //		SaveCanvasLog(canvas, params["optimization_output"], string(plotName+"_int"), signal.GetLogX(), signal.GetLogY(), signal.GetLogZ());
@@ -180,7 +203,7 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 
 }
 
-
+/*
 void Optimizer::MakeSoverB(Process const * iSignal, Process const * iBackground){
 
 	// Draw horizontal error bars
@@ -249,11 +272,6 @@ void Optimizer::MakeSoverB(Process const * iSignal, Process const * iBackground)
 		sOverRootBerror.GetHisto()->Draw("E2");
 		sOverRootB.GetHisto()->Draw("HISTsame");
 
-		// Take care of the legend
-		//GetLegend(iProPack)->Draw();
-
-		// Take care of plot info
-		//GetPlotText()->Draw();
 
 		// Save canvas
 		SaveCanvas(canvas, params["optimization_output"], plotName);
@@ -271,6 +289,93 @@ void Optimizer::MakeSoverB(Process const * iSignal, Process const * iBackground)
 			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
 			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
 			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
+		}   
+		cout << plotName; cout.flush(); 
+
+	}
+
+}
+//*/
+
+
+void Optimizer::Overlap2D(Process const * iSignal, Process const * iBackground){
+
+	// Loop over all the HWrappers and plot each
+	vector<string> plotNames = iSignal->GetHContainerForSignal()->GetNames();
+
+	string subdir = "";
+	string lastSavedPlotName = "";
+	for(unsigned int p=0; p<plotNames.size(); p++){
+		string plotName = plotNames.at(p);
+
+		// Skip it if it's not a TH1F
+		if(iSignal->GetAvailableHWrapper(plotName)->IsTH1F()){ continue; }
+
+		// Get HWrappers
+		HWrapper signal = HWrapper(*(iSignal->GetHistoForSignal(plotName)));
+		HWrapper background = HWrapper(*(iBackground->GetHistoForSignal(plotName)));
+
+
+		if((signal.GetHisto()->Integral() <= 0) && (background.GetHisto()->Integral() <= 0)){ 
+			cout << "\nWARNING: HWrapper with name '" << plotName << "' not filled. Perhaps it's a good idea to remove it from '" << string(signal.GetSubDir()+"\b.cfg") << "'." << endl;
+			continue;
+		}
+		subdir = signal.GetSubDir();
+
+
+		// Plot a base histogram with only the axis
+		TCanvas* canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
+		canvas->Clear();
+
+		// First pad (signal)
+		TVirtualPad* p1 = canvas->cd(1);
+		p1->SetGridx(); p1->SetGridy();
+
+		signal.SetFillStyle(3001);
+		signal.SetFillColor(iSignal->GetColor());
+		signal.SetLineColor(iSignal->GetColor());
+		signal.SetLineWidth(1);
+		background.SetFillStyle(1000);
+		background.SetFillColor(iBackground->GetColor());
+		background.SetLineColor(iBackground->GetColor());
+		background.SetLineWidth(1);
+
+		signal.NormalizeTo(1.0);
+		if(background.GetHisto()->Integral() > 0){
+			background.NormalizeTo(1.0);
+		//	background.GetHisto()->GetYaxis()->SetTitleSize(0.14);
+		//	background.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
+			background.GetHisto()->Draw("BOX");
+			signal.GetHisto()->Draw("BOXsame");
+		}else{
+			signal.GetHisto()->Draw("BOX");
+		}
+
+
+		TLegend* legend = new TLegend(0.2,0.92,0.9,0.98);
+		legend->SetBorderSize(1);
+		legend->SetFillColor(0);
+		legend->SetNColumns(2);
+		legend->AddEntry(signal.GetHisto(), "Area-normalized Signal", "f");
+		legend->AddEntry(background.GetHisto(), "Area-normalized Background", "f");
+		legend->Draw();
+
+		// Save canvas
+		SaveCanvas(canvas, params["optimization_output"]+subdir, string(plotName));
+
+		// Do we want a log version?
+//		SaveCanvasLog(canvas, params["optimization_output"], string(plotName+"_int"), signal.GetLogX(), signal.GetLogY(), signal.GetLogZ());
+
+		// Clean up canvas
+		delete canvas; canvas = NULL;
+
+		// Print info about the current histo
+		lastSavedPlotName = plotName;
+
+		if(lastSavedPlotName.length()>0){
+			cout << string(lastSavedPlotName.length()+10,'\b'); cout.flush(); 
+			cout << string(lastSavedPlotName.length()+15,' '); cout.flush();
+			cout << string(lastSavedPlotName.length()+20,'\b'); cout.flush(); 
 		}   
 		cout << plotName; cout.flush(); 
 
