@@ -53,7 +53,12 @@ void TMVASampler::MakeTrainingSample(ProPack * iProPack){
 
 	TTree* signalTree = new TTree("TreeS","TreeS");
 	cout << "Filling signal tree with: " << signalName << endl;
-	FillTree(signalTree, iProPack->GetProcess(params.find("MVAsignal")->second), &iProPack->GetProcess(params.find("MVAsignal")->second)->GetGoodEventsForSignal());
+
+	vector<pair<int,int> > * goodEventsSignal = new vector<pair<int,int> >(iProPack->GetProcess(params.find("MVAsignal")->second)->GetGoodEventsForSignal());
+	FillTree(signalTree, iProPack->GetProcess(params.find("MVAsignal")->second), goodEventsSignal);
+	delete goodEventsSignal; goodEventsSignal = NULL;
+	
+
 	output->cd();
 	signalTree->Write();
 	cout << "Signal tree contains " << signalTree->GetEntries() << " events." << endl;
@@ -61,8 +66,11 @@ void TMVASampler::MakeTrainingSample(ProPack * iProPack){
 
 	TTree* backgroundTree = new TTree("TreeB","TreeB");
 	cout << "Filling background tree with: " << backgroundName << endl;
-	FillTree(backgroundTree, iProPack->GetProcess(params.find("MVAbackground")->second), &iProPack->GetProcess(params.find("MVAbackground")->second)->GetGoodEventsForSignal());
-//	FillTree(backgroundTree, iProPack->GetCollisions(), &iProPack->GetCollisions()->GetGoodEventsForQCD());
+
+	vector<pair<int,int> > * goodEventsBackground = new vector<pair<int,int> >(iProPack->GetProcess(params.find("MVAbackground")->second)->GetGoodEventsForSignal());
+	FillTree(backgroundTree, iProPack->GetProcess(params.find("MVAbackground")->second), goodEventsBackground);
+	delete goodEventsBackground; goodEventsBackground = NULL;
+
 	output->cd();
 	backgroundTree->Write();
 	cout << "Background tree contains " << signalTree->GetEntries() << " events." << endl;
