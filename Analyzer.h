@@ -25,12 +25,13 @@ using namespace std;
 class Analyzer {
 
 	private:
+	
+	protected:
 		map<string,string>		params;
 		vector<pair<int,int> >	goodEventsForSignal;
 		vector<pair<int,int> >	goodEventsForQCD;
 		bool					isSignal;
 		bool					isMC;
-	
 		#include "clarity/cuts_declarations.h"
 		CutFlow					cutFlow;
 		TMVAEvaluator*			tmvaEvaluator;
@@ -41,16 +42,18 @@ class Analyzer {
 		Analyzer(map<string,string> const &);
 		virtual ~Analyzer();
 
-		void					Analyze(Process&);
-		void					Analyze(vector<Process>&);
-		void					AnalyzeAll(ProPack&);
-		DitauBranches const *	GetDitauBranches(double) const;
-		void					Reset();
-		pair<double,double>		Loop();
-		pair<bool,bool>			ComboPassesCuts(unsigned int);
-		void					SetCutsToApply(string);
-		bool					ApplyThisCut(string);
-		bool					IsFlagThere(string);
+		void							AnalyzeAll(ProPack&);
+
+	protected:
+		void							Analyze(Process&);
+		void							Analyze(vector<Process>&);
+		DitauBranches const *			GetDitauBranches(double) const;
+		void							Reset();
+		virtual pair<double,double>		Loop();
+		virtual pair<bool,bool>			ComboPassesCuts(unsigned int);
+		void							SetCutsToApply(string);
+		bool							ApplyThisCut(string);
+		bool							IsFlagThere(string);
 
 
 };

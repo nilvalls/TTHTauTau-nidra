@@ -25,6 +25,7 @@ void Initialize(int argc, char **argv){
 
 	// Supress ROOT warnings
 	gErrorIgnoreLevel = kError;
+
 }
 
 // Read in config file and set up parameters
@@ -36,13 +37,14 @@ void ReadConfig(string iPath){
 
 	SetParam(theConfig, "maxEvents");
 	SetParam(theConfig, "luminosity");
+	SetParam(theConfig, "plotText");
 	SetParam(theConfig, "puList");
 	SetParam(theConfig, "toDo");
 	SetParam(theConfig, "analyze");
 	SetParam(theConfig, "plot");
 	SetParam(theConfig, "flags");
 	SetParam(theConfig, "countMasses");
-	SetParam(theConfig, "webDir"); ReMakeDir(GetParam("webDir"));
+	SetParam(theConfig, "webDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("webDir")); }
 	SetParam(theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
 	SetParam(theConfig, "ntuplesDir");
 	SetParam(theConfig, "treeName");
@@ -90,11 +92,10 @@ void Analyze(){
 	Print(CYAN,">>>>>>>> Analyzing events...");
 
 	// Set up analyzer with global paramaters
-	Analyzer analyzer(params);	
+	TTMAnalyzer analyzer(params);	
 
 	// Pass topopack to analyzer to analyze
 	analyzer.AnalyzeAll(*proPack);
-
 
 	// Save analyzed ProPack to a root file
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
@@ -108,7 +109,7 @@ void DistributeProcesses(){
 
 	Long_t *id,*size,*flags,*mt; id=NULL; size=NULL;flags=NULL;mt=NULL;
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
-	if(badFile){ cerr << "ERROR: trying to distribute processes but proPack file does not exist." << endl; exit(1); }
+	if(badFile){ cerr << "ERROR: trying to distribute processes but proPack file '" << (params["process_file"]) << "' does not exist." << endl; exit(1); }
 
 	TFile* file = new TFile((params["process_file"]).c_str(), "UPDATE");
 	file->cd();
@@ -131,7 +132,7 @@ void PreparePlots(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Filling histograms...");
 	// Book histos and fill them with good events
-	Plotter plotter = Plotter(params);
+	TTMPlotter plotter(params);
 	Print(GREEN," done!");
 }
 
@@ -151,7 +152,7 @@ void PlotStacks(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Stacking plots...");
 	ReMakeDir(GetParam("stacks_output"));
-	Stacker stacker = Stacker(params);
+	Stacker stacker(params);
 	Print(GREEN," done!");
 }
 
@@ -159,7 +160,7 @@ void PlotStamps(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Stamping plots...");
 	ReMakeDir(GetParam("stamps_output"));
-	//Stamper stamper = Stamper(params);
+	Stamper stamper (params);
 	Print(GREEN," done!");
 }
 
@@ -167,16 +168,16 @@ void Optimize(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Making optimization plots...");
 	ReMakeDir(GetParam("optimization_output"));
-	Optimizer optimizer = Optimizer(params);
+	Optimizer optimizer(params);
 	Print(GREEN," done!");
 }
 
-void MakeTMVATrainingSample(){
+/*void MakeTMVATrainingSample(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Making TMVA training sample...");
 	TMVASampler tmvaSampler(params);
 	Print(GREEN," done!");
-}
+}//*/
 
 void Finalize(){
 	NewSection(stopwatch);

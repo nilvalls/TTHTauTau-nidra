@@ -14,19 +14,22 @@ int main(int argc, char **argv){
 	if(IsArgumentThere("-a")){ Analyze(); }
 
 	if(IsArgumentThere("-p")){
-	// Needed?	ReadConfig(string(argv[1]));
+		ReadConfig(string(argv[1]));
 		DistributeProcesses();
 		PreparePlots();
 		CrunchNumbers();
-		PlotStacks();
-	//	PlotStamps();
-		Optimize();
+
 	}
 
-	if(IsArgumentThere("-t")){
+	if(IsArgumentThere("-k")){ PlotStacks();	}
+	if(IsArgumentThere("-m")){ PlotStamps();	}
+	if(IsArgumentThere("-o")){ Optimize();		}
+
+
+	/*if(IsArgumentThere("-t")){
 		DistributeProcesses();
 		MakeTMVATrainingSample();
-	}
+	}//*/
 
 	Finalize();
 

@@ -23,12 +23,11 @@ Plotter::Plotter(){
 
 // Default destructor
 Plotter::~Plotter(){
+	delete puCorrector; puCorrector = NULL;
+	delete ditauTrigger; ditauTrigger = NULL;
 	if(file!=NULL){ file->Close(); }
 	delete file; file = NULL;
 	delete proPack; proPack = NULL;
-	delete puCorrector; puCorrector = NULL;
-	delete ditauTrigger; ditauTrigger = NULL;
-
 }
 
 Plotter::Plotter(map<string,string>const & iParams){
@@ -44,7 +43,7 @@ Plotter::Plotter(map<string,string>const & iParams){
 	puCorrector = new PUcorrector((params["puList"]));
 	ditauTrigger = new Trigger(proPack->GetIntegratedLumiInInvPb());
 
-	MakePlots(proPack);
+/*	MakePlots(proPack);
 
 	delete puCorrector; puCorrector = NULL;
 	delete ditauTrigger; ditauTrigger = NULL;
@@ -53,6 +52,7 @@ Plotter::Plotter(map<string,string>const & iParams){
 	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
 
 	RawHistoSaver rawHistoSaver(params, *proPack);
+	//*/
 
 }
 
@@ -210,29 +210,7 @@ void Plotter::LoopOverHistoCfgFile(const string iPath, HContainer* iHContainer){
 
 // Fill the histograms with the event passed
 void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool const iIsMC, Trigger const * iTrigger, PUcorrector const * iPUcorrector, weightCounter* iWeightCounter){
-	HContainer* hContainer = iHContainer;
-	DitauBranches* event = iEvent;
-	int iCombo = event->bestCombo;
-
-	float iPuWeight = 1.0;
-	float iTau1TriggerWeight = 1.0;
-	float iTau2TriggerWeight = 1.0;
-
-	if(iIsMC){
-		if(IsFlagThere("PUcorr")){ iPuWeight = iPUcorrector->GetWeight(event->numInteractionsBX0); }
-		if(IsFlagThere("trigger")){ 
-			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->Tau1Pt->at(event->bestCombo));
-			iTau2TriggerWeight = iTrigger->GetWeightFromFunc(event->Tau2Pt->at(event->bestCombo));
-		}
-	}
-
-	iWeightCounter->puCorrection	+= iPuWeight;
-	iWeightCounter->tau1Trigger		+= iTau1TriggerWeight*iPuWeight;
-	iWeightCounter->tau2Trigger		+= iTau2TriggerWeight*iTau1TriggerWeight*iPuWeight;
-	iWeightCounter->total++;
-	
-
-	#include "clarity/fillHistos.h"
+	cerr << "Calling FillHistos(...) from " << __FILE__ << " is not allowed. It must be called from a derived class." << endl; exit(1);
 }
 
 // Save canvas
@@ -375,7 +353,7 @@ double const Plotter::GetMaxIntegral(ProPack const * iProPack, string const iNam
 }
 
 // Return TPaveText with some generic plot info
-TPaveText * Plotter::GetPlotText(){
+TPaveText * Plotter::GetPlotText(const string iString){
 
 		// Extra plot info
 		float xPlotInfo		= 0.15;
@@ -391,9 +369,10 @@ TPaveText * Plotter::GetPlotText(){
 		plotInfo->SetFillStyle(0);
 
 		stringstream textSS; textSS.str("");
-		textSS	<< "CMS Preliminary"
+		/*textSS	<< "CMS Preliminary"
 				<< "    4.9/fb" << " p-p #sqrt{s} = 7TeV"	
-				<< "    #tau_{h}#tau_{h} channel";
+				<< "    #tau_{h}#tau_{h} channel"; //*/
+		textSS << iString;
 		plotInfo->AddText((textSS.str()).c_str());
 
 		return plotInfo;

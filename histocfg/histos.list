@@ -1,6 +1,5 @@
-#cfg/histos.cfg
 histocfg/general.cfg
-#histocfg/vertex.cfg
-histocfg/svfit.cfg
-histocfg/generator.cfg
+histocfg/taus.cfg
+histocfg/muon.cfg
+histocfg/jets.cfg
 

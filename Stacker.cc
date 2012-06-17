@@ -14,10 +14,10 @@ using namespace std;
 #define AT __LINE__
 
 // Default constructor
-Stacker::Stacker(map<string,string> const & iParams){
+//Stacker::Stacker(map<string,string> const & iParams) : Plotter(iParams){
+Stacker::Stacker(map<string,string> const & iParams) {
 
-	params = map<string,string>(iParams);
-
+	params = iParams;
 	Long_t *id,*size,*flags,*mt; id=NULL; size=NULL;flags=NULL;mt=NULL;
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
 	if(badFile){ cerr << "ERROR: trying to stack plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
@@ -26,16 +26,12 @@ Stacker::Stacker(map<string,string> const & iParams){
 	file->cd();
 
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+
 	MakePlots(proPack);
 }
 
 // Default destructor
-Stacker::~Stacker(){
-	if(file!=NULL){ file->Close(); }
-	delete file; file = NULL;
-	delete proPack; proPack = NULL;
-
-}
+Stacker::~Stacker(){}
 
 // Function to make the plots
 void Stacker::MakePlots(ProPack const * iProPack) {
@@ -59,7 +55,12 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		string plotName = plotNames.at(p);
 
 		// If the plot will be empty, skip it
-		if(GetMaxIntegral(iProPack, plotName) <= 0){ continue; }
+		if(GetMaxIntegral(iProPack, plotName) <= 0){
+			cout << "\nWARNING: HWrapper with name '" << plotName << 
+					"' not filled. Perhaps it's a good idea to remove it from '" << 
+					string((iProPack->GetAvailableHWrapper(plotName)).GetSubDir()+"\b.cfg") << "'." << endl;
+			continue;
+		}
 
 		// Get some generic information
 		double maxY = max(1.2*GetMaximumWithError(iProPack, plotName),0.1);
@@ -140,7 +141,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		GetLegend(iProPack)->Draw();
 
 		// Take care of plot info
-		GetPlotText()->Draw();
+		GetPlotText(params.find("plotText")->second)->Draw();
 
 		// Save canvas
 		canvas->SetGrid(1,1);

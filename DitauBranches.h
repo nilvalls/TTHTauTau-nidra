@@ -29,8 +29,9 @@ class DitauBranches {
 		map<string,string>		params;
 		TChain* fChain;
 		Int_t	fCurrent;
-		void	NullPointers();
-		void	DeletePointers();
+		void	Null();
+		void	Delete();
+		void	Clear();
 		TChain*	GetTChain(string);
 		void	SetBranchAddresses();
 		Long64_t LoadTree(Long64_t entry);

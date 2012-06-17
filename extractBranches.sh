@@ -27,7 +27,32 @@ function getType(){
 function declaring(){
 	while read branch; do 
 		typeOfBranch=`getType "$branch"`
-		echo "	$typeOfBranch $branch;"
+		vector=`echo $typeOfBranch | grep "vector<"`
+		if [ ! -z "$vector" ]; then
+			echo "	$typeOfBranch* $branch;"
+		else
+			echo "	$typeOfBranch $branch;"
+		fi
+	done < "$branches"
+}
+
+function nulling(){
+	while read branch; do 
+		vector=`getType "$branch" | grep "vector<"`
+		if [ ! -z "$vector" ]; then
+			echo "	$branch = NULL;"	
+		else
+			echo "	$branch = 0;"	
+		fi
+	done < "$branches"
+}
+
+function deleting(){
+	while read branch; do 
+		vector=`getType "$branch" | grep "vector<"`
+		if [ ! -z "$vector" ]; then
+			echo "	delete $branch;"	
+		fi
 	done < "$branches"
 }
 
@@ -35,7 +60,7 @@ function clearing(){
 	while read branch; do 
 		vector=`getType "$branch" | grep "vector<"`
 		if [ ! -z "$vector" ]; then
-			echo "	$branch.clear();"	
+			echo "	$branch->clear();"	
 		else
 			echo "	$branch = 0;"	
 		fi
@@ -60,11 +85,21 @@ rm -f "$tempMacro"
 # Write stuff to the appropriate files
 echo "Preparing declarations..."
 declaring > "clarity/ditauBranches_declarations.h"
+echo "done."
 
 echo "Preparing branch addressing..."
 addressing > "clarity/ditauBranches_setBranchAddresses.h"
+echo "done."
 
-echo "Preparing variable clearing..."
+echo "Preparing pointer deletion..."
+nulling > "clarity/ditauBranches_delete.h"
+echo "done."
+
+echo "Preparing pointer nulling..."
+nulling > "clarity/ditauBranches_null.h"
+echo "done."
+
+echo "Preparing variable nulling..."
 clearing > "clarity/ditauBranches_clear.h"
 echo "done."
 

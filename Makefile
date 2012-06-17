@@ -31,12 +31,18 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o .Stamper.o .Optimizer.o \
-			.RootFileMaker.o .RawHistoSaver.o .TMVASampler.o .TMVAEvaluator.o
+			.Analyzer.o .TTMAnalyzer.o \
+			.Plotter.o .TTMPlotter.o \
+			.Stacker.o .Stamper.o .Optimizer.o \
+			.Trigger.o .PUcorrector.o .Cruncher.o \
+			.RootFileMaker.o .RawHistoSaver.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .Trigger.o .PUcorrector.o .Cruncher.o .Plotter.o .Stacker.o .Stamper.o .Optimizer.o \
-			.RootFileMaker.o .RawHistoSaver.o .TMVASampler.o .TMVAEvaluator.o $(GLIBS)
+			.Analyzer.o .TTMAnalyzer.o \
+			.Plotter.o .TTMPlotter.o \
+			.Stacker.o .Stamper.o .Optimizer.o \
+			.Trigger.o .PUcorrector.o .Cruncher.o \
+			.RootFileMaker.o .RawHistoSaver.o $(GLIBS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
@@ -71,8 +77,11 @@ libConfigParser.so: configParser/config.h
 .ProPack.o: ProPack.cc ProPack.h 
 	$(CXX) $(CXXFLAGS) -c ProPack.cc -o $@
 
-.Analyzer.o: Analyzer.cc Analyzer.h clarity/*.h PUcorrector.h
+.Analyzer.o: Analyzer.cc Analyzer.h clarity/*.h
 	$(CXX) $(CXXFLAGS) -c Analyzer.cc -o  $@
+
+.TTMAnalyzer.o: TTMAnalyzer.cc TTMAnalyzer.h Analyzer.cc Analyzer.h clarity/*.h PUcorrector.h
+	$(CXX) $(CXXFLAGS) -c TTMAnalyzer.cc -o  $@
 
 .RootFileMaker.o: RootFileMaker.cc RootFileMaker.h 
 	$(CXX) $(CXXFLAGS) -c RootFileMaker.cc -o $@
@@ -85,6 +94,9 @@ libConfigParser.so: configParser/config.h
 
 .Plotter.o: Plotter.cc Plotter.h clarity/fillHistos.h
 	$(CXX) $(CXXFLAGS) -c Plotter.cc -o $@
+
+.TTMPlotter.o: TTMPlotter.cc TTMPlotter.h clarity/fillHistos.h
+	$(CXX) $(CXXFLAGS) -c TTMPlotter.cc -o $@
 
 .Stacker.o: Stacker.cc Stacker.h
 	$(CXX) $(CXXFLAGS) -c Stacker.cc -o $@
@@ -104,11 +116,11 @@ libConfigParser.so: configParser/config.h
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
 	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
 
-.TMVASampler.o: TMVASampler.cc TMVASampler.h
-	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
-
-.TMVAEvaluator.o: TMVAEvaluator.cc TMVAEvaluator.h
-	$(CXX) $(CXXFLAGS) -c TMVAEvaluator.cc -o $@
+#.TMVASampler.o: TMVASampler.cc TMVASampler.h
+#	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
+#
+#.TMVAEvaluator.o: TMVAEvaluator.cc TMVAEvaluator.h
+#	$(CXX) $(CXXFLAGS) -c TMVAEvaluator.cc -o $@
 
 all: .nidra.exe
 

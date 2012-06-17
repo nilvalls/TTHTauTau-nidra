@@ -194,7 +194,10 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 	// Loop over all the cuts this combo has gone through
 	for(unsigned int c=0; c<cutNames.size(); c++){
 		string cutName = cutNames.at(c);
-		if(GetCutRank(cutName) != 1){ continue; } // Worry only about rank 1 cuts
+		if(GetCutRank(cutName) != 1){ 
+			ComboIsGood(cutName);
+			//continue;
+		} // Worry only about rank 1 cuts
 
 		if(thisCombosResultsForSignal.find(cutName)->second){
 			passedCombosForSignal[cutName]++; 

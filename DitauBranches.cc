@@ -16,7 +16,7 @@ using namespace std;
 // Default constructor
 DitauBranches::DitauBranches(){
 	fChain = NULL;
-	NullPointers();
+	Null();
 }
 
 
@@ -25,7 +25,7 @@ DitauBranches::DitauBranches(map<string,string> const & iParams, string const iP
 	params = iParams;
 
 	fChain = GetTChain(iPath);
-	NullPointers();
+	Null();
 
 	// Set branch addresses and branch pointers
 	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }
@@ -41,17 +41,22 @@ DitauBranches::~DitauBranches(){
 	if(fChain != NULL){ delete (fChain->GetCurrentFile()); }
 	delete fChain; fChain = NULL;
 
-	DeletePointers();
-	NullPointers();
+//	Clear();
+	Delete();
+	Null();
 
 }
 
-void DitauBranches::NullPointers(){
-	#include "clarity/ditauBranches_nullPointers.h"
+void DitauBranches::Null(){
+	#include "clarity/ditauBranches_null.h"
 }
 
-void DitauBranches::DeletePointers(){
-	#include "clarity/ditauBranches_deletePointers.h"
+void DitauBranches::Delete(){
+	#include "clarity/ditauBranches_delete.h"
+}
+
+void DitauBranches::Clear(){
+	#include "clarity/ditauBranches_clear.h"
 }
 
 void DitauBranches::SetBranchAddresses(){
@@ -77,7 +82,8 @@ void DitauBranches::Init(){
 	fChain->SetMakeClass(1);
 	fChain->ResetBranchAddresses();
 
-	NullPointers();
+	//Clear();
+	Null();
 	SetBranchAddresses();
 
 }

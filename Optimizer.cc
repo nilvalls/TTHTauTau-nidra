@@ -35,16 +35,14 @@ Optimizer::Optimizer(map<string,string> const & iParams){
 
 
 // Default destructor
-Optimizer::~Optimizer(){
-	if(file!=NULL){ file->Close(); }
-	delete file; file = NULL;
-	delete proPack; proPack = NULL;
-}
+Optimizer::~Optimizer(){}
 
 void Optimizer::MakePlots(ProPack const * iProPack) {
-	MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
-	Overlap2D(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
+	//MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
+	//Overlap2D(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 	//MakeSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
+
+	MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), &(iProPack->GetMCbackgrounds()->at(0)));
 }
 
 void Optimizer::MakeLeftIntegratedSoverB(Process const * iSignal, Process const * iBackground){ MakeIntegratedSoverB(iSignal, iBackground, INTEGRATED_FROM_LEFT); }
@@ -131,7 +129,7 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 		TVirtualPad* p2 = canvas->cd(2);
 		p2->SetGridx(); p2->SetGridy();
 		backgroundError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*background.GetMaximumWithError());
-		backgroundError.GetHisto()->GetYaxis()->SetTitle("QCD Events");
+		backgroundError.GetHisto()->GetYaxis()->SetTitle("Bkg Events");
 		backgroundError.GetHisto()->GetYaxis()->SetTitleSize(0.14);
 		backgroundError.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
 
@@ -364,7 +362,7 @@ void Optimizer::Overlap2D(Process const * iSignal, Process const * iBackground){
 		SaveCanvas(canvas, params["optimization_output"]+subdir, string(plotName));
 
 		// Do we want a log version?
-//		SaveCanvasLog(canvas, params["optimization_output"], string(plotName+"_int"), signal.GetLogX(), signal.GetLogY(), signal.GetLogZ());
+		SaveCanvasLog(canvas, params["optimization_output"], string(plotName+"_int"), signal.GetLogX(), signal.GetLogY(), signal.GetLogZ());
 
 		// Clean up canvas
 		delete canvas; canvas = NULL;
@@ -373,12 +371,18 @@ void Optimizer::Overlap2D(Process const * iSignal, Process const * iBackground){
 		lastSavedPlotName = plotName;
 
 		if(lastSavedPlotName.length()>0){
-			cout << string(lastSavedPlotName.length()+10,'\b'); cout.flush(); 
-			cout << string(lastSavedPlotName.length()+15,' '); cout.flush();
-			cout << string(lastSavedPlotName.length()+20,'\b'); cout.flush(); 
-		}   
+			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
+			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
+			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
+		}
 		cout << plotName; cout.flush(); 
+	}
 
+	// Print done
+	if(lastSavedPlotName.length()>0){
+			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
+			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
+			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
 	}
 
 }

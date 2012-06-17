@@ -30,12 +30,7 @@ Stamper::Stamper(map<string,string> const & iParams){
 }
 
 // Default destructor
-Stamper::~Stamper(){
-	if(file!=NULL){ file->Close(); }
-	delete file; file = NULL;
-	delete proPack; proPack = NULL;
-
-}
+Stamper::~Stamper(){}
 
 // Function to make the plots
 void Stamper::MakePlots(ProPack const * iProPack) {
@@ -53,16 +48,24 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 	// Loop over all the HWrappers and plot each
 	vector<string> plotNames = iProPack->GetAvailableProcess().GetHContainerForSignal()->GetNames();
 
+	string subdir = "";
 	string lastSavedPlotName = "";
 	for(unsigned int p=0; p<plotNames.size(); p++){
 		string plotName = plotNames.at(p);
 
 		// If the plot will be empty, skip it
-		if(GetMaxIntegral(iProPack, plotName) <= 0){ continue; }
+		if(GetMaxIntegral(iProPack, plotName) <= 0){
+			cout << "\nWARNING: HWrapper with name '" << plotName << 
+					"' not filled. Perhaps it's a good idea to remove it from '" << 
+					string((iProPack->GetAvailableHWrapper(plotName)).GetSubDir()+"\b.cfg") << "'." << endl;
+			continue;
+		}
+		
 
 		// Get some generic information
 		double maxY = max(1.2*GetMaximumWithError(iProPack, plotName),0.1);
 		HWrapper baseHisto((iProPack->GetAvailableHWrapper(plotName))); baseHisto.ScaleBy(0);
+		subdir = baseHisto.GetSubDir();
 
 		// Plot a base histogram with only the axis
 		TCanvas* canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
@@ -110,6 +113,7 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 		
 		// Finally plot the collisions if we have them
 		if(haveCollisions){ 
+			if(!iProPack->GetCollisions()->Plot()){ continue; }
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
 			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
@@ -123,14 +127,14 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 		GetLegend(iProPack)->Draw();
 
 		// Take care of plot info
-		GetPlotText()->Draw();
+		GetPlotText(params.find("plotText")->second)->Draw();
 
 		// Save canvas
 		canvas->SetGrid(1,1);
-		SaveCanvas(canvas, params["stacks_output"], plotName);
+		SaveCanvas(canvas, params["stamps_output"]+subdir, plotName);
 
 		// Do we want a log version?
-		SaveCanvasLog(canvas, params["stacks_output"], plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ());
+		SaveCanvasLog(canvas, params["stamps_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ());
 
 		// Clean up canvas
 		delete canvas;

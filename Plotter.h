@@ -41,22 +41,24 @@ class Plotter {
 	public:
 		Plotter();
 		Plotter(map<string,string> const &);
-		virtual ~Plotter();
+		~Plotter();
 
 		void PrintEfficiencies(string const, string const);
 
-	private: 
+	protected:
+		virtual void	FillHistos(HContainer*, DitauBranches*, bool const, Trigger const *, PUcorrector const *, weightCounter *);
 		PUcorrector*	puCorrector;
 		Trigger*		ditauTrigger;
-		virtual void MakePlots(ProPack*);
-		virtual void MakePlots(Process*);
-		virtual void MakePlots(vector<Process>*);
-		void		BookHistos(HContainer*);
-		void		FillHistos(HContainer*, DitauBranches*, bool const, Trigger const *, PUcorrector const *, weightCounter *);
-		bool const	IsFlagThere(string const) const;
-		void		LoopOverHistoCfgFile(const string, HContainer*);
-		float const	DeltaR(const float, const float, const float, const float) const;
-		float const	ThetaToEta(const float) const;		
+		virtual void	MakePlots(ProPack*);
+		virtual void	MakePlots(Process*);
+		virtual void	MakePlots(vector<Process>*);
+		void			BookHistos(HContainer*);
+		bool const		IsFlagThere(string const) const;
+		void			LoopOverHistoCfgFile(const string, HContainer*);
+		float const		DeltaR(const float, const float, const float, const float) const;
+		float const		ThetaToEta(const float) const;		
+
+	private: 
 
 	protected:
 		TFile* file;
@@ -67,7 +69,7 @@ class Plotter {
 		double const		GetMaximum(ProPack const *, string const) const;
 		double const		GetMaximumWithError(ProPack const *, string const) const;
 		double const		GetMaxIntegral(ProPack const *, string const) const;
-		TPaveText *			GetPlotText();
+		TPaveText *			GetPlotText(const string);
 		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
 		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
 

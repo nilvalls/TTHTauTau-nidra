@@ -27,9 +27,11 @@
 #include "ProPack.h"
 
 #include "Analyzer.h"
+#include "TTMAnalyzer.h"
 #include "Cruncher.h"
 #include "RootFileMaker.h"
 #include "Plotter.h"
+#include "TTMPlotter.h"
 #include "Stacker.h"
 #include "Stamper.h"
 #include "Optimizer.h"
