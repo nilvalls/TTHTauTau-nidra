@@ -83,25 +83,30 @@ root -l -b -q "$tempMacro" | grep "*Br" | awk '{print $3}' | sed 's/://g' &> "$b
 rm -f "$tempMacro"
 
 # Write stuff to the appropriate files
-echo "Preparing declarations..."
-declaring > "clarity/ditauBranches_declarations.h"
-echo "done."
+if [ "$2" == "-b" ]; then
+	declaring
+else
+	echo "Preparing declarations..."
+	declaring > "clarity/ditauBranches_declarations.h"
+	echo "done."
 
-echo "Preparing branch addressing..."
-addressing > "clarity/ditauBranches_setBranchAddresses.h"
-echo "done."
+	echo "Preparing branch addressing..."
+	addressing > "clarity/ditauBranches_setBranchAddresses.h"
+	echo "done."
 
-echo "Preparing pointer deletion..."
-nulling > "clarity/ditauBranches_delete.h"
-echo "done."
+	echo "Preparing pointer deletion..."
+	nulling > "clarity/ditauBranches_delete.h"
+	echo "done."
 
-echo "Preparing pointer nulling..."
-nulling > "clarity/ditauBranches_null.h"
-echo "done."
+	echo "Preparing pointer nulling..."
+	nulling > "clarity/ditauBranches_null.h"
+	echo "done."
 
-echo "Preparing variable nulling..."
-clearing > "clarity/ditauBranches_clear.h"
-echo "done."
+	echo "Preparing variable nulling..."
+	clearing > "clarity/ditauBranches_clear.h"
+	echo "done."
+fi
+
 
 # Clean up
 rm -f "$branches"
