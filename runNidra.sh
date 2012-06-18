@@ -65,6 +65,8 @@ elif [ ! -e "$iConfig" ]; then
 	exit 1;
 fi
 
+allArgs=$(echo "$allArgs"|sed "s/$iConfig2\ //g")
+
 # CMS environment
 #if [ -z "$CMSSW_BASE" ] || [ "$TERM" == "screen" ]; then
 #	currentDir="$(pwd)"
