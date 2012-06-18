@@ -33,7 +33,7 @@ Stamper::Stamper(map<string,string> const & iParams){
 Stamper::~Stamper(){}
 
 // Function to make the plots
-void Stamper::MakePlots(ProPack const * iProPack) {
+void Stamper::MakePlots(ProPack * iProPack) {
 
 	// Draw horizontal error bars
  	gStyle->SetErrorX(0.5);
@@ -63,7 +63,7 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 		
 
 		// Get some generic information
-		double maxY = max(1.2*GetMaximumWithError(iProPack, plotName),0.1);
+		double maxY = 1.2*GetMaximum(iProPack, plotName);
 		HWrapper baseHisto((iProPack->GetAvailableHWrapper(plotName))); baseHisto.ScaleBy(0);
 		subdir = baseHisto.GetSubDir();
 
@@ -71,60 +71,74 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 		TCanvas* canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
 		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
 
-		// If we have backgrounds, make the stack and plot them first
-		THStack* stack = NULL;
-		if(haveQCD || haveMCbackgrounds){ stack = GetBackgroundStack(iProPack, plotName); } 
-
 		// Now draw the axis from scratch using the baseHisto
 		canvas->SetGrid(1,1);
+		baseHisto.GetHisto()->GetYaxis()->SetTitle("A.U.");
 		baseHisto.GetHisto()->Draw("HIST");
 
-		// Draw stack if we have backgrounds
-		if((stack != NULL) ){
-			HWrapper backgroundSum = HWrapper(GetBackgroundSum(iProPack, plotName));
-			if(backgroundSum.GetHisto()->Integral()>0){
-				stack->Draw("HISTsame"); 
-				// Draw background errors if we want them
-				if(params["showBackgroundError"].compare("true")==0){
-					backgroundSum.SetFillStyle(3004,kBlack);
-					backgroundSum.SetMarkerStyle(0);
-					backgroundSum.GetHisto()->Draw("E2same");
-				}
-			}
-		}
-
-		// Then, if we have signals, plot them next
-		if(haveSignals){
+		// If we have signals, plot them next
+		/*if(haveSignals){
 			HContainer signalHistos = iProPack->GetSignalsHWrappers(plotName);
 			for(unsigned int s = 0; s < signalHistos.size(); s++){
 				string name = signalHistos.GetNames().at(s);
 				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
+				toDraw->NormalizeTo(1.0);
 				toDraw->SetFillStyle(0);	
 				toDraw->SetLineWidth(3, iProPack->GetSignals()->at(s).GetColor());	
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
-
-				// If we want the signals on top of the stack, add the background sum
-				if(stackSignals){ toDraw->Add(GetBackgroundSum(iProPack, plotName)); }
-
-				// Draw signal curves
 				if(toDraw->GetHisto()->Integral()>0){ toDraw->GetHisto()->Draw("HISTsame"); }
 			}
-		}
+		}//*/
+				Process* signalToOptimize = iProPack->GetProcess(params.find("signalToOptimize")->second);
+				HWrapper* toDrawS = new HWrapper(*(signalToOptimize->GetHistoForSignal(plotName)));
+				toDrawS->NormalizeTo(1.0);
+				toDrawS->SetFillStyle(0);	
+				toDrawS->SetLineWidth(3, signalToOptimize->GetColor());
+				toDrawS->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+				if(toDrawS->GetHisto()->Integral()>0){
+					HWrapper* toDrawSerror = new HWrapper(*toDrawS);
+					toDrawSerror->SetMarkerStyle(0);
+					toDrawSerror->SetFillStyle(3001, signalToOptimize->GetColor());
+					toDrawSerror->GetHisto()->Draw("E2same");
+					toDrawS->GetHisto()->Draw("HISTsame");
+				}
+
+		// If we have backgrounds, plot them next
+		/*if(haveMCbackgrounds){
+			HContainer backgroundHistos = iProPack->GetMCbackgroundsHWrappers(plotName);
+			for(unsigned int b = 0; b < backgroundHistos.size(); b++){
+				string name = backgroundHistos.GetNames().at(b);
+				HWrapper* toDraw = new HWrapper(*backgroundHistos.Get(name));
+				toDraw->NormalizeTo(1.0);
+				toDraw->SetFillStyle(0);	
+				toDraw->SetLineWidth(3, iProPack->GetMCbackgrounds()->at(b).GetColor());	
+				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+				if(toDraw->GetHisto()->Integral()>0){ toDraw->GetHisto()->Draw("Psame"); }
+			}
+		}//*/
+			Process* backgroundToOptimize = iProPack->GetProcess(params.find("backgroundToOptimize")->second);
+			HWrapper* toDrawB = new HWrapper(*(backgroundToOptimize->GetHistoForSignal(plotName)));
+			toDrawB->NormalizeTo(1.0);
+			toDrawB->SetFillStyle(0);	
+			toDrawB->GetHisto()->SetMarkerColor(backgroundToOptimize->GetColor());
+			toDrawB->SetLineWidth(3, backgroundToOptimize->GetColor());
+			toDrawB->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+			if(toDrawB->GetHisto()->Integral()>0){ toDrawB->GetHisto()->Draw("Psame"); }
 		
 		// Finally plot the collisions if we have them
-		if(haveCollisions){ 
+		/*if(haveCollisions){ 
 			if(!iProPack->GetCollisions()->Plot()){ continue; }
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
 			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
 			if(collisionsHisto.GetHisto()->Integral()>0){ collisionsHisto.GetHisto()->Draw("EPsame"); }
-		}	
+		}	//*/
 
 		// Redraw the axes so they stay on top of everthing...
 		baseHisto.GetHisto()->Draw("AXISsame");
 
 		// Take care of the legend
-		GetLegend(iProPack)->Draw();
+		GetLegend(signalToOptimize, backgroundToOptimize)->Draw();
 
 		// Take care of plot info
 		GetPlotText(params.find("plotText")->second)->Draw();
@@ -138,7 +152,6 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 
 		// Clean up canvas
 		delete canvas;
-		stack = NULL; delete stack;
 
 		// Print info about the current histo
 		lastSavedPlotName = plotName;
@@ -163,15 +176,14 @@ void Stamper::MakePlots(ProPack const * iProPack) {
 
 
 
-TLegend* Stamper::GetLegend(ProPack const * iProPack){
+TLegend* Stamper::GetLegend(Process const * iSignal, Process const * iBackground){
 
 	// Figure out how many rows we're going to have
-	int numberOfRows = 0;
-	if(iProPack->PrepareCollisions()){ numberOfRows++; }
+	int numberOfRows = 2;
+/*	if(iProPack->PrepareCollisions()){ numberOfRows++; }
 	if(iProPack->PrepareQCD()){ numberOfRows++; }
 	numberOfRows += iProPack->GetMCbackgrounds()->size();
-	numberOfRows += iProPack->GetSignals()->size();
-	if(((iProPack->PrepareQCD()) || (iProPack->GetMCbackgrounds()->size() > 0)) && (params["showBackgroundError"].compare("true")==0)){ numberOfRows++; }
+	numberOfRows += iProPack->GetSignals()->size();//*/
 
 	// Get legend sizes
 	float xLegend	= atof((params["xLegend"]).c_str());
@@ -182,6 +194,7 @@ TLegend* Stamper::GetLegend(ProPack const * iProPack){
 	TLegend* result = new TLegend(xLegend-dxLegend, yLegend-dyLegend, xLegend, yLegend, NULL, "brNDC");
 
 
+	/*
 	// Collisions come first
 	if(iProPack->PrepareCollisions()){
 		TH1 const * temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
@@ -195,31 +208,30 @@ TLegend* Stamper::GetLegend(ProPack const * iProPack){
 		temp->SetLineWidth(0);
 		result->AddEntry(temp->GetHisto(),(iProPack->GetQCD()->GetLabelForLegend()).c_str(),"f");
 		delete temp;
-	}
+	}//*/
 
-	// Then MC backgrounds in reverse order as in the vector
-	for(int b = iProPack->GetMCbackgrounds()->size()-1; b >= 0; b--){
-		HWrapper * temp = new HWrapper(*iProPack->GetMCbackgrounds()->at(b).GetAvailableHWrapper());
-		temp->SetFillStyle(1001,iProPack->GetMCbackgrounds()->at(b).GetColor());
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),(iProPack->GetMCbackgrounds()->at(b).GetLabelForLegend()).c_str(),"f");
-	}
+	// Then MC background
+	HWrapper* tempB = new HWrapper(*iBackground->GetAvailableHWrapper());
+	tempB->SetFillStyle(1001,iBackground->GetColor());
+	tempB->SetLineWidth(3);
+	tempB->GetHisto()->SetMarkerColor(iBackground->GetColor());
+	tempB->SetLineWidth(3, iBackground->GetColor());
+	result->AddEntry(tempB->GetHisto(),(iBackground->GetLabelForLegend()).c_str(),"lep");
 
-	// Background errors if we want them and have them
-	if(((iProPack->PrepareQCD()) || (iProPack->GetMCbackgrounds()->size() > 0)) && (params["showBackgroundError"].compare("true")==0)){
-		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
-		temp->SetFillStyle(3004,kBlack);
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),"Bkg. stat. err. ","f");
-	}
+	HWrapper * tempS = new HWrapper(*iSignal->GetAvailableHWrapper());
+	tempS->SetFillStyle(3001,iSignal->GetColor());
+	tempS->SetLineWidth(3);
+	tempS->SetLineWidth(3, iSignal->GetColor());
+	result->AddEntry(tempS->GetHisto(),(iSignal->GetLabelForLegend()).c_str(),"lf");
+
 
 	// Finally signals also in reverse order as in the vector
-	for(int s = iProPack->GetSignals()->size()-1; s >= 0; s--){
+	/*for(int s = iProPack->GetSignals()->size()-1; s >= 0; s--){
 		HWrapper * temp = new HWrapper(*iProPack->GetSignals()->at(s).GetAvailableHWrapper());
 		temp->SetFillStyle(0,0);
 		temp->SetLineWidth(3,iProPack->GetSignals()->at(s).GetColor());
 		result->AddEntry(temp->GetHisto(),(iProPack->GetSignals()->at(s).GetLabelForLegend()).c_str(),"l");
-	}
+	}//*/
 
 	// Set some legend parameters
 	result->SetBorderSize(1);
@@ -229,56 +241,6 @@ TLegend* Stamper::GetLegend(ProPack const * iProPack){
 	return result;
 
 }
-
-// Make background stack
-THStack * Stamper::GetBackgroundStack(ProPack const * iProPack, string const iName) const {
-
-	// Obtain a reference HWrapper from which to extract options
-	HWrapper refHisto = HWrapper(*(iProPack->GetAvailableProcess().GetHistoForSignal(iName)));
-	if(refHisto.IsTH2F()){ cerr << "ERROR: trying to build THStack from TH2F" << endl; exit(1); }
-
-	// Figure out the maximum Y value
-	double maxY = max(1.2*GetMaximumWithError(iProPack,iName),0.1);
-	string stackName = string(iName+"_stack");
-	THStack * result = new THStack(stackName.c_str(), stackName.c_str());
-
-	// Add each MC background first if we have them
-	if(iProPack->PrepareMCbackgrounds()){
-		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
-			int color = iProPack->GetMCbackgrounds()->at(b).GetColor();
-			HWrapper toAdd(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)));
-			toAdd.SetFillStyle(1001,color);
-			toAdd.SetLineWidth(0,color);
-			toAdd.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
-			toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
-			result->Add((TH1F*)toAdd.GetHisto());
-		}
-	}
-
-	// Then add QCD if we have it
-	if(iProPack->PrepareQCD()){
-		int color = iProPack->GetQCD()->GetColor();
-		HWrapper toAdd(*(iProPack->GetQCD()->GetHistoForSignal(iName)));
-		toAdd.SetFillStyle(1001,color);
-		toAdd.SetLineWidth(0,color);
-		toAdd.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
-		toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
-		result->Add((TH1F*)toAdd.GetHisto());
-	}
-
-	// Must call Draw before setting the options below
-	result->Draw("HIST");
-
-	result->GetXaxis()->SetRangeUser(refHisto.GetMinXVis(), refHisto.GetMaxXVis());
-	result->GetXaxis()->SetTitle((refHisto.GetXTitle()).c_str());
-	result->GetYaxis()->SetTitle((refHisto.GetYTitle()).c_str());
-	result->SetMinimum(0.001);
-	result->SetMaximum(maxY);
-	result->GetYaxis()->SetRangeUser(0.001,maxY);
-
-	return result;
-}
-
 
 // Figure out the maximum y value
 double const Stamper::GetMaximum(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, false); }
@@ -295,24 +257,21 @@ double const Stamper::GetMaximum(ProPack const * iProPack, string const iName, b
 	}
 
 	// Check max y for backgrounds
-	if(iProPack->PrepareQCD() || iProPack->PrepareMCbackgrounds()){
-		double thisMax = 0;
-		if(iIncludeError){	thisMax = GetBackgroundSum(iProPack, iName).GetMaximumWithError(); }
-		else{				thisMax = GetBackgroundSum(iProPack, iName).GetMaximum(); }
-		if(thisMax > result){ result = thisMax; }
+	if(iProPack->PrepareMCbackgrounds()){
+		for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
+			HWrapper tmpHWrapper(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)));
+			tmpHWrapper.NormalizeTo(1.0);
+			double thisMax = tmpHWrapper.GetMaximum();
+			if(thisMax > result){ result = thisMax; }
+		}
 	}
 
 	// Check max y for signals
-	bool stackSignals		= ((string(params.find("stackSignals")->second)).compare("true")==0);
 	if(iProPack->PrepareSignals()){
 		for(unsigned int s = 0; s < iProPack->GetSignals()->size(); s++){
-			double thisMax = iProPack->GetSignals()->at(s).GetHistoForSignal(iName)->GetMaximum();
-
-			// If we have backgrounds AND we want to stack the signals on them, account for that
-			if((iProPack->PrepareQCD() || iProPack->PrepareMCbackgrounds()) && stackSignals){
-				thisMax += GetBackgroundSum(iProPack, iName).GetMaximum();
-			}
-
+			HWrapper tmpHWrapper(*(iProPack->GetSignals()->at(s).GetHistoForSignal(iName)));
+			tmpHWrapper.NormalizeTo(1.0);
+			double thisMax = tmpHWrapper.GetMaximum();
 			if(thisMax > result){ result = thisMax; }
 		}
 	}

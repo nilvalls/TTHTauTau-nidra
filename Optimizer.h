@@ -20,7 +20,7 @@ class Optimizer : public Plotter {
 
 	private: 
 		map<string,string> params;
-		void MakePlots(ProPack const *);
+		void MakePlots(ProPack *);
 		void MakeLeftIntegratedSoverB(Process const *, Process const *);
 		void MakeRightIntegratedSoverB(Process const *, Process const *);
 		void MakeIntegratedSoverB(Process const *, Process const *, int);

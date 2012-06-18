@@ -37,12 +37,16 @@ Optimizer::Optimizer(map<string,string> const & iParams){
 // Default destructor
 Optimizer::~Optimizer(){}
 
-void Optimizer::MakePlots(ProPack const * iProPack) {
+void Optimizer::MakePlots(ProPack * iProPack) {
+
+	Process* signal		= iProPack->GetProcess(params.find("signalToOptimize")->second);
+	Process* background	= iProPack->GetProcess(params.find("backgroundToOptimize")->second);
 	//MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 	//Overlap2D(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 	//MakeSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 
-	MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), &(iProPack->GetMCbackgrounds()->at(0)));
+	//MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), &(iProPack->GetMCbackgrounds()->at(0)));
+	MakeRightIntegratedSoverB(signal, background);
 }
 
 void Optimizer::MakeLeftIntegratedSoverB(Process const * iSignal, Process const * iBackground){ MakeIntegratedSoverB(iSignal, iBackground, INTEGRATED_FROM_LEFT); }
@@ -119,17 +123,24 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 		TVirtualPad* p1 = canvas->cd(1);
 		p1->SetGridx(); p1->SetGridy();
 		signalError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*signal.GetMaximumWithError());
-		signalError.GetHisto()->GetYaxis()->SetTitle("Signal Events");
+		signalError.GetHisto()->GetYaxis()->SetTitle("Events");
 		signalError.GetHisto()->GetYaxis()->SetTitleSize(0.14);
 		signalError.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
 		signalError.GetHisto()->Draw("E2");
 		if(signal.GetHisto()->Integral() > 0){ signal.GetHisto()->Draw("HISTsame"); }
+		TLegend* legendS = new TLegend(0.3,0.92,0.8,1);
+		legendS->SetBorderSize(1);
+		legendS->SetFillColor(0);
+		legendS->SetNColumns(1);
+		signalError.SetLineWidth(3,iSignal->GetColor());
+		legendS->AddEntry(signalError.GetHisto(), ("Signal: "+iSignal->GetLabelForLegend()).c_str(), "lf");
+		legendS->Draw();
 
 		// Second pad (background)
 		TVirtualPad* p2 = canvas->cd(2);
 		p2->SetGridx(); p2->SetGridy();
 		backgroundError.GetHisto()->GetYaxis()->SetRangeUser(0.001,1.1*background.GetMaximumWithError());
-		backgroundError.GetHisto()->GetYaxis()->SetTitle("Bkg Events");
+		backgroundError.GetHisto()->GetYaxis()->SetTitle("Events");
 		backgroundError.GetHisto()->GetYaxis()->SetTitleSize(0.14);
 		backgroundError.GetHisto()->GetYaxis()->SetTitleOffset(0.4);
 
@@ -145,6 +156,13 @@ void Optimizer::MakeIntegratedSoverB(Process const * iSignal, Process const * iB
 			backgroundError.GetHisto()->GetXaxis()->SetRangeUser(backgroundError.GetMinXVis(), backgroundError.GetMaxXVis());
 			backgroundError.GetHisto()->Draw("AXIS");
 		}
+		TLegend* legendB = new TLegend(0.3,0.92,0.8,1);
+		legendB->SetBorderSize(1);
+		legendB->SetFillColor(0);
+		legendB->SetNColumns(1);
+		backgroundError.SetLineWidth(3,iBackground->GetColor());
+		legendB->AddEntry(backgroundError.GetHisto(), ("Background: "+iBackground->GetLabelForLegend()).c_str(), "lf");
+		legendB->Draw();
 
 		// Third pad (rightIntegratedSoverRootB)
 		TVirtualPad* p3 = canvas->cd(3);

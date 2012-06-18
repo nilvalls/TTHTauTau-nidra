@@ -63,6 +63,8 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "MVAweights");
 	SetParam(theConfig, "MVAbackground");
 	SetParam(theConfig, "MVAsignal");
+	SetParam(theConfig, "signalToOptimize");
+	SetParam(theConfig, "backgroundToOptimize");
 
 	// Copy original config file to output dir
 	BackUpConfigFile(iPath, GetParam("webDir")); 

@@ -54,6 +54,12 @@ class DitauBranches {
 		void				SetBestCombo(int);
 		unsigned int const	GetBestCombo() const;
 		int					bestCombo;
+		virtual unsigned int	GetTau1IsolationIndex(const unsigned int);
+		virtual unsigned int	GetTau2IsolationIndex(const unsigned int);
+		virtual unsigned int	GetTau1AntiElectronIndex(const unsigned int);
+		virtual unsigned int	GetTau2AntiElectronIndex(const unsigned int);
+		virtual unsigned int	GetTau1AntiMuonIndex(const unsigned int);
+		virtual unsigned int	GetTau2AntiMuonIndex(const unsigned int);
 
 };
 

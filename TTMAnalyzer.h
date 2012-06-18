@@ -37,6 +37,8 @@ class TTMAnalyzer : public Analyzer {
 		pair<bool,bool>			ComboPassesCuts(unsigned int);
 		void					SetCutsToApply(string);
 
+	private:
+
 
 };
 

@@ -56,6 +56,7 @@ class Analyzer {
 		bool							IsFlagThere(string);
 
 
+
 };
 
 #endif

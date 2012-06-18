@@ -121,3 +121,48 @@ Long64_t DitauBranches::GetEntries(){
 	if(fChain == NULL){ cerr << "ERROR: Trying to GetEntries() from a NULL TChain." << endl; exit(1); }
 	return fChain->GetEntries();
 }
+
+
+unsigned int DitauBranches::GetTau1IsolationIndex(const unsigned int iCombo){
+	if(TTM_Tau1HPSbyTightCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 4; }
+	if(TTM_Tau1HPSbyMediumCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 3; }
+	if(TTM_Tau1HPSbyLooseCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 2; }
+	if(TTM_Tau1HPSbyVLooseCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 1; }
+	return 0;
+}
+
+unsigned int DitauBranches::GetTau2IsolationIndex(const unsigned int iCombo){
+	if(TTM_Tau2HPSbyTightCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 4; }
+	if(TTM_Tau2HPSbyMediumCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 3; }
+	if(TTM_Tau2HPSbyLooseCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 2; }
+	if(TTM_Tau2HPSbyVLooseCombinedIsolationDeltaBetaCorr->at(iCombo)){	return 1; }
+	return 0;
+}
+
+unsigned int DitauBranches::GetTau1AntiElectronIndex(const unsigned int iCombo){
+	if(TTM_Tau1HPSagainstElectronTight->at(iCombo)){	return 3; }
+	if(TTM_Tau1HPSagainstElectronMedium->at(iCombo)){	return 2; }
+	if(TTM_Tau1HPSagainstElectronLoose->at(iCombo)){	return 1; }
+	return 0;
+}
+
+unsigned int DitauBranches::GetTau2AntiElectronIndex(const unsigned int iCombo){
+	if(TTM_Tau2HPSagainstElectronTight->at(iCombo)){	return 3; }
+	if(TTM_Tau2HPSagainstElectronMedium->at(iCombo)){	return 2; }
+	if(TTM_Tau2HPSagainstElectronLoose->at(iCombo)){	return 1; }
+	return 0;
+}
+
+unsigned int DitauBranches::GetTau1AntiMuonIndex(const unsigned int iCombo){
+	if(TTM_Tau1HPSagainstMuonTight->at(iCombo)){	return 3; }
+	if(TTM_Tau1HPSagainstMuonMedium->at(iCombo)){	return 2; }
+	if(TTM_Tau1HPSagainstMuonLoose->at(iCombo)){	return 1; }
+	return 0;
+}
+
+unsigned int DitauBranches::GetTau2AntiMuonIndex(const unsigned int iCombo){
+	if(TTM_Tau2HPSagainstMuonTight->at(iCombo)){	return 3; }
+	if(TTM_Tau2HPSagainstMuonMedium->at(iCombo)){	return 2; }
+	if(TTM_Tau2HPSagainstMuonLoose->at(iCombo)){	return 1; }
+	return 0;
+}

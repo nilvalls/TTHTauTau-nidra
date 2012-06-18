@@ -26,6 +26,12 @@ hContainer->Fill("LTPt_T1", event->TTM_Tau1LTPt->at(iCombo), weightFull);
 hContainer->Fill("LTPt_T2", event->TTM_Tau2LTPt->at(iCombo), weightFull);
 hContainer->Fill("NProngs_T1", event->TTM_Tau1NProngs->at(iCombo), weightFull);
 hContainer->Fill("NProngs_T2", event->TTM_Tau2NProngs->at(iCombo), weightFull);
+hContainer->Fill("IsolationIndex_T1", event->GetTau1IsolationIndex(iCombo), weightFull);
+hContainer->Fill("IsolationIndex_T2", event->GetTau2IsolationIndex(iCombo), weightFull);
+hContainer->Fill("AntiElectronIndex_T1", event->GetTau1AntiElectronIndex(iCombo), weightFull);
+hContainer->Fill("AntiElectronIndex_T2", event->GetTau2AntiElectronIndex(iCombo), weightFull);
+hContainer->Fill("AntiMuonIndex_T1", event->GetTau1AntiMuonIndex(iCombo), weightFull);
+hContainer->Fill("AntiMuonIndex_T2", event->GetTau2AntiMuonIndex(iCombo), weightFull);
 
 // Muon ============================================================================================================================
 hContainer->Fill("Pt_M", event->TTM_MuonPt->at(iCombo), weightFull);
