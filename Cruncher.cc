@@ -189,9 +189,9 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 	stringstream result; result.str("");
 
 	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e", iOptions)){ result << "<TD bgcolor=\"#F0FFF0\">" << setprecision(4) << iCutFlow->GetPassedEventsForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("r", iOptions)){ result << "<TD bgcolor=\"#E0FFFF\">" << setprecision(4) << 100*iCutFlow->GetRelEffForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("c", iOptions)){ result << "<TD bgcolor=\"#FFDAB9\">" << setprecision(4) << 100*iCutFlow->GetCumEffForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("e", iOptions)){ result << "<TD bgcolor=\"#F0FFF0\">" << setprecision(7) << iCutFlow->GetPassedEventsForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("r", iOptions)){ result << "<TD bgcolor=\"#E0FFFF\">" << setprecision(7) << 100*iCutFlow->GetRelEffForSignal(iCut) << "</TD>"; }
+		if(IsOptionThere("c", iOptions)){ result << "<TD bgcolor=\"#FFDAB9\">" << setprecision(7) << 100*iCutFlow->GetCumEffForSignal(iCut) << "</TD>"; }
 	}else if(iFormat.compare("TEX")==0){
 
 	}else if(iFormat.compare("TXT")==0){
@@ -199,6 +199,15 @@ string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, stri
 	}else if(iFormat.compare("CSV")==0){
 
 	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
+
+/*
+	char buffer [50];
+	int n;
+	double a = 987654321.123456789;
+		a = 0.000123456789;
+	n=sprintf (buffer, "%.3f", a);
+	printf ("[%s] is a %d char long string\n",buffer,n);
+//*/
 
 	return result.str();
 }
