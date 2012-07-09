@@ -8,6 +8,9 @@ if [ ! -e "$input" ]; then echo "ERROR: Could not read input file '$input'."; ex
 src="../src/"
 interface="../interface/"
 
+if [ ! -e "$src" ]; then echo "ERROR: src directory '$src' does not exist."; exit 1; fi
+if [ ! -e "$interface" ]; then echo "ERROR: interface directory '$interface' does not exist."; exit 1; fi
+
 
 function getFile(){
 	branch="$1"
@@ -74,12 +77,14 @@ function addressing(){
 }
 
 # Get list of branches
-tree="makeNtuple/TTbarHTauTau"
+tree="makeNtuple/tree"
 macro="{ TFile *_file0 = TFile::Open(\"$input\");  TTree* tree = (TTree*)_file0->Get(\"$tree\"); tree->Print(); }"
 tempMacro=".tempMacro.C"
 branches=".branches"
 echo "$macro" > "$tempMacro"
+echo "Wrote temp macro... executing it to get list of branches..."
 root -l -b -q "$tempMacro" | grep "*Br" | awk '{print $3}' | sed 's/://g' &> "$branches"
+echo "Got list of branches."
 rm -f "$tempMacro"
 
 # Write stuff to the appropriate files
