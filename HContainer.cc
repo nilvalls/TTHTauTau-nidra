@@ -87,12 +87,12 @@ void HContainer::ScaleErrorBy(double const iValue){
 }
 
 void HContainer::ApplyRosls(double const iValue, CutFlow const * iCutFlow){
-	bool chargeProductApplied = (iCutFlow->GetCutPosition("ChargeProduct") >= 0);
+	bool chargeProductApplied = (iCutFlow->GetCutPosition("TT_ChargeProduct") >= 0);
 	bool osRequested = false;
-	if(chargeProductApplied){ osRequested = (iCutFlow->GetMaxThresholds().find("ChargeProduct")->second == -1.0); }
+	if(chargeProductApplied){ osRequested = (iCutFlow->GetMaxThresholds().find("TT_ChargeProduct")->second == -1.0); }
 
 	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){
-		if(ite->first.compare("ChargeProduct_LS") == 0){
+		if(ite->first.compare("ChargeProduct_TT") == 0){
 			TH1F* histo = (TH1F*)ite->second.GetHisto();
 			int osBin, lsBin;
 			for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
