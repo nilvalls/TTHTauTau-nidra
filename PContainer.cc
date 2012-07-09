@@ -30,6 +30,8 @@ Process const * PContainer::Get(string const iName) const{
 	return &(container.find(iName)->second);
 }
 
+bool const PContainer::Exists(string const iName) const { return (container.find(iName) != container.end()); }
+
 vector<string> const PContainer::GetNames() const {
 	vector<string> result;
 	for(map<string,Process>::const_iterator it = container.begin(); it != container.end(); it++){ result.push_back(it->first); }

@@ -34,6 +34,7 @@ class PContainer{
 		void 							Add(string const, Process const &);
 		Process *						Get(string const);
 		Process const *					Get(string const) const;
+		bool const 						Exists(string const) const;
 		vector<string> const			GetNames() const;
 		map<string, Process> *			GetContainer(); 
 		map<string, Process> const *	GetContainer() const; 
