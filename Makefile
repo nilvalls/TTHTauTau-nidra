@@ -31,15 +31,15 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .TTMAnalyzer.o \
-			.Plotter.o .TTMPlotter.o \
+			.Analyzer.o .TTAnalyzer.o .TTMAnalyzer.o \
+			.Plotter.o .TTPlotter.o .TTMPlotter.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
 			.Trigger.o .PUcorrector.o .Cruncher.o \
 			.RootFileMaker.o .RawHistoSaver.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .TTMAnalyzer.o \
-			.Plotter.o .TTMPlotter.o \
+			.Analyzer.o .TTAnalyzer.o .TTMAnalyzer.o \
+			.Plotter.o .TTPlotter.o .TTMPlotter.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
 			.Trigger.o .PUcorrector.o .Cruncher.o \
 			.RootFileMaker.o .RawHistoSaver.o $(GLIBS)
@@ -80,6 +80,9 @@ libConfigParser.so: configParser/config.h
 .Analyzer.o: Analyzer.cc Analyzer.h clarity/*.h
 	$(CXX) $(CXXFLAGS) -c Analyzer.cc -o  $@
 
+.TTAnalyzer.o: TTAnalyzer.cc TTAnalyzer.h Analyzer.cc Analyzer.h clarity/*.h PUcorrector.h
+	$(CXX) $(CXXFLAGS) -c TTAnalyzer.cc -o  $@
+
 .TTMAnalyzer.o: TTMAnalyzer.cc TTMAnalyzer.h Analyzer.cc Analyzer.h clarity/*.h PUcorrector.h
 	$(CXX) $(CXXFLAGS) -c TTMAnalyzer.cc -o  $@
 
@@ -95,8 +98,11 @@ libConfigParser.so: configParser/config.h
 .Plotter.o: Plotter.cc Plotter.h clarity/fillHistos.h
 	$(CXX) $(CXXFLAGS) -c Plotter.cc -o $@
 
-.TTMPlotter.o: TTMPlotter.cc TTMPlotter.h clarity/fillHistos.h
-	$(CXX) $(CXXFLAGS) -c TTMPlotter.cc -o $@
+.TTPlotter.o: TTPlotter.cc TTPlotter.h clarity/fillHistos.h
+	$(CXX) $(CXXFLAGS) -c TTPlotter.cc -o $@
+
+.TTMPloTTMer.o: TTMPloTTMer.cc TTMPloTTMer.h clarity/fillHistos.h
+	$(CXX) $(CXXFLAGS) -c TTMPloTTMer.cc -o $@
 
 .Stacker.o: Stacker.cc Stacker.h
 	$(CXX) $(CXXFLAGS) -c Stacker.cc -o $@
