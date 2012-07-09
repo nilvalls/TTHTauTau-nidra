@@ -224,9 +224,9 @@ void Process::SetGoodEventsForQCD(vector<pair<int,int> > const iVector){ goodEve
 
 void Process::NormalizeToLumi(double const iIntLumi){
 	if((!IsCollisions()) && (!normalizedHistosForSignal) && (!normalizedHistosForQCD)){
-		double NOElumiEvents		= iIntLumi*crossSection*branchingRatio;
-		double NOErawEvents			= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
-		double lumiNormalization	= NOElumiEvents/NOErawEvents;
+		double NOElumi				= iIntLumi*crossSection*branchingRatio;
+		double NOEraw				= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
+		double lumiNormalization	= NOElumi/NOEraw;
 		ScaleBy(lumiNormalization);
 		GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, lumiNormalization, lumiNormalization);
 	}
