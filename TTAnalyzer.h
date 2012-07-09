@@ -19,38 +19,25 @@
 #include "PContainer.h"
 #include "ProPack.h"
 #include "TMVAEvaluator.h"
+#include "Analyzer.h"
 
 using namespace std;
 
-class TTAnalyzer {
+class TTAnalyzer : public Analyzer {
 
 	private:
-		map<string,string>		params;
-		vector<pair<int,int> >	goodEventsForSignal;
-		vector<pair<int,int> >	goodEventsForQCD;
-		bool					isSignal;
-		bool					isMC;
-	
-		#include "clarity/cuts_declarations.h"
-		CutFlow					cutFlow;
-		TMVAEvaluator*			tmvaEvaluator;
 
 	public:
-		DitauBranches*			event;
-		TTAnalyzer();
-		TTAnalyzer(map<string,string> const &);
+		explicit TTAnalyzer(map<string,string> const &);
 		virtual ~TTAnalyzer();
 
-		void					Analyze(Process&);
-		void					Analyze(vector<Process>&);
-		void					AnalyzeAll(ProPack&);
 		DitauBranches const *	GetDitauBranches(double) const;
 		void					Reset();
 		pair<double,double>		Loop();
 		pair<bool,bool>			ComboPassesCuts(unsigned int);
 		void					SetCutsToApply(string);
-		bool					ApplyThisCut(string);
-		bool					IsFlagThere(string);
+
+	private:
 
 
 };
