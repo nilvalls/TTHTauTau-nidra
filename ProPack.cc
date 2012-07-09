@@ -72,6 +72,9 @@ ProPack::ProPack(const map<string,string>& iParams){
 		integratedLumiInInvPb	= atof(lumiExpression.substr(0,lumiExpression.find('/')).c_str());
 		string lumiUnits		= lumiExpression.substr(lumiExpression.find('/'));
 
+		qcd.SetShortName("QCD");
+		qcd.SetNiceName("QCD");
+		qcd.SetLabelForLegend("QCD");
 }
 
 
@@ -86,6 +89,7 @@ void ProPack::Update(ProPack * iProPack){
 	for(unsigned int p=0; p < processes.size(); p++){
 		Process* processToUpdate = processes.at(p);
 		string const processToUpdateName = processToUpdate->GetShortName();
+		if(!iProPack->GetPContainer()->Exists(processToUpdateName)){ continue; }
 		processToUpdate->Update((iProPack->GetPContainer()->Get(processToUpdateName)));
 	}
 }
@@ -188,8 +192,6 @@ void ProPack::BuildQCD(){
 
 	// Subtract MC backgrounds from collisions, positivize and scale by Ros/ls	
 	HContainer hContainerForQCD = HContainer(*(collisions.GetHContainerForQCD()));
-
-
 	for(unsigned int b = 0; b < GetMCbackgrounds()->size(); b++){ hContainerForQCD.Add(*(GetMCbackgrounds()->at(b).GetHContainerForQCD()), -1); }
 	hContainerForQCD.Positivize(); 
 	hContainerForQCD.ApplyRosls(atof((params["osls"]).c_str()), qcd.GetNormalizedCutFlow());
