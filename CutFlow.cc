@@ -195,7 +195,7 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 	for(unsigned int c=0; c<cutNames.size(); c++){
 		string cutName = cutNames.at(c);
 		if(GetCutRank(cutName) != 1){ 
-			ComboIsGood(cutName);
+			//ComboIsGood(cutName);
 			//continue;
 		} // Worry only about rank 1 cuts
 
@@ -240,7 +240,7 @@ void CutFlow::EndOfEvent(){
 	// Loop over all the cuts
 	for(unsigned int c=0; c<cutNames.size(); c++){
 		string cutName = cutNames.at(c);
-		//if(GetCutRank(cutName) != 1){ continue; } // Worry only about rank 1 cuts
+		if(GetCutRank(cutName) != 1){ continue; } // Worry only about other-than-rank 1 cuts
 
 		// If at least one combo for signal has passed this cut, increase the event count in the "forSignal" cut map FOR THAT CUT only
 		if(passedCombosForSignal.find(cutName)->second > 0){ passedEventsForSignal[cutName]++; }	
@@ -491,7 +491,7 @@ void CutFlow::UpdateCutNamesMap(){
 
 void CutFlow::PrintTable(){
 	for(unsigned int n = 0; n < cutNames.size(); n++){
-		cout << "\t" << cutNames.at(n) << "\t\t" << GetPassedEventsForSignal(cutNames.at(n)) << "\t\t" << GetPassedEventsForQCD(cutNames.at(n)) << endl;
+		cout << "\t" << cutNames.at(n) << "\t\t" << setprecision(10) << GetPassedEventsForSignal(cutNames.at(n)) << "\t\t" << GetPassedEventsForQCD(cutNames.at(n)) << endl;
 	}	
 }
 
@@ -529,9 +529,9 @@ void CutFlow::BuildNormalizedCutFlow(CutFlow const * iCutFlow){
 
 void CutFlow::ApplyRosls(double const iRosls){
 
-	bool chargeProductApplied = (GetCutPosition("ChargeProduct") >= 0);
+	bool chargeProductApplied = (GetCutPosition("TT_ChargeProduct") >= 0);
 	bool osRequested = false;
-	if(chargeProductApplied){ osRequested = (GetMaxThresholds().find("ChargeProduct")->second == -1.0); }
+	if(chargeProductApplied){ osRequested = (GetMaxThresholds().find("TT_ChargeProduct")->second == -1.0); }
 
 	for(unsigned int c=0; c<cutNames.size(); c++){
 		string cutName = cutNames.at(c);
@@ -539,7 +539,7 @@ void CutFlow::ApplyRosls(double const iRosls){
 		if(!chargeProductApplied){  // Need both OS and LS: Scale by 1+Ros/ls
 			SetCutCounts(cutName, (1+iRosls)*GetPassedEventsForSignal(cutName), (1+iRosls)*GetPassedEventsForQCD(cutName));
 		}else if(osRequested){ // Need only OS: Scale by 1+Ros/ls before ChargeProduct cut and only by Ros/ls after
-			if(GetCutPosition(cutName) < GetCutPosition("ChargeProduct")){ 
+			if(GetCutPosition(cutName) < GetCutPosition("TT_ChargeProduct")){ 
 				SetCutCounts(cutName, (iRosls)*GetPassedEventsForSignal(cutName), (1+iRosls)*GetPassedEventsForQCD(cutName));
 			}else{
 				SetCutCounts(cutName, (iRosls)*GetPassedEventsForSignal(cutName), (iRosls)*GetPassedEventsForQCD(cutName));
