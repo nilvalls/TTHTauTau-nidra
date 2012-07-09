@@ -26,7 +26,7 @@ class Stacker : public Plotter {
 		map<string,string> params;
 
 		TLegend*		GetLegend(ProPack const *);
-		THStack*		GetBackgroundStack(ProPack const *, string const) const;
+		THStack*		GetBackgroundStack(ProPack const *, string const, double const) const;
 		double const	GetMaximum(ProPack const *, string const, bool const) const;
 		double const	GetMaximum(ProPack const *, string const) const;
 		double const	GetMaximumWithError(ProPack const *, string const) const;

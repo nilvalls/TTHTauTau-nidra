@@ -270,7 +270,7 @@ HWrapper const Plotter::GetBackgroundSum(ProPack const * iProPack, string const 
 	return result;
 }
 
-
+/*
 // Figure out the maximum y value
 double const Plotter::GetMaximum(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, false); }
 double const Plotter::GetMaximumWithError(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, true); }
@@ -315,7 +315,7 @@ double const Plotter::GetMaximum(ProPack const * iProPack, string const iName, b
 	
 	return result;
 }
-
+//*/
 
 // Figure out the maximum integral value
 double const Plotter::GetMaxIntegral(ProPack const * iProPack, string const iName) const {

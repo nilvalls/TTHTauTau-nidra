@@ -76,7 +76,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 		// If we have backgrounds, make the stack and plot them first
 		THStack* stack = NULL;
-		if(haveQCD || haveMCbackgrounds){ stack = GetBackgroundStack(iProPack, plotName); } 
+		if(haveQCD || haveMCbackgrounds){ stack = GetBackgroundStack(iProPack, plotName, maxY); } 
 
 		// Now draw the axis from scratch using the baseHisto
 		canvas->SetGrid(1,1);
@@ -202,6 +202,14 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 		result->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
 	}
 
+	// Background errors if we want them and have them
+	if(((iProPack->PrepareQCD()) || (iProPack->GetMCbackgrounds()->size() > 0)) && (params["showBackgroundError"].compare("true")==0)){
+		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
+		temp->SetFillStyle(3004,kBlack);
+		temp->SetLineWidth(0);
+		result->AddEntry(temp->GetHisto(),"Bkg. stat. err. ","f");
+	}
+
 	// QCD comes next
 	if(iProPack->PrepareQCD()){
 		HWrapper * temp = new HWrapper(*iProPack->GetQCD()->GetAvailableHWrapper());
@@ -217,14 +225,6 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 		temp->SetFillStyle(1001,iProPack->GetMCbackgrounds()->at(b).GetColor());
 		temp->SetLineWidth(0);
 		result->AddEntry(temp->GetHisto(),(iProPack->GetMCbackgrounds()->at(b).GetLabelForLegend()).c_str(),"f");
-	}
-
-	// Background errors if we want them and have them
-	if(((iProPack->PrepareQCD()) || (iProPack->GetMCbackgrounds()->size() > 0)) && (params["showBackgroundError"].compare("true")==0)){
-		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
-		temp->SetFillStyle(3004,kBlack);
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),"Bkg. stat. err. ","f");
 	}
 
 	// Finally signals also in reverse order as in the vector
@@ -245,14 +245,15 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 }
 
 // Make background stack
-THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iName) const {
+THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iName, double const iMaxY) const {
 
 	// Obtain a reference HWrapper from which to extract options
 	HWrapper refHisto = HWrapper(*(iProPack->GetAvailableProcess().GetHistoForSignal(iName)));
 	if(refHisto.IsTH2F()){ cerr << "ERROR: trying to build THStack from TH2F with plot named '" << iName << "'" << endl; exit(1); }
 
 	// Figure out the maximum Y value
-	double maxY = max(1.2*GetMaximumWithError(iProPack,iName),0.1);
+	//double maxY = max(1.2*Stacker::GetMaximumWithError(iProPack,iName),0.1);
+	double maxY = iMaxY;
 	string stackName = string(iName+"_stack");
 	THStack * result = new THStack(stackName.c_str(), stackName.c_str());
 
@@ -297,7 +298,8 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 
 // Figure out the maximum y value
 double const Stacker::GetMaximum(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, false); }
-double const Stacker::GetMaximumWithError(ProPack const * iProPack, string const iName) const { return GetMaximum(iProPack, iName, true); }
+double const Stacker::GetMaximumWithError(ProPack const * iProPack, string const iName) const { return Stacker::GetMaximum(iProPack, iName, true); }
+	//return GetMaximum(iProPack, iName, true); }
 double const Stacker::GetMaximum(ProPack const * iProPack, string const iName, bool const iIncludeError) const {
 	double result = 0;
 

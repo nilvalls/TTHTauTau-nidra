@@ -65,9 +65,9 @@ class Plotter {
 		ProPack* proPack;
 		map<string,string>	params;
 		HWrapper const  	GetBackgroundSum(ProPack const *, string const) const;
-		double const		GetMaximum(ProPack const *, string const, bool const) const;
+	/*	double const		GetMaximum(ProPack const *, string const, bool const) const;
 		double const		GetMaximum(ProPack const *, string const) const;
-		double const		GetMaximumWithError(ProPack const *, string const) const;
+		double const		GetMaximumWithError(ProPack const *, string const) const;//*/
 		double const		GetMaxIntegral(ProPack const *, string const) const;
 		TPaveText *			GetPlotText(const string);
 		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
