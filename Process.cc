@@ -39,7 +39,7 @@ Process::Process(Process const & iProcess){
 
 	analyzed						= iProcess.Analyzed();
 	NOEinDS							= iProcess.GetNOEinDS();
-	NOEinPATuple					= iProcess.GetNOEinPATuple();
+	NoEreadByNUTter					= iProcess.GetNoEreadByNUTter();
 	NOEinNtuple						= iProcess.GetNOEinNtuple();
 	NOEanalyzed						= iProcess.GetNOEanalyzed();
 	NOEexpectedForSignal			= iProcess.GetNOEexpectedForSignal();
@@ -91,7 +91,7 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	// Logistics
 	analyzed					= false;
 	NOEinDS						= iConfig.pInt("NOEinDS");
-	NOEinPATuple				= iConfig.pInt("NOEinPATuple");
+	NoEreadByNUTter				= iConfig.pInt("NoEreadByNUTter");
 	NOEinNtuple					= 0;
 	NOEanalyzed					= 0;
 	NOEexpectedForSignal		= 0;
@@ -133,7 +133,7 @@ void Process::Update(Process const * iProcess){
 
 	// Update cutflow
 	cutFlow.SetCutCounts("Read from DS", iProcess->GetNOEinDS(), iProcess->GetNOEinDS());
-	cutFlow.SetCutCounts("skimming + PAT", iProcess->GetNOEinPATuple(), iProcess->GetNOEinPATuple());
+	cutFlow.SetCutCounts("skimming + PAT", iProcess->GetNoEreadByNUTter(), iProcess->GetNoEreadByNUTter());
 	
 }
 
@@ -180,7 +180,7 @@ bool const Process::IgnoreReality() const { return ignoreReality; }
 string const Process::GetNtuplePath() const { return ntuplePath; }
 int const Process::GetColor() const { return color; }
 int const Process::GetNOEinDS() const {			return NOEinDS;		}
-int const Process::GetNOEinPATuple() const {	return NOEinPATuple;}
+int const Process::GetNoEreadByNUTter() const {	return NoEreadByNUTter;}
 int const Process::GetNOEinNtuple() const {		return NOEinNtuple; }
 int const Process::GetNOEanalyzed() const {		return NOEanalyzed; }
 

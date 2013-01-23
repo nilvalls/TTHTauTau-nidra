@@ -54,7 +54,7 @@ class Process {
 		float otherScaleFactor;
 
 		double NOEinDS;
-		double NOEinPATuple;
+		double NoEreadByNUTter;
 		double NOEinNtuple;
 		double NOEanalyzed;
 		double NOEexpectedForSignal;
@@ -86,7 +86,7 @@ class Process {
 
 		map<string, string> const GetParams() const;
 		int const			GetNOEinDS() const;
-		int const			GetNOEinPATuple() const;
+		int const			GetNoEreadByNUTter() const;
 		int const			GetNOEinNtuple() const;
 		int const			GetNOEanalyzed() const;
 

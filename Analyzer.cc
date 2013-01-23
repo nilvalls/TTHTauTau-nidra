@@ -59,7 +59,7 @@ void Analyzer::Analyze(Process& iProcess){
 
 	cutFlow.Zero();
 	cutFlow.SetCutCounts("Read from DS", iProcess.GetNOEinDS(), iProcess.GetNOEinDS());
-	cutFlow.SetCutCounts("skimming + PAT", iProcess.GetNOEinPATuple(), iProcess.GetNOEinPATuple());
+	cutFlow.SetCutCounts("skimming + PAT", iProcess.GetNoEreadByNUTter(), iProcess.GetNoEreadByNUTter());
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
