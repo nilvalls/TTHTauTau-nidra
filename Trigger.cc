@@ -20,7 +20,7 @@ float intLumiPeriod2 = 785.444;
 float intLumiPeriod3 = 744.073;
 float intLumiPeriod4 = totalLumi - (intLumiPeriod1 + intLumiPeriod2 + intLumiPeriod3);
 
-if(intLumiPeriod4<0){ cerr << "ERROR: totalLumi< 1.8/fb which makes intLumiPeriod4 negative!" << endl; exit(1); }
+//if(intLumiPeriod4<0){ cerr << "ERROR: totalLumi< 1.8/fb which makes intLumiPeriod4 negative!" << endl; exit(1); }
 
 float lumiFractionPeriod1 = intLumiPeriod1/totalLumi;
 float lumiFractionPeriod2 = intLumiPeriod2/totalLumi;

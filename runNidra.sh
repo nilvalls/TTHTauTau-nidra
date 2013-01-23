@@ -14,94 +14,83 @@ WHITE="\033[1;37m"
 NOCOLOR="\e[0m"
 
 
-function echoErr { 
-	echo -e "$RED$1$NOCOLOR" 
-}
-function echoWar { 
-	echo -e "$PURPLE$1$NOCOLOR"
-}
-function echoInf { 
-	echo -e "$BLUE$1$NOCOLOR"
-}
-function echoSuc { 
-	echo -e "$GREEN$1$NOCOLOR"
-}
+function echoErr {     echo -e $RED"[  ERROR  ]  $1$NOCOLOR"; exit 1; }
+function echoWar {  echo -e $PURPLE"[ WARNING ]  $1$NOCOLOR"; }
+function echoInf {    echo -e $BLUE"[  INFO   ]  $1$NOCOLOR"; }
+function echoSuc {   echo -e $GREEN"[ SUCCESS ]  $1$NOCOLOR"; }
 
 execFile=".nidra.exe"
-allArgs="$*"
 
-# Check that an input config file is passed and exits
-if [ "$1" == "-r" ] || [ "$2" == "-r" ] || [ "$1" == "-c" ] || [ "$2" == "-c" ]; then
+config="$1"
+options="$*"
+options="${options##$1} "
 
-	if [ "$1" == "-r" ] || [ "$1" == "-c" ]; then
-		iConfig="$2"; iOption="$1";
-	elif [ "$2" == "-r" ] || [ "$2" == "-c" ]; then
-		iConfig="$1"; iOption="$2";
-	fi
-	
-	if [ "$iOption" == "-c" ]; then
+# Check that an input config file is passed and exists
+if [ -z "$1" ]; then echoErr "Must provide a configuration file";
+elif [ ! -e "$config" ]; then echoErr "Config file '$config' invalid";
+elif [ -z "$2" ]; then echoErr "Must provide options";
+fi
+
+function hasArgument(){
+	arg=" -$1 "
+	case "$options" in
+		*$arg*) return 0;;
+		*) return -1;;
+	esac
+}
+
+function isOnlyArgument(){
+	arg=" -$1 "
+	case "$options" in
+		*$arg) return 0;;
+		*) return -1;;
+	esac
+}
+
+if hasArgument "c"; then 
 		echoInf "Cleaning nidra..."
 		make clean &> /dev/null
 		if [ $? -eq 0 ]; then echoSuc "done!"; fi
-	fi
+fi
 
-	if [ "$iOption" == "-r" ] || [ "$iOption" == "-c" ]; then
+if hasArgument "r"; then 
 		echoInf "Compiling nidra..."
 		make all
 		if [ $? -ne 0 ]; then echoErr "Error while compiling nidra"; exit 1; fi
-	fi
-
-else
-	iConfig="$1"
 fi
 
-##iConfig="cfg/generic.cfg"
 
-if [ -z "$iConfig" ]; then
-	echoErr "ERROR: must provide a config file as argument."
-	exit 1;
-elif [ ! -e "$iConfig" ]; then
-	echoErr "ERROR: file $iConfig does not exist or cannot be opened."
-	exit 1;
-fi
-
-allArgs=$(echo "$allArgs"|sed "s/$iConfig2\ //g")
-
-# CMS environment
-#if [ -z "$CMSSW_BASE" ] || [ "$TERM" == "screen" ]; then
-#	currentDir="$(pwd)"
-#	cmsDir=${currentDir%%src/*}"src/"
-#	cd $cmsDir;
-#	eval `scramv1 runtime -sh`;
-#	cd - &> /dev/null;
-#fi
 
 # Set up paths to configParser library
 LDLIBS=$(pwd):$(pwd)/configParser/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LDLIBS
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$LDLIBS
 
-# Check that $execFile exists and is accessible, otherwise try to compile it
-if [ ! -e "$execFile" ]; then
-	echoWar "WARNING: $execFile not found. Attempting to compile it."
-		make $execFile
-		exit_status=$?
-	if [ $exit_status -ne 0 ]; then
-		echoErr "ERROR: Compilation of $execFile failed."
-		exit 1;
-	else
-		echoSuc "SUCCESS: $execFile compiled!"
+function checkExe(){
+	# Check that $execFile exists and is accessible, otherwise try to compile it
+	if [ ! -e "$execFile" ]; then
+		echoWar "$execFile not found. Attempting to compile it."
+			make $execFile
+			exit_status=$?
+		if [ $exit_status -ne 0 ]; then
+			echoErr "Compilation of $execFile failed."
+			exit 1;
+		else
+			echoSuc "$execFile compiled!"
+		fi
 	fi
+}
+
+if hasArgument "m"; then make all; fi
+
+if hasArgument "f"; then 
+	checkExe;
+	./$execFile $config -a && ./$execFile $config -p -k
+else
+	checkExe;
+	./$execFile $config $options
 fi
 
-if [ "$1" == "-m" ]; then
-	make all
-fi
-
-# If all the above check, run the plotter
-echoInf "Running $execFile with config file $iConfig..."
-./$execFile $iConfig $allArgs
-#./$execFile $allArgs
 
 # Notify of analysis end
 echoSuc " Analysis finished!"

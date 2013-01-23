@@ -5,8 +5,10 @@ input="$1"
 if [ -z "$input" ]; then echo "ERROR: no input file provided."; exit 1; fi
 if [ ! -e "$input" ]; then echo "ERROR: Could not read input file '$input'."; exit 1; fi
 
-src="../src/"
-interface="../interface/"
+src="$2"
+interface="$3"
+if [ -z "$src" ]; then src="../../src/"; fi
+if [ -z "$interface" ]; then interface="../../interface/"; fi
 
 if [ ! -e "$src" ]; then echo "ERROR: src directory '$src' does not exist."; exit 1; fi
 if [ ! -e "$interface" ]; then echo "ERROR: interface directory '$interface' does not exist."; exit 1; fi
@@ -15,16 +17,23 @@ if [ ! -e "$interface" ]; then echo "ERROR: interface directory '$interface' doe
 function getFile(){
 	branch="$1"
 	file=`grep "\"$branch\"" "$src/"*.cc | cut -d: -f1 | sed 's/\/\+/\//g'`
-	file="${file##*\/}"
-	file="${file%.cc}"
+	if [ -z "$file" ]; then
+		echo "WARNING: branch '$branch' could not be found in source code. Please check code." >&2; 
+		kill -SIGPIPE $$
+	else
+		file="${file##*\/}"
+		file="${file%.cc}"
+	fi
 	echo $file
 }
 
 function getType(){
 	branch="$1"
 	file=`getFile "$branch"`
-	var=`grep "\"$branch\"" "$src$file.cc" | sed 's/.*&\(.*\)).*/\1/g'`
-	grep "$var;" "$interface$file.h" | sed -e "s/$var.*//g" -e "s/^\s\+//g" -e "s/\s\+$//g"
+	if [ ! -z "$file" ]; then
+		var=`grep "\"$branch\"" "$src$file.cc" | sed 's/.*&\(.*\)).*/\1/g'`
+		grep "$var;" "$interface$file.h" | sed -e "s/$var.*//g" -e "s/^\s\+//g" -e "s/\s\+$//g"
+	fi
 }
 
 function declaring(){
@@ -77,7 +86,8 @@ function addressing(){
 }
 
 # Get list of branches
-tree="makeNtuple/tree"
+tree="makeNtuple/TTbarHTauTau"
+#tree="makeNtuple/tree"
 macro="{ TFile *_file0 = TFile::Open(\"$input\");  TTree* tree = (TTree*)_file0->Get(\"$tree\"); tree->Print(); }"
 tempMacro=".tempMacro.C"
 branches=".branches"
@@ -92,23 +102,23 @@ if [ "$2" == "-b" ]; then
 	declaring
 else
 	echo "Preparing declarations..."
-	declaring > "clarity/ditauBranches_declarations.h"
+	declaring > "Branches_declarations.h"
 	echo "done."
 
 	echo "Preparing branch addressing..."
-	addressing > "clarity/ditauBranches_setBranchAddresses.h"
+	addressing > "Branches_setBranchAddress.h"
 	echo "done."
 
 	echo "Preparing pointer deletion..."
-	nulling > "clarity/ditauBranches_delete.h"
+	deleting > "Branches_delete.h"
 	echo "done."
 
 	echo "Preparing pointer nulling..."
-	nulling > "clarity/ditauBranches_null.h"
+	nulling > "Branches_null.h"
 	echo "done."
 
 	echo "Preparing variable nulling..."
-	clearing > "clarity/ditauBranches_clear.h"
+	clearing > "Branches_clear.h"
 	echo "done."
 fi
 

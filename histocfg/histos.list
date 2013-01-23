@@ -1,5 +1,7 @@
 histocfg/general.cfg
 histocfg/taus.cfg
+histocfg/pileup.cfg
+#histocfg/gentaus.cfg
 histocfg/muon.cfg
 histocfg/jets.cfg
 
