@@ -43,7 +43,7 @@ TMVAEvaluator::TMVAEvaluator(map<string,string>const & iParams){
 
 }
 
-float TMVAEvaluator::Evaluate(DitauBranches const * iEvent, int iCombo){
+float TMVAEvaluator::Evaluate(Branches const * iEvent, int iCombo){
 
 	if (iCombo < 0){ cerr << "ERROR: 'iCombo' is " << iCombo << "." << endl; exit(1); }
 

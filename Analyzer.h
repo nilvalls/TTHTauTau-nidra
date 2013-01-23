@@ -8,17 +8,22 @@
 #ifndef Analyzer_h
 #define Analyzer_h
 
+#include <typeinfo>
 #include "TROOT.h"
 #include "TFile.h"
 #include "TChain.h"
 #include "configParser/config.h"
 #include "HWrapper.h"
-#include "DitauBranches.h"
+#include "Branches.h"
 #include "CutFlow.h"
 #include "Process.h"
 #include "PContainer.h"
 #include "ProPack.h"
 #include "TMVAEvaluator.h"
+
+#include "TTM/Branches.h"
+#include "TTE/Branches.h"
+#include "DIL/Branches.h"
 
 using namespace std;
 
@@ -27,33 +32,34 @@ class Analyzer {
 	private:
 	
 	protected:
+		bool					isBaseAnalyzer;
 		map<string,string>		params;
 		vector<pair<int,int> >	goodEventsForSignal;
 		vector<pair<int,int> >	goodEventsForQCD;
-		bool					isSignal;
-		bool					isMC;
-		#include "clarity/cuts_declarations.h"
 		CutFlow					cutFlow;
+		bool					isSignal;
+		bool					ignoreReality;
+		bool					isMC;
 		TMVAEvaluator*			tmvaEvaluator;
+	//	#include "clarity/cuts_declarations.h"
 
 	public:
-		DitauBranches*			event;
 		Analyzer();
 		Analyzer(map<string,string> const &);
 		virtual ~Analyzer();
+		void	AnalyzeAll(ProPack&);
 
-		void							AnalyzeAll(ProPack&);
 
 	protected:
-		void							Analyze(Process&);
-		void							Analyze(vector<Process>&);
-		DitauBranches const *			GetDitauBranches(double) const;
-		void							Reset();
-		virtual pair<double,double>		Loop();
-		virtual pair<bool,bool>			ComboPassesCuts(unsigned int);
-		void							SetCutsToApply(string);
-		bool							ApplyThisCut(string);
-		bool							IsFlagThere(string);
+		void	Analyze(Process&);
+		void	Analyze(vector<Process>&);
+		void	Reset();
+		bool	ApplyThisCut(string);
+		bool	IsFlagThere(string);
+		virtual pair<double,double>		Loop(Branches*);
+		virtual pair<bool,bool>			ComboPassesCuts(Branches*, unsigned int);
+
+	private:
 
 
 

@@ -14,6 +14,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include "ColoredOutput.h"
+
 #include "THStack.h"
 
 #include "HWrapper.h"
@@ -72,6 +74,8 @@ class ProPack : public TObject {
 		void						SetCollisions(Process&, string const iNtuplePath="");
 		void						SetQCD(Process&);
 		void						AddMCbackground(Process&, string const iNtuplePath="");
+		void						RemoveMCbackground(const string);
+		void						CombineAndRemoveMCbackgrounds(const vector<string>, const string, const string, const string, const int);
 		void						AddSignal(Process&, string const iNtuplePath="");
 
 		bool const					HaveCollisions() const;
@@ -83,6 +87,7 @@ class ProPack : public TObject {
 		void						PrepareQCD(bool const);
 
 		bool const					HaveMCbackgrounds() const;
+		bool const					HaveMCbackground(const string);
 		bool const					PrepareMCbackgrounds() const;
 
 		bool const					HaveBackgrounds() const;

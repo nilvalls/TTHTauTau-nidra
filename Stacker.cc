@@ -47,6 +47,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 	bool stackSignals		= (params["stackSignals"].compare("true")==0);
 
 	// Loop over all the HWrappers and plot each
+
 	vector<string> plotNames = iProPack->GetAvailableProcess().GetHContainerForSignal()->GetNames();
 
 	string subdir = "";
@@ -155,22 +156,12 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		stack = NULL; delete stack;
 
 		// Print info about the current histo
-		lastSavedPlotName = plotName;
-
-		if(lastSavedPlotName.length()>0){
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-		}
+		cout << "\r\033[K" << flush;
 		cout << plotName; cout.flush(); 
 	}
 
 	// Print done
-	if(lastSavedPlotName.length()>0){
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-	}
+	cout << "\r\033[K" << flush;
 
 }
 

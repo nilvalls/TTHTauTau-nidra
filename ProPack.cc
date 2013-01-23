@@ -138,6 +138,53 @@ void ProPack::AddMCbackground(Process& iProcess, string iNtuplePath){
 
 }
 
+void ProPack::RemoveMCbackground(const string iShortName){
+
+	// Check that incoming process is not already present in the vector
+	for(unsigned int t=0; t<mcBackgrounds.size(); t++){
+		string thisTopoShortName = mcBackgrounds.at(t).GetShortName();
+		if(thisTopoShortName.compare(iShortName)==0){
+			//cout << "\t\t" << "Removing '" << iShortName << "'" << endl;
+			mcBackgrounds.erase(mcBackgrounds.begin()+t);
+		}
+	}
+
+
+}
+
+void ProPack::CombineAndRemoveMCbackgrounds(const vector<string> iBackgrounds, const string iShortName, const string iNiceName, const string iLabelForLegend, const int iColor){
+	cout << "\tCombining into '" << iNiceName << "' the following: ";
+	for(unsigned int b = 0; b < iBackgrounds.size(); b++){
+		cout << iBackgrounds.at(b);
+		if(b != (iBackgrounds.size()-1)){ cout << ", "; }
+	}
+	cout << endl;
+
+	unsigned int numberOfProcessesCombined = 0;
+	Process* result = NULL;
+	for(unsigned int b = 0; b < iBackgrounds.size(); b++){
+		string backgroundToAdd = iBackgrounds.at(b);
+		//if(!HaveMCbackground(iBackgrounds.at(b))){ cerr << "ERROR: trying to combine background '" << iBackgrounds.at(b) << "' but it is not in background vector." << endl; exit(1); }
+		if(!HaveMCbackground(iBackgrounds.at(b))){ cout << RED << "WARNING: trying to combine background '" << iBackgrounds.at(b) << "' but it is not in background vector." << NOCOLOR << endl; continue; }
+		if(result == NULL){
+			result = GetProcess(backgroundToAdd);
+		}else{
+			result->Add(GetProcess(backgroundToAdd));	
+			RemoveMCbackground(backgroundToAdd);
+		}
+		numberOfProcessesCombined++;
+	}
+
+	if(numberOfProcessesCombined > 0){
+		result->SetShortName(iShortName);
+		result->SetNiceName(iNiceName);
+		result->SetLabelForLegend(iLabelForLegend);
+		result->SetColor(iColor);
+	}
+	
+
+}
+
 void ProPack::AddSignal(Process& iProcess, string iNtuplePath){
 	// Check that incoming process is not already present in the vector
 	string newTopoShortName = iProcess.GetShortName();
@@ -153,6 +200,13 @@ bool const ProPack::HaveCollisions() const { return haveCollisions; }
 bool const ProPack::HaveQCD() const {			return haveQCD; }
 bool const ProPack::HaveMCbackgrounds() const {	return (mcBackgrounds.size()>0); }
 bool const ProPack::HaveBackgrounds() const {	return (mcBackgrounds.size()>0 || haveQCD); }
+bool const ProPack::HaveMCbackground(const string iShortName){
+	bool result = false;
+	for(unsigned int t=0; t<mcBackgrounds.size(); t++){
+		if(mcBackgrounds.at(t).GetShortName().compare(iShortName)==0){ return true; }
+	}
+	return result;
+}
 bool const ProPack::HaveSignals() const {		return (signals.size()>0); }
 bool const ProPack::PrepareCollisions() const {	return prepareCollisions; }
 bool const ProPack::PrepareQCD() const {		return prepareQCD; }

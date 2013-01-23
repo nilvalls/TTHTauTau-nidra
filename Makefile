@@ -19,29 +19,38 @@ SOFLAGS       = -shared
 
 #CXXFLAGS      += $(ROOTCFLAGS) -I$(MYINC2) -I.
 CXXFLAGS      += $(ROOTCFLAGS) -I$(MYINC)
+#CXXFLAGS	  += -I$(CMSSW_BASE)/src/ -I$(CMSSW_RELEASE_BASE)/src/
 LIBS           = $(ROOTLIBS) 
 
 NGLIBS         = $(ROOTGLIBS) -lMinuit
 NGLIBS		  += -L./ -lNidra
 NGLIBS		  += -L./configParser/ -lconfigParser
 NGLIBS		  += -lTMVA
+#NGLIBS		  += -L$(shell $(CMSSW_BASE))/lib/slc5_amd64_gcc462/ -lNtupleMakerBEANmaker
 
 GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 
 .nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
-			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .TTAnalyzer.o .TTMAnalyzer.o \
-			.Plotter.o .TTPlotter.o .TTMPlotter.o \
+			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o \
+			.Process.o .PContainer.o .ProPack.o \
+			.Branches.o .Analyzer.o .Plotter.o \
+			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o \
+			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o \
+			.DILBranches.o .DILAnalyzer.o .DILPlotter.o \
+			.Combiner.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
-			.Trigger.o .PUcorrector.o .Cruncher.o \
+			.Trigger.o .Cruncher.o \
 			.RootFileMaker.o .RawHistoSaver.o
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
-			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .DitauBranches.o .Process.o .PContainer.o .ProPack.o \
-			.Analyzer.o .TTAnalyzer.o .TTMAnalyzer.o \
-			.Plotter.o .TTPlotter.o .TTMPlotter.o \
+			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .Process.o .PContainer.o .ProPack.o \
+			.Branches.o .Analyzer.o .Plotter.o \
+			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o \
+			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o \
+			.DILBranches.o .DILAnalyzer.o .DILPlotter.o \
+			.Combiner.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
-			.Trigger.o .PUcorrector.o .Cruncher.o \
+			.Trigger.o .Cruncher.o \
 			.RootFileMaker.o .RawHistoSaver.o $(GLIBS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
@@ -62,29 +71,20 @@ libConfigParser.so: configParser/config.h
 .PContainer.o: PContainer.cc PContainer.h 
 	$(CXX) $(CXXFLAGS) -c PContainer.cc -o $@
 
-.PUcorrector.o: PUcorrector.cc PUcorrector.h 
-	$(CXX) $(CXXFLAGS) -c PUcorrector.cc -o $@
-
 .CutFlow.o: CutFlow.cc CutFlow.h
 	$(CXX) $(CXXFLAGS) -c CutFlow.cc -o $@
 
 .Process.o: Process.cc Process.h 
 	$(CXX) $(CXXFLAGS) -c Process.cc -o $@
 
-.DitauBranches.o: DitauBranches.cc DitauBranches.h clarity/ditauBranches_*
-	$(CXX) $(CXXFLAGS) -c DitauBranches.cc -o $@
+.Branches.o: Branches.cc Branches.h
+	$(CXX) $(CXXFLAGS) -c Branches.cc -o $@
 
 .ProPack.o: ProPack.cc ProPack.h 
 	$(CXX) $(CXXFLAGS) -c ProPack.cc -o $@
 
-.Analyzer.o: Analyzer.cc Analyzer.h clarity/*.h
+.Analyzer.o: Analyzer.cc Analyzer.h
 	$(CXX) $(CXXFLAGS) -c Analyzer.cc -o  $@
-
-.TTAnalyzer.o: TTAnalyzer.cc TTAnalyzer.h Analyzer.cc Analyzer.h clarity/*.h PUcorrector.h
-	$(CXX) $(CXXFLAGS) -c TTAnalyzer.cc -o  $@
-
-.TTMAnalyzer.o: TTMAnalyzer.cc TTMAnalyzer.h Analyzer.cc Analyzer.h clarity/*.h PUcorrector.h
-	$(CXX) $(CXXFLAGS) -c TTMAnalyzer.cc -o  $@
 
 .RootFileMaker.o: RootFileMaker.cc RootFileMaker.h 
 	$(CXX) $(CXXFLAGS) -c RootFileMaker.cc -o $@
@@ -95,14 +95,11 @@ libConfigParser.so: configParser/config.h
 .Trigger.o: Trigger.cc Trigger.h
 	$(CXX) $(CXXFLAGS) -c Trigger.cc -o $@
 
-.Plotter.o: Plotter.cc Plotter.h clarity/fillHistos.h
+.Plotter.o: Plotter.cc Plotter.h
 	$(CXX) $(CXXFLAGS) -c Plotter.cc -o $@
 
-.TTPlotter.o: TTPlotter.cc TTPlotter.h clarity/fillHistos.h
-	$(CXX) $(CXXFLAGS) -c TTPlotter.cc -o $@
-
-.TTMPloTTMer.o: TTMPloTTMer.cc TTMPloTTMer.h clarity/fillHistos.h
-	$(CXX) $(CXXFLAGS) -c TTMPloTTMer.cc -o $@
+.Combiner.o: Combiner.cc Combiner.h 
+	$(CXX) $(CXXFLAGS) -c Combiner.cc -o $@
 
 .Stacker.o: Stacker.cc Stacker.h
 	$(CXX) $(CXXFLAGS) -c Stacker.cc -o $@
@@ -127,6 +124,45 @@ libConfigParser.so: configParser/config.h
 #
 #.TMVAEvaluator.o: TMVAEvaluator.cc TMVAEvaluator.h
 #	$(CXX) $(CXXFLAGS) -c TMVAEvaluator.cc -o $@
+
+########################
+### Channel-specific ###
+########################
+
+### TTM
+.TTMBranches.o: TTM/Branches.cc TTM/Branches.h TTM/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTM/Branches.cc -o $@
+
+.TTMAnalyzer.o: TTM/Analyzer.cc TTM/Analyzer.h TTM/Branches_*.h TTM/Cuts_*.h TTM/GenHelper.h Analyzer.cc Analyzer.h
+	$(CXX) $(CXXFLAGS) -c TTM/Analyzer.cc -o  $@
+
+.TTMPlotter.o: TTM/Plotter.cc TTM/Plotter.h TTM/FillHistos.h TTM/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTM/Plotter.cc -o $@
+
+### TTE
+.TTEBranches.o: TTE/Branches.cc TTE/Branches.h TTE/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTE/Branches.cc -o $@
+
+.TTEAnalyzer.o: TTE/Analyzer.cc TTE/Analyzer.h TTE/Branches_*.h TTE/Cuts_*.h TTE/GenHelper.h Analyzer.cc Analyzer.h
+	$(CXX) $(CXXFLAGS) -c TTE/Analyzer.cc -o  $@
+
+.TTEPlotter.o: TTE/Plotter.cc TTE/Plotter.h TTE/FillHistos.h TTE/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTE/Plotter.cc -o $@
+
+### DIL
+.DILBranches.o: DIL/Branches.cc DIL/Branches.h DIL/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c DIL/Branches.cc -o $@
+
+.DILAnalyzer.o: DIL/Analyzer.cc DIL/Analyzer.h DIL/Branches_*.h DIL/Cuts_*.h DIL/GenHelper.h Analyzer.cc Analyzer.h
+	$(CXX) $(CXXFLAGS) -c DIL/Analyzer.cc -o  $@
+
+.DILPlotter.o: DIL/Plotter.cc DIL/Plotter.h DIL/FillHistos.h DIL/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c DIL/Plotter.cc -o $@
+
+
+########################
+###      Global      ###
+########################
 
 all: .nidra.exe
 

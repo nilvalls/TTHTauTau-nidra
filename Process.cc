@@ -29,6 +29,7 @@ Process::Process(Process const & iProcess){
 	niceName						= iProcess.GetNiceName();
 	labelForLegend					= iProcess.GetLabelForLegend();
 	type							= iProcess.GetType();
+	ignoreReality					= iProcess.IgnoreReality();
 	ntuplePath						= iProcess.GetNtuplePath();
 	color							= iProcess.GetColor();
 
@@ -65,7 +66,21 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	niceName					= iConfig.pString("niceName");
 	labelForLegend				= iConfig.pString("labelForLegend");
 	type						= iConfig.pString("type");
-	ntuplePath					= iConfig.pString("ntuplePath");
+	ignoreReality				= iConfig.pBool("ignoreReality");
+
+	if((params.find("format")->second).compare("jeff")==0){
+		string wildcard		= "*process*";
+		string jeffspath	= (params.find("ntuplesDir")->second);
+		string jeffspath1	= jeffspath.substr(0, jeffspath.find(wildcard));
+		string jeffspath2	= jeffspath.substr(jeffspath.find(wildcard) + wildcard.length());
+		string process		= iConfig.pString("ntuplePath");
+		if(process.substr(process.length()-1).compare("/")==0){ process = process.substr(0,process.length()-1); }
+		//ntuplePath					= jeffspath1 + process + jeffspath2+"/res/";
+		ntuplePath					= jeffspath1 + process + jeffspath2;
+	}else{
+		ntuplePath					= (params.find("ntuplesDir")->second) + iConfig.pString("ntuplePath") + "res";
+	}
+
 	color						= iConfig.pInt("color");
 
 	// Physics
@@ -104,6 +119,7 @@ void Process::Update(Process const * iProcess){
 	niceName						= iProcess->GetNiceName();
 	labelForLegend					= iProcess->GetLabelForLegend();
 	type							= iProcess->GetType();
+	ignoreReality					= iProcess->IgnoreReality();
 	color							= iProcess->GetColor();
 
 	crossSection					= iProcess->GetCrossSection();
@@ -114,6 +130,10 @@ void Process::Update(Process const * iProcess){
 
 	normalizedHistosForSignal		= false;
 	normalizedHistosForQCD			= false;
+
+	// Update cutflow
+	cutFlow.SetCutCounts("Read from DS", iProcess->GetNOEinDS(), iProcess->GetNOEinDS());
+	cutFlow.SetCutCounts("skimming + PAT", iProcess->GetNOEinPATuple(), iProcess->GetNOEinPATuple());
 	
 }
 
@@ -156,6 +176,7 @@ bool const Process::IsCollisions() const { return ((type.compare("collisions")==
 bool const Process::IsQCD() const { return ((type.compare("qcd")==0)); }
 bool const Process::IsMCbackground() const { return ((type.compare("mcBackground")==0)); }
 bool const Process::IsSignal() const { return ((type.compare("signal")==0)); }
+bool const Process::IgnoreReality() const { return ignoreReality; }
 string const Process::GetNtuplePath() const { return ntuplePath; }
 int const Process::GetColor() const { return color; }
 int const Process::GetNOEinDS() const {			return NOEinDS;		}
@@ -176,7 +197,9 @@ bool const Process::NormalizedHistosForSignal() const{ return normalizedHistosFo
 bool const Process::NormalizedHistosForQCD() const{ return normalizedHistosForQCD;}
 
 
-void Process::SetShortName(string const iVal){ shortName = iVal; }
+void Process::SetShortName(string const iVal){ 
+	shortName = iVal;
+}
 void Process::SetNiceName(string const iVal){ niceName = iVal; }
 void Process::SetLabelForLegend(string const iVal){ labelForLegend = iVal; }
 void Process::SetAnalyzed(){ analyzed = true; }
@@ -227,6 +250,20 @@ void Process::NormalizeToLumi(double const iIntLumi){
 		double NOElumi				= iIntLumi*crossSection*branchingRatio;
 		double NOEraw				= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
 		double lumiNormalization	= NOElumi/NOEraw;
+		cout << setprecision(7) << "\n" << shortName << " normalization:: \n" 
+			<< "\t---------------------------------------\n"
+			<< "\tintLumi...." << iIntLumi << "\n" 
+			<< "\tcrossSec..." << crossSection << "\n" 
+			<< "\tBR............" << branchingRatio << "\n" 
+			<< "\tNOEinDS......." << GetNOEinDS() << "\n" 
+			<< "\tNOEanalyzed..." << GetNOEanalyzed() << "\n" 
+			<< "\tNOEinNtuple..." << GetNOEinNtuple() << "\n" 
+			<< "\t---------------------------------------\n"
+			<< "\tNOElumi......." << NOElumi << "\n" 
+			<< "\tNOEraw........" << NOEraw << "\n" 
+			<< "\t---------------------------------------\n"
+			<< "\tSF............" << lumiNormalization << "\n" << endl; //*/
+
 		ScaleBy(lumiNormalization);
 		GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, lumiNormalization, lumiNormalization);
 	}
@@ -262,6 +299,14 @@ bool Process::PlotProcess(string const iThisProcess){
 		result = IsStringThere(thisProcess,enabledProcesses);
 	}
 	return result;
+}
+
+void Process::Add(Process* iProcess){
+	iProcess->GetHContainerForSignal();
+	hContainerForSignal.Add(*(iProcess->GetHContainerForSignal()));
+	hContainerForQCD.Add(*(iProcess->GetHContainerForQCD()));
+	cutFlow.Add(*(iProcess->GetCutFlow()));
+	normalizedCutFlow.Add(*(iProcess->GetNormalizedCutFlow()));
 }
 
 ClassImp(Process)

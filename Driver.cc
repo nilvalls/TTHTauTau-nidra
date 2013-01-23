@@ -38,7 +38,7 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "maxEvents");
 	SetParam(theConfig, "luminosity");
 	SetParam(theConfig, "plotText");
-	SetParam(theConfig, "puList");
+	SetParam(theConfig, "channel");
 	SetParam(theConfig, "toDo");
 	SetParam(theConfig, "analyze");
 	SetParam(theConfig, "plot");
@@ -46,6 +46,7 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "countMasses");
 	SetParam(theConfig, "webDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("webDir")); }
 	SetParam(theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
+	SetParam(theConfig, "format");
 	SetParam(theConfig, "ntuplesDir");
 	SetParam(theConfig, "treeName");
 	SetParam(theConfig, "histoCfg");
@@ -94,14 +95,21 @@ void Analyze(){
 	Print(CYAN,">>>>>>>> Analyzing events...");
 
 	// Set up analyzer with global paramaters
-	TTMAnalyzer analyzer(params);	
+	Analyzer* analyzer = NULL;
+	
+	string channel = GetParam("channel");
+		 if(channel == "TTM"){	analyzer = new TTMAnalyzer(params); }
+	else if(channel == "TTE"){	analyzer = new TTEAnalyzer(params); }
+	else if(channel == "DIL"){	analyzer = new DILAnalyzer(params); }
+	else{	assert(GetParam("channel") == "either TTM or TTE or DIL");		}
 
 	// Pass topopack to analyzer to analyze
-	analyzer.AnalyzeAll(*proPack);
+	analyzer->AnalyzeAll(*proPack);
 
 	// Save analyzed ProPack to a root file
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
 	delete proPack; proPack = NULL;
+	delete analyzer; analyzer = NULL;
 	Print(GREEN," done!");
 }
 
@@ -133,8 +141,17 @@ void DistributeProcesses(){
 void PreparePlots(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Filling histograms...");
+
 	// Book histos and fill them with good events
-	TTMPlotter plotter(params);
+	Plotter* plotter = NULL;
+	
+	string channel = GetParam("channel");
+		 if(channel == "TTM"){	plotter = new TTMPlotter(params); }
+	else if(channel == "TTE"){	plotter = new TTEPlotter(params); }
+	else if(channel == "DIL"){	plotter = new DILPlotter(params); }
+	else{	assert(GetParam("channel") == "either TTM or TTE or DIL");		}
+
+	delete plotter; plotter = NULL;
 	Print(GREEN," done!");
 }
 
@@ -147,6 +164,15 @@ void CrunchNumbers(){
 	cruncher.PrintEfficiencies("HTML","e");
 	cruncher.PrintEfficiencies("HTML","ercn");
 	cruncher.PrintEfficiencies("HTML","en");
+	cruncher.PrintEfficiencies("HTML","r");
+	cruncher.PrintEfficiencies("HTML","rc");
+	Print(GREEN," done!");
+}
+
+void CombineProcesses(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Combining processes...");
+	Combiner combiner(params);
 	Print(GREEN," done!");
 }
 

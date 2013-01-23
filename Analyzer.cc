@@ -12,7 +12,7 @@
 using namespace std;
 
 Analyzer::Analyzer(){
-		event = NULL;
+		isBaseAnalyzer = true;
 		goodEventsForSignal.clear();
 		goodEventsForQCD.clear();
 		tmvaEvaluator = NULL;
@@ -20,17 +20,14 @@ Analyzer::Analyzer(){
 
 // Default constructor
 Analyzer::Analyzer(map<string,string> const & iParams){
+	isBaseAnalyzer = true;
 	params = iParams;
 
-	event = NULL;
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
-	cutFlow		= CutFlow(params["cutsToApply"]);
+	cutFlow	= CutFlow(params["cutsToApply"]);
 	cutFlow.Reset();
-
-	#include "clarity/cuts_false.h"
-	SetCutsToApply(params["cutsToApply"]);
 
 	// If a cut on the MVA is requested, initialize TMVA reader
 	tmvaEvaluator = NULL;
@@ -41,10 +38,8 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 
 // Default destructor
 Analyzer::~Analyzer(){
-	delete event; event = NULL;
 	delete tmvaEvaluator; tmvaEvaluator = NULL;
 }
-
 
 void Analyzer::AnalyzeAll(ProPack& iProPack){
 
@@ -68,11 +63,15 @@ void Analyzer::Analyze(Process& iProcess){
 	goodEventsForSignal.clear();
 	goodEventsForQCD.clear();
 
-	event = new DitauBranches(params, ((params.find("ntuplesDir")->second) + (iProcess.GetNtuplePath())));
+	Branches* event = NULL;
+		 if(params["channel"] == "TTM"){	event = new TTMBranches(params, iProcess.GetNtuplePath()); }
+	else if(params["channel"] == "TTE"){	event = new TTEBranches(params, iProcess.GetNtuplePath()); }
+	else if(params["channel"] == "DIL"){	event = new DILBranches(params, iProcess.GetNtuplePath()); }
 
-	isSignal = iProcess.IsSignal();
-	isMC = iProcess.IsMC();
-	pair<double,double> loopResults = Loop();
+	isSignal		= iProcess.IsSignal();
+	ignoreReality	= !(!iProcess.IgnoreReality() && iProcess.IsSignal());
+	isMC			= iProcess.IsMC();
+	pair<double,double> loopResults = Loop(event);
 	cout << endl;
 
 	iProcess.SetGoodEventsForSignal(goodEventsForSignal);
@@ -85,34 +84,11 @@ void Analyzer::Analyze(Process& iProcess){
 	event = NULL;
 }
 
-void Analyzer::Analyze(vector<Process>& iProcesses){
-	for(unsigned int p=0; p<iProcesses.size(); p++){ Analyze(iProcesses.at(p)); }
-}
-
-void Analyzer::Reset(){
-}
-
-pair<double,double> Analyzer::Loop(){
-	cerr << "Calling Loop() from " << __FILE__ << " is not allowed. It must be called from a derived class." << endl; exit(1);
-	pair<double,double> result = make_pair(0,0);
-	return result;
-}
-
-pair<bool,bool> Analyzer::ComboPassesCuts(unsigned int iCombo){
-	cerr << "Calling ComboPassesCuts() from " << __FILE__ << " is not allowed. It must be called from a derived class." << endl; exit(1);
-	pair<bool,bool> target = make_pair(false, false);
-	return target;
-}
+void Analyzer::Analyze(vector<Process>& iProcesses){ for(unsigned int p=0; p<iProcesses.size(); p++){ Analyze(iProcesses.at(p)); } }
 
 
-
-void Analyzer::SetCutsToApply(string iCutsToApply){
-	#include "clarity/cuts_setCutsToApply.h"
-}
-
-
-
-
+pair<double,double> Analyzer::Loop(Branches* iEvent){ return make_pair(0,0); }
+pair<bool,bool> Analyzer::ComboPassesCuts(Branches* iEvent, unsigned int iCombo){ return make_pair(false, false); }
 
 bool Analyzer::ApplyThisCut(string thisCut){
 

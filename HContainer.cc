@@ -119,6 +119,7 @@ void HContainer::ApplyRosls(double const iValue, CutFlow const * iCutFlow){
 void HContainer::Add(HContainer const & iContainer, double const iFactor){
 	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){ 
 		string name = ite->first;
+		iContainer.Get(name);
 		ite->second.Add(*(iContainer.Get(name)), iFactor);
 	}
 }

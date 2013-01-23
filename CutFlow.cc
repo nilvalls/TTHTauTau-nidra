@@ -188,10 +188,12 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 
 	// Provided that the each target has not yet been satisfied by any combo, assume the first combo to do so is good
 	// Then assume that the first combo that satisfies the target is the heaviest. If there are registered cuts, they will change this if needed
-	if(comboIsForSignal	&& (heaviestComboForSignal < 0)){ eventForSignalPassed	= true;	heaviestComboForSignal  = iComboNumber; }
-	if(comboIsForQCD	&& (heaviestComboForQCD < 0)){	  eventForQCDPassed		= true;	heaviestComboForQCD  	= iComboNumber; }
+	//cout << "end of combo: target: " << comboIsForSignal << " " << comboIsForQCD << " heaviest combo: " << heaviestComboForSignal << " " << heaviestComboForQCD << endl;
+/*	if(comboIsForSignal	&& (heaviestComboForSignal < 0)){ eventForSignalPassed	= true;	heaviestComboForSignal  = iComboNumber; }
+	if(comboIsForQCD	&& (heaviestComboForQCD < 0)){	  eventForQCDPassed		= true;	heaviestComboForQCD  	= iComboNumber; }//*/
 
 	// Loop over all the cuts this combo has gone through
+	//cout << "cuts ======" << endl;
 	for(unsigned int c=0; c<cutNames.size(); c++){
 		string cutName = cutNames.at(c);
 		if(GetCutRank(cutName) != 1){ 
@@ -199,19 +201,23 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 			//continue;
 		} // Worry only about rank 1 cuts
 
+		//cout << cutNames.at(c) << " " << thisCombosResultsForSignal.find(cutName)->second << " " << thisCombosResultsForQCD.find(cutName)->second << endl;
 		if(thisCombosResultsForSignal.find(cutName)->second){
 			passedCombosForSignal[cutName]++; 
 			if((heaviestComboForSignal < 0) && (c == cutNames.size()-1)){ heaviestComboForSignal = iComboNumber; }
+			if((heaviestComboForSignal < 0) && (c == cutNames.size()-1)){ eventForSignalPassed = true; }
 		}
 		if(thisCombosResultsForQCD.find(cutName)->second){
 			passedCombosForQCD[cutName]++;
 			if((heaviestComboForQCD < 0) && (c == cutNames.size()-1)){ heaviestComboForQCD = iComboNumber; }
+			if((heaviestComboForQCD < 0) && (c == cutNames.size()-1)){ eventForQCDPassed = true; }
 		}
 
 		thisCombosResultsForSignal.find(cutName)->second = false;
 		thisCombosResultsForQCD.find(cutName)->second = false;
 
 	}
+	//cout << "=========" << endl;
 }
 
 // Reset counters relevant to the start of the event

@@ -156,20 +156,12 @@ void Stamper::MakePlots(ProPack * iProPack) {
 		// Print info about the current histo
 		lastSavedPlotName = plotName;
 
-		if(lastSavedPlotName.length()>0){
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-		}
+		cout << "\r\033[K" << flush;
 		cout << plotName; cout.flush(); 
 	}
 
 	// Print done
-	if(lastSavedPlotName.length()>0){
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-			cout << string(lastSavedPlotName.length()+1,' '); cout.flush();
-			cout << string(lastSavedPlotName.length()+1,'\b'); cout.flush(); 
-	}
+	cout << "\r\033[K" << flush;
 
 }
 

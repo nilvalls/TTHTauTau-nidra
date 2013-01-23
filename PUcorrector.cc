@@ -4,13 +4,19 @@
 
 using namespace std;
 
+// Summer 11
+// #define MAXPU 25
+
+// Fall 11
+#define MAXPU 50
+
 
 
 // Default constructor
 PUcorrector::PUcorrector(){
 	generated.clear();
 	weight.clear();
-	for(int pv=0; pv<25; pv++){ weight[pv] = 1.0; }
+	for(int pv=0; pv<MAXPU; pv++){ weight[pv] = 1.0; }
 }
 
 // Constructor taking integrated lumi as argument
@@ -18,7 +24,7 @@ PUcorrector::PUcorrector(string const iFile){
 	generated.clear();
 	weight.clear();
 
-	for(int pv=0; pv<25; pv++){ weight[pv] = 1.0; }
+	for(int pv=0; pv<MAXPU; pv++){ weight[pv] = 1.0; }
 
 	TH1D* data_npu_estimated = NULL;
 
@@ -46,6 +52,7 @@ PUcorrector::PUcorrector(string const iFile){
 
 	data_npu_estimated->Scale(1/(double)data_npu_estimated->Integral());
 
+	/*
 	const double npu_probs[25] = {
 		0.0698146584,	  // 0  
 		0.0698146584,	  // 1  
@@ -72,38 +79,65 @@ PUcorrector::PUcorrector(string const iFile){
 
 	}; //*/
 
-	/*			const long double npu_probs[25] = {  0.069286816, // 0  
-				0.069286816, // 1  
-				0.069286816, // 2  
-				0.069286816, // 3  
-				0.069286816, // 4  
-				0.069286816, // 5  
-				0.069286816, // 6  
-				0.069286816, // 7  
-				0.069286816, // 8  
-				0.069286816, // 9  
-				0.069286816, // 10 
-				0.06518604 , // 11 
-				0.053861878, // 12 
-				0.040782032, // 13 
-				0.030135062, // 14 
-				0.019550796, // 15 
-				0.012264707, // 16 
-				0.007449117, // 17 
-				0.004502075, // 18 
-				0.002194605, // 19 
-				0.001166276, // 20 
-				0.000476543, // 21 
-				0.000188109, // 22 
-				7.52436E-05, // 23 
-				1.25406E-05  // 24 
-				}; //*/
+	// Fall 2011
+	const double npu_probs[50] = {
+			0.003388501,
+			0.010357558,
+			0.024724258,
+			0.042348605,
+			0.058279812,
+			0.068851751,
+			0.072914824,
+			0.071579609,
+			0.066811668,
+			0.060672356,
+			0.054528356,
+			0.04919354,
+			0.044886042,
+			0.041341896,
+			0.0384679,
+			0.035871463,
+			0.03341952,
+			0.030915649,
+			0.028395374,
+			0.025798107,
+			0.023237445,
+			0.020602754,
+			0.0180688,
+			0.015559693,
+			0.013211063,
+			0.010964293,
+			0.008920993,
+			0.007080504,
+			0.005499239,
+			0.004187022,
+			0.003096474,
+			0.002237361,
+			0.001566428,
+			0.001074149,
+			0.000721755,
+			0.000470838,
+			0.00030268,
+			0.000184665,
+			0.000112883,
+			6.74043E-05,
+			3.82178E-05,
+			2.22847E-05,
+			1.20933E-05,
+			6.96173E-06,
+			3.4689E-06,
+			1.96172E-06,
+			8.49283E-07,
+			5.02393E-07,
+			2.15311E-07,
+			9.56938E-08
+		};
 
 
-	vector<double> result(25);
+	vector<double> result(MAXPU);
 
 	double s = 0.0;
-	for(int npu=0; npu<25; ++npu){
+	for(int npu=0; npu<MAXPU; ++npu){
 		double npu_estimated = data_npu_estimated->GetBinContent(data_npu_estimated->GetXaxis()->FindBin(npu));                              
 		if(npu_probs[npu] > 0){
 			weight[npu] = npu_estimated / npu_probs[npu];
@@ -116,7 +150,7 @@ PUcorrector::PUcorrector(string const iFile){
 	}
 
 	// normalize weights such that the total sum of weights over thw whole sample is 1.0, i.e., sum_i  weight[i] * npu_probs[i] should be 1.0 (!)
-	for(int npu=0; npu<25; ++npu){ weight[npu] /= s; }
+	for(int npu=0; npu<MAXPU; ++npu){ weight[npu] /= s; }
 	
 }
 
@@ -134,7 +168,7 @@ float const PUcorrector::GetWeight(float const iNumPV) const{
 
 	float result = 1.0;
 
-	if((iNumPV==0) || (iNumPV>=24)){ result = 0; }
+	if((iNumPV==0) || (iNumPV>=(MAXPU-1))){ result = 1; }
 	else{ result = weight.find(iNumPV)->second; }
 
 	return result;

@@ -4,10 +4,10 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <utility>
+#include <assert.h>
 
 #include <map>
 
-#include "ColoredOutput.h"
 
 #include "TError.h"
 #include "TSystem.h"
@@ -15,29 +15,33 @@
 #include "TDatime.h"
 
 #include "style-CMSTDR.h"
+#include "configParser/config.h"
+#include "ColoredOutput.h"
 
 #include "TTree.h"
 #include "TFile.h"
-#include "HWrapper.h"
-#include "HContainer.h"
-#include "CutFlow.h"
-#include "DitauBranches.h"
 #include "Process.h"
-#include "PContainer.h"
 #include "ProPack.h"
 
 #include "Analyzer.h"
-#include "TTMAnalyzer.h"
 #include "Cruncher.h"
+#include "Combiner.h"
 #include "RootFileMaker.h"
 #include "Plotter.h"
-#include "TTMPlotter.h"
 #include "Stacker.h"
 #include "Stamper.h"
 #include "Optimizer.h"
 #include "TMVASampler.h"
 
-#include "configParser/config.h"
+#include "TTM/Analyzer.h"
+#include "TTM/Plotter.h"
+
+#include "TTE/Analyzer.h"
+#include "TTE/Plotter.h"
+
+#include "DIL/Analyzer.h"
+#include "DIL/Plotter.h"
+
 
 
 #ifndef Driver_h

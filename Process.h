@@ -42,6 +42,7 @@ class Process {
 		string niceName;
 		string labelForLegend;
 		string type;
+		bool ignoreReality;
 		string ntuplePath;
 		int color;
 		bool analyzed;
@@ -121,6 +122,7 @@ class Process {
 		string const		GetLabelForLegend() const;
 		string const		GetNtuplePath() const;
 		string const		GetType() const;
+		bool const			IgnoreReality() const;
 		bool const			IsCollisions() const;
 		bool const			IsQCD() const;
 		bool const			IsMCbackground() const;
@@ -161,6 +163,7 @@ class Process {
 		void				SetLineWidth(int const);
 		void 				SetGoodEventsForSignal(vector<pair<int, int> > const);
 		void 				SetGoodEventsForQCD(vector<pair<int, int> > const);
+		void				Add(Process*);
 
 		ClassDef(Process, 1);
 };

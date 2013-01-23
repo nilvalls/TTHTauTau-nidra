@@ -198,9 +198,12 @@ void HWrapper::SetMarkerStyle(int const iValue){ histo->SetMarkerStyle(iValue); 
 // Other methods
 void HWrapper::Add(TH1 const & iHisto, double iFactor){ 
 	if(iFactor != iFactor){ cerr << "ERROR: trying to Add(TH1&, nan)" << endl; exit(1); }
+		cout << &iHisto << endl;
 	histo->Add(&iHisto, iFactor);
 }
-void HWrapper::Add(HWrapper const & iHisto, double const iFactor){ histo->Add((iHisto.GetHisto()), iFactor); }
+void HWrapper::Add(HWrapper const & iHisto, double const iFactor){ 
+	histo->Add((iHisto.GetHisto()), iFactor);
+}
 void HWrapper::ScaleBy(double const iFactor){
 	if(iFactor != iFactor){ cerr << "ERROR: trying to ScaleBy(nan)" << endl; exit(1); }
 	histo->Scale(iFactor);

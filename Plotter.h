@@ -16,13 +16,14 @@
 #include <sstream>
 #include "TCanvas.h"
 #include "CutFlow.h"
-#include "DitauBranches.h"
+#include "Branches.h"
+#include "TTM/Branches.h"
+#include "TTE/Branches.h"
 #include "Process.h"
 #include "ProPack.h"
 #include "Analyzer.h"
 #include "TPaveText.h"
 #include "Trigger.h"
-#include "PUcorrector.h"
 #include "TLegend.h"
 #include "TStyle.h"
 #include "RawHistoSaver.h"
@@ -46,9 +47,9 @@ class Plotter {
 		void PrintEfficiencies(string const, string const);
 
 	protected:
-		virtual void	FillHistos(HContainer*, DitauBranches*, bool const, Trigger const *, PUcorrector const *, weightCounter *);
-		PUcorrector*	puCorrector;
+		virtual void	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
 		Trigger*		ditauTrigger;
+		void			SaveFile();
 		virtual void	MakePlots(ProPack*);
 		virtual void	MakePlots(Process*);
 		virtual void	MakePlots(vector<Process>*);

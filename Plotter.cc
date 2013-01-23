@@ -17,13 +17,12 @@ using namespace std;
 Plotter::Plotter(){
 	file = NULL;
 	proPack = NULL;
-	puCorrector = NULL;
 	ditauTrigger = NULL;
 }
 
 // Default destructor
 Plotter::~Plotter(){
-	delete puCorrector; puCorrector = NULL;
+
 	delete ditauTrigger; ditauTrigger = NULL;
 	if(file!=NULL){ file->Close(); }
 	delete file; file = NULL;
@@ -40,7 +39,6 @@ Plotter::Plotter(map<string,string>const & iParams){
 	file->cd();
 
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
-	puCorrector = new PUcorrector((params["puList"]));
 	ditauTrigger = new Trigger(proPack->GetIntegratedLumiInInvPb());
 
 /*	MakePlots(proPack);
@@ -54,6 +52,12 @@ Plotter::Plotter(map<string,string>const & iParams){
 	RawHistoSaver rawHistoSaver(params, *proPack);
 	//*/
 
+}
+
+void Plotter::SaveFile(){
+	file->cd();
+	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
+	RawHistoSaver rawHistoSaver(params, *proPack);
 }
 
 // Function to make the plots
@@ -85,9 +89,12 @@ void Plotter::MakePlots(Process* iProcess){
 	BookHistos(&hContainerForSignal);
 	BookHistos(&hContainerForQCD);
 
-	// Instantiante DitauBranches to read events more easily
-	//DitauBranches event = DitauBranches(params, iProcess->GetNtuplePath());
-	DitauBranches event = DitauBranches(params, ((params.find("ntuplesDir")->second) + (iProcess->GetNtuplePath())));
+	// Instantiante Branches to read events more easily
+	//Branches event = Branches(params, iProcess->GetNtuplePath());
+	Branches* event = NULL;
+	string channel = params["channel"];
+		 if(channel == "TTM"){	event = new TTMBranches(params, iProcess->GetNtuplePath()); }
+	else if(channel == "TTE"){	event = new TTEBranches(params, iProcess->GetNtuplePath()); }
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
@@ -100,11 +107,22 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounterForSignal.total		= 0;
 
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
+	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
+	cout << "\t>>> OS, filling good events (total " << goodEventsForSignal.size() << "): "; cout.flush();
+	stringstream goodEventsSS; goodEventsSS.str("");
 	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		event.GetEntry(goodEventsForSignal.at(i).first);
-		event.SetBestCombo(goodEventsForSignal.at(i).second);
-		FillHistos(&hContainerForSignal, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForSignal);
+		if(i>0 && (i%10) == 0){
+			cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
+			goodEventsSS.str("");
+			goodEventsSS << i;
+			cout << goodEventsSS.str(); cout.flush();
+		}
+
+		event->GetEntry(goodEventsForSignal.at(i).first);
+		event->SetBestCombo(goodEventsForSignal.at(i).second);
+		FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
 	}
+	cout << endl;
 
 	double puEfficiencyForSignal			= 0;
 	double tau1TriggerEfficiencyForSignal	= 0;
@@ -126,24 +144,36 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounterForQCD.tau2Trigger		= 0;
 	weightCounterForQCD.total			= 0;
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
-	for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
-		event.GetEntry(goodEventsForQCD.at(i).first);
-		event.SetBestCombo(goodEventsForQCD.at(i).second);
-		FillHistos(&hContainerForQCD, &event, iProcess->IsMC(), ditauTrigger, puCorrector, &weightCounterForQCD);
-	}
-
 	double puEfficiencyForQCD			= 0;
 	double tau1TriggerEfficiencyForQCD	= 0;
 	double tau2TriggerEfficiencyForQCD	= 0;
-	if(weightCounterForQCD.total > 0){
-		puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
-		tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
-		tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
+	if(IsFlagThere("LS")){
+		cout << "\t>>> LS, filling good events (total " << goodEventsForQCD.size() << "): "; cout.flush();
+		goodEventsSS.str("");
+		for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
+			if(i>0 && (i%10) == 0){
+				cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
+				goodEventsSS.str("");
+				goodEventsSS << i;
+				cout << goodEventsSS.str(); cout.flush();
+			}
+
+			event->GetEntry(goodEventsForQCD.at(i).first);
+			event->SetBestCombo(goodEventsForQCD.at(i).second);
+			FillHistos(&hContainerForQCD, event, iProcess->IsMC(), ditauTrigger, &weightCounterForQCD);
+		}
+		cout << endl;
+
+		if(weightCounterForQCD.total > 0){
+			puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
+			tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
+			tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
+		}
+		if(weightCounterForQCD.total > 0){
+			hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
+		}
+		iProcess->SetHContainerForQCD(hContainerForQCD);
 	}
-	if(weightCounterForQCD.total > 0){
-		hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
-	}
-	iProcess->SetHContainerForQCD(hContainerForQCD);
 
 	// Add postCuts
 	if(IsFlagThere("PUcorr")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal(), puEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
@@ -151,6 +181,8 @@ void Plotter::MakePlots(Process* iProcess){
 		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau1TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 		cutFlow->RegisterCut("SL trigger", 2, tau2TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau2TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 	}
+
+	delete event; event = NULL;
 
 }
 
@@ -209,7 +241,7 @@ void Plotter::LoopOverHistoCfgFile(const string iPath, HContainer* iHContainer){
 }
 
 // Fill the histograms with the event passed
-void Plotter::FillHistos(HContainer* iHContainer, DitauBranches* iEvent, bool const iIsMC, Trigger const * iTrigger, PUcorrector const * iPUcorrector, weightCounter* iWeightCounter){
+void Plotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter){
 	cerr << "Calling FillHistos(...) from " << __FILE__ << " is not allowed. It must be called from a derived class." << endl; exit(1);
 }
 

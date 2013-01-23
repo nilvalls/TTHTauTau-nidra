@@ -159,8 +159,8 @@ void TMVASampler::FillTree(TTree* iTree, Process const * iProcess, vector<pair<i
 	iTree->Branch("LogBoostedSVFitTau1Pt", &LogBoostedSVFitTau1Pt);
 	iTree->Branch("LogBoostedSVFitTau2Pt", &LogBoostedSVFitTau2Pt);
 
-	// Instantiante DitauBranches to read events more easily
-	DitauBranches event = DitauBranches(params, ((params.find("ntuplesDir")->second) + (iProcess->GetNtuplePath())));
+	// Instantiante Branches to read events more easily
+	Branches event = Branches(params, ((params.find("ntuplesDir")->second) + (iProcess->GetNtuplePath())));
 
 	vector<pair<int,int> > const * goodEvents = iGoodEvents;
 	for(unsigned int i = 0; i < goodEvents->size(); i++){

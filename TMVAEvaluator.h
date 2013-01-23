@@ -14,7 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "DitauBranches.h"
+#include "Branches.h"
 #include "TMVA/Reader.h"
 //#include "TMVA/Tools.h"
 
@@ -27,7 +27,7 @@ class TMVAEvaluator {
 		TMVAEvaluator(map<string,string> const &);
 		virtual ~TMVAEvaluator();
 
-		float Evaluate(DitauBranches const *, int);
+		float Evaluate(Branches const *, int);
 
 
 	private: 
@@ -41,7 +41,7 @@ class TMVAEvaluator {
 		float DeltaR_recoTau1_SVFitTau1;
 		float BoostedSVFitTau1Pt;
 
-		DitauBranches * event;
+		Branches * event;
 
 	protected:
 		map<string,string>	params;
