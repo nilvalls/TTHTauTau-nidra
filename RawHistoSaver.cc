@@ -62,7 +62,8 @@ void RawHistoSaver::SaveRawHistos(Process const * iProcess) const {
 	file->cd();
 	TDirectory * processDir = file->mkdir(iProcess->GetShortName().c_str());
 	TDirectory * osDir		= processDir->mkdir("OS");
-	TDirectory * lsDir		= processDir->mkdir("LS");
+	TDirectory * lsDir		= NULL;
+	if(IsFlagThere("LS")){ processDir->mkdir("LS"); }
 
 	// Loop over all the HWrappers and save each histo
 	vector<string> plotNames = iProcess->GetHContainerForSignal()->GetNames();
@@ -78,10 +79,12 @@ void RawHistoSaver::SaveRawHistos(Process const * iProcess) const {
 			osHisto->SetName(plotName.c_str());
 			osHisto->Write();
 
-			lsDir->cd();
-			TH1F * lsHisto = new TH1F(*(TH1F*)(iProcess->GetHistoForQCD(plotName)->GetHisto()));
-			lsHisto->SetName(plotName.c_str());
-			lsHisto->Write();
+			if(IsFlagThere("LS")){
+				lsDir->cd();
+				TH1F * lsHisto = new TH1F(*(TH1F*)(iProcess->GetHistoForQCD(plotName)->GetHisto()));
+				lsHisto->SetName(plotName.c_str());
+				lsHisto->Write();
+			}
 		}else{
 			osDir->cd();	
 			TH2F * osHisto = new TH2F(*(TH2F*)(iProcess->GetHistoForSignal(plotName)->GetHisto()));
@@ -89,15 +92,23 @@ void RawHistoSaver::SaveRawHistos(Process const * iProcess) const {
 			osHisto->SetName(plotName.c_str());
 			osHisto->Write();
 
-			lsDir->cd();
-			TH2F * lsHisto = new TH2F(*(TH2F*)(iProcess->GetHistoForQCD(plotName)->GetHisto()));
-			lsHisto->SetMarkerStyle(1);
-			lsHisto->SetName(plotName.c_str());
-			lsHisto->Write();
+			if(IsFlagThere("LS")){
+				lsDir->cd();
+				TH2F * lsHisto = new TH2F(*(TH2F*)(iProcess->GetHistoForQCD(plotName)->GetHisto()));
+				lsHisto->SetMarkerStyle(1);
+				lsHisto->SetName(plotName.c_str());
+				lsHisto->Write();
+			}
 		}
 	}
 
 
 
+}
+
+bool const RawHistoSaver::IsFlagThere(string const iFlag) const {
+	string flags = params.find("flags")->second;
+	size_t found = flags.find(iFlag);
+	return ((0 <= found) && (found < flags.length()));
 }
 

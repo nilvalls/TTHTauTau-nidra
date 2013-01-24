@@ -77,13 +77,8 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 
 
 		// Loop over all the combos
-		//cout << "new event; " << event->TTM_NumCombos << " combos" <<  endl;
 		bool comboHasTwoRealTaus = false;
 		int realTauCombo = -1;
-
-		cout << endl << setprecision(7) <<  event->Ev_runNumber << ":" << event->Ev_lumiBlock << ":" 
-			 << setprecision(10) <<  event->Ev_eventNumber << "\t\tpuWeight: " << event->Ev_puWeight << endl;
-		cout << "\t\tEv_numInteractionsBX0: " << event->Ev_numInteractionsBX0 << "\tEv_numPrimaryVertices: " << event->Ev_numPrimaryVertices << endl;
 
 		for (unsigned int combo = 0; combo < event->TTM_NumCombos; combo++){
 
@@ -101,7 +96,6 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 			cutFlow.EndOfCombo(combosTarget, combo);
 
 			// If we already have one good combo for signal and one for QCD, no need to check the rest since the heaviest combos come first
-			//if(cutFlow.HaveGoodCombos()){ cout << "break here" << endl; }//break; }
 			if(cutFlow.HaveGoodCombos()){ break; }
 		}
 

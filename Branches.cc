@@ -23,7 +23,7 @@ Branches::Branches(){
 void Branches::SetUp(map<string,string> const & iParams, string const iPath){
 
 	params = iParams;
-	cout << "PATH: " << iPath << endl;
+	//cout << "PATH: " << iPath << endl;
 	fChain = GetTChain(iPath);
 	Null();
 

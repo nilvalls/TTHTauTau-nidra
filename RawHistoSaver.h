@@ -29,6 +29,7 @@ class RawHistoSaver {
 		void SaveRawHistos();
 		map<string,string>	params;
 		TFile* file;
+		bool const IsFlagThere(string const) const;
 		virtual void SaveRawHistos(ProPack const *) const;
 		virtual void SaveRawHistos(Process const *) const;
 		virtual void SaveRawHistos(vector<Process> const *) const;

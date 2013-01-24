@@ -250,7 +250,7 @@ void Process::NormalizeToLumi(double const iIntLumi){
 		double NOElumi				= iIntLumi*crossSection*branchingRatio;
 		double NOEraw				= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
 		double lumiNormalization	= NOElumi/NOEraw;
-		cout << setprecision(7) << "\n" << shortName << " normalization:: \n" 
+		cout << setprecision(7) << "\n" << shortName << " normalization: \n" 
 			<< "\t---------------------------------------\n"
 			<< "\tintLumi...." << iIntLumi << "\n" 
 			<< "\tcrossSec..." << crossSection << "\n" 

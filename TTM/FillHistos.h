@@ -67,6 +67,9 @@ else if(event->TTM_Tau2MatchesGenHadTauFromW1->at(iCombo)){ hContainer->Fill("Pa
 else if(event->TTM_Tau2MatchesGenHadTauFromW2->at(iCombo)){ hContainer->Fill("Parent_T2", 4, weightFull); }
 else													  { hContainer->Fill("Parent_T2", 0, weightFull); }	
 
+hContainer->Fill("AbsParentPDGid_T1", 1, weightFull);
+hContainer->Fill("AbsParentPDGid_T2", 2, weightFull);
+
 
 // Muon ============================================================================================================================
 hContainer->Fill("Pt_M", event->TTM_MuonPt->at(iCombo), weightFull);

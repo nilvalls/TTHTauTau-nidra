@@ -41,19 +41,9 @@ Plotter::Plotter(map<string,string>const & iParams){
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
 	ditauTrigger = new Trigger(proPack->GetIntegratedLumiInInvPb());
 
-/*	MakePlots(proPack);
-
-	delete puCorrector; puCorrector = NULL;
-	delete ditauTrigger; ditauTrigger = NULL;
-
-	file->cd();
-	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
-
-	RawHistoSaver rawHistoSaver(params, *proPack);
-	//*/
-
 }
 
+// Save files
 void Plotter::SaveFile(){
 	file->cd();
 	proPack->Write((params["propack_name"]).c_str(), TObject::kOverwrite);
@@ -87,10 +77,9 @@ void Plotter::MakePlots(Process* iProcess){
 
 	// Book histos and place them in the process
 	BookHistos(&hContainerForSignal);
-	BookHistos(&hContainerForQCD);
+	if(IsFlagThere("LS")){ BookHistos(&hContainerForQCD); }
 
 	// Instantiante Branches to read events more easily
-	//Branches event = Branches(params, iProcess->GetNtuplePath());
 	Branches* event = NULL;
 	string channel = params["channel"];
 		 if(channel == "TTM"){	event = new TTMBranches(params, iProcess->GetNtuplePath()); }
