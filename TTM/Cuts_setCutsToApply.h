@@ -29,6 +29,10 @@
 	 if(ApplyThisCut("M_IsTightMuon"			)){ CutOn_M_IsTightMuon				= 	true; cutFlow.RegisterCut("M_IsTightMuon", 1);				}
 	 if(ApplyThisCut("M_RelIso"					)){ CutOn_M_RelIso					= 	true; cutFlow.RegisterCut("M_RelIso", 1);					}
 
+	 if(ApplyThisCut("T1_MatchAbsId"			)){ CutOn_T1_MatchAbsId				= 	true; cutFlow.RegisterCut("T1_MatchAbsId", 1);				}
+	 if(ApplyThisCut("T2_MatchAbsId"			)){ CutOn_T2_MatchAbsId				= 	true; cutFlow.RegisterCut("T2_MatchAbsId", 1);				}
+	 if(ApplyThisCut("T1_ParentAbsId"			)){ CutOn_T1_ParentAbsId			= 	true; cutFlow.RegisterCut("T1_ParentAbsId", 1);				}
+	 if(ApplyThisCut("T2_ParentAbsId"			)){ CutOn_T2_ParentAbsId			= 	true; cutFlow.RegisterCut("T2_ParentAbsId", 1);				}
 	 if(ApplyThisCut("T1_Reality"				)){ CutOn_T1_Reality				= 	true; cutFlow.RegisterCut("T1_Reality", 1);				}
 	 if(ApplyThisCut("T2_Reality"				)){ CutOn_T2_Reality				= 	true; cutFlow.RegisterCut("T2_Reality", 1);				}
 	 if(ApplyThisCut("TT_Reality"				)){ CutOn_TT_Reality				= 	true; cutFlow.RegisterCut("TT_Reality", 1);				}

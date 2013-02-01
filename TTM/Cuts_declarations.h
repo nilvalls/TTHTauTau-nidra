@@ -10,6 +10,10 @@
 	bool CutOn_G_NumGenHadTausFromH;		float Min_G_NumGenHadTausFromH;			float Max_G_NumGenHadTausFromH;
 	bool CutOn_G_NumTauHad;					float Min_G_NumTauHad;					float Max_G_NumTauHad;
 
+	bool CutOn_T1_MatchAbsId;				float Min_T1_MatchAbsId;				float Max_T1_MatchAbsId;
+	bool CutOn_T2_MatchAbsId;				float Min_T2_MatchAbsId;				float Max_T2_MatchAbsId;
+	bool CutOn_T1_ParentAbsId;				float Min_T1_ParentAbsId;				float Max_T1_ParentAbsId;
+	bool CutOn_T2_ParentAbsId;				float Min_T2_ParentAbsId;				float Max_T2_ParentAbsId;
 	bool CutOn_T1_Reality;					float Min_T1_Reality;					float Max_T1_Reality;
 	bool CutOn_T2_Reality;					float Min_T2_Reality;					float Max_T2_Reality;
 	bool CutOn_TT_Reality;					float Min_TT_Reality;					float Max_TT_Reality;

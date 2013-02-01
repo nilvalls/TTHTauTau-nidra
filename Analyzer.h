@@ -38,7 +38,7 @@ class Analyzer {
 		vector<pair<int,int> >	goodEventsForQCD;
 		CutFlow					cutFlow;
 		bool					isSignal;
-		bool					ignoreReality;
+		bool					checkReality;
 		bool					isMC;
 		TMVAEvaluator*			tmvaEvaluator;
 	//	#include "clarity/cuts_declarations.h"

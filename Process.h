@@ -42,7 +42,7 @@ class Process {
 		string niceName;
 		string labelForLegend;
 		string type;
-		bool ignoreReality;
+		bool checkReality;
 		string ntuplePath;
 		int color;
 		bool analyzed;
@@ -122,7 +122,7 @@ class Process {
 		string const		GetLabelForLegend() const;
 		string const		GetNtuplePath() const;
 		string const		GetType() const;
-		bool const			IgnoreReality() const;
+		bool const			CheckReality() const;
 		bool const			IsCollisions() const;
 		bool const			IsQCD() const;
 		bool const			IsMCbackground() const;

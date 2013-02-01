@@ -29,7 +29,7 @@ Process::Process(Process const & iProcess){
 	niceName						= iProcess.GetNiceName();
 	labelForLegend					= iProcess.GetLabelForLegend();
 	type							= iProcess.GetType();
-	ignoreReality					= iProcess.IgnoreReality();
+	checkReality					= iProcess.CheckReality();
 	ntuplePath						= iProcess.GetNtuplePath();
 	color							= iProcess.GetColor();
 
@@ -66,7 +66,7 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	niceName					= iConfig.pString("niceName");
 	labelForLegend				= iConfig.pString("labelForLegend");
 	type						= iConfig.pString("type");
-	ignoreReality				= iConfig.pBool("ignoreReality");
+	checkReality				= iConfig.pBool("checkReality");
 
 	if((params.find("format")->second).compare("jeff")==0){
 		string wildcard		= "*process*";
@@ -119,7 +119,7 @@ void Process::Update(Process const * iProcess){
 	niceName						= iProcess->GetNiceName();
 	labelForLegend					= iProcess->GetLabelForLegend();
 	type							= iProcess->GetType();
-	ignoreReality					= iProcess->IgnoreReality();
+	checkReality					= iProcess->CheckReality();
 	color							= iProcess->GetColor();
 
 	crossSection					= iProcess->GetCrossSection();
@@ -176,7 +176,7 @@ bool const Process::IsCollisions() const { return ((type.compare("collisions")==
 bool const Process::IsQCD() const { return ((type.compare("qcd")==0)); }
 bool const Process::IsMCbackground() const { return ((type.compare("mcBackground")==0)); }
 bool const Process::IsSignal() const { return ((type.compare("signal")==0)); }
-bool const Process::IgnoreReality() const { return ignoreReality; }
+bool const Process::CheckReality() const { return checkReality; }
 string const Process::GetNtuplePath() const { return ntuplePath; }
 int const Process::GetColor() const { return color; }
 int const Process::GetNOEinDS() const {			return NOEinDS;		}

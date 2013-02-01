@@ -69,7 +69,7 @@ void Analyzer::Analyze(Process& iProcess){
 	else if(params["channel"] == "DIL"){	event = new DILBranches(params, iProcess.GetNtuplePath()); }
 
 	isSignal		= iProcess.IsSignal();
-	ignoreReality	= !(!iProcess.IgnoreReality() && iProcess.IsSignal());
+	checkReality	= iProcess.CheckReality();
 	isMC			= iProcess.IsMC();
 	pair<double,double> loopResults = Loop(event);
 	cout << endl;

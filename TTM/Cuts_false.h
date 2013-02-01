@@ -8,6 +8,10 @@
 
 	CutOn_G_NumGenHadTausFromH		= false;
 	CutOn_G_NumTauHad				= false;
+	CutOn_T1_MatchAbsId				= false;
+	CutOn_T2_MatchAbsId				= false;
+	CutOn_T1_ParentAbsId			= false;
+	CutOn_T2_ParentAbsId			= false;
 	CutOn_T1_Reality				= false;
 	CutOn_T2_Reality				= false;
 	CutOn_TT_Reality				= false;

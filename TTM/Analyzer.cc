@@ -196,12 +196,20 @@ pair<bool,bool> TTMAnalyzer::ComboPassesCuts(TTMBranches* iEvent, unsigned int i
 	if(CutOn_M_RelIso){			if(cutFlow.CheckComboAndStop("M_RelIso", event->TTM_MuonRelIso->at(iCombo), target)){			return target; }}
 
 	// *** Tau Reality *** //
-	if(ignoreReality){
+	if(!checkReality){
+		if(CutOn_T1_MatchAbsId){ 	cutFlow.ComboIsGood("T1_MatchAbsId");	}
+		if(CutOn_T2_MatchAbsId){ 	cutFlow.ComboIsGood("T2_MatchAbsId");	}
+		if(CutOn_T1_ParentAbsId){	cutFlow.ComboIsGood("T1_ParentAbsId");	}
+		if(CutOn_T2_ParentAbsId){	cutFlow.ComboIsGood("T2_ParentAbsId");	}
 		if(CutOn_T1_Reality){		cutFlow.ComboIsGood("T1_Reality");	}
 		if(CutOn_T2_Reality){		cutFlow.ComboIsGood("T2_Reality");	}
 		if(CutOn_TT_Reality){		cutFlow.ComboIsGood("TT_Reality");	}
 		if(CutOn_G_NumTauHad){		cutFlow.ComboIsGood("G_NumTauHad");	}
 	}else{
+		if(CutOn_T1_MatchAbsId){	if(cutFlow.CheckComboAndStop("T1_MatchAbsId", abs(event->TTM_Tau1GenMatchId->at(iCombo)), target)){			return target; }}
+		if(CutOn_T2_MatchAbsId){	if(cutFlow.CheckComboAndStop("T2_MatchAbsId", abs(event->TTM_Tau2GenMatchId->at(iCombo)), target)){			return target; }}
+		if(CutOn_T1_ParentAbsId){	if(cutFlow.CheckComboAndStop("T1_ParentAbsId", abs(event->TTM_Tau1GenMatchMother0Id->at(iCombo)), target)){	return target; }}
+		if(CutOn_T2_ParentAbsId){	if(cutFlow.CheckComboAndStop("T2_ParentAbsId", abs(event->TTM_Tau2GenMatchMother0Id->at(iCombo)), target)){	return target; }}
 		if(CutOn_T1_Reality){		if(cutFlow.CheckComboAndStop("T1_Reality", Tau1Reality(event, iCombo), target)){			return target; }}
 		if(CutOn_T2_Reality){		if(cutFlow.CheckComboAndStop("T2_Reality", Tau2Reality(event, iCombo), target)){			return target; }}
 		if(CutOn_TT_Reality){		if(cutFlow.CheckComboAndStop("TT_Reality", event->IsRealDitauCombo(iCombo), target)){		return target; }}
