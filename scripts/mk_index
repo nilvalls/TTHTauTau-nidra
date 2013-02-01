@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+# The script generates a HTML index for images in the directories passed as
+# command line arguments.  If no argument is given, the current working
+# directory is processed.
+#
+# Author:: Matthias Wolf <matthias.wolf@cern.ch>
+
+require 'erb'
+require 'ftools'
+
+template = ERB.new <<END_OF_TEMPLATE
+<html>
+  <head>
+    <style type="text/css">
+      <!--
+      a { color: #000; text-decoration: none; }
+      body { background-color: #002b36; }
+      img { margin-bottom: 5px; }
+      .card {
+        width: 400px; float: left; margin: .5em; 
+        background-color: #FFF; border-radius: 5px;
+      }
+      .log { display: inline; }
+      .norm { display: inline; }
+      .opt {
+        position: fixed; width: 100%; left: 0px; top: 0px;
+        text-align: center; padding: 1em;  margin: 0em;
+        background-color: #fff;
+        border-bottom: 2px solid #002b36; border-radius: 0px;
+      }
+      .pic {
+        width: 400px;
+      }
+      p.caption {
+        font-family: sans-serif; font-size: 15pt; font-weight: bold;
+        text-align: center; }
+      -->
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script>
+      $(document).ready(function(){
+        for (var i = 1; i <= 5; ++i) {
+          $("<option value='" + i + "'>" + i + "00px</option>").appendTo("#tsize");
+        }
+        $("#tsize").val(4);
+        $("#tsize").change(function(){
+          $(".pic").css({"width": "" + $(this).val() * 100 + "px"});
+          $(".caption").css({"font-size": "" + 4 * $(this).val() + "pt"});
+        });
+        $("#tlog").click(function(){
+          if ($(this).prop('checked')) {
+            $(".log").show();
+          } else {
+            $(".log").hide();
+          }
+        });
+        $("#tnorm").click(function(){
+          if ($(this).prop('checked')) {
+            $(".norm").show();
+          } else {
+            $(".norm").hide();
+          }
+        });
+      })
+    </script>
+  </head>
+  <body>
+    <div class="opt">
+      <label><input type='checkbox' checked='true' id='tlog'>Show logplots</label>
+      <label><input type='checkbox' checked='true' id='tnorm'>Show non-logplots</label>
+      <span>&nbsp;&mdash;&nbsp;</span>
+      <label>Size:&nbsp;<select id='tsize'></select></label>
+    </div>
+    <p style="height:2em"></p>
+    <%Dir.entries(@arg).sort.each do |f|
+        next if /\.png$/ !~ f
+        c = (/_log\./ =~ f) ? "log" : "norm"%>
+      <a href=<%=f%>>
+        <div class="<%=c%> card pic">
+          <p class="caption"><%=f%></p>
+          <img src="<%=f%>" class="pic"/>
+        </div>
+      </a>
+    <%end%>
+  </body>
+</html>
+END_OF_TEMPLATE
+
+class Arg
+  def initialize(arg)
+    @arg = arg
+  end
+
+  def get_binding
+    binding
+  end
+end
+
+args = ARGV.length == 0 ? ["."] : ARGV
+args.each {|dir|
+  next unless File.directory?(dir)
+  begin
+    fn = File.catname("index.html", dir)
+    f = open(fn, "w")
+    f.write(template.result(binding=Arg.new(dir).get_binding))
+    f.close()
+    puts "created #{fn}"
+  rescue Exception => e
+    puts "can't process #{dir}: #{e.message}"
+  end
+}
