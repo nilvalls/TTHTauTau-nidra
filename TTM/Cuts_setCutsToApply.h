@@ -28,6 +28,10 @@
 	 if(ApplyThisCut("M_IsLooseMuon"			)){ CutOn_M_IsLooseMuon				= 	true; cutFlow.RegisterCut("M_IsLooseMuon", 1);				}
 	 if(ApplyThisCut("M_IsTightMuon"			)){ CutOn_M_IsTightMuon				= 	true; cutFlow.RegisterCut("M_IsTightMuon", 1);				}
 	 if(ApplyThisCut("M_RelIso"					)){ CutOn_M_RelIso					= 	true; cutFlow.RegisterCut("M_RelIso", 1);					}
+	 if(ApplyThisCut("NumOtherTightMuons"		)){ CutOn_NumOtherTightMuons		= 	true; cutFlow.RegisterCut("NumOtherTightMuons", 1);			}
+	 if(ApplyThisCut("NumOtherLooseMuons"		)){ CutOn_NumOtherLooseMuons		= 	true; cutFlow.RegisterCut("NumOtherLooseMuons", 1);			}
+	 if(ApplyThisCut("NumOtherTightElectrons"	)){ CutOn_NumOtherTightElectrons	= 	true; cutFlow.RegisterCut("NumOtherTightElectrons", 1);		}
+	 if(ApplyThisCut("NumOtherLooseElectrons"	)){ CutOn_NumOtherLooseElectrons	= 	true; cutFlow.RegisterCut("NumOtherLooseElectrons", 1);		}
 
 	 if(ApplyThisCut("T1_MatchAbsId"			)){ CutOn_T1_MatchAbsId				= 	true; cutFlow.RegisterCut("T1_MatchAbsId", 1);				}
 	 if(ApplyThisCut("T2_MatchAbsId"			)){ CutOn_T2_MatchAbsId				= 	true; cutFlow.RegisterCut("T2_MatchAbsId", 1);				}

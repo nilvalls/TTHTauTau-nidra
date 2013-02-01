@@ -266,6 +266,11 @@
 	fChain->SetBranchAddress("TTM_MuonRelIso", &TTM_MuonRelIso);
 	fChain->SetBranchAddress("TTM_MuonIsLooseMuon", &TTM_MuonIsLooseMuon);
 	fChain->SetBranchAddress("TTM_MuonIsTightMuon", &TTM_MuonIsTightMuon);
+	fChain->SetBranchAddress("TTM_NumOtherLooseMuons", &TTM_NumOtherLooseMuons);
+	fChain->SetBranchAddress("TTM_NumOtherTightMuons", &TTM_NumOtherTightMuons);
+	fChain->SetBranchAddress("TTM_NumOtherLooseElectrons", &TTM_NumOtherLooseElectrons);
+	fChain->SetBranchAddress("TTM_NumOtherTightElectrons", &TTM_NumOtherTightElectrons);
+	fChain->SetBranchAddress("TTM_LeptonEventWeight", &TTM_LeptonEventWeight);
 	fChain->SetBranchAddress("TTM_MuonGenMatchDaughter0Id", &TTM_MuonGenMatchDaughter0Id);
 	fChain->SetBranchAddress("TTM_MuonGenMatchDaughter1Id", &TTM_MuonGenMatchDaughter1Id);
 	fChain->SetBranchAddress("TTM_MuonGenMatchId", &TTM_MuonGenMatchId);

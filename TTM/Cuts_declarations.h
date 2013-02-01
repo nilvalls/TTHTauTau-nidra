@@ -23,6 +23,10 @@
 	bool CutOn_M_IsLooseMuon;				float Min_M_IsLooseMuon;				float Max_M_IsLooseMuon;
 	bool CutOn_M_IsTightMuon;				float Min_M_IsTightMuon;				float Max_M_IsTightMuon;
 	bool CutOn_M_RelIso;					float Min_M_RelIso;						float Max_M_RelIso;
+	bool CutOn_NumOtherTightMuons;			float Min_NumOtherTightMuons;			float Max_NumOtherTightMuons;
+	bool CutOn_NumOtherLooseMuons;			float Min_NumOtherLooseMuons;			float Max_NumOtherLooseMuons;
+	bool CutOn_NumOtherTightElectrons;		float Min_NumOtherTightElectrons;		float Max_NumOtherTightElectrons;
+	bool CutOn_NumOtherLooseElectrons;		float Min_NumOtherLooseElectrons;		float Max_NumOtherLooseElectrons;
 
 	bool CutOn_T1_pT;						float Min_T1_pT;						float Max_T1_pT;
 	bool CutOn_T2_pT;						float Min_T2_pT;						float Max_T2_pT;

@@ -90,10 +90,11 @@ void Plotter::MakePlots(Process* iProcess){
 
 	// Recover the good events for signal and fill histos with them
 	weightCounter weightCounterForSignal;
-	weightCounterForSignal.puCorrection	= 0;
-	weightCounterForSignal.tau1Trigger	= 0;
-	weightCounterForSignal.tau2Trigger	= 0;
-	weightCounterForSignal.total		= 0;
+	weightCounterForSignal.leptonCorrection	= 0;
+	weightCounterForSignal.puCorrection		= 0;
+	weightCounterForSignal.tau1Trigger		= 0;
+	weightCounterForSignal.tau2Trigger		= 0;
+	weightCounterForSignal.total			= 0;
 
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
@@ -113,10 +114,12 @@ void Plotter::MakePlots(Process* iProcess){
 	}
 	cout << endl;
 
+	double leptonSFEfficiencyForSignal		= 0;
 	double puEfficiencyForSignal			= 0;
 	double tau1TriggerEfficiencyForSignal	= 0;
 	double tau2TriggerEfficiencyForSignal	= 0;
 	if(weightCounterForSignal.total > 0){
+		leptonSFEfficiencyForSignal		= weightCounterForSignal.leptonCorrection/weightCounterForSignal.total;
 		puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
 		tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.puCorrection;
 		tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.tau1Trigger;//*/
@@ -128,11 +131,13 @@ void Plotter::MakePlots(Process* iProcess){
 
 	// Recover the good events for QCD and fill histos with them
 	weightCounter weightCounterForQCD;
-	weightCounterForQCD.puCorrection	= 0;
-	weightCounterForQCD.tau1Trigger		= 0;
-	weightCounterForQCD.tau2Trigger		= 0;
-	weightCounterForQCD.total			= 0;
+	weightCounterForQCD.leptonCorrection	= 0;
+	weightCounterForQCD.puCorrection		= 0;
+	weightCounterForQCD.tau1Trigger			= 0;
+	weightCounterForQCD.tau2Trigger			= 0;
+	weightCounterForQCD.total				= 0;
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
+	double leptonSFEfficiencyForQCD		= 0;
 	double puEfficiencyForQCD			= 0;
 	double tau1TriggerEfficiencyForQCD	= 0;
 	double tau2TriggerEfficiencyForQCD	= 0;
@@ -154,6 +159,7 @@ void Plotter::MakePlots(Process* iProcess){
 		cout << endl;
 
 		if(weightCounterForQCD.total > 0){
+			leptonSFEfficiencyForQCD	= weightCounterForQCD.leptonCorrection/weightCounterForQCD.total;
 			puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
 			tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
 			tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
@@ -165,6 +171,7 @@ void Plotter::MakePlots(Process* iProcess){
 	}
 
 	// Add postCuts
+	if(IsFlagThere("leptonSF")){ cutFlow->RegisterCut("Lepton SF", 2, leptonSFEfficiencyForSignal*cutFlow->GetLastCountForSignal(), leptonSFEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
 	if(IsFlagThere("PUcorr")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal(), puEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
 	if(IsFlagThere("trigger")){ 
 		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau1TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 

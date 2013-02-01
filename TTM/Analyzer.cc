@@ -195,6 +195,11 @@ pair<bool,bool> TTMAnalyzer::ComboPassesCuts(TTMBranches* iEvent, unsigned int i
 	if(CutOn_M_IsTightMuon){	if(cutFlow.CheckComboAndStop("M_IsTightMuon", event->TTM_MuonIsTightMuon->at(iCombo), target)){	return target; }}
 	if(CutOn_M_RelIso){			if(cutFlow.CheckComboAndStop("M_RelIso", event->TTM_MuonRelIso->at(iCombo), target)){			return target; }}
 
+	if(CutOn_NumOtherLooseMuons){			if(cutFlow.CheckComboAndStop("NumOtherLooseMuons", event->TTM_NumOtherLooseMuons->at(iCombo), target)){			return target; }}
+	if(CutOn_NumOtherTightMuons){			if(cutFlow.CheckComboAndStop("NumOtherTightMuons", event->TTM_NumOtherTightMuons->at(iCombo), target)){			return target; }}
+	if(CutOn_NumOtherLooseElectrons){		if(cutFlow.CheckComboAndStop("NumOtherLooseElectrons", event->TTM_NumOtherLooseElectrons, target)){				return target; }}
+	if(CutOn_NumOtherTightElectrons){		if(cutFlow.CheckComboAndStop("NumOtherTightElectrons", event->TTM_NumOtherTightElectrons, target)){				return target; }}
+
 	// *** Tau Reality *** //
 	if(!checkReality){
 		if(CutOn_T1_MatchAbsId){ 	cutFlow.ComboIsGood("T1_MatchAbsId");	}

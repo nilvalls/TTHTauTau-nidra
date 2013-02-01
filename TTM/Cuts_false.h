@@ -21,6 +21,10 @@
 	CutOn_M_IsLooseMuon				= false;
 	CutOn_M_IsTightMuon				= false;
 	CutOn_M_RelIso					= false;
+	CutOn_NumOtherTightMuons		= false;
+	CutOn_NumOtherLooseMuons		= false;
+	CutOn_NumOtherTightElectrons	= false;
+	CutOn_NumOtherLooseElectrons	= false;
 
 	CutOn_T1_pT						= false;
 	CutOn_T2_pT						= false;
