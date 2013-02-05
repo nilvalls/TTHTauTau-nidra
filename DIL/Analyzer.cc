@@ -46,7 +46,7 @@ pair<double,double> DILAnalyzer::Loop(Branches* iEvent){
 	else{ cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " "; }
 	cout.flush();
 
-	ofstream fout("events.txt");
+	//ofstream fout("events.txt");
  
 
 	// Actual loop
@@ -123,7 +123,7 @@ pair<double,double> DILAnalyzer::Loop(Branches* iEvent){
 	cutFlow.SetCutCounts("DIL_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
 
 
-	fout.close();
+	//fout.close();
 	result = make_pair(nentries, NOEanalyzed);
 	return result;
 }

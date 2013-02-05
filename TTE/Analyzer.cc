@@ -46,7 +46,7 @@ pair<double,double> TTEAnalyzer::Loop(Branches* iEvent){
 	else{ cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " "; }
 	cout.flush();
 
-	ofstream fout("events.txt");
+	//ofstream fout("events.txt");
  
 
 	// Actual loop
@@ -114,12 +114,12 @@ pair<double,double> TTEAnalyzer::Loop(Branches* iEvent){
 			event->SetBestCombo(heaviestComboForSignal);
 			goodEventsForSignal.push_back(make_pair(jentry, heaviestComboForSignal));
 		}else{ 
-			fout << event->Ev_runNumber << ":" << event->Ev_lumiBlock << ":" << event->Ev_eventNumber;
+		/*	fout << event->Ev_runNumber << ":" << event->Ev_lumiBlock << ":" << event->Ev_eventNumber;
 			if(realTauCombo >= 0){
 				fout << " | " << event->TTE_Tau1Eta->at(realTauCombo) << " " << event->TTE_Tau1Phi->at(realTauCombo) << " :: " << event->TTE_Tau1HPSagainstMuonLoose->at(realTauCombo)
 					 << " | " << event->TTE_Tau2Eta->at(realTauCombo) << " " << event->TTE_Tau2Phi->at(realTauCombo) << " :: " << event->TTE_Tau2HPSagainstMuonLoose->at(realTauCombo);
 			}
-			fout << endl;
+			fout << endl;//*/
 		}
 		//cout << "size: " << goodEventsForSignal.size() << endl;
 
@@ -140,7 +140,7 @@ pair<double,double> TTEAnalyzer::Loop(Branches* iEvent){
 	cutFlow.SetCutCounts("TTE_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
 
 
-	fout.close();
+	//fout.close();
 	result = make_pair(nentries, NOEanalyzed);
 	return result;
 }
