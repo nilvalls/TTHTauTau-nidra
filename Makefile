@@ -35,9 +35,10 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o \
 			.Process.o .PContainer.o .ProPack.o \
 			.Branches.o .Analyzer.o .Plotter.o \
-			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o \
-			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o \
-			.DILBranches.o .DILAnalyzer.o .DILPlotter.o \
+			.TMVASampler.o \
+			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o \
+			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o \
+			.DILBranches.o .DILAnalyzer.o .DILPlotter.o .DIL_TMVASampler.o \
 			.Combiner.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
 			.Trigger.o .Cruncher.o \
@@ -45,9 +46,10 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .Process.o .PContainer.o .ProPack.o \
 			.Branches.o .Analyzer.o .Plotter.o \
-			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o \
-			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o \
-			.DILBranches.o .DILAnalyzer.o .DILPlotter.o \
+			.TMVASampler.o \
+			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o \
+			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o \
+			.DILBranches.o .DILAnalyzer.o .DILPlotter.o .DIL_TMVASampler.o \
 			.Combiner.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
 			.Trigger.o .Cruncher.o \
@@ -119,9 +121,9 @@ libConfigParser.so: configParser/config.h
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
 	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
 
-#.TMVASampler.o: TMVASampler.cc TMVASampler.h
-#	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
-#
+.TMVASampler.o: TMVASampler.cc TMVASampler.h
+	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
+
 #.TMVAEvaluator.o: TMVAEvaluator.cc TMVAEvaluator.h
 #	$(CXX) $(CXXFLAGS) -c TMVAEvaluator.cc -o $@
 
@@ -139,6 +141,12 @@ libConfigParser.so: configParser/config.h
 .TTMPlotter.o: TTM/Plotter.cc TTM/Plotter.h TTM/FillHistos.h TTM/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c TTM/Plotter.cc -o $@
 
+.TTM_TMVASampler.o: TTM/TMVASampler.cc TTM/TMVASampler.h TTM/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTM/TMVASampler.cc -o $@
+
+.TTM_TMVAEvaluator.o: TTM/TMVAEvaluator.cc TTM/TMVAEvaluator.h TTM/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTM/TMVAEvaluator.cc -o $@
+
 ### TTE
 .TTEBranches.o: TTE/Branches.cc TTE/Branches.h TTE/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c TTE/Branches.cc -o $@
@@ -148,6 +156,12 @@ libConfigParser.so: configParser/config.h
 
 .TTEPlotter.o: TTE/Plotter.cc TTE/Plotter.h TTE/FillHistos.h TTE/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c TTE/Plotter.cc -o $@
+
+.TTE_TMVASampler.o: TTE/TMVASampler.cc TTE/TMVASampler.h TTE/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTE/TMVASampler.cc -o $@
+
+#.TTE_TMVAEvaluator.o: TTE/TMVAEvaluator.cc TTE/TMVAEvaluator.h TTE/Branches_*.h
+#	$(CXX) $(CXXFLAGS) -c TTE/TMVAEvaluator.cc -o $@
 
 ### DIL
 .DILBranches.o: DIL/Branches.cc DIL/Branches.h DIL/Branches_*.h
@@ -159,6 +173,11 @@ libConfigParser.so: configParser/config.h
 .DILPlotter.o: DIL/Plotter.cc DIL/Plotter.h DIL/FillHistos.h DIL/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c DIL/Plotter.cc -o $@
 
+.DIL_TMVASampler.o: DIL/TMVASampler.cc DIL/TMVASampler.h DIL/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c DIL/TMVASampler.cc -o $@
+
+#.DIL_TMVAEvaluator.o: DIL/TMVAEvaluator.cc DIL/TMVAEvaluator.h DIL/Branches_*.h
+#	$(CXX) $(CXXFLAGS) -c DIL/TMVAEvaluator.cc -o $@
 
 ########################
 ###      Global      ###

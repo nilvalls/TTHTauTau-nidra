@@ -41,7 +41,6 @@ class Analyzer {
 		bool					checkReality;
 		bool					isMC;
 		TMVAEvaluator*			tmvaEvaluator;
-	//	#include "clarity/cuts_declarations.h"
 
 	public:
 		Analyzer();

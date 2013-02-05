@@ -26,11 +26,10 @@ int main(int argc, char **argv){
 	if(IsArgumentThere("-m")){ PlotStamps();	}
 	if(IsArgumentThere("-o")){ Optimize();		}
 
-
-	/*if(IsArgumentThere("-t")){
-		DistributeProcesses();
+	if(IsArgumentThere("-t")){
+	//	DistributeProcesses();
 		MakeTMVATrainingSample();
-	}//*/
+	}
 
 	Finalize();
 

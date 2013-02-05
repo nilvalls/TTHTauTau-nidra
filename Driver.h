@@ -35,12 +35,15 @@
 
 #include "TTM/Analyzer.h"
 #include "TTM/Plotter.h"
+#include "TTM/TMVASampler.h"
 
 #include "TTE/Analyzer.h"
 #include "TTE/Plotter.h"
+#include "TTE/TMVASampler.h"
 
 #include "DIL/Analyzer.h"
 #include "DIL/Plotter.h"
+#include "DIL/TMVASampler.h"
 
 
 
@@ -74,7 +77,7 @@ using namespace std;
 
 	void			SetParam(string, string);
 	void			SetParam(Config const &, string);
-	string	GetParam(string);
+	string			GetParam(string);
 
 	void			DeleteDir(string);
 	void			ReMakeDir(string);
@@ -90,8 +93,6 @@ using namespace std;
 	void			BackUpConfigFile(string, string);
 	void			NewSection(TStopwatch&);
 	bool			AnalyzeProcess(string const);
-	//bool			PlotProcess(string const);
 	void			MakeTMVATrainingSample();
-	//*/
 
 #endif

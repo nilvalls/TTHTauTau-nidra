@@ -200,12 +200,22 @@ void Optimize(){
 	Print(GREEN," done!");
 }
 
-/*void MakeTMVATrainingSample(){
+void MakeTMVATrainingSample(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Making TMVA training sample...");
-	TMVASampler tmvaSampler(params);
+
+	// Setup TMVAsampler and produce training sample
+	TMVASampler* tmvaSampler = NULL;
+	
+	string channel = GetParam("channel");
+		 if(channel == "TTM"){	tmvaSampler = new TTM_TMVASampler(params); }
+	else if(channel == "TTE"){	tmvaSampler = new TTE_TMVASampler(params); }
+	else if(channel == "DIL"){	tmvaSampler = new DIL_TMVASampler(params); }
+	else{	assert(GetParam("channel") == "either TTM or TTE or DIL");		}
+
+	delete tmvaSampler; tmvaSampler = NULL;
 	Print(GREEN," done!");
-}//*/
+}
 
 void Finalize(){
 	NewSection(stopwatch);

@@ -14,10 +14,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "Branches.h"
 #include "Process.h"
 #include "ProPack.h"
-#include "Analyzer.h"
+
+#include "TTM/Branches.h"
+#include "TTE/Branches.h"
+#include "DIL/Branches.h"
 
 using namespace std;
 
@@ -30,8 +32,10 @@ class TMVASampler {
 
 
 	private: 
+
+	protected:
 		void MakeTrainingSample(ProPack*);
-		void FillTree(TTree*, Process const *, vector<pair<int,int> > const *);
+		virtual void FillTree(TTree*, Process const *);
 
 	protected:
 		TFile* file;
