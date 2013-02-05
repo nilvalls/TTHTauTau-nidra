@@ -21,7 +21,7 @@ function echoSuc {   echo -e $GREEN"[ SUCCESS ]  $1$NOCOLOR"; }
 
 execFile=".nidra.exe"
 
-config="$1"
+config="$PWD/$1"
 options="$*"
 options="${options##$1} "
 
@@ -30,6 +30,8 @@ if [ -z "$1" ]; then echoErr "Must provide a configuration file";
 elif [ ! -e "$config" ]; then echoErr "Config file '$config' invalid";
 elif [ -z "$2" ]; then echoErr "Must provide options";
 fi
+
+cd $(dirname $0)
 
 function hasArgument(){
 	arg=" -$1 "
