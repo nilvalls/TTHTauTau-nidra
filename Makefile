@@ -36,9 +36,8 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 			.Process.o .PContainer.o .ProPack.o \
 			.Branches.o .Analyzer.o .Plotter.o \
 			.TMVASampler.o \
-			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o \
-			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o \
-			.DILBranches.o .DILAnalyzer.o .DILPlotter.o .DIL_TMVASampler.o \
+			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o .TTM_TMVAEvaluator.o \
+			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o .TTE_TMVAEvaluator.o \
 			.Combiner.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
 			.Trigger.o .Cruncher.o \
@@ -47,9 +46,8 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .Process.o .PContainer.o .ProPack.o \
 			.Branches.o .Analyzer.o .Plotter.o \
 			.TMVASampler.o \
-			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o \
-			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o \
-			.DILBranches.o .DILAnalyzer.o .DILPlotter.o .DIL_TMVASampler.o \
+			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o .TTM_TMVAEvaluator.o \
+			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o .TTE_TMVAEvaluator.o \
 			.Combiner.o \
 			.Stacker.o .Stamper.o .Optimizer.o \
 			.Trigger.o .Cruncher.o \
@@ -124,8 +122,6 @@ libConfigParser.so: configParser/config.h
 .TMVASampler.o: TMVASampler.cc TMVASampler.h
 	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
 
-#.TMVAEvaluator.o: TMVAEvaluator.cc TMVAEvaluator.h
-#	$(CXX) $(CXXFLAGS) -c TMVAEvaluator.cc -o $@
 
 ########################
 ### Channel-specific ###
@@ -160,24 +156,8 @@ libConfigParser.so: configParser/config.h
 .TTE_TMVASampler.o: TTE/TMVASampler.cc TTE/TMVASampler.h TTE/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c TTE/TMVASampler.cc -o $@
 
-#.TTE_TMVAEvaluator.o: TTE/TMVAEvaluator.cc TTE/TMVAEvaluator.h TTE/Branches_*.h
-#	$(CXX) $(CXXFLAGS) -c TTE/TMVAEvaluator.cc -o $@
-
-### DIL
-.DILBranches.o: DIL/Branches.cc DIL/Branches.h DIL/Branches_*.h
-	$(CXX) $(CXXFLAGS) -c DIL/Branches.cc -o $@
-
-.DILAnalyzer.o: DIL/Analyzer.cc DIL/Analyzer.h DIL/Branches_*.h DIL/Cuts_*.h DIL/GenHelper.h Analyzer.cc Analyzer.h
-	$(CXX) $(CXXFLAGS) -c DIL/Analyzer.cc -o  $@
-
-.DILPlotter.o: DIL/Plotter.cc DIL/Plotter.h DIL/FillHistos.h DIL/Branches_*.h
-	$(CXX) $(CXXFLAGS) -c DIL/Plotter.cc -o $@
-
-.DIL_TMVASampler.o: DIL/TMVASampler.cc DIL/TMVASampler.h DIL/Branches_*.h
-	$(CXX) $(CXXFLAGS) -c DIL/TMVASampler.cc -o $@
-
-#.DIL_TMVAEvaluator.o: DIL/TMVAEvaluator.cc DIL/TMVAEvaluator.h DIL/Branches_*.h
-#	$(CXX) $(CXXFLAGS) -c DIL/TMVAEvaluator.cc -o $@
+.TTE_TMVAEvaluator.o: TTE/TMVAEvaluator.cc TTE/TMVAEvaluator.h TTE/Branches_*.h
+	$(CXX) $(CXXFLAGS) -c TTE/TMVAEvaluator.cc -o $@
 
 ########################
 ###      Global      ###

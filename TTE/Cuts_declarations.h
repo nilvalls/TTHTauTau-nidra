@@ -10,6 +10,10 @@
 	bool CutOn_G_NumGenHadTausFromH;		float Min_G_NumGenHadTausFromH;			float Max_G_NumGenHadTausFromH;
 	bool CutOn_G_NumTauHad;					float Min_G_NumTauHad;					float Max_G_NumTauHad;
 
+	bool CutOn_T1_MatchAbsId;				float Min_T1_MatchAbsId;				float Max_T1_MatchAbsId;
+	bool CutOn_T2_MatchAbsId;				float Min_T2_MatchAbsId;				float Max_T2_MatchAbsId;
+	bool CutOn_T1_ParentAbsId;				float Min_T1_ParentAbsId;				float Max_T1_ParentAbsId;
+	bool CutOn_T2_ParentAbsId;				float Min_T2_ParentAbsId;				float Max_T2_ParentAbsId;
 	bool CutOn_T1_Reality;					float Min_T1_Reality;					float Max_T1_Reality;
 	bool CutOn_T2_Reality;					float Min_T2_Reality;					float Max_T2_Reality;
 	bool CutOn_TT_Reality;					float Min_TT_Reality;					float Max_TT_Reality;
@@ -19,6 +23,10 @@
 	bool CutOn_E_IsLooseElectron;			float Min_E_IsLooseElectron;			float Max_E_IsLooseElectron;
 	bool CutOn_E_IsTightElectron;			float Min_E_IsTightElectron;			float Max_E_IsTightElectron;
 	bool CutOn_E_RelIso;					float Min_E_RelIso;						float Max_E_RelIso;
+	bool CutOn_NumOtherTightMuons;			float Min_NumOtherTightMuons;			float Max_NumOtherTightMuons;
+	bool CutOn_NumOtherLooseMuons;			float Min_NumOtherLooseMuons;			float Max_NumOtherLooseMuons;
+	bool CutOn_NumOtherTightElectrons;		float Min_NumOtherTightElectrons;		float Max_NumOtherTightElectrons;
+	bool CutOn_NumOtherLooseElectrons;		float Min_NumOtherLooseElectrons;		float Max_NumOtherLooseElectrons;
 
 	bool CutOn_T1_pT;						float Min_T1_pT;						float Max_T1_pT;
 	bool CutOn_T2_pT;						float Min_T2_pT;						float Max_T2_pT;
@@ -56,6 +64,8 @@
 	bool CutOn_J_NumNonCSVL;				float Min_J_NumNonCSVL;					float Max_J_NumNonCSVL;
 	bool CutOn_J_NumNonCSVM;				float Min_J_NumNonCSVM;					float Max_J_NumNonCSVM;
 	bool CutOn_J_NumNonCSVT;				float Min_J_NumNonCSVT;					float Max_J_NumNonCSVT;
-	bool CutOn_J_NumInclusive;				float Min_J_NumInclusive;					float Max_J_NumInclusive;
+	bool CutOn_J_NumInclusive;				float Min_J_NumInclusive;				float Max_J_NumInclusive;
+
+	bool CutOn_MVA;							float Min_MVA;							float Max_MVA;
 
 	//NEWCUT

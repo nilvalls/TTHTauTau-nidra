@@ -19,11 +19,9 @@
 #include "Process.h"
 #include "PContainer.h"
 #include "ProPack.h"
-#include "TMVAEvaluator.h"
 
 #include "TTM/Branches.h"
 #include "TTE/Branches.h"
-#include "DIL/Branches.h"
 
 using namespace std;
 
@@ -40,7 +38,6 @@ class Analyzer {
 		bool					isSignal;
 		bool					checkReality;
 		bool					isMC;
-		TMVAEvaluator*			tmvaEvaluator;
 
 	public:
 		Analyzer();

@@ -2,7 +2,7 @@
 																											cutFlow.RegisterCut("skimming + PAT", 0);
 																											cutFlow.RegisterCut("nTuple making", 0);
 															if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.RegisterCut("User event limit", 0); }	
-																											cutFlow.RegisterCut("TTE_AtLeastOneCombo", 0);
+																											cutFlow.RegisterCut("TTM_AtLeastOneCombo", 0);
 	 if(ApplyThisCut("RunNumber"				)){ CutOn_RunNumber					= 	true; cutFlow.RegisterCut("RunNumber", 1);					}
 	 if(ApplyThisCut("LumiSection"				)){ CutOn_LumiSection				= 	true; cutFlow.RegisterCut("LumiSection", 1);				}
 	 if(ApplyThisCut("EventNumber"				)){ CutOn_EventNumber				= 	true; cutFlow.RegisterCut("EventNumber", 1);				}
@@ -28,7 +28,15 @@
 	 if(ApplyThisCut("E_IsLooseElectron"		)){ CutOn_E_IsLooseElectron			= 	true; cutFlow.RegisterCut("E_IsLooseElectron", 1);			}
 	 if(ApplyThisCut("E_IsTightElectron"		)){ CutOn_E_IsTightElectron			= 	true; cutFlow.RegisterCut("E_IsTightElectron", 1);			}
 	 if(ApplyThisCut("E_RelIso"					)){ CutOn_E_RelIso					= 	true; cutFlow.RegisterCut("E_RelIso", 1);					}
+	 if(ApplyThisCut("NumOtherTightMuons"		)){ CutOn_NumOtherTightMuons		= 	true; cutFlow.RegisterCut("NumOtherTightMuons", 1);			}
+	 if(ApplyThisCut("NumOtherLooseMuons"		)){ CutOn_NumOtherLooseMuons		= 	true; cutFlow.RegisterCut("NumOtherLooseMuons", 1);			}
+	 if(ApplyThisCut("NumOtherTightElectrons"	)){ CutOn_NumOtherTightElectrons	= 	true; cutFlow.RegisterCut("NumOtherTightElectrons", 1);		}
+	 if(ApplyThisCut("NumOtherLooseElectrons"	)){ CutOn_NumOtherLooseElectrons	= 	true; cutFlow.RegisterCut("NumOtherLooseElectrons", 1);		}
 
+	 if(ApplyThisCut("T1_MatchAbsId"			)){ CutOn_T1_MatchAbsId				= 	true; cutFlow.RegisterCut("T1_MatchAbsId", 1);				}
+	 if(ApplyThisCut("T2_MatchAbsId"			)){ CutOn_T2_MatchAbsId				= 	true; cutFlow.RegisterCut("T2_MatchAbsId", 1);				}
+	 if(ApplyThisCut("T1_ParentAbsId"			)){ CutOn_T1_ParentAbsId			= 	true; cutFlow.RegisterCut("T1_ParentAbsId", 1);				}
+	 if(ApplyThisCut("T2_ParentAbsId"			)){ CutOn_T2_ParentAbsId			= 	true; cutFlow.RegisterCut("T2_ParentAbsId", 1);				}
 	 if(ApplyThisCut("T1_Reality"				)){ CutOn_T1_Reality				= 	true; cutFlow.RegisterCut("T1_Reality", 1);				}
 	 if(ApplyThisCut("T2_Reality"				)){ CutOn_T2_Reality				= 	true; cutFlow.RegisterCut("T2_Reality", 1);				}
 	 if(ApplyThisCut("TT_Reality"				)){ CutOn_TT_Reality				= 	true; cutFlow.RegisterCut("TT_Reality", 1);				}
@@ -64,6 +72,7 @@
 	 if(ApplyThisCut("TT_CosDeltaPhi"			)){ CutOn_TT_CosDeltaPhi			= 	true; cutFlow.RegisterCut("TT_CosDeltaPhi", 1);				}
 	 if(ApplyThisCut("MET"						)){ CutOn_MET						= 	true; cutFlow.RegisterCut("MET", 1);						}
 
-
 	 if(ApplyThisCut("G_NumTauHad"				)){ CutOn_G_NumTauHad				= 	true; cutFlow.RegisterCut("G_NumTauHad", 1);				}
+
+	 if(ApplyThisCut("MVA"						)){ CutOn_MVA						= 	true; cutFlow.RegisterCut("MVA", 1);						}
 	 //NEWCUT

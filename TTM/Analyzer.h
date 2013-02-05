@@ -3,6 +3,7 @@
 
 #include "../Analyzer.h"
 #include "Branches.h"
+#include "TMVAEvaluator.h"
 #include "GenHelper.h"
 
 using namespace std;
@@ -16,6 +17,7 @@ class TTMAnalyzer : public Analyzer {
 
 
 	private:
+		TTM_TMVAEvaluator*		mva;
 		void 					Reset();
 		pair<double,double>		Loop(Branches*);
 		pair<bool,bool>			ComboPassesCuts(TTMBranches*, unsigned int);

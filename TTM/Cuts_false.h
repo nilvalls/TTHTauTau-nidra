@@ -62,4 +62,6 @@
 	CutOn_J_NumNonCSVM				= false;
 	CutOn_J_NumNonCSVT				= false;
 	CutOn_J_NumInclusive			= false;
+
+	CutOn_MVA						= false;
 	//NEWCUT

@@ -20,10 +20,15 @@ TTMAnalyzer::TTMAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
 	string cutsToApply = params["cutsToApply"];
 	#include "Cuts_setCutsToApply.h"
 
+	if(CutOn_MVA){ mva = new TTM_TMVAEvaluator(iParams); }
+	else{ mva = NULL; }
+
 }
 
 // Default destructor
-TTMAnalyzer::~TTMAnalyzer(){}
+TTMAnalyzer::~TTMAnalyzer(){
+	if(mva != NULL){ delete mva; mva = NULL; }
+}
 
 
 void TTMAnalyzer::Reset(){}
@@ -293,6 +298,9 @@ pair<bool,bool> TTMAnalyzer::ComboPassesCuts(TTMBranches* iEvent, unsigned int i
 
 	// Missing transverse energy
 	if(CutOn_MET){ if(cutFlow.CheckComboAndStop("MET", event->Ev_MET, target)){ return target; }}
+
+	// MVA
+	if(CutOn_MVA){ if(cutFlow.CheckComboAndStop("MVA", mva->Evaluate(event, iCombo), target)){ return target; }}
 
 
 	// Return target, first element is for signal analysis, second is for QCD

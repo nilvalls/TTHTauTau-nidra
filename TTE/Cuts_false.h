@@ -8,6 +8,10 @@
 
 	CutOn_G_NumGenHadTausFromH		= false;
 	CutOn_G_NumTauHad				= false;
+	CutOn_T1_MatchAbsId				= false;
+	CutOn_T2_MatchAbsId				= false;
+	CutOn_T1_ParentAbsId			= false;
+	CutOn_T2_ParentAbsId			= false;
 	CutOn_T1_Reality				= false;
 	CutOn_T2_Reality				= false;
 	CutOn_TT_Reality				= false;
@@ -17,6 +21,10 @@
 	CutOn_E_IsLooseElectron			= false;
 	CutOn_E_IsTightElectron			= false;
 	CutOn_E_RelIso					= false;
+	CutOn_NumOtherTightMuons		= false;
+	CutOn_NumOtherLooseMuons		= false;
+	CutOn_NumOtherTightElectrons	= false;
+	CutOn_NumOtherLooseElectrons	= false;
 
 	CutOn_T1_pT						= false;
 	CutOn_T2_pT						= false;
@@ -54,4 +62,6 @@
 	CutOn_J_NumNonCSVM				= false;
 	CutOn_J_NumNonCSVT				= false;
 	CutOn_J_NumInclusive			= false;
+
+	CutOn_MVA						= false;
 	//NEWCUT

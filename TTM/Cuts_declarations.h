@@ -64,6 +64,8 @@
 	bool CutOn_J_NumNonCSVL;				float Min_J_NumNonCSVL;					float Max_J_NumNonCSVL;
 	bool CutOn_J_NumNonCSVM;				float Min_J_NumNonCSVM;					float Max_J_NumNonCSVM;
 	bool CutOn_J_NumNonCSVT;				float Min_J_NumNonCSVT;					float Max_J_NumNonCSVT;
-	bool CutOn_J_NumInclusive;				float Min_J_NumInclusive;					float Max_J_NumInclusive;
+	bool CutOn_J_NumInclusive;				float Min_J_NumInclusive;				float Max_J_NumInclusive;
+
+	bool CutOn_MVA;							float Min_MVA;							float Max_MVA;
 
 	//NEWCUT

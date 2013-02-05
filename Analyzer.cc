@@ -15,7 +15,6 @@ Analyzer::Analyzer(){
 		isBaseAnalyzer = true;
 		goodEventsForSignal.clear();
 		goodEventsForQCD.clear();
-		tmvaEvaluator = NULL;
 }
 
 // Default constructor
@@ -29,17 +28,10 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 	cutFlow	= CutFlow(params["cutsToApply"]);
 	cutFlow.Reset();
 
-	// If a cut on the MVA is requested, initialize TMVA reader
-	tmvaEvaluator = NULL;
-	//if(CutOn_MVA){ tmvaEvaluator = new TMVAEvaluator(iParams); }
-	//else{ tmvaEvaluator = NULL; }
-
 }
 
 // Default destructor
-Analyzer::~Analyzer(){
-	delete tmvaEvaluator; tmvaEvaluator = NULL;
-}
+Analyzer::~Analyzer(){}
 
 void Analyzer::AnalyzeAll(ProPack& iProPack){
 
@@ -66,7 +58,6 @@ void Analyzer::Analyze(Process& iProcess){
 	Branches* event = NULL;
 		 if(params["channel"] == "TTM"){	event = new TTMBranches(params, iProcess.GetNtuplePath()); }
 	else if(params["channel"] == "TTE"){	event = new TTEBranches(params, iProcess.GetNtuplePath()); }
-	else if(params["channel"] == "DIL"){	event = new DILBranches(params, iProcess.GetNtuplePath()); }
 
 	isSignal		= iProcess.IsSignal();
 	checkReality	= iProcess.CheckReality();

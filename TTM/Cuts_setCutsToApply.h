@@ -72,6 +72,7 @@
 	 if(ApplyThisCut("TT_CosDeltaPhi"			)){ CutOn_TT_CosDeltaPhi			= 	true; cutFlow.RegisterCut("TT_CosDeltaPhi", 1);				}
 	 if(ApplyThisCut("MET"						)){ CutOn_MET						= 	true; cutFlow.RegisterCut("MET", 1);						}
 
-
 	 if(ApplyThisCut("G_NumTauHad"				)){ CutOn_G_NumTauHad				= 	true; cutFlow.RegisterCut("G_NumTauHad", 1);				}
+
+	 if(ApplyThisCut("MVA"						)){ CutOn_MVA						= 	true; cutFlow.RegisterCut("MVA", 1);						}
 	 //NEWCUT
