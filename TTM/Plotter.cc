@@ -37,7 +37,6 @@ void TTMPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 
 	if(iIsMC){
 		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTM_LeptonEventWeight->at(event->bestCombo);	}
-		cout << "weight: " << event->TTM_LeptonEventWeight->at(event->bestCombo) << endl;
 		if(IsFlagThere("PUcorr")){ 
 			//OLD: iPuWeight = iPUcorrector->GetWeight(event->Ev_numInteractionsBX0); 
 			iPuWeight = event->Ev_puWeight;
