@@ -162,10 +162,6 @@
 	delete TTM_Tau1LTvz;
 	delete TTM_Tau1LTValidHits;
 	delete TTM_Tau1LTNormChiSqrd;
-	delete TTM_Tau1MatchesGenHadTauFromH1;
-	delete TTM_Tau1MatchesGenHadTauFromH2;
-	delete TTM_Tau1MatchesGenHadTauFromW1;
-	delete TTM_Tau1MatchesGenHadTauFromW2;
 	delete TTM_Tau1GenMatchDaughter0Id;
 	delete TTM_Tau1GenMatchDaughter1Id;
 	delete TTM_Tau1GenMatchId;
@@ -218,10 +214,6 @@
 	delete TTM_Tau2LTvz;
 	delete TTM_Tau2LTValidHits;
 	delete TTM_Tau2LTNormChiSqrd;
-	delete TTM_Tau2MatchesGenHadTauFromH1;
-	delete TTM_Tau2MatchesGenHadTauFromH2;
-	delete TTM_Tau2MatchesGenHadTauFromW1;
-	delete TTM_Tau2MatchesGenHadTauFromW2;
 	delete TTM_Tau2GenMatchDaughter0Id;
 	delete TTM_Tau2GenMatchDaughter1Id;
 	delete TTM_Tau2GenMatchId;

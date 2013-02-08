@@ -12,9 +12,6 @@
 	CutOn_T2_MatchAbsId				= false;
 	CutOn_T1_ParentAbsId			= false;
 	CutOn_T2_ParentAbsId			= false;
-	CutOn_T1_Reality				= false;
-	CutOn_T2_Reality				= false;
-	CutOn_TT_Reality				= false;
 
 	CutOn_M_pT						= false;
 	CutOn_M_Eta						= false;

@@ -181,10 +181,6 @@
 	TTM_Tau1LTvz->clear();
 	TTM_Tau1LTValidHits->clear();
 	TTM_Tau1LTNormChiSqrd->clear();
-	TTM_Tau1MatchesGenHadTauFromH1->clear();
-	TTM_Tau1MatchesGenHadTauFromH2->clear();
-	TTM_Tau1MatchesGenHadTauFromW1->clear();
-	TTM_Tau1MatchesGenHadTauFromW2->clear();
 	TTM_Tau1GenMatchDaughter0Id->clear();
 	TTM_Tau1GenMatchDaughter1Id->clear();
 	TTM_Tau1GenMatchId->clear();
@@ -237,10 +233,6 @@
 	TTM_Tau2LTvz->clear();
 	TTM_Tau2LTValidHits->clear();
 	TTM_Tau2LTNormChiSqrd->clear();
-	TTM_Tau2MatchesGenHadTauFromH1->clear();
-	TTM_Tau2MatchesGenHadTauFromH2->clear();
-	TTM_Tau2MatchesGenHadTauFromW1->clear();
-	TTM_Tau2MatchesGenHadTauFromW2->clear();
 	TTM_Tau2GenMatchDaughter0Id->clear();
 	TTM_Tau2GenMatchDaughter1Id->clear();
 	TTM_Tau2GenMatchId->clear();

@@ -181,10 +181,6 @@
 	fChain->SetBranchAddress("TTM_Tau1LTvz", &TTM_Tau1LTvz);
 	fChain->SetBranchAddress("TTM_Tau1LTValidHits", &TTM_Tau1LTValidHits);
 	fChain->SetBranchAddress("TTM_Tau1LTNormChiSqrd", &TTM_Tau1LTNormChiSqrd);
-	fChain->SetBranchAddress("TTM_Tau1MatchesGenHadTauFromH1", &TTM_Tau1MatchesGenHadTauFromH1);
-	fChain->SetBranchAddress("TTM_Tau1MatchesGenHadTauFromH2", &TTM_Tau1MatchesGenHadTauFromH2);
-	fChain->SetBranchAddress("TTM_Tau1MatchesGenHadTauFromW1", &TTM_Tau1MatchesGenHadTauFromW1);
-	fChain->SetBranchAddress("TTM_Tau1MatchesGenHadTauFromW2", &TTM_Tau1MatchesGenHadTauFromW2);
 	fChain->SetBranchAddress("TTM_Tau1GenMatchDaughter0Id", &TTM_Tau1GenMatchDaughter0Id);
 	fChain->SetBranchAddress("TTM_Tau1GenMatchDaughter1Id", &TTM_Tau1GenMatchDaughter1Id);
 	fChain->SetBranchAddress("TTM_Tau1GenMatchId", &TTM_Tau1GenMatchId);
@@ -237,10 +233,6 @@
 	fChain->SetBranchAddress("TTM_Tau2LTvz", &TTM_Tau2LTvz);
 	fChain->SetBranchAddress("TTM_Tau2LTValidHits", &TTM_Tau2LTValidHits);
 	fChain->SetBranchAddress("TTM_Tau2LTNormChiSqrd", &TTM_Tau2LTNormChiSqrd);
-	fChain->SetBranchAddress("TTM_Tau2MatchesGenHadTauFromH1", &TTM_Tau2MatchesGenHadTauFromH1);
-	fChain->SetBranchAddress("TTM_Tau2MatchesGenHadTauFromH2", &TTM_Tau2MatchesGenHadTauFromH2);
-	fChain->SetBranchAddress("TTM_Tau2MatchesGenHadTauFromW1", &TTM_Tau2MatchesGenHadTauFromW1);
-	fChain->SetBranchAddress("TTM_Tau2MatchesGenHadTauFromW2", &TTM_Tau2MatchesGenHadTauFromW2);
 	fChain->SetBranchAddress("TTM_Tau2GenMatchDaughter0Id", &TTM_Tau2GenMatchDaughter0Id);
 	fChain->SetBranchAddress("TTM_Tau2GenMatchDaughter1Id", &TTM_Tau2GenMatchDaughter1Id);
 	fChain->SetBranchAddress("TTM_Tau2GenMatchId", &TTM_Tau2GenMatchId);

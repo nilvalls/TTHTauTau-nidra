@@ -55,26 +55,14 @@ hContainer->Fill("AntiElectronIndex_T2", event->GetTau2AntiElectronIndex(iCombo)
 hContainer->Fill("AntiMuonIndex_T1", event->GetTau1AntiMuonIndex(iCombo), weightFull);
 hContainer->Fill("AntiMuonIndex_T2", event->GetTau2AntiMuonIndex(iCombo), weightFull);
 
-	 if(event->TTM_Tau1MatchesGenHadTauFromH1->at(iCombo)){ hContainer->Fill("Parent_T1", 1, weightFull); }
-else if(event->TTM_Tau1MatchesGenHadTauFromH2->at(iCombo)){ hContainer->Fill("Parent_T1", 2, weightFull); }
-else if(event->TTM_Tau1MatchesGenHadTauFromW1->at(iCombo)){ hContainer->Fill("Parent_T1", 3, weightFull); }
-else if(event->TTM_Tau1MatchesGenHadTauFromW2->at(iCombo)){ hContainer->Fill("Parent_T1", 4, weightFull); }
-else													  { hContainer->Fill("Parent_T1", 0, weightFull); }	
-
-	 if(event->TTM_Tau2MatchesGenHadTauFromH1->at(iCombo)){ hContainer->Fill("Parent_T2", 1, weightFull); }
-else if(event->TTM_Tau2MatchesGenHadTauFromH2->at(iCombo)){ hContainer->Fill("Parent_T2", 2, weightFull); }
-else if(event->TTM_Tau2MatchesGenHadTauFromW1->at(iCombo)){ hContainer->Fill("Parent_T2", 3, weightFull); }
-else if(event->TTM_Tau2MatchesGenHadTauFromW2->at(iCombo)){ hContainer->Fill("Parent_T2", 4, weightFull); }
-else													  { hContainer->Fill("Parent_T2", 0, weightFull); }	
-
-//hContainer->Fill("AbsParentPDGid_T1", abs(event->->at(iCombo)), weightFull);
-//hContainer->Fill("AbsParentPDGid_T2", abs(event->->at(iCombo)), weightFull);
-
-
 // Muon ============================================================================================================================
 hContainer->Fill("Pt_M", event->TTM_MuonPt->at(iCombo), weightFull);
 hContainer->Fill("Eta_M", event->TTM_MuonEta->at(iCombo), weightFull);
 hContainer->Fill("Phi_M", event->TTM_MuonPhi->at(iCombo), weightFull);
+hContainer->Fill("NumOtherTightMuons", event->TTM_NumOtherTightMuons->at(iCombo), weightFull);
+hContainer->Fill("NumOtherLooseMuons", event->TTM_NumOtherLooseMuons->at(iCombo), weightFull);
+hContainer->Fill("NumOtherTightElectrons", event->TTM_NumOtherTightElectrons, weightFull);
+hContainer->Fill("NumOtherLooseElectrons", event->TTM_NumOtherLooseElectrons, weightFull);
 
 // Jets ============================================================================================================================
 hContainer->Fill("NumCSVLbtags", event->TTM_NumCSVLbtagJets->at(iCombo), weightFull);

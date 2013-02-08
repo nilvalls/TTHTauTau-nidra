@@ -181,10 +181,6 @@
 	vector<float>* TTM_Tau1LTvz;
 	vector<unsigned int>* TTM_Tau1LTValidHits;
 	vector<float>* TTM_Tau1LTNormChiSqrd;
-	vector<bool>* TTM_Tau1MatchesGenHadTauFromH1;
-	vector<bool>* TTM_Tau1MatchesGenHadTauFromH2;
-	vector<bool>* TTM_Tau1MatchesGenHadTauFromW1;
-	vector<bool>* TTM_Tau1MatchesGenHadTauFromW2;
 	vector<int>* TTM_Tau1GenMatchDaughter0Id;
 	vector<int>* TTM_Tau1GenMatchDaughter1Id;
 	vector<int>* TTM_Tau1GenMatchId;
@@ -237,10 +233,6 @@
 	vector<float>* TTM_Tau2LTvz;
 	vector<unsigned int>* TTM_Tau2LTValidHits;
 	vector<float>* TTM_Tau2LTNormChiSqrd;
-	vector<bool>* TTM_Tau2MatchesGenHadTauFromH1;
-	vector<bool>* TTM_Tau2MatchesGenHadTauFromH2;
-	vector<bool>* TTM_Tau2MatchesGenHadTauFromW1;
-	vector<bool>* TTM_Tau2MatchesGenHadTauFromW2;
 	vector<int>* TTM_Tau2GenMatchDaughter0Id;
 	vector<int>* TTM_Tau2GenMatchDaughter1Id;
 	vector<int>* TTM_Tau2GenMatchId;

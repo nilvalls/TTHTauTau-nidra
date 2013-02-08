@@ -181,10 +181,6 @@
 	TTM_Tau1LTvz = NULL;
 	TTM_Tau1LTValidHits = NULL;
 	TTM_Tau1LTNormChiSqrd = NULL;
-	TTM_Tau1MatchesGenHadTauFromH1 = NULL;
-	TTM_Tau1MatchesGenHadTauFromH2 = NULL;
-	TTM_Tau1MatchesGenHadTauFromW1 = NULL;
-	TTM_Tau1MatchesGenHadTauFromW2 = NULL;
 	TTM_Tau1GenMatchDaughter0Id = NULL;
 	TTM_Tau1GenMatchDaughter1Id = NULL;
 	TTM_Tau1GenMatchId = NULL;
@@ -237,10 +233,6 @@
 	TTM_Tau2LTvz = NULL;
 	TTM_Tau2LTValidHits = NULL;
 	TTM_Tau2LTNormChiSqrd = NULL;
-	TTM_Tau2MatchesGenHadTauFromH1 = NULL;
-	TTM_Tau2MatchesGenHadTauFromH2 = NULL;
-	TTM_Tau2MatchesGenHadTauFromW1 = NULL;
-	TTM_Tau2MatchesGenHadTauFromW2 = NULL;
 	TTM_Tau2GenMatchDaughter0Id = NULL;
 	TTM_Tau2GenMatchDaughter1Id = NULL;
 	TTM_Tau2GenMatchId = NULL;

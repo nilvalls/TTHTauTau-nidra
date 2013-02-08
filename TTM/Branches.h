@@ -34,11 +34,6 @@ class TTMBranches : public Branches {
 		unsigned int	GetTau2AntiElectronIndex(const unsigned int);
 		unsigned int	GetTau1AntiMuonIndex(const unsigned int);
 		unsigned int	GetTau2AntiMuonIndex(const unsigned int);
-		unsigned int	Tau1MatchedTo(unsigned int);
-		unsigned int	Tau2MatchedTo(unsigned int);
-		bool IsRealDitauCombo(unsigned int);
-		void PrintDitauReality(unsigned int);
-
 
 	public:
 		#include "Branches_declarations.h"

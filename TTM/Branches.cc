@@ -91,37 +91,3 @@ unsigned int TTMBranches::GetTau2AntiMuonIndex(const unsigned int iCombo){
 	if(TTM_Tau2HPSagainstMuonLoose->at(iCombo)){	return 1; }
 	return 0;
 }
-
-unsigned int TTMBranches::Tau1MatchedTo(unsigned int iCombo){
-	unsigned int result = 0;
-	if(TTM_Tau1MatchesGenHadTauFromH1->at(iCombo)){ result = 1; }
-	else if(TTM_Tau1MatchesGenHadTauFromH2->at(iCombo)){ result = 2; }
-	else if(TTM_Tau1MatchesGenHadTauFromW1->at(iCombo)){ result = 3; }
-	else if(TTM_Tau1MatchesGenHadTauFromW2->at(iCombo)){ result = 4; }
-	else{ result = 5; }
-	return result;
-}
-
-unsigned int TTMBranches::Tau2MatchedTo(unsigned int iCombo){
-	unsigned int result = 0;
-	if(TTM_Tau2MatchesGenHadTauFromH1->at(iCombo)){ result = 1; }
-	else if(TTM_Tau2MatchesGenHadTauFromH2->at(iCombo)){ result = 2; }
-	else if(TTM_Tau2MatchesGenHadTauFromW1->at(iCombo)){ result = 3; }
-	else if(TTM_Tau2MatchesGenHadTauFromW2->at(iCombo)){ result = 4; }
-	else{ result = 5; }
-	return result;
-}
-
-bool TTMBranches::IsRealDitauCombo(unsigned int iCombo){
-	return (((TTM_Tau1MatchesGenHadTauFromH1->at(iCombo)) && (TTM_Tau2MatchesGenHadTauFromH2->at(iCombo))) ||
-			((TTM_Tau1MatchesGenHadTauFromH2->at(iCombo)) && (TTM_Tau2MatchesGenHadTauFromH1->at(iCombo))));
-}
-
-void TTMBranches::PrintDitauReality(unsigned int iCombo){
-	cout << TTM_Tau1MatchesGenHadTauFromH1->at(iCombo) << " " << 
-			TTM_Tau2MatchesGenHadTauFromH2->at(iCombo) << " | " << 
-			TTM_Tau1MatchesGenHadTauFromH2->at(iCombo) << " " <<
-			TTM_Tau2MatchesGenHadTauFromH1->at(iCombo) << endl;
-
-}
-
