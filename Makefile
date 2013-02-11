@@ -131,7 +131,7 @@ libConfigParser.so: configParser/config.h
 .TTMBranches.o: TTM/Branches.cc TTM/Branches.h TTM/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c TTM/Branches.cc -o $@
 
-.TTMAnalyzer.o: TTM/Analyzer.cc TTM/Analyzer.h TTM/Branches_*.h TTM/Cuts_*.h TTM/GenHelper.h Analyzer.cc Analyzer.h
+.TTMAnalyzer.o: TTM/Analyzer.cc TTM/Analyzer.h TTM/Branches_*.h TTM/Cuts_*.h Analyzer.cc Analyzer.h
 	$(CXX) $(CXXFLAGS) -c TTM/Analyzer.cc -o  $@
 
 .TTMPlotter.o: TTM/Plotter.cc TTM/Plotter.h TTM/FillHistos.h TTM/Branches_*.h
@@ -147,7 +147,7 @@ libConfigParser.so: configParser/config.h
 .TTEBranches.o: TTE/Branches.cc TTE/Branches.h TTE/Branches_*.h
 	$(CXX) $(CXXFLAGS) -c TTE/Branches.cc -o $@
 
-.TTEAnalyzer.o: TTE/Analyzer.cc TTE/Analyzer.h TTE/Branches_*.h TTE/Cuts_*.h TTE/GenHelper.h Analyzer.cc Analyzer.h
+.TTEAnalyzer.o: TTE/Analyzer.cc TTE/Analyzer.h TTE/Branches_*.h TTE/Cuts_*.h Analyzer.cc Analyzer.h
 	$(CXX) $(CXXFLAGS) -c TTE/Analyzer.cc -o  $@
 
 .TTEPlotter.o: TTE/Plotter.cc TTE/Plotter.h TTE/FillHistos.h TTE/Branches_*.h

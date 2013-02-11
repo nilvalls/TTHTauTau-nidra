@@ -259,8 +259,10 @@
 	TTM_MuonIsLooseMuon = NULL;
 	TTM_MuonIsTightMuon = NULL;
 	TTM_NumOtherLooseMuons = NULL;
+	TTM_NumOtherExLooseMuons = NULL;
 	TTM_NumOtherTightMuons = NULL;
 	TTM_NumOtherLooseElectrons = 0;
+	TTM_NumOtherExLooseElectrons = 0;
 	TTM_NumOtherTightElectrons = 0;
 	TTM_LeptonEventWeight = NULL;
 	TTM_MuonGenMatchDaughter0Id = NULL;

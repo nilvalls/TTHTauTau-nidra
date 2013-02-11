@@ -259,8 +259,10 @@
 	vector<int>* TTM_MuonIsLooseMuon;
 	vector<int>* TTM_MuonIsTightMuon;
 	vector<unsigned int>* TTM_NumOtherLooseMuons;
+	vector<unsigned int>* TTM_NumOtherExLooseMuons;
 	vector<unsigned int>* TTM_NumOtherTightMuons;
 	unsigned int TTM_NumOtherLooseElectrons;
+	unsigned int TTM_NumOtherExLooseElectrons;
 	unsigned int TTM_NumOtherTightElectrons;
 	vector<float>* TTM_LeptonEventWeight;
 	vector<int>* TTM_MuonGenMatchDaughter0Id;

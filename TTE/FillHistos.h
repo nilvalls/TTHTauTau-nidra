@@ -1,5 +1,5 @@
 
-float weightFull	= iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight;
+float weightFull	= iLeptonWeight*iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight;
 float weightTrigger = iTau1TriggerWeight*iTau2TriggerWeight;
 float weightTau1	= iPuWeight*iTau1TriggerWeight;
 float weightTau2	= iPuWeight*iTau1TriggerWeight;
@@ -18,6 +18,7 @@ if(iPuWeight!=0){
 	hContainer->Fill("NumberBXm1_noPURW", event->Ev_numInteractionsBXm1, weightFull/iPuWeight);
 	hContainer->Fill("NumberBX0_noPURW", event->Ev_numInteractionsBX0, weightFull/iPuWeight);
 	hContainer->Fill("NumberBXp1_noPURW", event->Ev_numInteractionsBXp1, weightFull/iPuWeight);
+	hContainer->Fill("PUweights_noPURW", iPuWeight, weightFull/iPuWeight);
 }else{
 	//cout << "zero found in iPUweight, numBX: " << event->Ev_numInteractionsBX0 << endl;
 }
@@ -27,6 +28,7 @@ if(IsFlagThere("PUcorr")){
 	hContainer->Fill("NumberBXm1_afterPURW", event->Ev_numInteractionsBXm1, weightFull);
 	hContainer->Fill("NumberBX0_afterPURW", event->Ev_numInteractionsBX0, weightFull);
 	hContainer->Fill("NumberBXp1_afterPURW", event->Ev_numInteractionsBXp1, weightFull);
+	hContainer->Fill("PUweights_afterPURW", iPuWeight, weightFull);
 }
 
 hContainer->Fill("ChargeProduct_TT", (event->TTE_Tau1Charge->at(iCombo) * event->TTE_Tau2Charge->at(iCombo)), weightFull);
@@ -57,6 +59,12 @@ hContainer->Fill("AntiMuonIndex_T2", event->GetTau2AntiMuonIndex(iCombo), weight
 hContainer->Fill("Pt_E", event->TTE_ElectronPt->at(iCombo), weightFull);
 hContainer->Fill("Eta_E", event->TTE_ElectronEta->at(iCombo), weightFull);
 hContainer->Fill("Phi_E", event->TTE_ElectronPhi->at(iCombo), weightFull);
+hContainer->Fill("NumOtherTightElectrons", event->TTE_NumOtherTightElectrons->at(iCombo), weightFull);
+hContainer->Fill("NumOtherLooseElectrons", event->TTE_NumOtherLooseElectrons->at(iCombo), weightFull);
+hContainer->Fill("NumOtherExLooseElectrons", event->TTE_NumOtherExLooseElectrons->at(iCombo), weightFull);
+hContainer->Fill("NumOtherTightMuons", event->TTE_NumOtherTightMuons, weightFull);
+hContainer->Fill("NumOtherLooseMuons", event->TTE_NumOtherLooseMuons, weightFull);
+hContainer->Fill("NumOtherExLooseMuons", event->TTE_NumOtherExLooseMuons, weightFull);
 
 // Jets ============================================================================================================================
 hContainer->Fill("NumCSVLbtags", event->TTE_NumCSVLbtagJets->at(iCombo), weightFull);

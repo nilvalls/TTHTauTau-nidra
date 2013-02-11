@@ -57,8 +57,6 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 	// Actual loop
 	double NOEanalyzed = 0;
 	double NOEwithAtLeastOneCombo = 0;
-	double NOEwithTwoRealTaus = 0;
-	double NOEwithoutTwoRealTaus = 0;
 	for (Long64_t jentry=0; jentry<nentries; jentry++) {
 		// Keep user informed of the number of events processed and if there is a termination due to reaching of the limit
 		if ( maxEvents > 0 && jentry >= (unsigned int)(maxEvents)){ cout << "\n\t>>> INFO: Reached user-imposed event number limit (" << maxEvents << "), skipping the rest." << endl; break; }
@@ -80,11 +78,7 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 		// Inform cutFlow that a new event is starting
 		cutFlow.StartOfEvent();
 
-
 		// Loop over all the combos
-		bool comboHasTwoRealTaus = false;
-		int realTauCombo = -1;
-
 		for (unsigned int combo = 0; combo < event->TTM_NumCombos; combo++){
 
 			// Obtain combo's mass
@@ -94,7 +88,6 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 
 			// Rest of selections
 			pair<bool,bool> combosTarget = ComboPassesCuts(event, combo);
-			//if( event->IsRealDitauCombo(combo) ){ comboHasTwoRealTaus = true; realTauCombo = combo; }
 
 			// Inform cutFlow that we've checked this combo against all cuts
 			cutFlow.EndOfCombo(combosTarget, combo);
@@ -103,28 +96,16 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 			if(cutFlow.HaveGoodCombos()){ break; }
 		}
 
-		//if(comboHasTwoRealTaus){ NOEwithTwoRealTaus++; }
-		//else{ NOEwithoutTwoRealTaus++; }
-
 		// Inform cutFlow that we've checked all the combos
 		cutFlow.EndOfEvent();
 		//cutFlow.PrintTable() ;
 
 		// Fill good event vectors for signal analysis
-		//cout << "cutFlow.EventForSignalPassed(): " << cutFlow.EventForSignalPassed() << endl;
 		if(cutFlow.EventForSignalPassed()){
 			int heaviestComboForSignal = cutFlow.GetHeaviestComboForSignal();
 			event->SetBestCombo(heaviestComboForSignal);
 			goodEventsForSignal.push_back(make_pair(jentry, heaviestComboForSignal));
-		}else{ 
-			/*fout << event->Ev_runNumber << ":" << event->Ev_lumiBlock << ":" << event->Ev_eventNumber;
-			if(realTauCombo >= 0){
-				fout << " | " << event->TTM_Tau1Eta->at(realTauCombo) << " " << event->TTM_Tau1Phi->at(realTauCombo) << " :: " << event->TTM_Tau1HPSagainstMuonLoose->at(realTauCombo)
-					 << " | " << event->TTM_Tau2Eta->at(realTauCombo) << " " << event->TTM_Tau2Phi->at(realTauCombo) << " :: " << event->TTM_Tau2HPSagainstMuonLoose->at(realTauCombo);
-			}
-			fout << endl;//*/
 		}
-		//cout << "size: " << goodEventsForSignal.size() << endl;
 
 		// Fill good event vectors for QCD analysis
 		if(cutFlow.EventForQCDPassed()){
@@ -136,8 +117,6 @@ pair<double,double> TTMAnalyzer::Loop(Branches* iEvent){
 
 		NOEanalyzed++;
 	}
-
-//	cout << "NOEwithTwoRealTaus: " << setprecision(6) << NOEwithTwoRealTaus << " " << NOEwithoutTwoRealTaus << " " << (NOEwithTwoRealTaus+NOEwithoutTwoRealTaus) << endl;
 
 	if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", NOEanalyzed, NOEanalyzed); }
 	cutFlow.SetCutCounts("TTM_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
@@ -210,20 +189,15 @@ pair<bool,bool> TTMAnalyzer::ComboPassesCuts(TTMBranches* iEvent, unsigned int i
 		if(CutOn_T2_MatchAbsId){ 	cutFlow.ComboIsGood("T2_MatchAbsId");	}
 		if(CutOn_T1_ParentAbsId){	cutFlow.ComboIsGood("T1_ParentAbsId");	}
 		if(CutOn_T2_ParentAbsId){	cutFlow.ComboIsGood("T2_ParentAbsId");	}
-		if(CutOn_G_NumTauHad){		cutFlow.ComboIsGood("G_NumTauHad");	}
 	}else{
 		if(CutOn_T1_MatchAbsId){	if(cutFlow.CheckComboAndStop("T1_MatchAbsId", abs(event->TTM_Tau1GenMatchId->at(iCombo)), target)){			return target; }}
 		if(CutOn_T2_MatchAbsId){	if(cutFlow.CheckComboAndStop("T2_MatchAbsId", abs(event->TTM_Tau2GenMatchId->at(iCombo)), target)){			return target; }}
 		if(CutOn_T1_ParentAbsId){	if(cutFlow.CheckComboAndStop("T1_ParentAbsId", abs(event->TTM_Tau1GenMatchMother0Id->at(iCombo)), target)){	return target; }}
 		if(CutOn_T2_ParentAbsId){	if(cutFlow.CheckComboAndStop("T2_ParentAbsId", abs(event->TTM_Tau2GenMatchMother0Id->at(iCombo)), target)){	return target; }}
-		if(CutOn_G_NumTauHad){		if(cutFlow.CheckComboAndStop("G_NumTauHad", NumGenTauHad(event), target)){					return target; }}
 	}
 
 
 	// ============================= Acceptance Cuts ============================= //
-
-	// Invariant mass
-//	if(CutOn_InvariantMass){ if(cutFlow.CheckComboAndStop("InvariantMass", event->TauTauVisPlusMetMass->at(iCombo), target)){ return target; }}
 
 	// Transverse momentum
 	if(CutOn_T1_pT){ if(cutFlow.CheckComboAndStop("T1_pT", event->TTM_Tau1Pt->at(iCombo), target)){ return target; }}

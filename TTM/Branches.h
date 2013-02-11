@@ -1,10 +1,3 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Tue Jun  7 03:28:02 2011 by ROOT version 5.27/06b
-// from TTree HMTTree/TauTauTree
-// found on file: ditau_nTuple.root
-//////////////////////////////////////////////////////////
-
 #ifndef TTMBranches_h
 #define TTMBranches_h
 
@@ -26,7 +19,6 @@ class TTMBranches : public Branches {
 		TTMBranches();
 		TTMBranches(map<string,string> const &, string const);
 		~TTMBranches();
-
 
 		unsigned int	GetTau1IsolationIndex(const unsigned int);
 		unsigned int	GetTau2IsolationIndex(const unsigned int);

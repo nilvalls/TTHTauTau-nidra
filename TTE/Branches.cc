@@ -1,12 +1,3 @@
-/*
-    Author:			Nil Valls <nil.valls@cern.ch>
-    Date:			11 Jun 2011
-    Description:	Plot stacking class.
-    Notes:
-
-*/
-
-
 #define TTEBranches_cxx
 #include "Branches.h"
 
@@ -90,37 +81,4 @@ unsigned int TTEBranches::GetTau2AntiMuonIndex(const unsigned int iCombo){
 	if(TTE_Tau2HPSagainstMuonMedium->at(iCombo)){	return 2; }
 	if(TTE_Tau2HPSagainstMuonLoose->at(iCombo)){	return 1; }
 	return 0;
-}
-
-unsigned int TTEBranches::Tau1MatchedTo(unsigned int iCombo){
-	unsigned int result = 0;
-	if(TTE_Tau1MatchesGenHadTauFromH1->at(iCombo)){ result = 1; }
-	else if(TTE_Tau1MatchesGenHadTauFromH2->at(iCombo)){ result = 2; }
-	else if(TTE_Tau1MatchesGenHadTauFromW1->at(iCombo)){ result = 3; }
-	else if(TTE_Tau1MatchesGenHadTauFromW2->at(iCombo)){ result = 4; }
-	else{ result = 5; }
-	return result;
-}
-
-unsigned int TTEBranches::Tau2MatchedTo(unsigned int iCombo){
-	unsigned int result = 0;
-	if(TTE_Tau2MatchesGenHadTauFromH1->at(iCombo)){ result = 1; }
-	else if(TTE_Tau2MatchesGenHadTauFromH2->at(iCombo)){ result = 2; }
-	else if(TTE_Tau2MatchesGenHadTauFromW1->at(iCombo)){ result = 3; }
-	else if(TTE_Tau2MatchesGenHadTauFromW2->at(iCombo)){ result = 4; }
-	else{ result = 5; }
-	return result;
-}
-
-bool TTEBranches::IsRealDitauCombo(unsigned int iCombo){
-	return (((TTE_Tau1MatchesGenHadTauFromH1->at(iCombo)) && (TTE_Tau2MatchesGenHadTauFromH2->at(iCombo))) ||
-			((TTE_Tau1MatchesGenHadTauFromH2->at(iCombo)) && (TTE_Tau2MatchesGenHadTauFromH1->at(iCombo))));
-}
-
-void TTEBranches::PrintDitauReality(unsigned int iCombo){
-	cout << TTE_Tau1MatchesGenHadTauFromH1->at(iCombo) << " " << 
-			TTE_Tau2MatchesGenHadTauFromH2->at(iCombo) << " | " << 
-			TTE_Tau1MatchesGenHadTauFromH2->at(iCombo) << " " <<
-			TTE_Tau2MatchesGenHadTauFromH1->at(iCombo) << endl;
-
 }

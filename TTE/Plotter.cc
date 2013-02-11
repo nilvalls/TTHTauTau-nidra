@@ -30,11 +30,13 @@ void TTEPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 	TTEBranches* event = (TTEBranches*)iEvent;
 	int iCombo = event->bestCombo;
 
-	float iPuWeight = 1.0;
-	float iTau1TriggerWeight = 1.0;
-	float iTau2TriggerWeight = 1.0;
+	float iLeptonWeight			= 1.0;
+	float iPuWeight				= 1.0;
+	float iTau1TriggerWeight	= 1.0;
+	float iTau2TriggerWeight	= 1.0;
 
 	if(iIsMC){
+		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTE_LeptonEventWeight->at(event->bestCombo);	}
 		if(IsFlagThere("PUcorr")){ 
 			//OLD: iPuWeight = iPUcorrector->GetWeight(event->Ev_numInteractionsBX0); 
 			iPuWeight = event->Ev_puWeight;
@@ -45,9 +47,10 @@ void TTEPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		}
 	}//*/
 
-	iWeightCounter->puCorrection	+= iPuWeight;
-	iWeightCounter->tau1Trigger		+= iTau1TriggerWeight*iPuWeight;
-	iWeightCounter->tau2Trigger		+= iTau2TriggerWeight*iTau1TriggerWeight*iPuWeight;
+	iWeightCounter->leptonCorrection	+= iLeptonWeight;
+	iWeightCounter->puCorrection		+= iPuWeight;
+	iWeightCounter->tau1Trigger			+= iTau1TriggerWeight*iPuWeight;
+	iWeightCounter->tau2Trigger			+= iTau2TriggerWeight*iTau1TriggerWeight*iPuWeight;
 	iWeightCounter->total++;
 	
 

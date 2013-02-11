@@ -2,7 +2,7 @@
 																											cutFlow.RegisterCut("skimming + PAT", 0);
 																											cutFlow.RegisterCut("nTuple making", 0);
 															if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.RegisterCut("User event limit", 0); }	
-																											cutFlow.RegisterCut("TTE_AtLeastOneCombo", 0);
+																											cutFlow.RegisterCut("TTM_AtLeastOneCombo", 0);
 	 if(ApplyThisCut("RunNumber"				)){ CutOn_RunNumber					= 	true; cutFlow.RegisterCut("RunNumber", 1);					}
 	 if(ApplyThisCut("LumiSection"				)){ CutOn_LumiSection				= 	true; cutFlow.RegisterCut("LumiSection", 1);				}
 	 if(ApplyThisCut("EventNumber"				)){ CutOn_EventNumber				= 	true; cutFlow.RegisterCut("EventNumber", 1);				}

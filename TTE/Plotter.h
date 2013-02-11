@@ -1,10 +1,3 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Tue Jun  7 03:28:02 2011 by ROOT version 5.27/06b
-// from TTree HMTTree/TauTauTree
-// found on file: ditau_nTuple.root
-//////////////////////////////////////////////////////////
-
 #ifndef TTEPlotter_h
 #define TTEPlotter_h
 

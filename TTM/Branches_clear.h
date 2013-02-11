@@ -259,8 +259,10 @@
 	TTM_MuonIsLooseMuon->clear();
 	TTM_MuonIsTightMuon->clear();
 	TTM_NumOtherLooseMuons->clear();
+	TTM_NumOtherExLooseMuons->clear();
 	TTM_NumOtherTightMuons->clear();
 	TTM_NumOtherLooseElectrons = 0;
+	TTM_NumOtherExLooseElectrons = 0;
 	TTM_NumOtherTightElectrons = 0;
 	TTM_LeptonEventWeight->clear();
 	TTM_MuonGenMatchDaughter0Id->clear();

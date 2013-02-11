@@ -61,8 +61,10 @@ hContainer->Fill("Eta_M", event->TTM_MuonEta->at(iCombo), weightFull);
 hContainer->Fill("Phi_M", event->TTM_MuonPhi->at(iCombo), weightFull);
 hContainer->Fill("NumOtherTightMuons", event->TTM_NumOtherTightMuons->at(iCombo), weightFull);
 hContainer->Fill("NumOtherLooseMuons", event->TTM_NumOtherLooseMuons->at(iCombo), weightFull);
+hContainer->Fill("NumOtherExLooseMuons", event->TTM_NumOtherExLooseMuons->at(iCombo), weightFull);
 hContainer->Fill("NumOtherTightElectrons", event->TTM_NumOtherTightElectrons, weightFull);
 hContainer->Fill("NumOtherLooseElectrons", event->TTM_NumOtherLooseElectrons, weightFull);
+hContainer->Fill("NumOtherExLooseElectrons", event->TTM_NumOtherExLooseElectrons, weightFull);
 
 // Jets ============================================================================================================================
 hContainer->Fill("NumCSVLbtags", event->TTM_NumCSVLbtagJets->at(iCombo), weightFull);

@@ -1,12 +1,3 @@
-/*
-    Author:			Nil Valls <nil.valls@cern.ch>
-    Date:			11 Jun 2011
-    Description:	Plot stacking class.
-    Notes:
-
-*/
-
-
 #define TTMBranches_cxx
 #include "Branches.h"
 

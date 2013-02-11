@@ -240,6 +240,7 @@
 	delete TTM_MuonIsLooseMuon;
 	delete TTM_MuonIsTightMuon;
 	delete TTM_NumOtherLooseMuons;
+	delete TTM_NumOtherExLooseMuons;
 	delete TTM_NumOtherTightMuons;
 	delete TTM_LeptonEventWeight;
 	delete TTM_MuonGenMatchDaughter0Id;

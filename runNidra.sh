@@ -57,7 +57,7 @@ fi
 
 if hasArgument "r"; then 
 		echoInf "Compiling nidra..."
-		make all
+		make -j10 all
 		if [ $? -ne 0 ]; then echoErr "Error while compiling nidra"; exit 1; fi
 fi
 
@@ -83,7 +83,7 @@ function checkExe(){
 	fi
 }
 
-if hasArgument "m"; then make all; fi
+if hasArgument "m"; then make -j10 all; fi
 
 if hasArgument "f"; then 
 	checkExe;

@@ -14,9 +14,6 @@
 	bool CutOn_T2_MatchAbsId;				float Min_T2_MatchAbsId;				float Max_T2_MatchAbsId;
 	bool CutOn_T1_ParentAbsId;				float Min_T1_ParentAbsId;				float Max_T1_ParentAbsId;
 	bool CutOn_T2_ParentAbsId;				float Min_T2_ParentAbsId;				float Max_T2_ParentAbsId;
-	bool CutOn_T1_Reality;					float Min_T1_Reality;					float Max_T1_Reality;
-	bool CutOn_T2_Reality;					float Min_T2_Reality;					float Max_T2_Reality;
-	bool CutOn_TT_Reality;					float Min_TT_Reality;					float Max_TT_Reality;
 
 	bool CutOn_E_pT;						float Min_E_pT;							float Max_E_pT;
 	bool CutOn_E_Eta;						float Min_E_Eta;						float Max_E_Eta;
