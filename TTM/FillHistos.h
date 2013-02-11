@@ -36,6 +36,7 @@ hContainer->Fill("ChargeProduct_TT", (event->TTM_Tau1Charge->at(iCombo) * event-
 // Taus ============================================================================================================================
 hContainer->Fill("NumTaus", event->TTM_NumTaus, weightFull);
 hContainer->Fill("VisibleMass_TT", event->TTM_DitauVisibleMass->at(iCombo), weightFull);
+hContainer->Fill("DeltaR_TT", event->TTM_DitauDeltaR->at(iCombo), weightFull);
 hContainer->Fill("Pt_T1", event->TTM_Tau1Pt->at(iCombo), weightFull);
 hContainer->Fill("Pt_T2", event->TTM_Tau2Pt->at(iCombo), weightFull);
 hContainer->Fill("Eta_T1", event->TTM_Tau1Eta->at(iCombo), weightFull);
@@ -67,6 +68,13 @@ hContainer->Fill("NumOtherLooseElectrons", event->TTM_NumOtherLooseElectrons, we
 hContainer->Fill("NumOtherExLooseElectrons", event->TTM_NumOtherExLooseElectrons, weightFull);
 
 // Jets ============================================================================================================================
+std::vector<float>::iterator iJet = event->J_Pt->begin();
+if( iJet != event->J_Pt->end() ) {
+  hContainer->Fill("LeadingJet_Pt", *iJet, weightFull);
+}
+if( iJet++ != event->J_Pt->end() ) {
+  hContainer->Fill("SubLeadingJet_Pt", *iJet, weightFull);
+}
 hContainer->Fill("NumCSVLbtags", event->TTM_NumCSVLbtagJets->at(iCombo), weightFull);
 hContainer->Fill("NumCSVMbtags", event->TTM_NumCSVMbtagJets->at(iCombo), weightFull);
 hContainer->Fill("NumCSVTbtags", event->TTM_NumCSVTbtagJets->at(iCombo), weightFull);
