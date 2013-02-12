@@ -4,4 +4,5 @@ histocfg/pileup.cfg
 #histocfg/gentaus.cfg
 histocfg/muon.cfg
 histocfg/jets.cfg
+histocfg/electron.cfg
 
