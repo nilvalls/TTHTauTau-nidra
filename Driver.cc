@@ -322,19 +322,25 @@ void BuildProPack(string iPath){
 	proPack = new ProPack(params);
 
 	// Loop over all the topologies in the config file
+    // Cloned for to avoid double free()
 	vector<pair<string,Config*> > topoConfigs(theConfig.getGroupsVec());
 
+    // Try to find option for (additional) topologies
     std::string topofile = theConfig.pString("topologyFile");
     Config *topocfg = NULL; // need to keep dependent stuff in memory until end of function
     if (topofile != "") {
         using namespace boost::filesystem;
 
+        // If additional topologies are not defined locally, look in nidra's
+        // directory
         path lpath(topofile);
         if (not exists(lpath) or is_directory(lpath)) {
             path epath = system_complete(lpath);
             topofile = epath.string();
         }
 
+        // Read additional topologies, and copy them into the vector to be
+        // looped over
         topocfg = new Config(topofile);
         std::vector< pair<string,Config*> > new_topos = topocfg->getGroupsVec();
         topoConfigs.insert(topoConfigs.end(), new_topos.begin(), new_topos.end());
@@ -354,6 +360,7 @@ void BuildProPack(string iPath){
 	// Init root file maker
 	rootFileMaker = RootFileMaker(params);
 
+    // Clean-up time
     if (topocfg != NULL)
         delete topocfg;
 }
