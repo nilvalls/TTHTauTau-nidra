@@ -1,57 +1,46 @@
 ROOTCFLAGS    = $(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOTLIBS      = $(shell $(ROOTSYS)/bin/root-config --libs)
 ROOTGLIBS     = $(shell $(ROOTSYS)/bin/root-config --glibs)
-MYINC         = ./
-MYLIBS        = ./
 
 #######################################
 # -- DEFINE ARCH to something sensible!
 #######################################
 
-#
-CXX           = g++
-#CXXFLAGS      = -g -Wall -fPIC
 CXXFLAGS      = -g -fPIC
-LD            = g++
-LDFLAGS       = -g
+LDFLAGS       = -g -lboost_filesystem
 SOFLAGS       = -shared
+LD = $(CXX)
 
 
-#CXXFLAGS      += $(ROOTCFLAGS) -I$(MYINC2) -I.
-CXXFLAGS      += $(ROOTCFLAGS) -I$(MYINC)
-#CXXFLAGS	  += -I$(CMSSW_BASE)/src/ -I$(CMSSW_RELEASE_BASE)/src/
+CXXFLAGS      += $(ROOTCFLAGS) -I.
 LIBS           = $(ROOTLIBS) 
 
 NGLIBS         = $(ROOTGLIBS) -lMinuit
 NGLIBS		  += -L./ -lNidra
 NGLIBS		  += -L./configParser/ -lconfigParser
 NGLIBS		  += -lTMVA
-#NGLIBS		  += -L$(shell $(CMSSW_BASE))/lib/slc5_amd64_gcc462/ -lNtupleMakerBEANmaker
 
 GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
+NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
+		.HWrapper.o .HContainer.o .HMath.o .CutFlow.o \
+		.Process.o .PContainer.o .ProPack.o \
+		.Branches.o .Analyzer.o .Plotter.o \
+		.TMVASampler.o \
+		.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o .TTM_TMVAEvaluator.o \
+		.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o .TTE_TMVAEvaluator.o \
+		.Combiner.o \
+		.Stacker.o .Stamper.o .Optimizer.o \
+		.Trigger.o .Cruncher.o \
+		.RootFileMaker.o .RawHistoSaver.o
 
-.nidra.exe: .Driver.o linkdefs.h libNidra.so libConfigParser.so \
-			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o \
-			.Process.o .PContainer.o .ProPack.o \
-			.Branches.o .Analyzer.o .Plotter.o \
-			.TMVASampler.o \
-			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o .TTM_TMVAEvaluator.o \
-			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o .TTE_TMVAEvaluator.o \
-			.Combiner.o \
-			.Stacker.o .Stamper.o .Optimizer.o \
-			.Trigger.o .Cruncher.o \
-			.RootFileMaker.o .RawHistoSaver.o
-			$(LD) $(LDFLAGS) -o .nidra.exe .Driver.o libNidra.so configParser/libconfigParser.so \
-			.HWrapper.o .HContainer.o .HMath.o .CutFlow.o .Process.o .PContainer.o .ProPack.o \
-			.Branches.o .Analyzer.o .Plotter.o \
-			.TMVASampler.o \
-			.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o .TTM_TMVAEvaluator.o \
-			.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o .TTE_TMVAEvaluator.o \
-			.Combiner.o \
-			.Stacker.o .Stamper.o .Optimizer.o \
-			.Trigger.o .Cruncher.o \
-			.RootFileMaker.o .RawHistoSaver.o $(GLIBS)
+.%.o: %.cc %.h
+	$(CXX) $(CXXFLAGS) -c $*.cc -o $@
+
+all: .nidra.exe
+
+.nidra.exe: $(NOBJS) linkdefs.h 
+	$(LD) $(LDFLAGS) -o $@ $(GLIBS) $(NOBJS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
@@ -59,69 +48,11 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 libNidra.so: .NidraDict.cc 
 	g++ -shared -o$@ `root-config --ldflags` $(CXXFLAGS) -I$(ROOTSYS)/include $^ 
 
-libConfigParser.so: configParser/config.h
+configParser/libconfigParser.so: configParser/config.h
 	cd configParser && make && cd -	
-
-.HWrapper.o: HWrapper.cc HWrapper.h 
-	$(CXX) $(CXXFLAGS) -c HWrapper.cc -o $@
-
-.HContainer.o: HContainer.cc HContainer.h 
-	$(CXX) $(CXXFLAGS) -c HContainer.cc -o $@
-
-.PContainer.o: PContainer.cc PContainer.h 
-	$(CXX) $(CXXFLAGS) -c PContainer.cc -o $@
-
-.CutFlow.o: CutFlow.cc CutFlow.h
-	$(CXX) $(CXXFLAGS) -c CutFlow.cc -o $@
-
-.Process.o: Process.cc Process.h 
-	$(CXX) $(CXXFLAGS) -c Process.cc -o $@
-
-.Branches.o: Branches.cc Branches.h
-	$(CXX) $(CXXFLAGS) -c Branches.cc -o $@
-
-.ProPack.o: ProPack.cc ProPack.h 
-	$(CXX) $(CXXFLAGS) -c ProPack.cc -o $@
-
-.Analyzer.o: Analyzer.cc Analyzer.h
-	$(CXX) $(CXXFLAGS) -c Analyzer.cc -o  $@
-
-.RootFileMaker.o: RootFileMaker.cc RootFileMaker.h 
-	$(CXX) $(CXXFLAGS) -c RootFileMaker.cc -o $@
-
-.RawHistoSaver.o: RawHistoSaver.cc RawHistoSaver.h
-	$(CXX) $(CXXFLAGS) -c RawHistoSaver.cc -o $@
-
-.Trigger.o: Trigger.cc Trigger.h
-	$(CXX) $(CXXFLAGS) -c Trigger.cc -o $@
-
-.Plotter.o: Plotter.cc Plotter.h
-	$(CXX) $(CXXFLAGS) -c Plotter.cc -o $@
-
-.Combiner.o: Combiner.cc Combiner.h 
-	$(CXX) $(CXXFLAGS) -c Combiner.cc -o $@
-
-.Stacker.o: Stacker.cc Stacker.h
-	$(CXX) $(CXXFLAGS) -c Stacker.cc -o $@
-
-.Stamper.o: Stamper.cc Stamper.h
-	$(CXX) $(CXXFLAGS) -c Stamper.cc -o $@
-
-.Optimizer.o: Optimizer.cc Optimizer.h 
-	$(CXX) $(CXXFLAGS) -c Optimizer.cc -o $@
-
-.HMath.o: HMath.cc HMath.h 
-	$(CXX) $(CXXFLAGS) -c HMath.cc -o $@
-
-.Cruncher.o: Cruncher.cc Cruncher.h
-	$(CXX) $(CXXFLAGS) -c Cruncher.cc -o $@
 
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
 	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
-
-.TMVASampler.o: TMVASampler.cc TMVASampler.h
-	$(CXX) $(CXXFLAGS) -c TMVASampler.cc -o $@
-
 
 ########################
 ### Channel-specific ###
@@ -162,8 +93,6 @@ libConfigParser.so: configParser/config.h
 ########################
 ###      Global      ###
 ########################
-
-all: .nidra.exe
 
 cleanDicts:
 	rm -f .*Dict.cc && rm -f *.so

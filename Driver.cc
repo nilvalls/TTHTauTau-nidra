@@ -1,6 +1,8 @@
 
 #include "Driver.h"
 
+#include "boost/filesystem/operations.hpp"
+
 #define Driver_cxx
 using namespace std;
 
@@ -320,7 +322,24 @@ void BuildProPack(string iPath){
 	proPack = new ProPack(params);
 
 	// Loop over all the topologies in the config file
-	vector<pair<string,Config*> > topoConfigs = theConfig.getGroupsVec();
+	vector<pair<string,Config*> > topoConfigs(theConfig.getGroupsVec());
+
+    std::string topofile = theConfig.pString("topologyFile");
+    Config *topocfg = NULL; // need to keep dependent stuff in memory until end of function
+    if (topofile != "") {
+        using namespace boost::filesystem;
+
+        path lpath(topofile);
+        if (not exists(lpath) or is_directory(lpath)) {
+            path epath = system_complete(lpath);
+            topofile = epath.string();
+        }
+
+        topocfg = new Config(topofile);
+        std::vector< pair<string,Config*> > new_topos = topocfg->getGroupsVec();
+        topoConfigs.insert(topoConfigs.end(), new_topos.begin(), new_topos.end());
+    }
+
 	for(unsigned int t = 0; t < topoConfigs.size(); t++){
 		string shortName = ((topoConfigs.at(t)).first).substr(string("process_").length()+1);
 		Config* topoConfig = (topoConfigs.at(t)).second;
@@ -332,12 +351,11 @@ void BuildProPack(string iPath){
 		if(AnalyzeProcess(shortName)){ proPack->GetPContainer()->Add(process); }
 	}
 
-	// In-function cleanup
-	topoConfigs.clear();
-
 	// Init root file maker
 	rootFileMaker = RootFileMaker(params);
 
+    if (topocfg != NULL)
+        delete topocfg;
 }
 
 
