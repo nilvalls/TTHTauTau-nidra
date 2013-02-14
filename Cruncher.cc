@@ -275,16 +275,16 @@ void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions){
 	string output = "";
 	if(iFormat.compare("HTML")==0){
 		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".html");
-		cout << "\tCalculating and priting numbers in HTML to: " << output << endl;
+		cout << "\tCalculating and printing numbers in HTML to: " << output << endl;
 	}else if(iFormat.compare("TEX")==0){
 		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".tex.txt");
-		cout << "\tCalculating and priting numbers in TEX  to: " << output << endl;
+		cout << "\tCalculating and printing numbers in TEX  to: " << output << endl;
 	}else if(iFormat.compare("TXT")==0){
 		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".txt");
-		cout << "\tCalculating and priting numbers in TXT  to: " << output << endl;
+		cout << "\tCalculating and printing numbers in TXT  to: " << output << endl;
 	}else if(iFormat.compare("CSV")==0){
 		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".csv.txt");
-		cout << "\tCalculating and priting numbers in CSV to: " << output << endl;
+		cout << "\tCalculating and printing numbers in CSV to: " << output << endl;
 	}else{
 		cout << "WARNING: Trying to print numbers in \"" << iFormat << "\" but this format is not valid." << endl;
 	}
