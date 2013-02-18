@@ -42,7 +42,7 @@ all: .nidra.exe
 .nidra.exe: $(NOBJS) linkdefs.h 
 	$(LD) $(LDFLAGS) -o $@ $(GLIBS) $(NOBJS)
 
-.NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h linkdefs.h
+.NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h Helper.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
 
 libNidra.so: .NidraDict.cc 
@@ -59,35 +59,35 @@ configParser/libconfigParser.so: configParser/config.h
 ########################
 
 ### TTM
-.TTMBranches.o: TTM/Branches.cc TTM/Branches.h TTM/Branches_*.h
+.TTMBranches.o: TTM/Branches.cc TTM/Branches.h TTM/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTM/Branches.cc -o $@
 
-.TTMAnalyzer.o: TTM/Analyzer.cc TTM/Analyzer.h TTM/Branches_*.h TTM/Cuts_*.h Analyzer.cc Analyzer.h
+.TTMAnalyzer.o: TTM/Analyzer.cc TTM/Analyzer.h TTM/Branches_*.h TTM/Cuts_*.h Analyzer.cc Analyzer.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTM/Analyzer.cc -o  $@
 
-.TTMPlotter.o: TTM/Plotter.cc TTM/Plotter.h TTM/FillHistos.h TTM/Branches_*.h
+.TTMPlotter.o: TTM/Plotter.cc TTM/Plotter.h TTM/FillHistos.h TTM/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTM/Plotter.cc -o $@
 
-.TTM_TMVASampler.o: TTM/TMVASampler.cc TTM/TMVASampler.h TTM/Branches_*.h
+.TTM_TMVASampler.o: TTM/TMVASampler.cc TTM/TMVASampler.h TTM/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTM/TMVASampler.cc -o $@
 
-.TTM_TMVAEvaluator.o: TTM/TMVAEvaluator.cc TTM/TMVAEvaluator.h TTM/Branches_*.h
+.TTM_TMVAEvaluator.o: TTM/TMVAEvaluator.cc TTM/TMVAEvaluator.h TTM/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTM/TMVAEvaluator.cc -o $@
 
 ### TTE
-.TTEBranches.o: TTE/Branches.cc TTE/Branches.h TTE/Branches_*.h
+.TTEBranches.o: TTE/Branches.cc TTE/Branches.h TTE/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTE/Branches.cc -o $@
 
-.TTEAnalyzer.o: TTE/Analyzer.cc TTE/Analyzer.h TTE/Branches_*.h TTE/Cuts_*.h Analyzer.cc Analyzer.h
+.TTEAnalyzer.o: TTE/Analyzer.cc TTE/Analyzer.h TTE/Branches_*.h TTE/Cuts_*.h Analyzer.cc Analyzer.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTE/Analyzer.cc -o  $@
 
-.TTEPlotter.o: TTE/Plotter.cc TTE/Plotter.h TTE/FillHistos.h TTE/Branches_*.h
+.TTEPlotter.o: TTE/Plotter.cc TTE/Plotter.h TTE/FillHistos.h TTE/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTE/Plotter.cc -o $@
 
-.TTE_TMVASampler.o: TTE/TMVASampler.cc TTE/TMVASampler.h TTE/Branches_*.h
+.TTE_TMVASampler.o: TTE/TMVASampler.cc TTE/TMVASampler.h TTE/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTE/TMVASampler.cc -o $@
 
-.TTE_TMVAEvaluator.o: TTE/TMVAEvaluator.cc TTE/TMVAEvaluator.h TTE/Branches_*.h
+.TTE_TMVAEvaluator.o: TTE/TMVAEvaluator.cc TTE/TMVAEvaluator.h TTE/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTE/TMVAEvaluator.cc -o $@
 
 ########################

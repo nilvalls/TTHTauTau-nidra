@@ -13,6 +13,7 @@
 #include <TFile.h>
 #include <iostream>
 #include <fstream>
+#include "Helper.h"
 #include <sstream>
 #include "Process.h"
 #include "ProPack.h"

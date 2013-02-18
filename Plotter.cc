@@ -414,6 +414,5 @@ bool const Plotter::IsFlagThere(string const iFlag) const {
 }
 
 
-float const Plotter::DeltaR(const float iPhi1, const float iEta1, const float iPhi2, const float iEta2) const { return sqrt(pow((iPhi1-iPhi2),2)+pow((iEta1-iEta2),2)); }
 float const Plotter::ThetaToEta(const float iTheta) const { return (-log(tan(iTheta/2.0))); }
 

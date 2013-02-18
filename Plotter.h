@@ -15,6 +15,7 @@
 #include <fstream>
 #include <sstream>
 #include "TCanvas.h"
+#include "Helper.h"
 #include "CutFlow.h"
 #include "Branches.h"
 #include "TTM/Branches.h"
@@ -57,7 +58,6 @@ class Plotter {
 		void			BookHistos(HContainer*);
 		bool const		IsFlagThere(string const) const;
 		void			LoopOverHistoCfgFile(const string, HContainer*);
-		float const		DeltaR(const float, const float, const float, const float) const;
 		float const		ThetaToEta(const float) const;		
 
 	private: 
