@@ -70,13 +70,37 @@ hContainer->Fill("DeltaR_MT1", DeltaR(event->TTM_MuonEta->at(iCombo), event->TTM
 hContainer->Fill("DeltaR_MT2", DeltaR(event->TTM_MuonEta->at(iCombo), event->TTM_MuonPhi->at(iCombo), event->TTM_Tau2Eta->at(iCombo), event->TTM_Tau2Phi->at(iCombo)), weightFull);
 
 // Jets ============================================================================================================================
-std::vector<float>::iterator iJet = event->J_Pt->begin();
-if( iJet != event->J_Pt->end() ) {
-  hContainer->Fill("LeadingJet_Pt", *iJet, weightFull);
+// tau/jet matching con size
+float conesize = 0.25;
+int jetCounter = 0;
+for( unsigned int iJet = 0; iJet < event->J_Pt->size(); iJet++ ) {
+    if( (DeltaR( event->J_Phi->at(iJet),
+            event->J_Eta->at(iJet),
+            event->TTM_Tau1Eta->at(iCombo),
+            event->TTM_Tau1Phi->at(iCombo)) > conesize) &&
+        (DeltaR( event->J_Phi->at(iJet),
+            event->J_Eta->at(iJet),
+            event->TTM_Tau2Eta->at(iCombo),
+            event->TTM_Tau2Phi->at(iCombo)) > conesize) && jetCounter == 0
+    ) {
+        hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
+        jetCounter++;
+    }
+    if( (DeltaR( event->J_Phi->at(iJet),
+            event->J_Eta->at(iJet),
+            event->TTM_Tau1Eta->at(iCombo),
+            event->TTM_Tau1Phi->at(iCombo)) > conesize) &&
+        (DeltaR( event->J_Phi->at(iJet),
+            event->J_Eta->at(iJet),
+            event->TTM_Tau2Eta->at(iCombo),
+            event->TTM_Tau2Phi->at(iCombo)) > conesize) && jetCounter == 1
+    ) {
+        hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
+        jetCounter++;
+    }
+    if( jetCounter > 2) break;
 }
-if( iJet++ != event->J_Pt->end() ) {
-  hContainer->Fill("SubLeadingJet_Pt", *iJet, weightFull);
-}
+  
 hContainer->Fill("NumCSVLbtags", event->TTM_NumCSVLbtagJets->at(iCombo), weightFull);
 hContainer->Fill("NumCSVMbtags", event->TTM_NumCSVMbtagJets->at(iCombo), weightFull);
 hContainer->Fill("NumCSVTbtags", event->TTM_NumCSVTbtagJets->at(iCombo), weightFull);
