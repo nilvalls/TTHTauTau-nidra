@@ -66,8 +66,8 @@ hContainer->Fill("NumOtherExLooseElectrons", event->TTE_NumOtherExLooseElectrons
 hContainer->Fill("NumOtherTightMuons", event->TTE_NumOtherTightMuons, weightFull);
 hContainer->Fill("NumOtherLooseMuons", event->TTE_NumOtherLooseMuons, weightFull);
 hContainer->Fill("NumOtherExLooseMuons", event->TTE_NumOtherExLooseMuons, weightFull);
-hContainer->Fill("DeltaR_LT1", DeltaR(event->TTE_ElectronEta->at(iCombo), event->TTE_ElectronPhi->at(iCombo), event->TTE_Tau1Eta->at(iCombo), event->TTE_Tau1Phi->at(iCombo)), weightFull);
-hContainer->Fill("DeltaR_LT2", DeltaR(event->TTE_ElectronEta->at(iCombo), event->TTE_ElectronPhi->at(iCombo), event->TTE_Tau2Eta->at(iCombo), event->TTE_Tau2Phi->at(iCombo)), weightFull);
+hContainer->Fill("DeltaR_ET1", DeltaR(event->TTE_ElectronEta->at(iCombo), event->TTE_ElectronPhi->at(iCombo), event->TTE_Tau1Eta->at(iCombo), event->TTE_Tau1Phi->at(iCombo)), weightFull);
+hContainer->Fill("DeltaR_ET2", DeltaR(event->TTE_ElectronEta->at(iCombo), event->TTE_ElectronPhi->at(iCombo), event->TTE_Tau2Eta->at(iCombo), event->TTE_Tau2Phi->at(iCombo)), weightFull);
 
 // Jets ============================================================================================================================
 std::vector<float>::iterator iJet = event->J_Pt->begin();
