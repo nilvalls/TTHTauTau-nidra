@@ -12,6 +12,9 @@
 #include "THStack.h"
 #include "TCanvas.h"
 #include "TSystem.h"
+#include "TH1F.h"
+#include "HWrapper.h"
+#include "TGraphAsymmErrors.h"
 
 using namespace std;
 

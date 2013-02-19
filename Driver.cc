@@ -62,6 +62,7 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "dyLegend");
 	SetParam(theConfig, "showBackgroundError");
 	SetParam(theConfig, "stackSignals");
+	SetParam(theConfig, "doRatioPlot");
 	SetParam(theConfig, "MVAmethod");
 	SetParam(theConfig, "MVAweights");
 	SetParam(theConfig, "MVAbackground");
