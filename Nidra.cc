@@ -24,6 +24,7 @@ int main(int argc, char **argv){
 
 	if(IsArgumentThere("-k")){ PlotStacks();	}
 	if(IsArgumentThere("-m")){ PlotStamps();	}
+	if (IsArgumentThere("-n")) { CrunchNumbers(); }
 	if(IsArgumentThere("-o")){ Optimize();		}
 
 	if(IsArgumentThere("-t")){

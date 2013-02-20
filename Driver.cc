@@ -40,6 +40,7 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "maxEvents");
 	SetParam(theConfig, "luminosity");
 	SetParam(theConfig, "plotText");
+    SetParam(theConfig, "efficiencyFormat");
 	SetParam(theConfig, "channel");
 	SetParam(theConfig, "toDo");
 	SetParam(theConfig, "analyze");
@@ -160,13 +161,23 @@ void CrunchNumbers(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Crunching numbers...");
 	ReMakeDir(GetParam("efficiency_output"));
+
+    string unsplit = GetParam("efficiencyFormat");
+    if (unsplit == "")
+        unsplit = "HTML"; // set default value
+
 	Cruncher cruncher(params);
-	cruncher.PrintEfficiencies("HTML","erc");
-	cruncher.PrintEfficiencies("HTML","e");
-	cruncher.PrintEfficiencies("HTML","ercn");
-	cruncher.PrintEfficiencies("HTML","en");
-	cruncher.PrintEfficiencies("HTML","r");
-	cruncher.PrintEfficiencies("HTML","rc");
+
+    string fmt;
+    istringstream fmts(unsplit);
+    while (fmts >> fmt) {
+        cruncher.PrintEfficiencies(fmt, "erc");
+        cruncher.PrintEfficiencies(fmt, "e");
+        cruncher.PrintEfficiencies(fmt, "ercn");
+        cruncher.PrintEfficiencies(fmt, "en");
+        cruncher.PrintEfficiencies(fmt, "r");
+        cruncher.PrintEfficiencies(fmt, "rc");
+    }
 	Print(GREEN," done!");
 }
 
