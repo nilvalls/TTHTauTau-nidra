@@ -27,7 +27,7 @@ class Cruncher {
 		Cruncher(map<string,string> const &);
 		virtual ~Cruncher();
 
-		void PrintEfficiencies(string const, string const);
+		void PrintEfficiencies(string const, string const, bool qcd=false);
 		void PrintEfficienciesForQCD(string const, string const);
 
 	private: 
@@ -36,18 +36,6 @@ class Cruncher {
 		vector<Process*> processes;
 		TFile* file;
 
-		string GetDocumentHeader(string const);
-		string GetDocumentFooter(string const);
-		string GetTableHeader(string const, string const);
-		string GetTableSubHeader(string const, string const);
-		string GetTableFooter(string const);
-		string GetOptionsHeader(string const, string const);
-		string GetCutLine(string const, string const, string const);
-		string GetCutTriplet(string const, string const, string const, CutFlow const *);
-		string GetEfficiencies(string const, string const);
-		string GetCutLineForQCD(string const, string const, string const);
-		string GetCutTripletForQCD(string const, string const, string const, CutFlow const *);
-		string GetEfficienciesForQCD(string const, string const);
 		bool IsOptionThere(string const, string const);
 		int GetNumberOfOptions(string const);
 		void SaveToFile(stringstream const, string const);

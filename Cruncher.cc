@@ -39,279 +39,126 @@ Cruncher::~Cruncher(){
 	file->Close();
 }
 
-string Cruncher::GetDocumentHeader(string const iFormat){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		result << "<HTML>";
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetDocumentFooter(string const iFormat){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		result << "</HTML>";
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetTableHeader(string const iFormat, string const iOptions){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		result << "<TABLE border=1 cellspacing=0>" << endl;
-		result << "<TR><TH rowspan=2>Cut</TH>";
-		for(unsigned int p = 0; p < processes.size(); p++){
-			if(!processes.at(p)->Plot()){ continue; }	
-			result << "<TH colspan=" << GetNumberOfOptions(iOptions) << ">"
-			<< processes.at(p)->GetNiceName()
-			<< "</TH>";
-		}
-		result << "</TR>";
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetTableSubHeader(string const iFormat, string const iOptions){
-	stringstream result; result.str("");
-	for(unsigned int p = 0; p < processes.size(); p++){ 
-		if(!processes.at(p)->Plot()){ continue; }	
-		result << GetOptionsHeader(iFormat, iOptions);
-	}
-	return result.str();
-}
-
-string Cruncher::GetTableFooter(string const iFormat){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		result << "</TABLE>";
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetOptionsHeader(string const iFormat, string const iOptions){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e",iOptions)){ result << "<TH>Events</TH>"; }
-		if(IsOptionThere("r",iOptions)){ result << "<TH>Rel.</TH>"; }
-		if(IsOptionThere("c",iOptions)){ result << "<TH>Cum.</TH>"; }
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-
-}
-
-string Cruncher::GetCutLine(string const iFormat, string const iOptions, string const iCut){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		result << "<TR>"; 
-		result << "<TD>" << iCut << "</TD>";
-		for(unsigned int p = 0; p < processes.size(); p++){
-			if(!processes.at(p)->Plot()){ continue; }	
-			if(IsOptionThere("n", iOptions)){ result << GetCutTriplet(iFormat, iOptions, iCut, processes.at(p)->GetNormalizedCutFlow()); }
-			else{ result << GetCutTriplet(iFormat, iOptions, iCut, processes.at(p)->GetCutFlow()); }
-		}
-		result << "</TR>";	
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetCutLineForQCD(string const iFormat, string const iOptions, string const iCut){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		result << "<TR>"; 
-		result << "<TD>" << iCut << "</TD>";
-		for(unsigned int p = 0; p < processes.size(); p++){
-			if(!processes.at(p)->Plot()){ continue; }	
-			if(IsOptionThere("n", iOptions)){ result << GetCutTripletForQCD(iFormat, iOptions, iCut, processes.at(p)->GetNormalizedCutFlow()); }
-			else{ result << GetCutTripletForQCD(iFormat, iOptions, iCut, processes.at(p)->GetCutFlow()); }
-		}
-		result << "</TR>";	
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetCutTriplet(string const iFormat, string const iOptions, string const iCut, CutFlow const * iCutFlow){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e", iOptions)){ result << "<TD bgcolor=\"#F0FFF0\">" << setprecision(7) << iCutFlow->GetPassedEventsForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("r", iOptions)){ result << "<TD bgcolor=\"#E0FFFF\">" << setprecision(7) << 100*iCutFlow->GetRelEffForSignal(iCut) << "</TD>"; }
-		if(IsOptionThere("c", iOptions)){ result << "<TD bgcolor=\"#FFDAB9\">" << setprecision(7) << 100*iCutFlow->GetCumEffForSignal(iCut) << "</TD>"; }
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-/*
-	char buffer [50];
-	int n;
-	double a = 987654321.123456789;
-		a = 0.000123456789;
-	n=sprintf (buffer, "%.3f", a);
-	printf ("[%s] is a %d char long string\n",buffer,n);
-//*/
-
-	return result.str();
-}
-
-string Cruncher::GetCutTripletForQCD(string const iFormat, string const iOptions, string const iCut, CutFlow const * iCutFlow){
-	stringstream result; result.str("");
-
-	if(iFormat.compare("HTML")==0){
-		if(IsOptionThere("e", iOptions)){ result << "<TD>" << iCutFlow->GetPassedEventsForQCD(iCut) << "</TD>"; }
-		if(IsOptionThere("r", iOptions)){ result << "<TD>" << iCutFlow->GetRelEffForQCD(iCut) << "</TD>"; }
-		if(IsOptionThere("c", iOptions)){ result << "<TD>" << iCutFlow->GetCumEffForQCD(iCut) << "</TD>"; }
-	}else if(iFormat.compare("TEX")==0){
-
-	}else if(iFormat.compare("TXT")==0){
-
-	}else if(iFormat.compare("CSV")==0){
-
-	}else{ cerr << "ERROR: Format for efficiency table \"" << iFormat << "\" invalid." << endl; exit(1); }
-
-	return result.str();
-}
-
-string Cruncher::GetEfficiencies(string const iFormat, string const iOptions){
-	stringstream result; result.str("");
-	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
-
-	vector<string> cutNames;
-	if(IsOptionThere("n", iOptions)){ cutNames = vector<string>(processes.at(0)->GetNormalizedCutFlow()->GetCutNames()); }
-	else{ cutNames = vector<string>(processes.at(0)->GetCutFlow()->GetCutNames()); }
-
-	result << GetDocumentHeader(iFormat) << endl;
-	result << GetTableHeader(iFormat, iOptions) << endl;
-	result << GetTableSubHeader(iFormat, iOptions) << endl;
-
-	for(unsigned int c = 0; c < cutNames.size(); c++){ result << GetCutLine(iFormat, iOptions, cutNames.at(c)) << endl; }
-
-	result << GetTableFooter(iFormat) << endl;
-	result << GetDocumentFooter(iFormat) << endl;
-
-	return result.str();
-}
-
-string Cruncher::GetEfficienciesForQCD(string const iFormat, string const iOptions){
-	stringstream result; result.str("");
-	if(processes.size()==0){ cerr << "ERROR: Trying to get efficiencies but zero visible processes found" << endl; exit(1); }
-
-	vector<string> cutNames;
-	if(IsOptionThere("n", iOptions)){ cutNames = vector<string>(processes.at(0)->GetNormalizedCutFlow()->GetCutNames()); }
-	else{ cutNames = vector<string>(processes.at(0)->GetCutFlow()->GetCutNames()); }
-
-	result << GetDocumentHeader(iFormat) << endl;
-	result << GetTableHeader(iFormat, iOptions) << endl;
-	result << GetTableSubHeader(iFormat, iOptions) << endl;
-
-	for(unsigned int c = 0; c < cutNames.size(); c++){ result << GetCutLineForQCD(iFormat, iOptions, cutNames.at(c)) << endl; }
-
-	result << GetTableFooter(iFormat) << endl;
-	result << GetDocumentFooter(iFormat) << endl;
-
-	return result.str();
-}
-
-void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions){ 
+void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions, bool qcd){ 
 
 	string output = "";
 	if(iFormat.compare("HTML")==0){
-		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".html");
+		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".html");
 		cout << "\tCalculating and printing numbers in HTML to: " << output << endl;
 	}else if(iFormat.compare("TEX")==0){
-		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".tex.txt");
+		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".tex.txt");
 		cout << "\tCalculating and printing numbers in TEX  to: " << output << endl;
 	}else if(iFormat.compare("TXT")==0){
-		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".txt");
+		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".txt");
 		cout << "\tCalculating and printing numbers in TXT  to: " << output << endl;
 	}else if(iFormat.compare("CSV")==0){
-		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".csv.txt");
+		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".csv.txt");
 		cout << "\tCalculating and printing numbers in CSV to: " << output << endl;
 	}else{
 		cout << "WARNING: Trying to print numbers in \"" << iFormat << "\" but this format is not valid." << endl;
 	}
 
-	SaveToFile(GetEfficiencies(iFormat, iOptions), output);
+    bool has_colspan = false;
+    string start = "";
+    string header_start = "";
+    string header_middle = "";
+    string header_end = "";
+    string subheader_start = "";
+    string subheader_elem_start = "";
+    string subheader_elem_end = "";
+    string subheader_end = "";
+    string line_start = "";
+    string line_middle = "";
+    string line_middle_e = "";
+    string line_middle_c = "";
+    string line_middle_r = "";
+    string line_end = "";
+    string end = "";
+
+    ostringstream contents;
+
+    if (iFormat == "CSV") {
+        header_start         = ",";
+        header_middle        = ",";
+        subheader_elem_start = ",";
+        line_middle          = ",";
+    } else if (iFormat == "HTML") {
+        stringstream colsp;
+        colsp << " colspan=\"" << GetNumberOfOptions(iOptions) << "\">";
+
+        contents << setprecision(7);
+
+        has_colspan          = true;
+        start                = "<HTML>\n<BODY>\n<TABLE border=1 cellspacing=0>";
+        header_start         = "<TR><TH rowspan=\"2\">Cut";
+        header_middle        = "</TH><TH" + colsp.str();
+        header_end           = "</TH></TR>";
+        subheader_start      = "<TR>";
+        subheader_elem_start = "<TH>";
+        subheader_elem_end   = "</TH>";
+        subheader_end        = "</TH></TR>";
+        line_start           = "<TR><TD>";
+        line_middle          = "</TD><TD ";
+        line_middle_e        = " bgcolor=\"#F0FFF0\">";
+        line_middle_c        = " bgcolor=\"#FFDAB9\">";
+        line_middle_r        = " bgcolor=\"#E0FFFF\">";
+        line_end             = "</TD></TR>";
+        end                  = "</TABLE></BODY>\n</HTML>";
+    }
+
+    contents << start << header_start;
+    vector<Process*>::const_iterator p;
+    for (p = processes.begin(); p != processes.end(); ++p) {
+        if (!(*p)->Plot())
+            continue;
+        if (has_colspan)
+            contents << header_middle << (*p)->GetNiceName();
+        else
+            for (int i = 0; i < GetNumberOfOptions(iOptions); ++i)
+                contents << header_middle << (*p)->GetNiceName();
+    }
+    contents << header_end << endl << subheader_start;
+    for (p = processes.begin(); p != processes.end(); ++p) {
+        if (!(*p)->Plot())
+            continue;
+        if (iOptions.find("e") != string::npos)
+            contents << subheader_elem_start << "Events" << subheader_elem_end;
+        if (iOptions.find("r") != string::npos)
+            contents << subheader_elem_start << "Rel." << subheader_elem_end;
+        if (iOptions.find("c") != string::npos)
+            contents << subheader_elem_start << "Cum." << subheader_elem_end;
+    }
+    contents << subheader_end << endl;
+    vector<string>::const_iterator c;
+    vector<string> cuts = processes.at(0)->GetCutFlow()->GetCutNames();
+    if (iOptions.find("n") != string::npos)
+        cuts = processes.at(0)->GetNormalizedCutFlow()->GetCutNames();
+    for (c = cuts.begin(); c != cuts.end(); ++c) {
+        contents << line_start << *c;
+        for (p = processes.begin(); p != processes.end(); ++p) {
+            if (!(*p)->Plot())
+                continue;
+            CutFlow *cutflow = (*p)->GetCutFlow();
+            if (iOptions.find("n") != string::npos)
+                cutflow = (*p)->GetNormalizedCutFlow();
+            if (iOptions.find("e") != string::npos)
+                contents << line_middle << line_middle_e <<
+                    (qcd ? cutflow->GetPassedEventsForQCD(*c) : cutflow->GetPassedEventsForSignal(*c));
+            if (iOptions.find("r") != string::npos)
+                contents << line_middle << line_middle_r << 100 * 
+                    (qcd ? cutflow->GetRelEffForQCD(*c) : cutflow->GetRelEffForSignal(*c));
+            if (iOptions.find("c") != string::npos)
+                contents << line_middle << line_middle_c << 100 * 
+                    (qcd ? cutflow->GetCumEffForQCD(*c) : cutflow->GetCumEffForSignal(*c));
+        }
+        contents << line_end << endl;
+    }
+    contents << end;
+    SaveToFile(contents.str(), output);
 }
 
 void Cruncher::PrintEfficienciesForQCD(string const iFormat, string const iOptions){ 
-
-	string output = "";
-	if(iFormat.compare("HTML")==0){
-		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".html");
-		cout << "\tCalculating and priting numbers in HTML to: " << output << endl;
-	}else if(iFormat.compare("TEX")==0){
-		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".tex.txt");
-		cout << "\tCalculating and priting numbers in TEX  to: " << output << endl;
-	}else if(iFormat.compare("TXT")==0){
-		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".txt");
-		cout << "\tCalculating and priting numbers in TXT  to: " << output << endl;
-	}else if(iFormat.compare("CSV")==0){
-		output = ((params["efficiency_output"])+ "efficiencyQCD_" + iOptions + ".csv.txt");
-		cout << "\tCalculating and priting numbers in CSV to: " << output << endl;
-	}else{
-		cout << "WARNING: Trying to print numbers in \"" << iFormat << "\" but this format is not valid." << endl;
-	}
-
-	SaveToFile(GetEfficienciesForQCD(iFormat, iOptions), output);
+    PrintEfficiencies(iFormat, iOptions, true);
 }
 
 bool Cruncher::IsOptionThere(string const iOption, string const iOptions){ return ((0 <= iOptions.find(iOption)) && (iOptions.find(iOption) < iOptions.length())); }
