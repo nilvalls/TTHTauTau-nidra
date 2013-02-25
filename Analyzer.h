@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TChain.h"
 #include "configParser/config.h"
+#include "Helper.h"
 #include "HWrapper.h"
 #include "Branches.h"
 #include "CutFlow.h"
