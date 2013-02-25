@@ -45,6 +45,8 @@
 	 if(ApplyThisCut("T1_InCracks"				)){ CutOn_T1_InCracks				= 	true; cutFlow.RegisterCut("T1_InCracks", 1);				}
 	 if(ApplyThisCut("T2_InCracks"				)){ CutOn_T2_InCracks				= 	true; cutFlow.RegisterCut("T2_InCracks", 1);				}
 	 if(ApplyThisCut("TT_DeltaR"				)){ CutOn_TT_DeltaR					= 	true; cutFlow.RegisterCut("TT_DeltaR", 1);					}
+	 if(ApplyThisCut("T1L_DeltaR"				)){ CutOn_T1L_DeltaR				= 	true; cutFlow.RegisterCut("T1L_DeltaR", 1);					}
+	 if(ApplyThisCut("T2L_DeltaR"				)){ CutOn_T2L_DeltaR				= 	true; cutFlow.RegisterCut("T2L_DeltaR", 1);					}
 
 	 if(ApplyThisCut("T1_DecayModeFinding"		)){ CutOn_T1_DecayModeFinding		= 	true; cutFlow.RegisterCut("T1_DecayModeFinding", 1);		}
 	 if(ApplyThisCut("T2_DecayModeFinding"		)){ CutOn_T2_DecayModeFinding		= 	true; cutFlow.RegisterCut("T2_DecayModeFinding", 1);		}

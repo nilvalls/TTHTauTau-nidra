@@ -30,6 +30,8 @@
 	CutOn_T1_InCracks				= false;
 	CutOn_T2_InCracks				= false;
 	CutOn_TT_DeltaR					= false;
+	CutOn_T1L_DeltaR				= false;
+	CutOn_T2L_DeltaR				= false;
 
 	CutOn_T1_DecayModeFinding		= false;
 	CutOn_T2_DecayModeFinding		= false;

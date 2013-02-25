@@ -32,6 +32,8 @@
 	bool CutOn_T1_InCracks;					float Min_T1_InCracks;					float Max_T1_InCracks;
 	bool CutOn_T2_InCracks;					float Min_T2_InCracks;					float Max_T2_InCracks;
 	bool CutOn_TT_DeltaR;					float Min_TT_DeltaR;					float Max_TT_DeltaR;
+	bool CutOn_T1L_DeltaR;					float Min_T1L_DeltaR;					float Max_T1L_DeltaR;
+	bool CutOn_T2L_DeltaR;					float Min_T2L_DeltaR;					float Max_T2L_DeltaR;
 
 	bool CutOn_T1_DecayModeFinding;			float Min_T1_DecayModeFinding;			float Max_T1_DecayModeFinding;
 	bool CutOn_T2_DecayModeFinding;			float Min_T2_DecayModeFinding;			float Max_T2_DecayModeFinding;

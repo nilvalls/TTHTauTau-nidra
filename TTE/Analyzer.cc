@@ -214,6 +214,19 @@ pair<bool,bool> TTEAnalyzer::ComboPassesCuts(TTEBranches* iEvent, unsigned int i
 
 	// Delta R
 	if(CutOn_TT_DeltaR){ if(cutFlow.CheckComboAndStop("TT_DeltaR", event->TTE_DitauDeltaR->at(iCombo), target)){ return target; }}
+	if(CutOn_T1L_DeltaR){ if(cutFlow.CheckComboAndStop("T1L_DeltaR",DeltaR(
+																			event->TTE_Tau1Eta->at(iCombo),
+																			event->TTE_Tau1Phi->at(iCombo),
+																			event->TTE_ElectronEta->at(iCombo),
+																			event->TTE_ElectronPhi->at(iCombo)
+																			), target)){ return target; }}
+	if(CutOn_T2L_DeltaR){ if(cutFlow.CheckComboAndStop("T2L_DeltaR",DeltaR( 
+																			event->TTE_Tau2Eta->at(iCombo),
+																			event->TTE_Tau2Phi->at(iCombo),
+																			event->TTE_ElectronEta->at(iCombo),
+																			event->TTE_ElectronPhi->at(iCombo)
+																			), target)){ return target; }}
+
 
 
 	// ============================= Tau-ID Cuts ============================= //
