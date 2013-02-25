@@ -2,6 +2,7 @@
 #define TTEPlotter_h
 
 #include "Branches.h"
+#include "TMVAEvaluator.h"
 #include "../Plotter.h"
 
 using namespace std;
@@ -15,6 +16,7 @@ class TTEPlotter : public Plotter {
 	protected:
 
 	private:
+		TTE_TMVAEvaluator*		mva;
 		void	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
 
 };

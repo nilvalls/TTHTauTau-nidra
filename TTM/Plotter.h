@@ -2,6 +2,7 @@
 #define TTMPlotter_h
 
 #include "Branches.h"
+#include "TMVAEvaluator.h"
 #include "../Plotter.h"
 
 using namespace std;
@@ -15,6 +16,7 @@ class TTMPlotter : public Plotter {
 	protected:
 
 	private:
+		TTM_TMVAEvaluator*		mva;
 		void	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
 
 };

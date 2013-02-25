@@ -16,10 +16,12 @@ using namespace std;
 
 // Default destructor
 TTMPlotter::~TTMPlotter(){
+	if(mva != NULL){ delete mva; mva = NULL; }
 }
 
 // Constructor
 TTMPlotter::TTMPlotter(map<string,string>const & iParams):Plotter(iParams){
+	mva = new TTM_TMVAEvaluator(iParams);
 	MakePlots(proPack);
 	SaveFile();
 }
