@@ -19,10 +19,27 @@ class TTM_TMVAEvaluator {
 	private: 
 		TMVA::Reader* tmvaReader;
 
-		float Tau1Pt;
-		float Tau2Pt;
-		float Tau1AbsEta;
-		float Tau2AbsEta;
+        float Tau1Pt;
+        float Tau2Pt;
+        float Tau1DecayMode;
+        float Tau2DecayMode;
+        float Tau1IsolationIndex;
+        float Tau2IsolationIndex;
+        float Tau1LTPt;
+        float Tau2LTPt;
+        float Tau1NProngs;
+        float Tau2NProngs;
+        float DitauVisibleMass;
+        float DeltaRTau1Tau2;
+        float DeltaRTau1Lepton;
+        float DeltaRTau2Lepton;
+        float DeltaRTau1LeadingJet;
+        float DeltaRTau2LeadingJet;
+        float DeltaRTau1SubleadingJet;
+        float DeltaRTau2SubleadingJet;
+        float DeltaRLeptonLeadingJet;
+        float DeltaRLeptonSubleadingJet;
+        float LeadingJetSubleadingJetMass;
 
 	protected:
 		map<string,string>	params;
@@ -30,13 +47,3 @@ class TTM_TMVAEvaluator {
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

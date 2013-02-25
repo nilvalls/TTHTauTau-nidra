@@ -20,12 +20,12 @@ class TTMBranches : public Branches {
 		TTMBranches(map<string,string> const &, string const);
 		~TTMBranches();
 
-		unsigned int	GetTau1IsolationIndex(const unsigned int);
-		unsigned int	GetTau2IsolationIndex(const unsigned int);
-		unsigned int	GetTau1AntiElectronIndex(const unsigned int);
-		unsigned int	GetTau2AntiElectronIndex(const unsigned int);
-		unsigned int	GetTau1AntiMuonIndex(const unsigned int);
-		unsigned int	GetTau2AntiMuonIndex(const unsigned int);
+		unsigned int	GetTau1IsolationIndex(const unsigned int) const;
+		unsigned int	GetTau2IsolationIndex(const unsigned int) const;
+		unsigned int	GetTau1AntiElectronIndex(const unsigned int) const;
+		unsigned int	GetTau2AntiElectronIndex(const unsigned int) const;
+		unsigned int	GetTau1AntiMuonIndex(const unsigned int) const;
+		unsigned int	GetTau2AntiMuonIndex(const unsigned int) const;
 
 	public:
 		#include "Branches_declarations.h"
