@@ -57,7 +57,7 @@ void TMVASampler::MakeTrainingSample(ProPack * iProPack){
 	FillTree(backgroundTree, iProPack->GetProcess(backgroundName));
 	output->cd();
 	backgroundTree->Write();
-	cout << "\tBackground tree contains " << signalTree->GetEntries() << " events." << endl;
+	cout << "\tBackground tree contains " << backgroundTree->GetEntries() << " events." << endl;
 	delete backgroundTree;
 
 	output->Close();
