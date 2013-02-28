@@ -47,8 +47,8 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "plot");
 	SetParam(theConfig, "flags");
 	SetParam(theConfig, "countMasses");
-	SetParam(theConfig, "webDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("webDir")); }
-	SetParam(theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
+	SetParam(theConfig, "webDir"); 
+	SetParam(theConfig, "bigDir");
 	SetParam(theConfig, "format");
 	SetParam(theConfig, "ntuplesDir");
 	SetParam(theConfig, "treeName");
@@ -111,7 +111,6 @@ void Analyze(){
 
 	// Save analyzed ProPack to a root file
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
-	delete proPack; proPack = NULL;
 	delete analyzer; analyzer = NULL;
 	Print(GREEN," done!");
 }

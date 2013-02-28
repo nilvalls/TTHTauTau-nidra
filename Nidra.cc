@@ -11,10 +11,13 @@ int main(int argc, char **argv){
 	ReadConfig(string(argv[1]));
 	BuildProPack(string(argv[1]));
 	
-	if(IsArgumentThere("-a")){ Analyze(); }
+	if (IsArgumentThere("-a")) { 
+      ReMakeDir(GetParam("webDir"));
+      ReMakeDir(GetParam("bigDir"));
+      Analyze();
+   }
 
 	if(IsArgumentThere("-p")){
-		ReadConfig(string(argv[1]));
 		DistributeProcesses();
 		PreparePlots();
 		CombineProcesses();
@@ -28,7 +31,7 @@ int main(int argc, char **argv){
 	if(IsArgumentThere("-o")){ Optimize();		}
 
 	if(IsArgumentThere("-t")){
-	//	DistributeProcesses();
+   	DistributeProcesses();
 		MakeTMVATrainingSample();
 	}
 
