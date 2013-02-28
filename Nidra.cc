@@ -14,7 +14,12 @@ int main(int argc, char **argv){
 	if (IsArgumentThere("-a")) { 
       ReMakeDir(GetParam("webDir"));
       ReMakeDir(GetParam("bigDir"));
+      // fist copy config, then analyze
+      BackUpConfigFile(argv[1], GetParam("webDir")); 
       Analyze();
+   } else {
+      // copy current config to output directory
+      BackUpConfigFile(argv[1], GetParam("webDir")); 
    }
 
 	if(IsArgumentThere("-p")){

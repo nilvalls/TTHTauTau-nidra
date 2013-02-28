@@ -71,9 +71,6 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "signalToOptimize");
 	SetParam(theConfig, "backgroundToOptimize");
 
-	// Copy original config file to output dir
-	BackUpConfigFile(iPath, GetParam("webDir")); 
-
 	// Print out some info about the output dirs, etc
 	cout << "\n\t"; PrintURL(GetParam("webDir"));
 	cout << "\t"; PrintLocal(GetParam("bigDir"));
