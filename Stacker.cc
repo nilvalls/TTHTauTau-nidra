@@ -295,7 +295,7 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 
 
 	// Collisions come first
-	if(iProPack->PrepareCollisions()){
+	if(iProPack->PrepareCollisions() && iProPack->GetCollisions()->Plot()){
 		TH1 const * temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
 		result->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
 	}
@@ -309,7 +309,7 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 	}
 
 	// QCD comes next
-	if(iProPack->PrepareQCD()){
+	if(iProPack->PrepareQCD() && iProPack->GetQCD()->Plot()){
 		HWrapper * temp = new HWrapper(*iProPack->GetQCD()->GetAvailableHWrapper());
 		temp->SetFillStyle(1001,iProPack->GetQCD()->GetColor());
 		temp->SetLineWidth(0);
@@ -319,6 +319,7 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 
 	// Then MC backgrounds in reverse order as in the vector
 	for(int b = iProPack->GetMCbackgrounds()->size()-1; b >= 0; b--){
+		if(!iProPack->GetMCbackgrounds()->at(b).Plot()){ continue; }
 		HWrapper * temp = new HWrapper(*iProPack->GetMCbackgrounds()->at(b).GetAvailableHWrapper());
 		temp->SetFillStyle(1001,iProPack->GetMCbackgrounds()->at(b).GetColor());
 		temp->SetLineWidth(0);
@@ -327,6 +328,7 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 
 	// Finally signals also in reverse order as in the vector
 	for(int s = iProPack->GetSignals()->size()-1; s >= 0; s--){
+		if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
 		HWrapper * temp = new HWrapper(*iProPack->GetSignals()->at(s).GetAvailableHWrapper());
 		temp->SetFillStyle(0,0);
 		temp->SetLineWidth(3,iProPack->GetSignals()->at(s).GetColor());
