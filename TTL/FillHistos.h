@@ -10,7 +10,7 @@ float weightTau2	= iPuWeight*iTau1TriggerWeight;
 
 // General =========================================================================================================================
 hContainer->Fill("Events", 0, weightFull);
-hContainer->Fill("MomentumRank", event->TTM_MomentumRank->at(iCombo), weightFull);
+hContainer->Fill("MomentumRank", event->TTL_MomentumRank->at(iCombo), weightFull);
 hContainer->Fill("MET", event->Ev_MET, weightFull);
 //hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull);
 
@@ -32,24 +32,24 @@ if(IsFlagThere("PUcorr")){
 	hContainer->Fill("PUweights_afterPURW", iPuWeight, weightFull);
 }
 
-hContainer->Fill("ChargeProduct_TT", (event->TTM_Tau1Charge->at(iCombo) * event->TTM_Tau2Charge->at(iCombo)), weightFull);
+hContainer->Fill("ChargeProduct_TT", (event->TTL_Tau1Charge->at(iCombo) * event->TTL_Tau2Charge->at(iCombo)), weightFull);
 
 // Taus ============================================================================================================================
-hContainer->Fill("NumTaus", event->TTM_NumTaus, weightFull);
-hContainer->Fill("VisibleMass_TT", event->TTM_DitauVisibleMass->at(iCombo), weightFull);
-hContainer->Fill("DeltaR_TT", event->TTM_DitauDeltaR->at(iCombo), weightFull);
-hContainer->Fill("Pt_T1", event->TTM_Tau1Pt->at(iCombo), weightFull);
-hContainer->Fill("Pt_T2", event->TTM_Tau2Pt->at(iCombo), weightFull);
-hContainer->Fill("Eta_T1", event->TTM_Tau1Eta->at(iCombo), weightFull);
-hContainer->Fill("Eta_T2", event->TTM_Tau2Eta->at(iCombo), weightFull);
-hContainer->Fill("Phi_T1", event->TTM_Tau1Phi->at(iCombo), weightFull);
-hContainer->Fill("Phi_T2", event->TTM_Tau2Phi->at(iCombo), weightFull);
-hContainer->Fill("DecayMode_T1", event->TTM_Tau1DecayMode->at(iCombo), weightFull);
-hContainer->Fill("DecayMode_T2", event->TTM_Tau2DecayMode->at(iCombo), weightFull);
-hContainer->Fill("LTPt_T1", event->TTM_Tau1LTPt->at(iCombo), weightFull);
-hContainer->Fill("LTPt_T2", event->TTM_Tau2LTPt->at(iCombo), weightFull);
-hContainer->Fill("NProngs_T1", event->TTM_Tau1NProngs->at(iCombo), weightFull);
-hContainer->Fill("NProngs_T2", event->TTM_Tau2NProngs->at(iCombo), weightFull);
+hContainer->Fill("NumTaus", event->TTL_NumTaus, weightFull);
+hContainer->Fill("VisibleMass_TT", event->TTL_DitauVisibleMass->at(iCombo), weightFull);
+hContainer->Fill("DeltaR_TT", event->TTL_DitauDeltaR->at(iCombo), weightFull);
+hContainer->Fill("Pt_T1", event->TTL_Tau1Pt->at(iCombo), weightFull);
+hContainer->Fill("Pt_T2", event->TTL_Tau2Pt->at(iCombo), weightFull);
+hContainer->Fill("Eta_T1", event->TTL_Tau1Eta->at(iCombo), weightFull);
+hContainer->Fill("Eta_T2", event->TTL_Tau2Eta->at(iCombo), weightFull);
+hContainer->Fill("Phi_T1", event->TTL_Tau1Phi->at(iCombo), weightFull);
+hContainer->Fill("Phi_T2", event->TTL_Tau2Phi->at(iCombo), weightFull);
+hContainer->Fill("DecayMode_T1", event->TTL_Tau1DecayMode->at(iCombo), weightFull);
+hContainer->Fill("DecayMode_T2", event->TTL_Tau2DecayMode->at(iCombo), weightFull);
+hContainer->Fill("LTPt_T1", event->TTL_Tau1LTPt->at(iCombo), weightFull);
+hContainer->Fill("LTPt_T2", event->TTL_Tau2LTPt->at(iCombo), weightFull);
+hContainer->Fill("NProngs_T1", event->TTL_Tau1NProngs->at(iCombo), weightFull);
+hContainer->Fill("NProngs_T2", event->TTL_Tau2NProngs->at(iCombo), weightFull);
 hContainer->Fill("IsolationIndex_T1", event->GetTau1IsolationIndex(iCombo), weightFull);
 hContainer->Fill("IsolationIndex_T2", event->GetTau2IsolationIndex(iCombo), weightFull);
 hContainer->Fill("AntiElectronIndex_T1", event->GetTau1AntiElectronIndex(iCombo), weightFull);
@@ -57,18 +57,21 @@ hContainer->Fill("AntiElectronIndex_T2", event->GetTau2AntiElectronIndex(iCombo)
 hContainer->Fill("AntiMuonIndex_T1", event->GetTau1AntiMuonIndex(iCombo), weightFull);
 hContainer->Fill("AntiMuonIndex_T2", event->GetTau2AntiMuonIndex(iCombo), weightFull);
 
-// Muon ============================================================================================================================
-hContainer->Fill("Pt_M", event->TTM_MuonPt->at(iCombo), weightFull);
-hContainer->Fill("Eta_M", event->TTM_MuonEta->at(iCombo), weightFull);
-hContainer->Fill("Phi_M", event->TTM_MuonPhi->at(iCombo), weightFull);
-hContainer->Fill("NumOtherTightMuons", event->TTM_NumOtherTightMuons->at(iCombo), weightFull);
-hContainer->Fill("NumOtherLooseMuons", event->TTM_NumOtherLooseMuons->at(iCombo), weightFull);
-hContainer->Fill("NumOtherExLooseMuons", event->TTM_NumOtherExLooseMuons->at(iCombo), weightFull);
-hContainer->Fill("NumOtherTightElectrons", event->TTM_NumOtherTightElectrons, weightFull);
-hContainer->Fill("NumOtherLooseElectrons", event->TTM_NumOtherLooseElectrons, weightFull);
-hContainer->Fill("NumOtherExLooseElectrons", event->TTM_NumOtherExLooseElectrons, weightFull);
-hContainer->Fill("DeltaR_MT1", DeltaR(event->TTM_MuonEta->at(iCombo), event->TTM_MuonPhi->at(iCombo), event->TTM_Tau1Eta->at(iCombo), event->TTM_Tau1Phi->at(iCombo)), weightFull);
-hContainer->Fill("DeltaR_MT2", DeltaR(event->TTM_MuonEta->at(iCombo), event->TTM_MuonPhi->at(iCombo), event->TTM_Tau2Eta->at(iCombo), event->TTM_Tau2Phi->at(iCombo)), weightFull);
+// Lepton ============================================================================================================================
+hContainer->Fill("Pt_M", event->TTL_LeptonPt->at(iCombo), weightFull);
+hContainer->Fill("Eta_M", event->TTL_LeptonEta->at(iCombo), weightFull);
+hContainer->Fill("Phi_M", event->TTL_LeptonPhi->at(iCombo), weightFull);
+hContainer->Fill("NumTightMuons", event->TTL_NumTightMuons->at(iCombo), weightFull);
+hContainer->Fill("NumLooseMuons", event->TTL_NumLooseMuons->at(iCombo), weightFull);
+hContainer->Fill("NumExLooseMuons", event->TTL_NumExLooseMuons->at(iCombo), weightFull);
+hContainer->Fill("NumTightElectrons", event->TTL_NumTightElectrons->at(iCombo), weightFull);
+hContainer->Fill("NumLooseElectrons", event->TTL_NumLooseElectrons->at(iCombo), weightFull);
+hContainer->Fill("NumExLooseElectrons", event->TTL_NumExLooseElectrons->at(iCombo), weightFull);
+hContainer->Fill("NumTightLeptons",		event->TTL_NumTightMuons->at(iCombo)	+	event->TTL_NumTightElectrons->at(iCombo)	, weightFull);
+hContainer->Fill("NumLooseLeptons",		event->TTL_NumLooseMuons->at(iCombo)	+	event->TTL_NumLooseElectrons->at(iCombo)	, weightFull);
+hContainer->Fill("NumExLooseLeptons",	event->TTL_NumExLooseMuons->at(iCombo)	+	event->TTL_NumExLooseElectrons->at(iCombo)	, weightFull);
+hContainer->Fill("DeltaR_LT1", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo)), weightFull);
+hContainer->Fill("DeltaR_LT2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo)), weightFull);
 
 // Jets ============================================================================================================================
 // tau/jet matching con size
@@ -77,24 +80,24 @@ int jetCounter = 0;
 for( unsigned int iJet = 0; iJet < event->J_Pt->size(); iJet++ ) {
     if( (DeltaR( event->J_Phi->at(iJet),
             event->J_Eta->at(iJet),
-            event->TTM_Tau1Eta->at(iCombo),
-            event->TTM_Tau1Phi->at(iCombo)) > conesize) &&
+            event->TTL_Tau1Eta->at(iCombo),
+            event->TTL_Tau1Phi->at(iCombo)) > conesize) &&
         (DeltaR( event->J_Phi->at(iJet),
             event->J_Eta->at(iJet),
-            event->TTM_Tau2Eta->at(iCombo),
-            event->TTM_Tau2Phi->at(iCombo)) > conesize) && jetCounter == 0
+            event->TTL_Tau2Eta->at(iCombo),
+            event->TTL_Tau2Phi->at(iCombo)) > conesize) && jetCounter == 0
     ) {
         hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
         jetCounter++;
     }
     if( (DeltaR( event->J_Phi->at(iJet),
             event->J_Eta->at(iJet),
-            event->TTM_Tau1Eta->at(iCombo),
-            event->TTM_Tau1Phi->at(iCombo)) > conesize) &&
+            event->TTL_Tau1Eta->at(iCombo),
+            event->TTL_Tau1Phi->at(iCombo)) > conesize) &&
         (DeltaR( event->J_Phi->at(iJet),
             event->J_Eta->at(iJet),
-            event->TTM_Tau2Eta->at(iCombo),
-            event->TTM_Tau2Phi->at(iCombo)) > conesize) && jetCounter == 1
+            event->TTL_Tau2Eta->at(iCombo),
+            event->TTL_Tau2Phi->at(iCombo)) > conesize) && jetCounter == 1
     ) {
         hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
         jetCounter++;
@@ -102,13 +105,13 @@ for( unsigned int iJet = 0; iJet < event->J_Pt->size(); iJet++ ) {
     if( jetCounter > 2) break;
 }
   
-hContainer->Fill("NumCSVLbtags", event->TTM_NumCSVLbtagJets->at(iCombo), weightFull);
-hContainer->Fill("NumCSVMbtags", event->TTM_NumCSVMbtagJets->at(iCombo), weightFull);
-hContainer->Fill("NumCSVTbtags", event->TTM_NumCSVTbtagJets->at(iCombo), weightFull);
-hContainer->Fill("NumCSVLnonBtags", event->TTM_NumNonCSVLbtagJets->at(iCombo), weightFull);
-hContainer->Fill("NumCSVMnonBtags", event->TTM_NumNonCSVMbtagJets->at(iCombo), weightFull);
-hContainer->Fill("NumCSVTnonBtags", event->TTM_NumNonCSVTbtagJets->at(iCombo), weightFull);
-hContainer->Fill("NumCSVnonHTauJets", (event->TTM_NumNonCSVMbtagJets->at(iCombo) + event->TTM_NumCSVMbtagJets->at(iCombo)), weightFull);
+hContainer->Fill("NumCSVLbtags", event->TTL_NumCSVLbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCSVMbtags", event->TTL_NumCSVMbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCSVTbtags", event->TTL_NumCSVTbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCSVLnonBtags", event->TTL_NumNonCSVLbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCSVMnonBtags", event->TTL_NumNonCSVMbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCSVTnonBtags", event->TTL_NumNonCSVTbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCSVnonHTauJets", (event->TTL_NumNonCSVMbtagJets->at(iCombo) + event->TTL_NumCSVMbtagJets->at(iCombo)), weightFull);
 
 /*
 hContainer->Fill("CosDeltaPhi_LM", event->Tau1MetCosDphi->at(iCombo), weightFull);

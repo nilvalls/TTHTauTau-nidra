@@ -65,5 +65,10 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.push_back("sTbar-tCh");
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"SingleTop", "Single t/tbar", "single t/#bar{t}", 4);	
 
+	backgrounds.clear();
+	backgrounds.push_back("ttPlusW");
+	backgrounds.push_back("ttPlusZ");
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"ttWZ", "ttbar + W/Z", "t#bar{t} + W/Z", 800);	
+
 }
 

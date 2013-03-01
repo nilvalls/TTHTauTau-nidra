@@ -7,7 +7,7 @@
 */
 
 
-#define TTMPlotter_cxx
+#define TTLPlotter_cxx
 #include "Plotter.h"
 
 using namespace std;
@@ -15,21 +15,21 @@ using namespace std;
 #define AT __LINE__
 
 // Default destructor
-TTMPlotter::~TTMPlotter(){
+TTLPlotter::~TTLPlotter(){
 	if(mva != NULL){ delete mva; mva = NULL; }
 }
 
 // Constructor
-TTMPlotter::TTMPlotter(map<string,string>const & iParams):Plotter(iParams){
-	//mva = new TTM_TMVAEvaluator(iParams);
+TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
+	//mva = new TTL_TMVAEvaluator(iParams);
 	MakePlots(proPack);
 	SaveFile();
 }
 
 // Fill the histograms with the event passed
-void TTMPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter){
+void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter){
 	HContainer* hContainer = iHContainer;
-	TTMBranches* event = (TTMBranches*)iEvent;
+	TTLBranches* event = (TTLBranches*)iEvent;
 	int iCombo = event->bestCombo;
 
 	float iLeptonWeight			= 1.0;
@@ -38,14 +38,14 @@ void TTMPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 	float iTau2TriggerWeight	= 1.0;
 
 	if(iIsMC){
-		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTM_LeptonEventWeight->at(event->bestCombo);	}
+		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTL_LeptonEventWeight->at(event->bestCombo);	}
 		if(IsFlagThere("PUcorr")){ 
 			//OLD: iPuWeight = iPUcorrector->GetWeight(event->Ev_numInteractionsBX0); 
 			iPuWeight = event->Ev_puWeight;
 		}
 		if(IsFlagThere("trigger")){ 
-			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTM_Tau1Pt->at(event->bestCombo));
-			iTau2TriggerWeight = iTrigger->GetWeightFromFunc(event->TTM_Tau2Pt->at(event->bestCombo));
+			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->bestCombo));
+			iTau2TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau2Pt->at(event->bestCombo));
 		}
 	}//*/
 

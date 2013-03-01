@@ -47,8 +47,8 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "plot");
 	SetParam(theConfig, "flags");
 	SetParam(theConfig, "countMasses");
-	SetParam(theConfig, "webDir"); 
-	SetParam(theConfig, "bigDir");
+	SetParam(theConfig, "webDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("webDir")); }
+	SetParam(theConfig, "bigDir"); if(IsArgumentThere("-a")){ ReMakeDir(GetParam("bigDir")); }
 	SetParam(theConfig, "format");
 	SetParam(theConfig, "ntuplesDir");
 	SetParam(theConfig, "treeName");
@@ -70,6 +70,9 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "MVAsignal");
 	SetParam(theConfig, "signalToOptimize");
 	SetParam(theConfig, "backgroundToOptimize");
+
+	// Copy original config file to output dir
+	BackUpConfigFile(iPath, GetParam("webDir")); 
 
 	// Print out some info about the output dirs, etc
 	cout << "\n\t"; PrintURL(GetParam("webDir"));
@@ -101,13 +104,15 @@ void Analyze(){
 	string channel = GetParam("channel");
 		 if(channel == "TTM"){	analyzer = new TTMAnalyzer(params); }
 	else if(channel == "TTE"){	analyzer = new TTEAnalyzer(params); }
-	else{	assert(GetParam("channel") == "either TTM or TTE");		}
+	else if(channel == "TTL"){	analyzer = new TTLAnalyzer(params); }
+	else{	assert(GetParam("channel") == "either TTM or TTE or TTL");		}
 
 	// Pass topopack to analyzer to analyze
 	analyzer->AnalyzeAll(*proPack);
 
 	// Save analyzed ProPack to a root file
 	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
+	delete proPack; proPack = NULL;
 	delete analyzer; analyzer = NULL;
 	Print(GREEN," done!");
 }
@@ -147,7 +152,8 @@ void PreparePlots(){
 	string channel = GetParam("channel");
 		 if(channel == "TTM"){	plotter = new TTMPlotter(params); }
 	else if(channel == "TTE"){	plotter = new TTEPlotter(params); }
-	else{	assert(GetParam("channel") == "either TTM or TTE");		}
+	else if(channel == "TTL"){	plotter = new TTLPlotter(params); }
+	else{	assert(GetParam("channel") == "either TTM or TTE or TTL");		}
 
 	delete plotter; plotter = NULL;
 	Print(GREEN," done!");
@@ -218,7 +224,8 @@ void MakeTMVATrainingSample(){
 	string channel = GetParam("channel");
 		 if(channel == "TTM"){	tmvaSampler = new TTM_TMVASampler(params); }
 	else if(channel == "TTE"){	tmvaSampler = new TTE_TMVASampler(params); }
-	else{	assert(GetParam("channel") == "either TTM or TTE");		}
+	else if(channel == "TTL"){	tmvaSampler = new TTL_TMVASampler(params); }
+	else{	assert(GetParam("channel") == "either TTM or TTE or TTL");		}
 
 	delete tmvaSampler; tmvaSampler = NULL;
 	Print(GREEN," done!");

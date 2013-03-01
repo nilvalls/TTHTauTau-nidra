@@ -127,6 +127,7 @@ void Process::Update(Process const * iProcess){
 	otherScaleFactor				= iProcess->GetOtherScaleFactor();
 
 	plot							= iProcess->Plot();
+	SetPlot(params);
 
 	normalizedHistosForSignal		= false;
 	normalizedHistosForQCD			= false;

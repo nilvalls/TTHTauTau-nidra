@@ -84,6 +84,7 @@ void Plotter::MakePlots(Process* iProcess){
 	string channel = params["channel"];
 		 if(channel == "TTM"){	event = new TTMBranches(params, iProcess->GetNtuplePath()); }
 	else if(channel == "TTE"){	event = new TTEBranches(params, iProcess->GetNtuplePath()); }
+	else if(channel == "TTL"){	event = new TTLBranches(params, iProcess->GetNtuplePath()); }
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
@@ -252,7 +253,7 @@ void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename)
 	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir for plots " << iDir << endl; exit(1); }
 
 	// Loop over all file format extensions choosen and save canvas
-	vector<string> extension; extension.push_back(".png");
+	vector<string> extension; extension.push_back(".png"); extension.push_back(".pdf");
 	for( unsigned int ext = 0; ext < extension.size(); ext++){
 		iCanvas->SaveAs( (iDir + iFilename + extension.at(ext)).c_str() );
 	}

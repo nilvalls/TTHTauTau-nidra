@@ -29,6 +29,7 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.TMVASampler.o \
 		.TTMBranches.o .TTMAnalyzer.o .TTMPlotter.o .TTM_TMVASampler.o .TTM_TMVAEvaluator.o \
 		.TTEBranches.o .TTEAnalyzer.o .TTEPlotter.o .TTE_TMVASampler.o .TTE_TMVAEvaluator.o \
+		.TTLBranches.o .TTLAnalyzer.o .TTLPlotter.o .TTL_TMVASampler.o .TTL_TMVAEvaluator.o \
 		.Combiner.o \
 		.Stacker.o .Stamper.o .Optimizer.o \
 		.Trigger.o .Cruncher.o \
@@ -89,6 +90,23 @@ configParser/libconfigParser.so: configParser/config.h
 
 .TTE_TMVAEvaluator.o: TTE/TMVAEvaluator.cc TTE/TMVAEvaluator.h TTE/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTE/TMVAEvaluator.cc -o $@
+
+### TTL
+.TTLBranches.o: TTL/Branches.cc TTL/Branches.h TTL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/Branches.cc -o $@
+
+.TTLAnalyzer.o: TTL/Analyzer.cc TTL/Analyzer.h TTL/Branches_*.h TTL/Cuts_*.h Analyzer.cc Analyzer.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/Analyzer.cc -o  $@
+
+.TTLPlotter.o: TTL/Plotter.cc TTL/Plotter.h TTL/FillHistos.h TTL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/Plotter.cc -o $@
+
+.TTL_TMVASampler.o: TTL/TMVASampler.cc TTL/TMVASampler.h TTL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/TMVASampler.cc -o $@
+
+.TTL_TMVAEvaluator.o: TTL/TMVAEvaluator.cc TTL/TMVAEvaluator.h TTL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
+
 
 ########################
 ###      Global      ###

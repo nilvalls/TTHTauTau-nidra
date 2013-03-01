@@ -41,6 +41,10 @@
 #include "TTE/Plotter.h"
 #include "TTE/TMVASampler.h"
 
+#include "TTL/Analyzer.h"
+#include "TTL/Plotter.h"
+#include "TTL/TMVASampler.h"
+
 
 #ifndef Driver_h
 #define Driver_h
