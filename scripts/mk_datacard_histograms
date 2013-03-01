@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+import ROOT
+import copy
+import optparse
+
+#
+# begin configuration options
+#
+
+parser = optparse.OptionParser(usage="%prog [options] path")
+parser.add_option("-i", "--input-variable", dest="invar",
+        help="use VAR as input variable", metavar="VAR",
+        default="OS/VisibleMass_TT")
+parser.add_option("-o", "--output-variable", dest="outvar",
+        help="use VAR as output variable", metavar="VAR",
+        default="VisMass")
+parser.add_option("-j", "--jets", dest="jets",
+        help="input has NUM jets", metavar="NUM",
+        default=4)
+parser.add_option("-t", "--tags", dest="tags",
+        help="input has NUM tags", metavar="NUM",
+        default=2)
+parser.add_option("-f", "--flavor", dest="flavor",
+        help="input has lepton flavor FLAVOR", metavar="FLAVOR",
+        default="M")
+(opts, args) = parser.parse_args()
+
+if len(args) != 1:
+    parser.error("need to specify input path")
+
+inputFilePath = args[0]
+
+inputFileName = 'nidra_rawHistos.root'
+outputFilePath = '2012_TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags) + '.root'
+
+# input hist title : output hist title
+samples = {
+        'TTbar':'ttbar',
+        'Wjets':'wjets',
+        'ZjetsM10-50':'zjets_lowmass',
+        'ZjetsM50':'zjets',
+        'WW':'ww',
+        'WZ':'wz',
+        'ZZ':'zz',
+        'sT-sCh':'sts',
+        'sTbar-sCh':'stbs',
+        'sT-tCh':'stt',
+        'sTbar-tCh':'stbt',
+        'sTW':'stw',
+        'sTbarW':'stbw',
+        'Collisions':'data_obs',
+        'TTH_125':'ttH125'
+}
+
+samplesToSum = {
+        'zjets' : ['ZjetsM50','ZjetsM10-50'],
+        'diboson' : ['WW','WZ','ZZ'],
+        'singlet' : ['sT-sCh','sT-tCh','sTbar-sCh','sTbar-tCh','sTW','sTbarW']
+        #'sT' : ['sT-sCh','sT-tCh'],
+        #'sTbar' : ['sTbar-sCh','sTbar-tCh'],
+        #'sTplusW' : ['sTW','sTbarW']
+}
+
+#
+# end configuration options
+#
+
+# fix paths
+if not inputFilePath.endswith('/'):
+  inputFilePath += '/'
+if not opts.invar.startswith('/'):
+  opts.invar = '/' + opts.invar
+
+# check that samples to sum are loaded
+for sum in samplesToSum.values():
+  for sample in sum: 
+    if sample not in samples.keys():
+      print "Can't sum " + sample + " if it isn't loaded!"
+      exit(1)
+
+# get histograms
+fileIn = ROOT.TFile(inputFilePath+inputFileName)
+
+hists = {}
+for sample in samples.keys():
+  hists[sample] = fileIn.Get(sample+opts.invar)
+
+# do summed samples
+samplesToSave = copy.deepcopy(samples.keys())
+for sum,summed in samplesToSum.items():
+  # make list of samples to be saved
+    samplesToSave[samplesToSave.index(summed[0])] = sum
+    for sample in summed:
+      if sample in samplesToSave:
+        samplesToSave.remove(sample)
+    # do sum
+    hists[sum] = copy.deepcopy(hists[summed[0]])
+    for sample in summed[1:]:
+      hists[sum].Add(hists[sample])
+
+# save histograms
+fileOut = ROOT.TFile(outputFilePath,'RECREATE')
+
+# set proper histogram names and save
+for sample in samplesToSave:
+  sampleName = sample
+  if sample in samples.keys():
+    sampleName = samples[sample]
+  sampleName += '_' + opts.outvar + '_' + 'TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags)
+  hists[sample].SetName(sampleName)
+  # fix y-axis range on data histogram
+  if sample is 'Collisions':
+    hists[sample].GetYaxis().SetRangeUser(0,hists[sample].GetBinContent(hists[sample].GetMaximumBin())*1.1)
+  hists[sample].Write()
+
