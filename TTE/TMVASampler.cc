@@ -114,9 +114,9 @@ void TTE_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 		float jet2eta = -99;
 		float jet2phi = -99;
 
-		DeltaRTau1Tau2 = DeltaR(tau1phi, tau1eta, tau2phi, tau2eta);
-		DeltaRTau1Lepton = DeltaR(tau1phi, tau1eta, lepPhi, lepEta);
-		DeltaRTau2Lepton = DeltaR(tau2phi, tau2eta, lepPhi, lepEta);
+		DeltaRTau1Tau2 = DeltaR(tau1eta, tau1phi, tau2eta, tau2phi);
+		DeltaRTau1Lepton = DeltaR(tau1eta, tau1phi, lepEta, lepPhi);
+		DeltaRTau2Lepton = DeltaR(tau2eta, tau2phi, lepEta, lepPhi);
 
 		DeltaRTau1LeadingJet		= -99;
 		DeltaRTau2LeadingJet		= -99;
@@ -132,17 +132,17 @@ void TTE_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 			float eta	= event->J_Eta->at(j);
 			float phi	= event->J_Phi->at(j);
 			TLorentzVector leadingJet(0,0,0,0); TLorentzVector subleadingJet(0,0,0,0);
-			if(DeltaR(phi, eta, tau1phi, tau1eta) < 0.25 || DeltaR(phi, eta, tau2phi, tau2eta) < 0.25 || DeltaR(phi, eta, lepPhi, lepEta) < 0.25){ continue; }
+			if(DeltaR(eta, phi, tau1eta, tau1phi) < 0.25 || DeltaR(eta, phi, tau2eta, tau2phi) < 0.25 || DeltaR(eta, phi, eta, lepPhi) < 0.25){ continue; }
 			if(!foundLeadingJet){ // Fill leading jet
-				DeltaRTau1LeadingJet		= DeltaR(phi, eta, tau1phi, tau1eta);
-				DeltaRTau2LeadingJet		= DeltaR(phi, eta, tau2phi, tau2eta);
-				DeltaRLeptonLeadingJet		= DeltaR(phi, eta, lepPhi, lepEta);
+				DeltaRTau1LeadingJet		= DeltaR(eta, phi, tau1eta, tau1phi);
+				DeltaRTau2LeadingJet		= DeltaR(eta, phi, tau2eta, tau2phi);
+				DeltaRLeptonLeadingJet		= DeltaR(eta, phi, lepEta, lepPhi);
 				leadingJet.SetPtEtaPhiM(pt, eta, phi, 0);
 				foundLeadingJet = true;
 			}else{ // Fill subleading jet
-				DeltaRTau1SubleadingJet		= DeltaR(phi, eta, tau1phi, tau1eta);
-				DeltaRTau2SubleadingJet		= DeltaR(phi, eta, tau2phi, tau2eta);
-				DeltaRLeptonSubleadingJet	= DeltaR(phi, eta, lepPhi, lepEta);
+				DeltaRTau1SubleadingJet		= DeltaR(eta, phi, tau1eta, tau1phi);
+				DeltaRTau2SubleadingJet		= DeltaR(eta, phi, tau2eta, tau2phi);
+				DeltaRLeptonSubleadingJet	= DeltaR(eta, phi, lepEta, lepPhi);
 				subleadingJet.SetPtEtaPhiM(pt, eta, phi, 0);
 				LeadingJetSubleadingJetMass = (leadingJet + subleadingJet).M();
 				break;
