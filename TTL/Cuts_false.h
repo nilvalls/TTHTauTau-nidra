@@ -13,20 +13,20 @@
 	CutOn_T1_ParentAbsId			= false;
 	CutOn_T2_ParentAbsId			= false;
 
+	CutOn_NumTightLeptons			= false;
+	CutOn_NumTightMuons				= false;
+	CutOn_NumTightElectrons			= false;
+	CutOn_NumLooseLeptons			= false;
+	CutOn_NumLooseMuons				= false;
+	CutOn_NumLooseElectrons			= false;
+	CutOn_NumExLooseLeptons			= false;
+	CutOn_NumExLooseMuons			= false;
+	CutOn_NumExLooseElectrons		= false;
 	CutOn_L_pT						= false;
 	CutOn_L_Eta						= false;
 	CutOn_L_IsLoose					= false;
 	CutOn_L_IsTight					= false;
 	CutOn_L_RelIso					= false;
-	CutOn_NumTightMuons				= false;
-	CutOn_NumExLooseMuons			= false;
-	CutOn_NumLooseMuons				= false;
-	CutOn_NumTightElectrons			= false;
-	CutOn_NumExLooseElectrons		= false;
-	CutOn_NumLooseElectrons			= false;
-	CutOn_NumTightLeptons			= false;
-	CutOn_NumExLooseLeptons			= false;
-	CutOn_NumLooseLeptons			= false;
 
 	CutOn_T1_pT						= false;
 	CutOn_T2_pT						= false;

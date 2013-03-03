@@ -15,20 +15,23 @@
 	bool CutOn_T1_ParentAbsId;				float Min_T1_ParentAbsId;				float Max_T1_ParentAbsId;
 	bool CutOn_T2_ParentAbsId;				float Min_T2_ParentAbsId;				float Max_T2_ParentAbsId;
 
+	bool CutOn_NumTightLeptons;				float Min_NumTightLeptons;				float Max_NumTightLeptons;
+	bool CutOn_NumTightMuons;				float Min_NumTightMuons;				float Max_NumTightMuons;
+	bool CutOn_NumTightElectrons;			float Min_NumTightElectrons;			float Max_NumTightElectrons;
+
+	bool CutOn_NumLooseLeptons;				float Min_NumLooseLeptons;				float Max_NumLooseLeptons;
+	bool CutOn_NumLooseMuons;				float Min_NumLooseMuons;				float Max_NumLooseMuons;
+	bool CutOn_NumLooseElectrons;			float Min_NumLooseElectrons;			float Max_NumLooseElectrons;
+
+	bool CutOn_NumExLooseLeptons;			float Min_NumExLooseLeptons;			float Max_NumExLooseLeptons;
+	bool CutOn_NumExLooseMuons;				float Min_NumExLooseMuons;				float Max_NumExLooseMuons;
+	bool CutOn_NumExLooseElectrons;			float Min_NumExLooseElectrons;			float Max_NumExLooseElectrons;
+
 	bool CutOn_L_pT;						float Min_L_pT;							float Max_L_pT;
 	bool CutOn_L_Eta;						float Min_L_Eta;						float Max_L_Eta;
 	bool CutOn_L_IsLoose;					float Min_L_IsLoose;					float Max_L_IsLoose;
 	bool CutOn_L_IsTight;					float Min_L_IsTight;					float Max_L_IsTight;
 	bool CutOn_L_RelIso;					float Min_L_RelIso;						float Max_L_RelIso;
-	bool CutOn_NumTightMuons;				float Min_NumTightMuons;				float Max_NumTightMuons;
-	bool CutOn_NumExLooseMuons;				float Min_NumExLooseMuons;				float Max_NumExLooseMuons;
-	bool CutOn_NumLooseMuons;				float Min_NumLooseMuons;				float Max_NumLooseMuons;
-	bool CutOn_NumTightElectrons;			float Min_NumTightElectrons;			float Max_NumTightElectrons;
-	bool CutOn_NumExLooseElectrons;			float Min_NumExLooseElectrons;			float Max_NumExLooseElectrons;
-	bool CutOn_NumLooseElectrons;			float Min_NumLooseElectrons;			float Max_NumLooseElectrons;
-	bool CutOn_NumTightLeptons;				float Min_NumTightLeptons;				float Max_NumTightLeptons;
-	bool CutOn_NumExLooseLeptons;			float Min_NumExLooseLeptons;			float Max_NumExLooseLeptons;
-	bool CutOn_NumLooseLeptons;				float Min_NumLooseLeptons;				float Max_NumLooseLeptons;
 
 	bool CutOn_T1_pT;						float Min_T1_pT;						float Max_T1_pT;
 	bool CutOn_T2_pT;						float Min_T2_pT;						float Max_T2_pT;

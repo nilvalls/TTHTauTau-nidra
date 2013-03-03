@@ -22,21 +22,23 @@
 	 if(ApplyThisCut("J_NumNonCSVT"				)){ CutOn_J_NumNonCSVT				= 	true; cutFlow.RegisterCut("J_NumNonCSVT", 1);				}
 	 if(ApplyThisCut("J_NumInclusive"			)){ CutOn_J_NumInclusive			= 	true; cutFlow.RegisterCut("J_NumInclusive", 1);				}
 
+	 if(ApplyThisCut("NumTightLeptons"			)){ CutOn_NumTightLeptons			= 	true; cutFlow.RegisterCut("NumTightLeptons", 1);			}
+	 if(ApplyThisCut("NumTightMuons"			)){ CutOn_NumTightMuons				= 	true; cutFlow.RegisterCut("NumTightMuons", 1);				}
+	 if(ApplyThisCut("NumTightElectrons"		)){ CutOn_NumTightElectrons			= 	true; cutFlow.RegisterCut("NumTightElectrons", 1);			}
+
+	 if(ApplyThisCut("NumLooseLeptons"			)){ CutOn_NumLooseLeptons			= 	true; cutFlow.RegisterCut("NumLooseLeptons", 1);			}
+	 if(ApplyThisCut("NumLooseMuons"			)){ CutOn_NumLooseMuons				= 	true; cutFlow.RegisterCut("NumLooseMuons", 1);				}
+	 if(ApplyThisCut("NumLooseElectrons"		)){ CutOn_NumLooseElectrons			= 	true; cutFlow.RegisterCut("NumLooseElectrons", 1);			}
+
+	 if(ApplyThisCut("NumExLooseLeptons"		)){ CutOn_NumExLooseLeptons			= 	true; cutFlow.RegisterCut("NumExLooseLeptons", 1);			}
+	 if(ApplyThisCut("NumExLooseMuons"			)){ CutOn_NumExLooseMuons			= 	true; cutFlow.RegisterCut("NumExLooseMuons", 1);			}
+	 if(ApplyThisCut("NumExLooseElectrons"		)){ CutOn_NumExLooseElectrons		= 	true; cutFlow.RegisterCut("NumExLooseElectrons", 1);		}
 
 	 if(ApplyThisCut("L_pT"						)){ CutOn_L_pT						= 	true; cutFlow.RegisterCut("L_pT", 1);						}
 	 if(ApplyThisCut("L_Eta"					)){ CutOn_L_Eta						= 	true; cutFlow.RegisterCut("L_Eta", 1);						}
 	 if(ApplyThisCut("L_IsLoose	"				)){ CutOn_L_IsLoose					= 	true; cutFlow.RegisterCut("L_IsLoose", 1);					}
 	 if(ApplyThisCut("L_IsTight	"				)){ CutOn_L_IsTight					= 	true; cutFlow.RegisterCut("L_IsTight", 1);					}
 	 if(ApplyThisCut("L_RelIso"					)){ CutOn_L_RelIso					= 	true; cutFlow.RegisterCut("L_RelIso", 1);					}
-	 if(ApplyThisCut("NumTightMuons"			)){ CutOn_NumTightMuons				= 	true; cutFlow.RegisterCut("NumTightMuons", 1);				}
-	 if(ApplyThisCut("NumExLooseMuons"			)){ CutOn_NumExLooseMuons			= 	true; cutFlow.RegisterCut("NumExLooseMuons", 1);			}
-	 if(ApplyThisCut("NumLooseMuons"			)){ CutOn_NumLooseMuons				= 	true; cutFlow.RegisterCut("NumLooseMuons", 1);				}
-	 if(ApplyThisCut("NumTightElectrons"		)){ CutOn_NumTightElectrons			= 	true; cutFlow.RegisterCut("NumTightElectrons", 1);			}
-	 if(ApplyThisCut("NumExLooseElectrons"		)){ CutOn_NumExLooseElectrons		= 	true; cutFlow.RegisterCut("NumExLooseElectrons", 1);		}
-	 if(ApplyThisCut("NumLooseElectrons"		)){ CutOn_NumLooseElectrons			= 	true; cutFlow.RegisterCut("NumLooseElectrons", 1);			}
-	 if(ApplyThisCut("NumTightLeptons"			)){ CutOn_NumTightLeptons			= 	true; cutFlow.RegisterCut("NumTightLeptons", 1);			}
-	 if(ApplyThisCut("NumExLooseLeptons"		)){ CutOn_NumExLooseLeptons			= 	true; cutFlow.RegisterCut("NumExLooseLeptons", 1);			}
-	 if(ApplyThisCut("NumLooseLeptons"			)){ CutOn_NumLooseLeptons			= 	true; cutFlow.RegisterCut("NumLooseLeptons", 1);			}
 
 	 if(ApplyThisCut("T1_MatchAbsId"			)){ CutOn_T1_MatchAbsId				= 	true; cutFlow.RegisterCut("T1_MatchAbsId", 1);				}
 	 if(ApplyThisCut("T2_MatchAbsId"			)){ CutOn_T2_MatchAbsId				= 	true; cutFlow.RegisterCut("T2_MatchAbsId", 1);				}
