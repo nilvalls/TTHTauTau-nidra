@@ -12,6 +12,7 @@ float weightTau2	= iPuWeight*iTau1TriggerWeight;
 hContainer->Fill("Events", 0, weightFull);
 hContainer->Fill("MomentumRank", event->TTM_MomentumRank->at(iCombo), weightFull);
 hContainer->Fill("MET", event->Ev_MET, weightFull);
+hContainer->Fill("HT", event->TTM_HT->at(iCombo), weightFull);
 //hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull);
 
 if(iPuWeight!=0){
