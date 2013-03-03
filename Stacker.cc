@@ -256,7 +256,8 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		// Save canvas
 		SaveCanvas(canvas, params["stacks_output"]+subdir, plotName);
 		// Do we want a log version?
-		SaveCanvasLog(canvas, params["stacks_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ());
+		if(doRatioPlot) SaveCanvasLog(canvas, params["stacks_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ(),1);
+        else SaveCanvasLog(canvas, params["stacks_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ(),0);
 
 		// Clean up canvas
 		delete canvas;

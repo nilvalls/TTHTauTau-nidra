@@ -253,7 +253,9 @@ void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename)
 	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir for plots " << iDir << endl; exit(1); }
 
 	// Loop over all file format extensions choosen and save canvas
-	vector<string> extension; extension.push_back(".png"); extension.push_back(".pdf");
+	vector<string> extension; 
+    extension.push_back(".png"); 
+    //extension.push_back(".pdf");
 	for( unsigned int ext = 0; ext < extension.size(); ext++){
 		iCanvas->SaveAs( (iDir + iFilename + extension.at(ext)).c_str() );
 	}
@@ -261,15 +263,16 @@ void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename)
 }
 
 // Check to see if we want this a copy of a plot with some log scales
-void Plotter::SaveCanvasLog(TCanvas* iCanvas, string iDir, string iFilename, bool iLogx, bool iLogy, bool iLogz){
+void Plotter::SaveCanvasLog(TCanvas* iCanvas, string iDir, string iFilename, bool iLogx, bool iLogy, bool iLogz, int iPad){
 	if(iLogx || iLogy || iLogz ){
-		iCanvas->SetLogx(iLogx); 
-		iCanvas->SetLogy(iLogy); 
-		iCanvas->SetLogz(iLogz); 
+        iCanvas->cd(iPad);	
+        gPad->SetLogx(iLogx); 
+		gPad->SetLogy(iLogy); 
+		gPad->SetLogz(iLogz); 
 		SaveCanvas(iCanvas, iDir, string(iFilename+"_log"));
-		iCanvas->SetLogx(0);
-		iCanvas->SetLogy(0);
-		iCanvas->SetLogz(0);
+		gPad->SetLogx(0);
+		gPad->SetLogy(0);
+		gPad->SetLogz(0);
 	}   
 }
 

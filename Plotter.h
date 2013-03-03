@@ -74,7 +74,7 @@ class Plotter {
 		double const		GetMaxIntegral(ProPack const *, string const) const;
 		TPaveText *			GetPlotText(const string);
 		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
-		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool);
+		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool, int iPad = 0);
 
 };
 
