@@ -24,6 +24,7 @@ TTL_TMVASampler::~TTL_TMVASampler(){}
 void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 
 	// Define variables going into the trees
+	float HT;
 	float Tau1Pt;
 	float Tau2Pt;
     unsigned int Tau1DecayMode;
@@ -47,6 +48,7 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 	float LeadingJetSubleadingJetMass;
 
 	// Define branches
+	iTree->Branch("HT", &HT);
 	iTree->Branch("Tau1Pt", &Tau1Pt);
 	iTree->Branch("Tau2Pt", &Tau2Pt);
     iTree->Branch("Tau1DecayMode", &Tau1DecayMode);
@@ -90,6 +92,7 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 		unsigned int bestCombo = event->bestCombo;
 
 		// Assign values
+		HT = event->TTL_HT->at(bestCombo);
 		Tau1Pt = event->TTL_Tau1Pt->at(bestCombo);
 		Tau2Pt = event->TTL_Tau2Pt->at(bestCombo);
         Tau1DecayMode = event->TTL_Tau1DecayMode->at(bestCombo);

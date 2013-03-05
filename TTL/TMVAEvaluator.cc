@@ -28,15 +28,16 @@ TTL_TMVAEvaluator::TTL_TMVAEvaluator(map<string,string>const & iParams){
 	tmvaReader = new TMVA::Reader( "!Color:!Silent" );
 
 	// Tell tmva what variables to consider
+	tmvaReader->AddVariable("HT", &HT);
 	tmvaReader->AddVariable("Tau1Pt", &Tau1Pt);
 	tmvaReader->AddVariable("Tau2Pt", &Tau2Pt);
-    tmvaReader->AddVariable("Tau1DecayMode", &Tau1DecayMode);
+    //tmvaReader->AddVariable("Tau1DecayMode", &Tau1DecayMode);
     // tmvaReader->AddVariable("Tau2DecayMode", &Tau2DecayMode);
     tmvaReader->AddVariable("Tau1IsolationIndex", &Tau1IsolationIndex);
-    // tmvaReader->AddVariable("Tau2IsolationIndex", &Tau2IsolationIndex);
-    tmvaReader->AddVariable("DeltaRTau1Tau2", &DeltaRTau1Tau2);
+    tmvaReader->AddVariable("Tau2IsolationIndex", &Tau2IsolationIndex);
+    //tmvaReader->AddVariable("DeltaRTau1Tau2", &DeltaRTau1Tau2);
     tmvaReader->AddVariable("DeltaRTau1Lepton", &DeltaRTau1Lepton);
-    // tmvaReader->AddVariable("DeltaRTau2Lepton", &DeltaRTau2Lepton);
+    tmvaReader->AddVariable("DeltaRTau2Lepton", &DeltaRTau2Lepton);
     tmvaReader->AddVariable("DeltaRTau1LeadingJet", &DeltaRTau1LeadingJet);
     tmvaReader->AddVariable("DeltaRTau2LeadingJet", &DeltaRTau2LeadingJet);
     // tmvaReader->AddVariable("DeltaRTau1SubleadingJet", &DeltaRTau1SubleadingJet);
@@ -60,6 +61,7 @@ float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
 
 	if (iCombo < 0){ cerr << "ERROR: 'iCombo' is " << iCombo << "." << endl; exit(1); }
 
+    HT = iEvent->TTL_HT->at(iCombo);
     Tau1Pt = iEvent->TTL_Tau1Pt->at(iCombo);
     Tau2Pt = iEvent->TTL_Tau2Pt->at(iCombo);
     Tau1DecayMode = iEvent->TTL_Tau1DecayMode->at(iCombo);

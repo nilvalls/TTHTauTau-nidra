@@ -172,11 +172,6 @@ pair<bool,bool> TTLAnalyzer::ComboPassesCuts(TTLBranches* iEvent, unsigned int i
 
 	
 	// ============================= Lepton Cuts ============================= //
-	if(CutOn_L_pT){				if(cutFlow.CheckComboAndStop("L_pT", event->TTL_LeptonPt->at(iCombo), target)){					return target; }}
-	if(CutOn_L_Eta){			if(cutFlow.CheckComboAndStop("L_Eta", event->TTL_LeptonEta->at(iCombo), target)){					return target; }}
-	if(CutOn_L_IsLoose){	if(cutFlow.CheckComboAndStop("L_IsLooseLepton", event->TTL_LeptonIsLoose->at(iCombo), target)){	return target; }}
-	if(CutOn_L_IsTight){	if(cutFlow.CheckComboAndStop("L_IsTightLepton", event->TTL_LeptonIsTight->at(iCombo), target)){	return target; }}
-	if(CutOn_L_RelIso){			if(cutFlow.CheckComboAndStop("L_RelIso", event->TTL_LeptonRelIso->at(iCombo), target)){			return target; }}
 
 	if(CutOn_NumTightLeptons){			if(cutFlow.CheckComboAndStop("NumTightLeptons", event->TTL_NumTightMuons->at(iCombo)+event->TTL_NumTightElectrons->at(iCombo), target)){ return target; }}
 	if(CutOn_NumTightMuons){			if(cutFlow.CheckComboAndStop("NumTightMuons", event->TTL_NumTightMuons->at(iCombo), target)){				return target; }}
@@ -189,6 +184,12 @@ pair<bool,bool> TTLAnalyzer::ComboPassesCuts(TTLBranches* iEvent, unsigned int i
 	if(CutOn_NumExLooseLeptons){		if(cutFlow.CheckComboAndStop("NumExLooseLeptons", event->TTL_NumExLooseMuons->at(iCombo)+event->TTL_NumExLooseElectrons->at(iCombo), target)){ return target; }}
 	if(CutOn_NumExLooseMuons){			if(cutFlow.CheckComboAndStop("NumExLooseMuons", event->TTL_NumExLooseMuons->at(iCombo), target)){			return target; }}
 	if(CutOn_NumExLooseElectrons){		if(cutFlow.CheckComboAndStop("NumExLooseElectrons", event->TTL_NumExLooseElectrons->at(iCombo), target)){	return target; }}
+
+	if(CutOn_L_pT){				if(cutFlow.CheckComboAndStop("L_pT", event->TTL_LeptonPt->at(iCombo), target)){					return target; }}
+	if(CutOn_L_Eta){			if(cutFlow.CheckComboAndStop("L_Eta", event->TTL_LeptonEta->at(iCombo), target)){					return target; }}
+	if(CutOn_L_IsLoose){	if(cutFlow.CheckComboAndStop("L_IsLooseLepton", event->TTL_LeptonIsLoose->at(iCombo), target)){	return target; }}
+	if(CutOn_L_IsTight){	if(cutFlow.CheckComboAndStop("L_IsTightLepton", event->TTL_LeptonIsTight->at(iCombo), target)){	return target; }}
+	if(CutOn_L_RelIso){			if(cutFlow.CheckComboAndStop("L_RelIso", event->TTL_LeptonRelIso->at(iCombo), target)){			return target; }}
 
 	// *** Tau Reality *** //
 	if(!checkReality){

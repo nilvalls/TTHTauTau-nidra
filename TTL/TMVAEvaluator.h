@@ -19,6 +19,7 @@ class TTL_TMVAEvaluator {
 	private: 
 		TMVA::Reader* tmvaReader;
 
+        float HT;
         float Tau1Pt;
         float Tau2Pt;
         float Tau1DecayMode;
