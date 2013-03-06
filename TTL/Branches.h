@@ -17,7 +17,7 @@ class TTLBranches : public Branches {
 
 	public:
 		TTLBranches();
-		TTLBranches(map<string,string> const &, string const);
+		TTLBranches(map<string,string> const &, vector<string> const &);
 		~TTLBranches();
 
 		unsigned int	GetTau1IsolationIndex(const unsigned int) const;

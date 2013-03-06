@@ -56,9 +56,14 @@ void Analyzer::Analyze(Process& iProcess){
 	goodEventsForQCD.clear();
 
 	Branches* event = NULL;
-		 if(params["channel"] == "TTM"){	event = new TTMBranches(params, iProcess.GetNtuplePath()); }
-	else if(params["channel"] == "TTE"){	event = new TTEBranches(params, iProcess.GetNtuplePath()); }
-	else if(params["channel"] == "TTL"){	event = new TTLBranches(params, iProcess.GetNtuplePath()); }
+
+   if (params["channel"] == "TTM") {
+      event = new TTMBranches(params, iProcess.GetNtuplePaths());
+   } else if (params["channel"] == "TTE") {
+      event = new TTEBranches(params, iProcess.GetNtuplePaths());
+   } else if (params["channel"] == "TTL") {
+      event = new TTLBranches(params, iProcess.GetNtuplePaths());
+   }
 
 	isSignal		= iProcess.IsSignal();
 	checkReality	= iProcess.CheckReality();

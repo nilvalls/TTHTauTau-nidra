@@ -113,9 +113,9 @@ void ProPack::SetAnalyzed(){
 	analyzed = true;
 }
 
-void ProPack::SetCollisions(Process& iProcess, string const iNtuplePath){
+void ProPack::SetCollisions(Process& iProcess, const vector<string> iNtuplePath) {
 	collisions = Process(iProcess);
-	if(iNtuplePath.length() != 0){ collisions.SetNtuplePath(iNtuplePath); }
+	if (iNtuplePath.size() != 0) { collisions.SetNtuplePaths(iNtuplePath); }
 	haveCollisions = true;
 	prepareCollisions = true;
 }
@@ -125,7 +125,7 @@ void ProPack::SetQCD(Process& iProcess){
 	haveQCD = true;
 }
 
-void ProPack::AddMCbackground(Process& iProcess, string iNtuplePath){
+void ProPack::AddMCbackground(Process& iProcess, const vector<string> iNtuplePath) {
 
 	// Check that incoming process is not already present in the vector
 	string newTopoShortName = iProcess.GetShortName();
@@ -134,7 +134,7 @@ void ProPack::AddMCbackground(Process& iProcess, string iNtuplePath){
 		if(thisTopoShortName.compare(newTopoShortName)==0){ cerr << "ERROR: trying to add process \"" << newTopoShortName << "\" but it already exists in the vector of MC backgrounds" << endl; exit(1);}
 	}
 	mcBackgrounds.push_back(iProcess);
-	if(iNtuplePath.length() != 0){ mcBackgrounds.back().SetNtuplePath(iNtuplePath); }
+	if (iNtuplePath.size() != 0) { mcBackgrounds.back().SetNtuplePaths(iNtuplePath); }
 
 }
 
@@ -185,7 +185,7 @@ void ProPack::CombineAndRemoveMCbackgrounds(const vector<string> iBackgrounds, c
 
 }
 
-void ProPack::AddSignal(Process& iProcess, string iNtuplePath){
+void ProPack::AddSignal(Process& iProcess, const vector<string> iNtuplePath) {
 	// Check that incoming process is not already present in the vector
 	string newTopoShortName = iProcess.GetShortName();
 	for(unsigned int t=0; t<signals.size(); t++){
@@ -193,7 +193,7 @@ void ProPack::AddSignal(Process& iProcess, string iNtuplePath){
 		if(thisTopoShortName.compare(newTopoShortName)==0){ cerr << "ERROR: trying to add process \"" << newTopoShortName << "\" but it already exists in the vector of signals" << endl; exit(1);}
 	}
 	signals.push_back(iProcess);
-	if(iNtuplePath.length() != 0){ signals.back().SetNtuplePath(iNtuplePath); }
+	if (iNtuplePath.size() != 0) { signals.back().SetNtuplePaths(iNtuplePath); }
 }
 
 bool const ProPack::HaveCollisions() const { return haveCollisions; }

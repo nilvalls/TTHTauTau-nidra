@@ -70,7 +70,7 @@ void TTM_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
     iTree->Branch("LeadingJetSubleadingJetMass", &LeadingJetSubleadingJetMass);
 
 	// Instantiante Branches to read events more easily
-	TTMBranches* event = new TTMBranches(params, iProcess->GetNtuplePath());
+	TTMBranches* event = new TTMBranches(params, iProcess->GetNtuplePaths());
 
 	// Loop over good events
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();

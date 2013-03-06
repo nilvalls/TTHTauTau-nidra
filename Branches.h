@@ -37,16 +37,13 @@ class Branches {
 
 
 	protected:
-		void				SetUp(map<string,string> const &, string const);
+		void				SetUp(map<string,string> const &, vector<string> const &);
 		virtual void		Null();
 		virtual void		Delete();
 		virtual void		Clear();
 		virtual Long64_t	LoadTree(Long64_t entry);
 		virtual void		SetBranchAddresses();
 		virtual void		SetChain(TChain*);
-
-	protected:
-		TChain*	GetTChain(string);
 
 	public:
 		void	Init();
@@ -60,7 +57,6 @@ class Branches {
 		void				SetBestCombo(int);
 		unsigned int const	GetBestCombo() const;
 		int					bestCombo;
-
 };
 
 #endif

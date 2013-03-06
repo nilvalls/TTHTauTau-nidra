@@ -71,12 +71,12 @@ class ProPack : public TObject {
 		vector<Process>*			GetSignals();
 		PContainer *				GetPContainer();
 
-		void						SetCollisions(Process&, string const iNtuplePath="");
+		void						SetCollisions(Process&, const vector<string> iNtuplePath=vector<string>());
 		void						SetQCD(Process&);
-		void						AddMCbackground(Process&, string const iNtuplePath="");
+		void						AddMCbackground(Process&, const vector<string> iNtuplePath=vector<string>());
 		void						RemoveMCbackground(const string);
 		void						CombineAndRemoveMCbackgrounds(const vector<string>, const string, const string, const string, const int);
-		void						AddSignal(Process&, string const iNtuplePath="");
+		void						AddSignal(Process&, const vector<string> iNtuplePath=vector<string>());
 
 		bool const					HaveCollisions() const;
 		bool const					PrepareCollisions() const;

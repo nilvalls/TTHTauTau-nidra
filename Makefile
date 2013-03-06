@@ -8,7 +8,6 @@ ROOTGLIBS     = $(shell $(ROOTSYS)/bin/root-config --glibs)
 
 CXXFLAGS      = -g -fPIC
 LDFLAGS       = -g -lboost_filesystem
-SOFLAGS       = -shared
 LD = $(CXX)
 
 
@@ -23,7 +22,7 @@ NGLIBS		  += -lTMVA
 GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
-		.HWrapper.o .HContainer.o .HMath.o .CutFlow.o \
+		.HWrapper.o .HContainer.o .HMath.o .Helper.o .CutFlow.o \
 		.Process.o .PContainer.o .ProPack.o \
 		.Branches.o .Analyzer.o .Plotter.o \
 		.TMVASampler.o \
@@ -36,7 +35,7 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.RootFileMaker.o .RawHistoSaver.o
 
 .%.o: %.cc %.h
-	$(CXX) $(CXXFLAGS) -c $*.cc -o $@
+	$(CXX) -std=c++0x $(CXXFLAGS) -c $*.cc -o $@
 
 all: .nidra.exe
 

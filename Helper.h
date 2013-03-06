@@ -1,6 +1,9 @@
 #ifndef _HELPER_h
 #define _HELPER_h
 
+#include <string>
+#include <vector>
+
 #include "math.h"
 #include "TLorentzVector.h"
 
@@ -13,5 +16,9 @@ inline float const NormalizedPhi(const float iPhi){
 
 inline float const DeltaR(const float iEta1, const float iPhi1, const float iEta2, const float iPhi2) { return sqrt(pow((iEta1-iEta2),2) + pow(NormalizedPhi(iPhi1-iPhi2),2)); }
 
+// remove this when porting to JSON
+namespace Helper {
+   std::vector<std::string> SplitString(std::string &s);
+};
 
 #endif

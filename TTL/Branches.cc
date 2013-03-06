@@ -8,7 +8,11 @@ using namespace std;
 // Default constructor
 TTLBranches::TTLBranches() : Branches(){}
 
-TTLBranches::TTLBranches(map<string,string> const & iParams, string const iPath){ SetUp(iParams, iPath); }
+TTLBranches::TTLBranches(
+      map<string,string> const & iParams,
+      vector<string> const & iPath) {
+   SetUp(iParams, iPath);
+}
 
 // Default destructor
 TTLBranches::~TTLBranches(){

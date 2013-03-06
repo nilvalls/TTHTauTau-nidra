@@ -43,7 +43,7 @@ class Process {
 		string labelForLegend;
 		string type;
 		bool checkReality;
-		string ntuplePath;
+      vector<string> ntuplePaths;
 		int color;
 		bool analyzed;
 		bool plot;
@@ -96,7 +96,7 @@ class Process {
 		void				SetColor(int const);
 		void				SetNOEanalyzed(double const);
 		void				SetNOEinNtuple(double const);
-		void				SetNtuplePath(string const);
+		void				SetNtuplePaths(vector<string> const);
 
 		void				NormalizeToLumi(double const);
 		void				NormalizeToOne();
@@ -120,7 +120,7 @@ class Process {
 		string const		GetShortName() const;
 		string const		GetNiceName() const;
 		string const		GetLabelForLegend() const;
-		string const		GetNtuplePath() const;
+		vector<string> const		GetNtuplePaths() const;
 		string const		GetType() const;
 		bool const			CheckReality() const;
 		bool const			IsCollisions() const;

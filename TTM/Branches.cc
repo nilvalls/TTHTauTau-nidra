@@ -8,7 +8,8 @@ using namespace std;
 // Default constructor
 TTMBranches::TTMBranches() : Branches(){}
 
-TTMBranches::TTMBranches(map<string,string> const & iParams, string const iPath){ SetUp(iParams, iPath); }
+TTMBranches::TTMBranches(map<string,string> const & iParams,
+      vector<string> const & iPath){ SetUp(iParams, iPath); }
 
 // Default destructor
 TTMBranches::~TTMBranches(){

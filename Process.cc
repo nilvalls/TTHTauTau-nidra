@@ -1,5 +1,8 @@
 
 #define Process_cxx
+
+#include "Helper.h"
+
 #include "Process.h"
 
 using namespace std;
@@ -30,7 +33,7 @@ Process::Process(Process const & iProcess){
 	labelForLegend					= iProcess.GetLabelForLegend();
 	type							= iProcess.GetType();
 	checkReality					= iProcess.CheckReality();
-	ntuplePath						= iProcess.GetNtuplePath();
+	ntuplePaths						= iProcess.GetNtuplePaths();
 	color							= iProcess.GetColor();
 
 	crossSection					= iProcess.GetCrossSection();
@@ -76,9 +79,14 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 		string process		= iConfig.pString("ntuplePath");
 		if(process.substr(process.length()-1).compare("/")==0){ process = process.substr(0,process.length()-1); }
 		//ntuplePath					= jeffspath1 + process + jeffspath2+"/res/";
-		ntuplePath					= jeffspath1 + process + jeffspath2;
+      for (const auto& p: Helper::SplitString(process)) {
+         ntuplePaths.push_back(jeffspath1 + p + jeffspath2);
+      }
 	}else{
-		ntuplePath					= (params.find("ntuplesDir")->second) + iConfig.pString("ntuplePath") + "res";
+		string process		= iConfig.pString("ntuplePath");
+      for (const auto& p: Helper::SplitString(process)) {
+         ntuplePaths.push_back((params.find("ntuplesDir")->second) + p + "res");
+      }
 	}
 
 	color						= iConfig.pInt("color");
@@ -159,7 +167,7 @@ string const Process::GetLabelForLegend() const {	return labelForLegend;	}
 string const Process::GetType() const {				return type;			}
 bool const Process::IsMC() const { return ((type.compare("mcBackground")==0) || (type.compare("signal")==0)); }
 bool const Process::Plot() const { return plot; }
-void Process::SetNtuplePath(string const iPath){ ntuplePath = iPath; }
+void Process::SetNtuplePaths(vector<string> const iPath){ ntuplePaths = iPath; }
 
 void Process::SetPlot(map<string,string> const & iParams){
 	bool result;
@@ -178,7 +186,7 @@ bool const Process::IsQCD() const { return ((type.compare("qcd")==0)); }
 bool const Process::IsMCbackground() const { return ((type.compare("mcBackground")==0)); }
 bool const Process::IsSignal() const { return ((type.compare("signal")==0)); }
 bool const Process::CheckReality() const { return checkReality; }
-string const Process::GetNtuplePath() const { return ntuplePath; }
+vector<string> const Process::GetNtuplePaths() const { return ntuplePaths; }
 int const Process::GetColor() const { return color; }
 int const Process::GetNOEinDS() const {			return NOEinDS;		}
 int const Process::GetNoEreadByNUTter() const {	return NoEreadByNUTter;}

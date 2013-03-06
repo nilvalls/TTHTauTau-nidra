@@ -6,6 +6,8 @@
 
 */
 
+#include "TChain.h"
+
 #include "Branches.h"
 
 #define Branches_cxx
@@ -20,19 +22,20 @@ Branches::Branches(){
 }
 
 
-void Branches::SetUp(map<string,string> const & iParams, string const iPath){
-
+void Branches::SetUp(map<string,string> const & iParams, vector<string> const & iPath) {
 	params = iParams;
 	//cout << "PATH: " << iPath << endl;
-	fChain = GetTChain(iPath);
-	Null();
+   
+   fChain = new TChain(iParams.find("treeName")->second.c_str());
+   for (const auto& p: iPath) {
+      fChain->Add((p + "/*.root").c_str());
+   }
 
 	// Set branch addresses and branch pointers
 	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }
 	fCurrent = -1; 
 	fChain->SetMakeClass(1);
 	Init(); //*/
-
 }
 
 
@@ -77,21 +80,6 @@ void Branches::Init(){
 }
 
 void Branches::GetEntry(double iEntry){ fChain->GetEntry(iEntry); }
-
-TChain* Branches::GetTChain(string iPath){
-
-	// Chain to return
-	TChain* result = new TChain((params["treeName"]).c_str());
-
-	// Add all *.root files in iPath
-	string pathToRootFiles = iPath + "/*.root";
-	//cout << "PATH: " << pathToRootFiles << endl;
-	result->Add(pathToRootFiles.c_str());
-
-	// Return TChain
-	return result;
-}
-
 
 Long64_t Branches::LoadTree(Long64_t entry){
 	// Set the environment to read one entry
