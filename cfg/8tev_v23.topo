@@ -15,8 +15,8 @@ topology_Collisions = [
 
 topology_TTbar_hadronic = [
     sampleNumber     = 2566
-    niceName         = t + tbar
-    labelForLegend   = t #bar{t}
+    niceName         = t + tbar H
+    labelForLegend   = t #bar{t} H
     type             = mcBackground
     ntuplePath       = TTbar_Hadronic_Summer12
     color            = 870
@@ -29,8 +29,8 @@ topology_TTbar_hadronic = [
 
 topology_TTbar_semilept = [
     sampleNumber     = 2563
-    niceName         = t + tbar
-    labelForLegend   = t #bar{t}
+    niceName         = t + tbar SL
+    labelForLegend   = t #bar{t} SL
     type             = mcBackground
     ntuplePath       = TTbar_SemiLept_Summer12
     color            = 870
@@ -43,8 +43,8 @@ topology_TTbar_semilept = [
 
 topology_TTbar_fulllept = [
     sampleNumber     = 2533
-    niceName         = t + tbar
-    labelForLegend   = t #bar{t}
+    niceName         = t + tbar FL
+    labelForLegend   = t #bar{t} FL
     type             = mcBackground
     ntuplePath       = TTbar_FullLept_Summer12
     color            = 870
@@ -67,6 +67,62 @@ topology_Wjets = [
     otherScaleFactor = 1
     NOEinDS          = 57709905
     NoEreadByNUTter  = 4865
+]
+
+topology_WplusOneJet = [
+    sampleNumber     = 2401
+    niceName         = W + jet
+    labelForLegend   = W + jet
+    type             = mcBackground
+    ntuplePath       = WplusOneJet_Summer12
+    color            = 810
+    crossSection     = 6440.4
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 23141598
+    NoEreadByNUTter  = 1868
+]
+
+topology_WplusTwoJets = [
+    sampleNumber     = 2402
+    niceName         = W + 2 jets
+    labelForLegend   = W + 2 jets
+    type             = mcBackground
+    ntuplePath       = WplusJets_Summer12
+    color            = 810
+    crossSection     = 2087.2
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 34044921
+    NoEreadByNUTter  = 9509
+]
+
+topology_WplusThreeJets = [
+    sampleNumber     = 2403
+    niceName         = W + 3 jets
+    labelForLegend   = W + 3 jets
+    type             = mcBackground
+    ntuplePath       = WplusJets_Summer12
+    color            = 810
+    crossSection     = 619.0
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 15539503
+    NoEreadByNUTter  = 15593
+]
+
+topology_WplusFourJets = [
+    sampleNumber     = 2404
+    niceName         = W + 4 jets
+    labelForLegend   = W + 4 jets
+    type             = mcBackground
+    ntuplePath       = WplusJets_Summer12
+    color            = 810
+    crossSection     = 255.2
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 13382803
+    NoEreadByNUTter  = 37645
 ]
 
 topology_WW = [
