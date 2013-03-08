@@ -138,20 +138,6 @@ void ProPack::AddMCbackground(Process& iProcess, const vector<string> iNtuplePat
 
 }
 
-void ProPack::RemoveMCbackground(const string iShortName){
-
-	// Check that incoming process is not already present in the vector
-	for(unsigned int t=0; t<mcBackgrounds.size(); t++){
-		string thisTopoShortName = mcBackgrounds.at(t).GetShortName();
-		if(thisTopoShortName.compare(iShortName)==0){
-			//cout << "\t\t" << "Removing '" << iShortName << "'" << endl;
-			mcBackgrounds.erase(mcBackgrounds.begin()+t);
-		}
-	}
-
-
-}
-
 void ProPack::CombineAndRemoveMCbackgrounds(const vector<string> iBackgrounds, const string iShortName, const string iNiceName, const string iLabelForLegend, const int iColor){
 	cout << "\tCombining into '" << iNiceName << "' the following: ";
 	for(unsigned int b = 0; b < iBackgrounds.size(); b++){
@@ -160,29 +146,39 @@ void ProPack::CombineAndRemoveMCbackgrounds(const vector<string> iBackgrounds, c
 	}
 	cout << endl;
 
+    vector<string> bkg_to_remove;
 	unsigned int numberOfProcessesCombined = 0;
+    // TODO Should never use a pointer into a vector (the Process pointed to
+    // changes when a Process positioned before it is deleted)
 	Process* result = NULL;
-	for(unsigned int b = 0; b < iBackgrounds.size(); b++){
-		string backgroundToAdd = iBackgrounds.at(b);
-		//if(!HaveMCbackground(iBackgrounds.at(b))){ cerr << "ERROR: trying to combine background '" << iBackgrounds.at(b) << "' but it is not in background vector." << endl; exit(1); }
-		if(!HaveMCbackground(iBackgrounds.at(b))){ cout << RED << "WARNING: trying to combine background '" << iBackgrounds.at(b) << "' but it is not in background vector." << NOCOLOR << endl; continue; }
+	for (const auto& backgroundToAdd: iBackgrounds) {
+		if (!HaveMCbackground(backgroundToAdd)) {
+            cout << RED << "WARNING: trying to combine background '" << backgroundToAdd << "' but it is not in background vector." << NOCOLOR << endl;
+            continue;
+        }
 		if(result == NULL){
 			result = GetProcess(backgroundToAdd);
 		}else{
-			result->Add(GetProcess(backgroundToAdd));	
-			RemoveMCbackground(backgroundToAdd);
+			result->Add(GetProcess(backgroundToAdd));
+			bkg_to_remove.push_back(backgroundToAdd);
 		}
 		numberOfProcessesCombined++;
 	}
 
 	if(numberOfProcessesCombined > 0){
 		result->SetShortName(iShortName);
-		result->SetNiceName(iNiceName);
+        result->SetNiceName(iNiceName);
 		result->SetLabelForLegend(iLabelForLegend);
 		result->SetColor(iColor);
 	}
-	
 
+    // Remove backgrounds now that everything else is handled
+    for (const auto& bkg: bkg_to_remove) {
+        vector<Process>::iterator ibkg;
+        for (ibkg = mcBackgrounds.begin(); ibkg->GetShortName() != bkg and ibkg != mcBackgrounds.end(); ++ibkg);
+        if (ibkg != mcBackgrounds.end())
+            mcBackgrounds.erase(ibkg);
+    }
 }
 
 void ProPack::AddSignal(Process& iProcess, const vector<string> iNtuplePath) {
