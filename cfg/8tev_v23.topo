@@ -55,20 +55,6 @@ topology_TTbar_fulllept = [
     NoEreadByNUTter  = 2103540
 ]
 
-topology_Wjets = [
-    sampleNumber     = 2400
-    niceName         = W + jets
-    labelForLegend   = W + jets
-    type             = mcBackground
-    ntuplePath       = WplusJets_Summer12
-    color            = 810
-    crossSection     = 37509
-    branchingRatio   = 1
-    otherScaleFactor = 1
-    NOEinDS          = 57709905
-    NoEreadByNUTter  = 4865
-]
-
 topology_WplusOneJet = [
     sampleNumber     = 2401
     niceName         = W + jet
