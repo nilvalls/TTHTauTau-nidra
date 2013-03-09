@@ -21,7 +21,10 @@ TTLPlotter::~TTLPlotter(){
 
 // Constructor
 TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
-	//mva = new TTL_TMVAEvaluator(iParams);
+	mva = NULL;
+	ifstream mvaWeights(params.find("MVAweights")->second.c_str());
+	if(mvaWeights.good()){ mva = new TTL_TMVAEvaluator(iParams); }
+	mvaWeights.close();
 	MakePlots(proPack);
 	SaveFile();
 }
@@ -32,12 +35,16 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 	TTLBranches* event = (TTLBranches*)iEvent;
 	int iCombo = event->bestCombo;
 
+	float iTopPtWeight			= 1.0;
 	float iLeptonWeight			= 1.0;
 	float iPuWeight				= 1.0;
 	float iTau1TriggerWeight	= 1.0;
 	float iTau2TriggerWeight	= 1.0;
 
 	if(iIsMC){
+		if(IsFlagThere("topPtSF")){		iTopPtWeight	= event->Ev_topPtWeight;	}
+		if(IsFlagThere("topPtSFup")){	iTopPtWeight	= event->Ev_topPtWeightUp;	}
+		if(IsFlagThere("topPtSFdown")){	iTopPtWeight	= event->Ev_topPtWeightDown;}
 		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTL_LeptonEventWeight->at(event->bestCombo);	}
 		if(IsFlagThere("PUcorr")){ 
 			//OLD: iPuWeight = iPUcorrector->GetWeight(event->Ev_numInteractionsBX0); 
@@ -49,6 +56,7 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		}
 	}//*/
 
+	iWeightCounter->topPtCorrection		+= iTopPtWeight;
 	iWeightCounter->leptonCorrection	+= iLeptonWeight;
 	iWeightCounter->puCorrection		+= iPuWeight;
 	iWeightCounter->tau1Trigger			+= iTau1TriggerWeight*iPuWeight;

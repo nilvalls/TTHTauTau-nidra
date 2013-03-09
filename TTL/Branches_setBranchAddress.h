@@ -6,6 +6,9 @@
 	fChain->SetBranchAddress("Ev_numInteractionsBXp1", &Ev_numInteractionsBXp1);
 	fChain->SetBranchAddress("Ev_numPrimaryVertices", &Ev_numPrimaryVertices);
 	fChain->SetBranchAddress("Ev_puWeight", &Ev_puWeight);
+	fChain->SetBranchAddress("Ev_topPtWeight", &Ev_topPtWeight);
+	fChain->SetBranchAddress("Ev_topPtWeightUp", &Ev_topPtWeightUp);
+	fChain->SetBranchAddress("Ev_topPtWeightDown", &Ev_topPtWeightDown);
 	fChain->SetBranchAddress("Ev_MET", &Ev_MET);
 	fChain->SetBranchAddress("Ev_METphi", &Ev_METphi);
 	fChain->SetBranchAddress("GT_NumGenTaus", &GT_NumGenTaus);

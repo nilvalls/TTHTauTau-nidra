@@ -33,6 +33,7 @@
 using namespace std;
 
 struct weightCounter{
+	double topPtCorrection;
 	double leptonCorrection;
 	double puCorrection;
 	double tau1Trigger;

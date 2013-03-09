@@ -6,6 +6,9 @@
 	double Ev_numInteractionsBXp1;
 	double Ev_numPrimaryVertices;
 	double Ev_puWeight;
+	double Ev_topPtWeight;
+	double Ev_topPtWeightUp;
+	double Ev_topPtWeightDown;
 	double Ev_MET;
 	double Ev_METphi;
 	int GT_NumGenTaus;

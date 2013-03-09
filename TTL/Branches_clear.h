@@ -6,6 +6,9 @@
 	Ev_numInteractionsBXp1 = 0;
 	Ev_numPrimaryVertices = 0;
 	Ev_puWeight = 0;
+	Ev_topPtWeight = 0;
+	Ev_topPtWeightUp = 0;
+	Ev_topPtWeightDown = 0;
 	Ev_MET = 0;
 	Ev_METphi = 0;
 	GT_NumGenTaus = 0;
