@@ -192,7 +192,7 @@ topology_sTW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 497658
-    NoEreadByNUTter  = 65700
+    NoEreadByNUTter  = 3079
 ]
 
 topology_sTbarW = [
@@ -200,13 +200,13 @@ topology_sTbarW = [
     niceName         = tbar + W
     labelForLegend   = #bar{t} + W
     type             = mcBackground
-    ntuplePath       = singleTopBarPluW_Summer12
+    ntuplePath       = singleTopBarPlusW_Summer12
     color            = 893
     crossSection     = 7.87
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 493460
-    NoEreadByNUTter  = 65411
+    NoEreadByNUTter  = 2987
 ]
 
 topology_sT-sCh = [
@@ -234,7 +234,7 @@ topology_sTbar-sCh = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 139974
-    NoEreadByNUTter  = 7403
+    NoEreadByNUTter  = 417
 ]
 
 topology_sT-tCh = [
@@ -248,7 +248,7 @@ topology_sT-tCh = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 3758227
-    NoEreadByNUTter  = 169295
+    NoEreadByNUTter  = 6141
 ]
 
 topology_sTbar-tCh = [
@@ -262,7 +262,7 @@ topology_sTbar-tCh = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1935072
-    NoEreadByNUTter  = 33844
+    NoEreadByNUTter  = 1227
 ]
 
 topology_ttPlusW = [

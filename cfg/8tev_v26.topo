@@ -192,7 +192,7 @@ topology_sTW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 497658
-    NoEreadByNUTter  = 65700
+    NoEreadByNUTter  = 12417
 ]
 
 topology_sTbarW = [
@@ -206,7 +206,7 @@ topology_sTbarW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 493460
-    NoEreadByNUTter  = 65411
+    NoEreadByNUTter  = 12156
 ]
 
 topology_sT-sCh = [
@@ -234,7 +234,7 @@ topology_sTbar-sCh = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 139974
-    NoEreadByNUTter  = 7403
+    NoEreadByNUTter  = 1154
 ]
 
 topology_sT-tCh = [
@@ -248,7 +248,7 @@ topology_sT-tCh = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 3758227
-    NoEreadByNUTter  = 169295
+    NoEreadByNUTter  = 27462
 ]
 
 topology_sTbar-tCh = [
@@ -262,7 +262,7 @@ topology_sTbar-tCh = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1935072
-    NoEreadByNUTter  = 33844
+    NoEreadByNUTter  = 5529
 ]
 
 topology_ttPlusW = [
