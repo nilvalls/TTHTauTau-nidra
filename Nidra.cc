@@ -36,7 +36,7 @@ int main(int argc, char **argv){
 	if(IsArgumentThere("-o")){ Optimize();		}
 
 	if(IsArgumentThere("-t")){
-   	DistributeProcesses();
+		DistributeProcesses();
 		MakeTMVATrainingSample();
 	}
 
