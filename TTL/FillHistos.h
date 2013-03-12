@@ -92,20 +92,38 @@ for( unsigned int iJet = 0; iJet < event->J_Pt->size(); iJet++ ) {
             event->TTL_LeptonEta->at(iCombo),
             event->TTL_LeptonPhi->at(iCombo)) > conesize)
     ) {
-		if(jetCounter == 0){
+		if (jetCounter == 0) {
 			hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
+			hContainer->Fill("LeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
+
 			hContainer->Fill("DeltaR_LJ1", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
 			hContainer->Fill("DeltaR_T1J1", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
 			hContainer->Fill("DeltaR_T2J1", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-		}else if (jetCounter==1){
+		} else if (jetCounter==1) {
 			hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
+			hContainer->Fill("SubLeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
+
 			hContainer->Fill("DeltaR_LJ2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
 			hContainer->Fill("DeltaR_T1J2", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
 			hContainer->Fill("DeltaR_T2J2", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-		}else{	break; }
+		} else if (jetCounter == 2) {
+			hContainer->Fill("SubSubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
+			hContainer->Fill("SubSubLeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
+		} else if (jetCounter == 3) {
+			hContainer->Fill("SubSubSubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
+			hContainer->Fill("SubSubSubLeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
+		}
+
+        if (event->J_combSecVtxMediumBTag->at(iJet)) {
+           hContainer->Fill("BTagJet_Pt", event->J_Pt->at(iJet), weightFull);
+           hContainer->Fill("BTagJet_Eta", event->J_Eta->at(iJet), weightFull);
+        } else {
+           hContainer->Fill("NonBTagJet_Pt", event->J_Pt->at(iJet), weightFull);
+           hContainer->Fill("NonBTagJet_Eta", event->J_Eta->at(iJet), weightFull);
+        }
 
         jetCounter++;
-		if(jetCounter > 1){ break; }
+		if(jetCounter > 3){ break; }
     }
 }
 
