@@ -57,11 +57,7 @@ void Analyzer::Analyze(Process& iProcess){
 
 	Branches* event = NULL;
 
-   if (params["channel"] == "TTM") {
-      event = new TTMBranches(params, iProcess.GetNtuplePaths());
-   } else if (params["channel"] == "TTE") {
-      event = new TTEBranches(params, iProcess.GetNtuplePaths());
-   } else if (params["channel"] == "TTL") {
+   if (params["channel"] == "TTL") {
       event = new TTLBranches(params, iProcess.GetNtuplePaths());
    }
 

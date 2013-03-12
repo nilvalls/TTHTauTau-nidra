@@ -33,14 +33,6 @@
 #include "Optimizer.h"
 #include "TMVASampler.h"
 
-#include "TTM/Analyzer.h"
-#include "TTM/Plotter.h"
-#include "TTM/TMVASampler.h"
-
-#include "TTE/Analyzer.h"
-#include "TTE/Plotter.h"
-#include "TTE/TMVASampler.h"
-
 #include "TTL/Analyzer.h"
 #include "TTL/Plotter.h"
 #include "TTL/TMVASampler.h"

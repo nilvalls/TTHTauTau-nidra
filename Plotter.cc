@@ -82,12 +82,7 @@ void Plotter::MakePlots(Process* iProcess){
 	// Instantiante Branches to read events more easily
 	Branches* event = NULL;
 	string channel = params["channel"];
-   if (channel == "TTM")
-      event = new TTMBranches(params, iProcess->GetNtuplePaths());
-   else if (channel == "TTE")
-      event = new TTEBranches(params, iProcess->GetNtuplePaths());
-   else if (channel == "TTL")
-      event = new TTLBranches(params, iProcess->GetNtuplePaths());
+	if (channel == "TTL"){ event = new TTLBranches(params, iProcess->GetNtuplePaths()); }
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();

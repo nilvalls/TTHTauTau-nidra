@@ -102,10 +102,8 @@ void Analyze(){
 	Analyzer* analyzer = NULL;
 	
 	string channel = GetParam("channel");
-		 if(channel == "TTM"){	analyzer = new TTMAnalyzer(params); }
-	else if(channel == "TTE"){	analyzer = new TTEAnalyzer(params); }
-	else if(channel == "TTL"){	analyzer = new TTLAnalyzer(params); }
-	else{	assert(GetParam("channel") == "either TTM or TTE or TTL");		}
+	if(channel == "TTL"){	analyzer = new TTLAnalyzer(params); }
+	else{	assert(GetParam("channel") == "TTL");		}
 
 	// Pass topopack to analyzer to analyze
 	analyzer->AnalyzeAll(*proPack);
@@ -150,10 +148,8 @@ void PreparePlots(){
 	Plotter* plotter = NULL;
 	
 	string channel = GetParam("channel");
-		 if(channel == "TTM"){	plotter = new TTMPlotter(params); }
-	else if(channel == "TTE"){	plotter = new TTEPlotter(params); }
-	else if(channel == "TTL"){	plotter = new TTLPlotter(params); }
-	else{	assert(GetParam("channel") == "either TTM or TTE or TTL");		}
+	if(channel == "TTL"){	plotter = new TTLPlotter(params); }
+	else{	assert(GetParam("channel") == "TTL");		}
 
 	delete plotter; plotter = NULL;
 	Print(GREEN," done!");
@@ -222,10 +218,8 @@ void MakeTMVATrainingSample(){
 	TMVASampler* tmvaSampler = NULL;
 	
 	string channel = GetParam("channel");
-		 if(channel == "TTM"){	tmvaSampler = new TTM_TMVASampler(params); }
-	else if(channel == "TTE"){	tmvaSampler = new TTE_TMVASampler(params); }
-	else if(channel == "TTL"){	tmvaSampler = new TTL_TMVASampler(params); }
-	else{	assert(GetParam("channel") == "either TTM or TTE or TTL");		}
+	if(channel == "TTL"){	tmvaSampler = new TTL_TMVASampler(params); }
+	else{	assert(GetParam("channel") == "TTL");		}
 
 	delete tmvaSampler; tmvaSampler = NULL;
 	Print(GREEN," done!");
