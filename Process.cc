@@ -39,6 +39,7 @@ Process::Process(Process const & iProcess){
 	crossSection					= iProcess.GetCrossSection();
 	branchingRatio					= iProcess.GetBranchingRatio();
 	otherScaleFactor				= iProcess.GetOtherScaleFactor();
+    relSysUncertainty               = iProcess.GetRelSysUncertainty();
 
 	analyzed						= iProcess.Analyzed();
 	NOEinDS							= iProcess.GetNOEinDS();
@@ -95,6 +96,8 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	crossSection				= iConfig.pDouble("crossSection");
 	branchingRatio				= iConfig.pDouble("branchingRatio");
 	otherScaleFactor			= iConfig.pDouble("otherScaleFactor");
+    
+    relSysUncertainty           = iConfig.pDouble("relativeSysUncertainty");
 
 	// Logistics
 	analyzed					= false;
@@ -112,6 +115,7 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	filledHistosForQCD			= false;
 	normalizedHistosForSignal	= false;
 	normalizedHistosForQCD		= false;
+
 
 
 }
@@ -133,6 +137,7 @@ void Process::Update(Process const * iProcess){
 	crossSection					= iProcess->GetCrossSection();
 	branchingRatio					= iProcess->GetBranchingRatio();
 	otherScaleFactor				= iProcess->GetOtherScaleFactor();
+    relSysUncertainty               = iProcess->GetRelSysUncertainty();
 
 	plot							= iProcess->Plot();
 	SetPlot(params);
@@ -156,6 +161,7 @@ void Process::SetCutFlow(CutFlow const & iCutFlow){ cutFlow	= CutFlow(iCutFlow);
 void Process::SetNormalizedCutFlow(CutFlow const & iCutFlow){ normalizedCutFlow	= CutFlow(iCutFlow); }
 void Process::SetNOEanalyzed(double const iEvents){ NOEanalyzed = iEvents; }
 void Process::SetNOEinNtuple(double const iEvents){ NOEinNtuple = iEvents; }
+void Process::SetRelSysUncertainty(double const iError){ relSysUncertainty = iError; }
 void Process::SetColor(int const iColor){ color = iColor; }
 CutFlow* Process::GetCutFlow() { return &cutFlow; }
 CutFlow const * Process::GetCutFlow() const { return &cutFlow; }
@@ -198,6 +204,7 @@ double const Process::GetBranchingRatio() const{ return branchingRatio;}
 double const Process::GetOtherScaleFactor() const{ return otherScaleFactor;}
 double const Process::GetNOEexpectedForSignal() const{ return NOEexpectedForSignal;}
 double const Process::GetNOEexpectedForQCD() const{ return NOEexpectedForQCD;}
+double const Process::GetRelSysUncertainty() const{ return relSysUncertainty;}
 bool const Process::ObtainedGoodEventsForSignal() const{ return obtainedGoodEventsForSignal;}
 bool const Process::ObtainedGoodEventsForQCD() const{ return obtainedGoodEventsForQCD;}
 bool const Process::FilledHistosForSignal() const{ return filledHistosForSignal;}
@@ -273,10 +280,13 @@ void Process::NormalizeToLumi(double const iIntLumi){
 			<< "\tNOEraw........" << NOEraw << "\n" 
 			<< "\tOtherSF......." << GetOtherScaleFactor() << "\n" 
 			<< "\t---------------------------------------\n"
-			<< "\tSF............" << lumiNormalization << "\n" << endl; //*/
+			<< "\tSF............" << lumiNormalization << "\n" 
+			<< "\trelSysSuncertainty....." << relSysUncertainty*100 << "%" << "\n" << endl; //*/
 
 		ScaleBy(lumiNormalization);
 		GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, lumiNormalization, lumiNormalization);
+
+        hContainerForSignal.AddRelErrorInQuadrature(relSysUncertainty);
 	}
 	normalizedHistosForSignal	= true;
 	normalizedHistosForQCD		= true;

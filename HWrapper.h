@@ -103,6 +103,7 @@ class HWrapper{
 		void	NormalizeTo(double const);
 		void	ScaleBy(double const);
 		void	ScaleErrorBy(double const);
+		void	AddRelErrorInQuadrature(double const);
 		void	Positivize();
 		void	FillRandom(string const);
 

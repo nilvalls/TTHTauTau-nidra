@@ -56,6 +56,8 @@ hContainer->Fill("AntiElectronIndex_T1", event->GetTau1AntiElectronIndex(iCombo)
 hContainer->Fill("AntiElectronIndex_T2", event->GetTau2AntiElectronIndex(iCombo), weightFull);
 hContainer->Fill("AntiMuonIndex_T1", event->GetTau1AntiMuonIndex(iCombo), weightFull);
 hContainer->Fill("AntiMuonIndex_T2", event->GetTau2AntiMuonIndex(iCombo), weightFull);
+hContainer->Fill("Match_T1", event->GetTau1MatchIndex(iCombo), weightFull);
+hContainer->Fill("Match_T2", event->GetTau2MatchIndex(iCombo), weightFull);
 
 // Lepton ============================================================================================================================
 hContainer->Fill("Pt_L", event->TTL_LeptonPt->at(iCombo), weightFull);

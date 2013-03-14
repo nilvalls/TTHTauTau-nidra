@@ -17,6 +17,8 @@ using namespace std;
 //Stacker::Stacker(map<string,string> const & iParams) : Plotter(iParams){
 Stacker::Stacker(map<string,string> const & iParams) {
 
+    minY = 0.001;
+
 	params = iParams;
 	Long_t *id,*size,*flags,*mt; id=NULL; size=NULL;flags=NULL;mt=NULL;
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
@@ -80,12 +82,13 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 		TCanvas* canvas = 0;
         // magic numbers for data/MC ratio plotting
-        float padding = 0.0001;
-        float yDivide = 0.25;
+        float padding      = 0.0001;
+        float yDivide      = 0.25;
         float ratioPlotMax = 2.5;
         float bottomMargin = 0.35;
-        float smallNumber = 0.0001;
+        float smallNumber  = 0.0001;
         if( doRatioPlot ) {
+            minY = 0.002;
             canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 1000); 
             canvas->Divide(1,2);
             canvas->GetPad(1)->SetPad(0+padding, yDivide + padding, 1 - padding, 1 - padding);
@@ -98,7 +101,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
         } else {
             canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
         }
-		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
+		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
 		
         // If we have backgrounds, make the stack and plot them first
 		THStack* stack = NULL;
@@ -133,7 +136,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
 				toDraw->SetFillStyle(0);	
 				toDraw->SetLineWidth(3, iProPack->GetSignals()->at(s).GetColor());	
-				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+				toDraw->GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 
 				// If we want the signals on top of the stack, add the background sum
 				if(stackSignals){ toDraw->Add(GetBackgroundSum(iProPack, plotName)); }
@@ -155,7 +158,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 			if(!iProPack->GetCollisions()->Plot()){ continue; }
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
-			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 			if(collisionsHisto.GetHisto()->Integral()>0){ collisionsHisto.GetHisto()->Draw("EPsame"); }
 		}	
 
@@ -206,7 +209,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             hRatio->GetXaxis()->SetLabelSize(0.1);
             
             // use hRatio only for axes; use errors (see below) to plots points 
-            hRatio->GetYaxis()->SetRangeUser(0.0001,ratioPlotMax);
+            hRatio->GetYaxis()->SetRangeUser(minY,ratioPlotMax);
             hRatio->Draw("AXIS");
             
             // Plot errors due to background uncertainty
@@ -366,7 +369,7 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 			HWrapper toAdd(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)));
 			toAdd.SetFillStyle(1001,color);
 			toAdd.SetLineWidth(0,color);
-			toAdd.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
+			toAdd.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
 			toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
 			result->Add((TH1F*)toAdd.GetHisto());
 		}
@@ -378,7 +381,7 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 		HWrapper toAdd(*(iProPack->GetQCD()->GetHistoForSignal(iName)));
 		toAdd.SetFillStyle(1001,color);
 		toAdd.SetLineWidth(0,color);
-		toAdd.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
+		toAdd.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
 		toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
 		result->Add((TH1F*)toAdd.GetHisto());
 	}
@@ -387,9 +390,9 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 	result->GetXaxis()->SetRangeUser(refHisto.GetMinXVis(), refHisto.GetMaxXVis());
 	result->GetXaxis()->SetTitle((refHisto.GetXTitle()).c_str());
 	result->GetYaxis()->SetTitle((refHisto.GetYTitle()).c_str());
-	result->SetMinimum(0.001);
+	result->SetMinimum(minY);
 	result->SetMaximum(maxY);
-	result->GetYaxis()->SetRangeUser(0.001,maxY);
+	result->GetYaxis()->SetRangeUser(minY,maxY);
 	return result;
 }
 

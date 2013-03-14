@@ -86,6 +86,12 @@ void HContainer::ScaleErrorBy(double const iValue){
 	}
 }
 
+void HContainer::AddRelErrorInQuadrature(double const iError){
+	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){ 
+		ite->second.AddRelErrorInQuadrature(iError);
+	}
+}
+
 void HContainer::ApplyRosls(double const iValue, CutFlow const * iCutFlow){
 	bool chargeProductApplied = (iCutFlow->GetCutPosition("TT_ChargeProduct") >= 0);
 	bool osRequested = false;

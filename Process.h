@@ -67,6 +67,7 @@ class Process {
 		bool normalizedHistosForSignal;
 		bool normalizedHistosForQCD;
 		
+        double relSysUncertainty;
 
 		void NormalizeTo(double const);
 		void BookHistos(HContainer const *);
@@ -97,6 +98,7 @@ class Process {
 		void				SetNOEanalyzed(double const);
 		void				SetNOEinNtuple(double const);
 		void				SetNtuplePaths(vector<string> const);
+        void                SetRelSysUncertainty(double const);
 
 		void				NormalizeToLumi(double const);
 		void				NormalizeToOne();
@@ -136,6 +138,7 @@ class Process {
 		double const		GetOtherScaleFactor() const;
 		double const		GetNOEexpectedForSignal() const;
 		double const		GetNOEexpectedForQCD() const;
+        double const        GetRelSysUncertainty() const;
 		bool const			ObtainedGoodEventsForSignal() const;
 		bool const			ObtainedGoodEventsForQCD() const;
 		bool const			FilledHistosForSignal() const;

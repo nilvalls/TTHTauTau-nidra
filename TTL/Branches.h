@@ -26,6 +26,8 @@ class TTLBranches : public Branches {
 		unsigned int	GetTau2AntiElectronIndex(const unsigned int) const;
 		unsigned int	GetTau1AntiMuonIndex(const unsigned int) const;
 		unsigned int	GetTau2AntiMuonIndex(const unsigned int) const;
+        unsigned int    GetTau1MatchIndex(const unsigned int) const;
+        unsigned int    GetTau2MatchIndex(const unsigned int) const;
 
 	public:
 		#include "Branches_declarations.h"

@@ -34,6 +34,8 @@ class Stacker : public Plotter {
 		double const	GetMaximum(ProPack const *, string const) const;
 		double const	GetMaximumWithError(ProPack const *, string const) const;
 
+        float minY;
+
 };
 
 #endif
