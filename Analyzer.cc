@@ -64,7 +64,7 @@ void Analyzer::Analyze(Process& iProcess){
 	isSignal		= iProcess.IsSignal();
 	checkReality	= iProcess.CheckReality();
 	isMC			= iProcess.IsMC();
-	pair<double,double> loopResults = Loop(event);
+	pair<double,double> loopResults = Loop(event, iProcess.GetNoEreadByNUTter());
 	cout << endl;
 
 	iProcess.SetGoodEventsForSignal(goodEventsForSignal);
@@ -80,7 +80,6 @@ void Analyzer::Analyze(Process& iProcess){
 void Analyzer::Analyze(vector<Process>& iProcesses){ for(unsigned int p=0; p<iProcesses.size(); p++){ Analyze(iProcesses.at(p)); } }
 
 
-pair<double,double> Analyzer::Loop(Branches* iEvent){ return make_pair(0,0); }
 pair<bool,bool> Analyzer::ComboPassesCuts(Branches* iEvent, unsigned int iCombo){ return make_pair(false, false); }
 
 bool Analyzer::ApplyThisCut(string thisCut){

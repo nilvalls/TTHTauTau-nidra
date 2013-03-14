@@ -38,11 +38,11 @@ TMVASampler::TMVASampler(map<string,string>const & iParams){
 
 
 void TMVASampler::MakeTrainingSample(ProPack * iProPack){
+    string outputName = params["tmva_sample"];
 	string signalName = iProPack->GetProcess(params.find("MVAsignal")->second)->GetShortName();
-	string backgroundName = iProPack->GetProcess(params.find("MVAbackground")->second)->GetShortName();
-	string outputName = (params.find("tmva_trainer")->second) + "_sig_" + signalName + "_bkg_" + backgroundName + ".root";
 
-	TFile* output = new TFile(outputName.c_str(), "RECREATE"); output->cd();
+	TFile* output = new TFile(outputName.c_str(), "RECREATE");
+    output->cd();
 
 	// Signal
 	TTree* signalTree = new TTree("TreeS","TreeS");
@@ -52,13 +52,17 @@ void TMVASampler::MakeTrainingSample(ProPack * iProPack){
 	cout << "\tSignal tree contains " << signalTree->GetEntries() << " events." << endl;
 	delete signalTree;
 
-	// Background
-	TTree* backgroundTree = new TTree("TreeB","TreeB");
-	FillTree(backgroundTree, iProPack->GetProcess(backgroundName));
-	output->cd();
-	backgroundTree->Write();
-	cout << "\tBackground tree contains " << backgroundTree->GetEntries() << " events." << endl;
-	delete backgroundTree;
+    for (const auto& bkg: Helper::SplitString(params["MVAbackground"])) {
+        Process *proc = iProPack->GetProcess(bkg);
+        string name = "TreeB_" + proc->GetShortName();
+        // Background
+        TTree* backgroundTree = new TTree(name.c_str(), name.c_str());
+        FillTree(backgroundTree, proc);
+        output->cd();
+        backgroundTree->Write();
+        cout << "\tBackground tree contains " << backgroundTree->GetEntries() << " events." << endl;
+        delete backgroundTree;
+    }
 
 	output->Close();
 	cout << "\n\tTMVA training sample: " << outputName << endl;

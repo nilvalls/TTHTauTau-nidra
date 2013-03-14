@@ -1,5 +1,8 @@
+#include <algorithm>
+#include <set>
 
 #include "Driver.h"
+#include "Helper.h"
 
 #include "boost/filesystem/operations.hpp"
 
@@ -82,6 +85,9 @@ void ReadConfig(string iPath){
 
 	// Set some additional internal parameters
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
+	SetParam("tmva_dir",string(GetParam("bigDir")+"/tmva"));
+	SetParam("tmva_file",string(GetParam("bigDir")+"/tmva.root"));
+	SetParam("tmva_sample",string(GetParam("bigDir")+"/tmva_trainingSample.root"));
 	SetParam("goodEvents_file",string(GetParam("bigDir")+"goodEvents.root"));
 	SetParam("stacks_output",string(GetParam("webDir")+"stacks/"));
 	SetParam("stamps_output",string(GetParam("webDir")+"stamps/"));
@@ -221,6 +227,7 @@ void MakeTMVATrainingSample(){
 	else{	assert(GetParam("channel") == "TTL");		}
 
 	delete tmvaSampler; tmvaSampler = NULL;
+
 	Print(GREEN," done!");
 }
 
@@ -275,8 +282,8 @@ void ReMakeDir(string iPath){
 		path = path.substr(0,path.rfind("/"));
 	}
 
-	sysCommand = "rm -rf " + path;
-	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem deleting \"" << path << "\" -- Check permissions." << endl; exit(1); }
+   // sysCommand = "rm -rf " + path;
+   // if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem deleting \"" << path << "\" -- Check permissions." << endl; exit(1); }
 	sysCommand = "if [ ! -d " + path + " ]; then mkdir -p " + path + "; fi";
 	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir \"" << path << "\" -- Check input path and permissions." << endl; exit(1); }
 }
@@ -354,16 +361,36 @@ void BuildProPack(string iPath){
         topoConfigs.insert(topoConfigs.end(), new_topos.begin(), new_topos.end());
     }
 
+    string analyze_param = GetParam("analyze");
+    cout << analyze_param << endl;
+    bool analyze_all = analyze_param == "All";
+    vector<string> to_analyze = Helper::SplitString(analyze_param);
+
 	for(unsigned int t = 0; t < topoConfigs.size(); t++){
 		string shortName = ((topoConfigs.at(t)).first).substr(string("process_").length()+1);
+        cout << shortName << endl;
 		Config* topoConfig = (topoConfigs.at(t)).second;
 
 		// Pass subConfig to process and let it build itself
 		Process process(shortName, params, *topoConfig);
 
 		// Put process in ProPack's PContainer if we want it analyzed
-		if(AnalyzeProcess(shortName)){ proPack->GetPContainer()->Add(process); }
-	}
+        auto pos = find(to_analyze.begin(), to_analyze.end(), shortName);
+        if (analyze_all or pos != to_analyze.end()) {
+            cout << shortName << endl;
+            proPack->GetPContainer()->Add(process);
+            if (not analyze_all)
+                to_analyze.erase(pos);
+        }
+    }
+
+    if (not analyze_all and to_analyze.size() > 0) {
+        cerr << "Illdefined processes:";
+        for (const auto& p: to_analyze)
+            cerr << " " << p;
+        cerr << endl;
+        abort();
+    }
 
 	// Init root file maker
 	rootFileMaker = RootFileMaker(params);
@@ -372,20 +399,6 @@ void BuildProPack(string iPath){
     if (topocfg != NULL)
         delete topocfg;
 }
-
-
-bool AnalyzeProcess(string const iThisProcess){
-	bool result;
-	if(GetParam("analyze").compare("All")==0){
-		result = true;
-	}else{
-		string enabledProcesses = " " + GetParam("analyze") + " ";
-		string thisProcess			 = " " + iThisProcess + " ";
-		result = IsStringThere(thisProcess,enabledProcesses);
-	}
-	return result;
-}
-
 
 bool const IsArgumentThere(string iArgument){ return IsStringThere(iArgument,inputArguments); }
 

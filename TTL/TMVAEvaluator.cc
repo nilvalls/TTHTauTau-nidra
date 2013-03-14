@@ -7,54 +7,111 @@
 */
 
 #include "TLorentzVector.h"
+#include "TMVA/Config.h"
 
+#include "../Helper.h"
+#include "../ProPack.h"
 #include "GenHelper.h"
 #include "TMVAEvaluator.h"
 
 #define TTL_TMVAEvaluator_cxx
 using namespace std;
 
+extern ProPack *proPack;
+
 #define AT __LINE__
 
 // Default destructor
 TTL_TMVAEvaluator::~TTL_TMVAEvaluator(){
+    outfile->Close();
+    delete factory;
 	delete tmvaReader; tmvaReader = NULL;
 }
 
 // Constructor
-TTL_TMVAEvaluator::TTL_TMVAEvaluator(map<string,string>const & iParams){
-	params = iParams;
+TTL_TMVAEvaluator::TTL_TMVAEvaluator(map<string,string>const & iParams) :
+    params(iParams)
+{
+    TMVA::gConfig().GetIONames().fWeightFileDir = params["tmva_dir"];
 
+    outfile = TFile::Open(params["tmva_file"].c_str(), "RECREATE");
+    factory = new TMVA::Factory("TMVAClassification", outfile,
+            "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification"),
 	tmvaReader = new TMVA::Reader( "!Color:!Silent" );
 
 	// Tell tmva what variables to consider
-	tmvaReader->AddVariable("HT", &HT);
-	tmvaReader->AddVariable("Tau1Pt", &Tau1Pt);
-	tmvaReader->AddVariable("Tau2Pt", &Tau2Pt);
-    //tmvaReader->AddVariable("Tau1DecayMode", &Tau1DecayMode);
-    // tmvaReader->AddVariable("Tau2DecayMode", &Tau2DecayMode);
-    tmvaReader->AddVariable("Tau1IsolationIndex", &Tau1IsolationIndex);
-    tmvaReader->AddVariable("Tau2IsolationIndex", &Tau2IsolationIndex);
-    //tmvaReader->AddVariable("DeltaRTau1Tau2", &DeltaRTau1Tau2);
-    tmvaReader->AddVariable("DeltaRTau1Lepton", &DeltaRTau1Lepton);
-    tmvaReader->AddVariable("DeltaRTau2Lepton", &DeltaRTau2Lepton);
-    tmvaReader->AddVariable("DeltaRTau1LeadingJet", &DeltaRTau1LeadingJet);
-    tmvaReader->AddVariable("DeltaRTau2LeadingJet", &DeltaRTau2LeadingJet);
-    // tmvaReader->AddVariable("DeltaRTau1SubleadingJet", &DeltaRTau1SubleadingJet);
-    // tmvaReader->AddVariable("DeltaRTau2SubleadingJet", &DeltaRTau2SubleadingJet);
-    // tmvaReader->AddVariable("DeltaRLeptonLeadingJet", &DeltaRLeptonLeadingJet);
-    // tmvaReader->AddVariable("DeltaRLeptonSubleadingJet", &DeltaRLeptonSubleadingJet);
-    // tmvaReader->AddVariable("LeadingJetSubleadingJetMass", &LeadingJetSubleadingJetMass);
-    // tmvaReader->AddVariable("Tau1LTPt", &Tau1LTPt);
-    // tmvaReader->AddVariable("Tau2LTPt", &Tau2LTPt);
-    // tmvaReader->AddVariable("Tau1NProngs", &Tau1NProngs);
-    // tmvaReader->AddVariable("Tau2NProngs", &Tau2NProngs);
-    tmvaReader->AddVariable("DitauVisibleMass", &DitauVisibleMass);
-
-	// Book TMVA
-	tmvaReader->BookMVA(TString(params.find("MVAmethod")->second + " method") , TString(params.find("MVAweights")->second));
+	AddVariable("HT", 'F', HT);
+	AddVariable("Tau1Pt", 'F', Tau1Pt);
+	AddVariable("Tau2Pt", 'F', Tau2Pt);
+    //AddVariable("Tau1DecayMode", 'I', Tau1DecayMode);
+    // AddVariable("Tau2DecayMode", 'I', Tau2DecayMode);
+    AddVariable("Tau1IsolationIndex", 'I', Tau1IsolationIndex);
+    AddVariable("Tau2IsolationIndex", 'I', Tau2IsolationIndex);
+    //AddVariable("DeltaRTau1Tau2", 'F', DeltaRTau1Tau2);
+    // AddVariable("DeltaRTau1Lepton", 'F', DeltaRTau1Lepton);
+    // AddVariable("DeltaRTau2Lepton", 'F', DeltaRTau2Lepton);
+    // AddVariable("DeltaRTau1LeadingJet", 'F', DeltaRTau1LeadingJet);
+    // AddVariable("DeltaRTau2LeadingJet", 'F', DeltaRTau2LeadingJet);
+    // AddVariable("DeltaRTau1SubleadingJet", 'F', DeltaRTau1SubleadingJet);
+    // AddVariable("DeltaRTau2SubleadingJet", 'F', DeltaRTau2SubleadingJet);
+    // AddVariable("DeltaRLeptonLeadingJet", 'F', DeltaRLeptonLeadingJet);
+    // AddVariable("DeltaRLeptonSubleadingJet", 'F', DeltaRLeptonSubleadingJet);
+    // AddVariable("LeadingJetSubleadingJetMass", 'F', LeadingJetSubleadingJetMass);
+    // AddVariable("Tau1LTPt", 'F', Tau1LTPt);
+    // AddVariable("Tau2LTPt", 'F', Tau2LTPt);
+    // AddVariable("Tau1NProngs", 'I', Tau1NProngs);
+    // AddVariable("Tau2NProngs", 'I', Tau2NProngs);
+    AddVariable("DitauVisibleMass", 'F', DitauVisibleMass);
 }
 
+void TTL_TMVAEvaluator::BookMVA() {
+    tmvaReader->BookMVA(TString(params.find("MVAmethod")->second + " method") , TString(params.find("MVAweights")->second));
+}
+
+void TTL_TMVAEvaluator::TrainMVA() {
+    TTree *stree;
+    TFile infile(params["tmva_sample"].c_str());
+
+    infile.GetObject("TreeS", stree);
+    factory->AddSignalTree(stree, 1.);
+
+    for (const auto& bkg: Helper::SplitString(params["MVAbackground"])) {
+        TTree *btree;
+        string name = "TreeB_" + bkg;
+        double weight = proPack->GetPContainer()->Get(bkg)->GetCrossSection();
+
+        infile.GetObject(name.c_str(), btree);
+
+        if (btree->GetEntries() > 0)
+            factory->AddBackgroundTree(btree, weight);
+        else
+            cerr << "WARNING: skipping " << bkg << " for MVA training (no events)" << endl;
+    }
+
+    factory->PrepareTrainingAndTestTree("", "", "SplitMode=Random:NormMode=NumEvents:!V");
+
+    // the following can be copied from TMVAClassification.C
+    factory->BookMethod(TMVA::Types::kCuts, "Cuts",
+            "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
+    factory->BookMethod(TMVA::Types::kMLP, "MLP",
+            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator");
+    factory->BookMethod(TMVA::Types::kMLP, "MLPBFGS",
+            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator");
+    factory->BookMethod(TMVA::Types::kMLP, "MLPBNN",
+            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator"); // BFGS training with bayesian regulators
+    factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
+            "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
+    factory->BookMethod(TMVA::Types::kTMlpANN, "TMlpANN",
+            "!H:!V:NCycles=200:HiddenLayers=N+1,N:LearningMethod=BFGS:ValidationFraction=0.3"); // n_cycles:#nodes:#nodes:...
+    factory->BookMethod(TMVA::Types::kBDT, "BDT",
+            "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
+
+    factory->TrainAllMethods();
+    factory->TestAllMethods();
+    factory->EvaluateAllMethods();
+
+    cout << "DONE" << endl;
+}
 
 // Evaluate each event
 float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
@@ -124,4 +181,9 @@ float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
 	return tmvaReader->EvaluateMVA(TString(params.find("MVAmethod")->second + " method"));
 }
 
-
+template<typename T>
+void TTL_TMVAEvaluator::AddVariable(const string& name, const char& type, T& var)
+{
+    factory->AddVariable(name, type);
+    tmvaReader->AddVariable(name, &var);
+}

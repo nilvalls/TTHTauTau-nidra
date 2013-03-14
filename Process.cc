@@ -313,6 +313,8 @@ bool Process::PlotProcess(string const iThisProcess){
 }
 
 void Process::Add(Process* iProcess){
+    for (const auto& p: iProcess->GetNtuplePaths())
+        ntuplePaths.push_back(p);
 	iProcess->GetHContainerForSignal();
 	hContainerForSignal.Add(*(iProcess->GetHContainerForSignal()));
 	hContainerForQCD.Add(*(iProcess->GetHContainerForQCD()));

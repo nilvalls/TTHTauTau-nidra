@@ -1,4 +1,3 @@
-
 float weightFull	= iLeptonWeight*iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight;
 float weightTrigger = iTau1TriggerWeight*iTau2TriggerWeight;
 float weightTau1	= iPuWeight*iTau1TriggerWeight;
@@ -123,7 +122,7 @@ for( unsigned int iJet = 0; iJet < event->J_Pt->size(); iJet++ ) {
         }
 
         jetCounter++;
-		if(jetCounter > 3){ break; }
+        // if(jetCounter > 3){ break; }
     }
 }
 

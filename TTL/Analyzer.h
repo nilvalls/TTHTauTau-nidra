@@ -19,7 +19,7 @@ class TTLAnalyzer : public Analyzer {
 	private:
 		TTL_TMVAEvaluator*		mva;
 		void 					Reset();
-		pair<double,double>		Loop(Branches*);
+      pair<double,double>		Loop(Branches*, const int&);
 		pair<bool,bool>			ComboPassesCuts(TTLBranches*, unsigned int);
 
 

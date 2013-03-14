@@ -71,6 +71,9 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
     iTree->Branch("DeltaRLeptonSubleadingJet", &DeltaRLeptonSubleadingJet);
     iTree->Branch("LeadingJetSubleadingJetMass", &LeadingJetSubleadingJetMass);
 
+    for (const auto& p: iProcess->GetNtuplePaths())
+        cout << "Background path: " << p << endl;
+
 	// Instantiante Branches to read events more easily
 	TTLBranches* event = new TTLBranches(params, iProcess->GetNtuplePaths());
 

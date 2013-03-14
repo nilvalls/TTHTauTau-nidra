@@ -6,6 +6,8 @@
 
 */
 
+#include <unistd.h>
+
 #define TTLAnalyzer_cxx
 #include "Analyzer.h"
 
@@ -20,8 +22,12 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
 	string cutsToApply = params["cutsToApply"];
 	#include "Cuts_setCutsToApply.h"
 
-	if(CutOn_MVA){ mva = new TTL_TMVAEvaluator(iParams); }
-	else{ mva = NULL; }
+    if (CutOn_MVA) {
+        mva = new TTL_TMVAEvaluator(iParams);
+        mva->BookMVA();
+    } else {
+        mva = NULL;
+    }
 
 }
 
@@ -34,21 +40,29 @@ TTLAnalyzer::~TTLAnalyzer(){
 void TTLAnalyzer::Reset(){}
 
 
-pair<double,double> TTLAnalyzer::Loop(Branches* iEvent){
+pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, const int& n_to_read){
 	TTLBranches* event = (TTLBranches*)iEvent;
-
 
 	pair<double,double> result = make_pair(0,0);
 	int maxEvents = atoi((params["maxEvents"]).c_str());
 
-	cout << "\t>>> Starting loop... "; cout.flush();
-
 	Long64_t nentries = event->GetEntries(); 
-	if(nentries == 0){ cerr << "ERROR: this process has zero events to read" << endl; exit(1); }
-	cout << " " << nentries << " entries available: ";
-	cutFlow.SetCutCounts("nTuple making", nentries, nentries);
-	if(maxEvents <= 0 || maxEvents >= nentries){ cout << "Processing all of them..." << string(14,'.') << " "; }
-	else{ cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " "; }
+    if (nentries == 0) {
+        cerr << "ERROR: this process has zero events to read" << endl;
+        exit(1);
+    } else if (nentries != n_to_read) {
+        cerr << "WARNING: tree size does not match topology specification! "
+            << nentries << " events found, " << n_to_read << " expected."  << endl;
+    }
+
+    cout << "\t>>> Starting loop... " << " " << nentries << " entries available: ";
+    cutFlow.SetCutCounts("nTuple making", nentries, nentries);
+
+    if (maxEvents <= 0 || maxEvents >= nentries) {
+        cout << "Processing all of them..." << string(14,'.') << " ";
+    } else {
+        cout << "Stopping at " << maxEvents << " as per-user request" << string(14,'.') << " ";
+    }
 	cout.flush();
 
 	//ofstream fout("events.txt");
@@ -61,18 +75,22 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent){
 		// Keep user informed of the number of events processed and if there is a termination due to reaching of the limit
 		if ( maxEvents > 0 && jentry >= (unsigned int)(maxEvents)){ cout << "\n\t>>> INFO: Reached user-imposed event number limit (" << maxEvents << "), skipping the rest." << endl; break; }
 
-		int prevLength = 0;
-		if (jentry>0 && (jentry+1)%1000==0){ 
-			stringstream jentryss; jentryss.str("");
-			jentryss << (jentry+1);
-			cout << string((jentryss.str()).length(),'\b') << string((jentryss.str()).length(),' ') << string((jentryss.str()).length(),'\b') << jentryss.str(); cout.flush(); 
-			prevLength = (jentryss.str()).length();
-		}
+        if (jentry > 0 && (jentry + 1) % 1000 == 0) { 
+            if (isatty(fileno(stdout))) {
+                ostringstream o;
+                o << (jentry - 999);
+                cout << string(o.str().length(), '\b') << (jentry + 1);
+            } else if ((jentry + 1) % 10000 == 0) {
+                cout << " " << jentry + 1;
+            }
+            cout.flush();
+        }
 
 		// Get a new entry
 		event->GetEntry(jentry);
 
 		//cout << "===== new event ====" << endl;
+      // cerr << "combos: " << event->TTL_NumCombos << endl;
 		if(event->TTL_NumCombos > 0){ NOEwithAtLeastOneCombo++; }
 
 		// Inform cutFlow that a new event is starting

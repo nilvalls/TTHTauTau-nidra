@@ -83,7 +83,6 @@ using namespace std;
 	void			Print(string, string);
 	void			BackUpConfigFile(string, string);
 	void			NewSection(TStopwatch&);
-	bool			AnalyzeProcess(string const);
 	void			MakeTMVATrainingSample();
 
 #endif

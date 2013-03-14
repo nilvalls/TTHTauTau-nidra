@@ -23,7 +23,10 @@ TTLPlotter::~TTLPlotter(){
 TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
 	mva = NULL;
 	ifstream mvaWeights(params.find("MVAweights")->second.c_str());
-	if(mvaWeights.good()){ mva = new TTL_TMVAEvaluator(iParams); }
+	if (mvaWeights.good()) {
+        mva = new TTL_TMVAEvaluator(iParams);
+        mva->BookMVA();
+    }
 	mvaWeights.close();
 	MakePlots(proPack);
 	SaveFile();

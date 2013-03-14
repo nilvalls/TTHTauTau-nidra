@@ -2,6 +2,7 @@
 #define TTL_TMVAEvaluator_h
 
 #include "Branches.h"
+#include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 //#include "TMVA/Tools.h"
 
@@ -14,9 +15,13 @@ class TTL_TMVAEvaluator {
 		virtual ~TTL_TMVAEvaluator();
 
 		float Evaluate(TTLBranches const *, int);
+        void BookMVA();
+        void TrainMVA();
 
 
 	private: 
+        TFile *outfile;
+        TMVA::Factory *factory;
 		TMVA::Reader* tmvaReader;
 
         float HT;
@@ -41,6 +46,9 @@ class TTL_TMVAEvaluator {
         float DeltaRLeptonLeadingJet;
         float DeltaRLeptonSubleadingJet;
         float LeadingJetSubleadingJetMass;
+
+        template<typename T>
+        void AddVariable(const string&, const char&, T&);
 
 	protected:
 		map<string,string>	params;

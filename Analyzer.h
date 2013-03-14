@@ -51,7 +51,7 @@ class Analyzer {
 		void	Reset();
 		bool	ApplyThisCut(string);
 		bool	IsFlagThere(string);
-		virtual pair<double,double>		Loop(Branches*);
+		virtual pair<double,double>		Loop(Branches*, const int&) = 0;
 		virtual pair<bool,bool>			ComboPassesCuts(Branches*, unsigned int);
 
 	private:

@@ -50,7 +50,7 @@ configParser/libconfigParser.so: configParser/config.h
 	cd configParser && make && cd -	
 
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
-	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
+	$(CXX) -std=c++0x $(CXXFLAGS) -c Nidra.cc -o $@
 
 ########################
 ### Channel-specific ###
@@ -67,10 +67,10 @@ configParser/libconfigParser.so: configParser/config.h
 	$(CXX) $(CXXFLAGS) -c TTL/Plotter.cc -o $@
 
 .TTL_TMVASampler.o: TTL/TMVASampler.cc TTL/TMVASampler.h TTL/Branches_*.h Helper.h
-	$(CXX) $(CXXFLAGS) -c TTL/TMVASampler.cc -o $@
+	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/TMVASampler.cc -o $@
 
 .TTL_TMVAEvaluator.o: TTL/TMVAEvaluator.cc TTL/TMVAEvaluator.h TTL/Branches_*.h Helper.h
-	$(CXX) $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
+	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
 
 
 ########################
