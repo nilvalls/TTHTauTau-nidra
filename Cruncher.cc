@@ -78,7 +78,6 @@ void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions, bo
     ostringstream contents;
 
     if (iFormat == "CSV") {
-        header_start         = ",";
         header_middle        = ",";
         subheader_elem_start = ",";
         line_middle          = ",";
