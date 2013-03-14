@@ -46,6 +46,12 @@ void Combiner::Combine(ProPack * iProPack){
 	vector<string> backgrounds;
 
 	backgrounds.clear();
+	backgrounds.push_back("TTbar_hadronic");
+	backgrounds.push_back("TTbar_semilept");
+	backgrounds.push_back("TTbar_fulllept");
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", 870);	
+
+	backgrounds.clear();
 	backgrounds.push_back("ZjetsM10-50");
 	backgrounds.push_back("ZjetsM50");
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Zjets", "Z + jets", "Z + jets", 5);	
@@ -68,7 +74,13 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.clear();
 	backgrounds.push_back("ttPlusW");
 	backgrounds.push_back("ttPlusZ");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"ttWZ", "ttbar + W/Z", "t#bar{t} + W/Z", 880);	
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"ttWZ", "ttbar + W/Z", "t#bar{t} + W/Z", 880);
 
+	backgrounds.clear();
+	backgrounds.push_back("WplusOneJet");
+	backgrounds.push_back("WplusTwoJets");
+	backgrounds.push_back("WplusThreeJets");
+	backgrounds.push_back("WplusFourJets");
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Wjets", "W + jets", "W + jets", 810);
 }
 
