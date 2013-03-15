@@ -21,7 +21,6 @@ class TTL_TMVAEvaluator {
 
 	private: 
         TFile *outfile;
-        TMVA::Factory *factory;
 		TMVA::Reader* tmvaReader;
 
         float HT;
@@ -46,9 +45,17 @@ class TTL_TMVAEvaluator {
         float DeltaRLeptonLeadingJet;
         float DeltaRLeptonSubleadingJet;
         float LeadingJetSubleadingJetMass;
+        float LeadingJetPt;
+        float SubLeadingJetPt;
 
         template<typename T>
-        void AddVariable(const string&, const char&, T&);
+            void SetupVariables(T*);
+
+        template<typename T>
+            void AddVariable(TMVA::Factory*, const string&, const char&, T&);
+
+        template<typename T>
+            void AddVariable(TMVA::Reader*, const string&, const char&, T&);
 
 	protected:
 		map<string,string>	params;
