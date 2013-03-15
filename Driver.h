@@ -44,7 +44,6 @@
 using namespace std;
 
 
-	string								inputArguments;
 	TStopwatch							stopwatch;
 	map<string, string> 				params;
 
@@ -72,7 +71,6 @@ using namespace std;
 
 	void			DeleteDir(string);
 	void			ReMakeDir(string);
-	bool const		IsArgumentThere(string);
 	bool const		IsStringThere(string, string);
 
 	void			BuildProPack(ProPack&, Config const &);

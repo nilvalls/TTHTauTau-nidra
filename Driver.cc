@@ -10,7 +10,7 @@
 using namespace std;
 
 // Perform some initialization tasks
-void Initialize(int argc, char **argv){
+void Initialize() {
 	// Keep track of how long things take
 	//TDatime clock;
 	stopwatch = TStopwatch();
@@ -19,8 +19,6 @@ void Initialize(int argc, char **argv){
 	Print(CYAN,">>>>>>>> Initializing Nidra");
 
 	proPack = NULL;
-	inputArguments = "";
-	for(unsigned a = 0; a < argc; a++){ inputArguments += (string(argv[a]) + " "); }
 
 	// Clear paramater set
 	params.clear();
@@ -74,9 +72,6 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "signalToOptimize");
 	SetParam(theConfig, "backgroundToOptimize");
 
-	// Copy original config file to output dir
-	BackUpConfigFile(iPath, GetParam("webDir")); 
-
 	// Print out some info about the output dirs, etc
 	cout << "\n\t"; PrintURL(GetParam("webDir"));
 	cout << "\t"; PrintLocal(GetParam("bigDir"));
@@ -87,7 +82,7 @@ void ReadConfig(string iPath){
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 	SetParam("tmva_dir",string(GetParam("bigDir")+"/tmva"));
 	SetParam("tmva_file",string(GetParam("bigDir")+"/tmva.root"));
-	SetParam("tmva_sample",string(GetParam("bigDir")+"/tmva_trainingSample.root"));
+	SetParam("tmva_sample",string(GetParam("bigDir")+"/nidra_trainingSample.root"));
 	SetParam("goodEvents_file",string(GetParam("bigDir")+"goodEvents.root"));
 	SetParam("stacks_output",string(GetParam("webDir")+"stacks/"));
 	SetParam("stamps_output",string(GetParam("webDir")+"stamps/"));
@@ -368,7 +363,6 @@ void BuildProPack(string iPath){
 
 	for(unsigned int t = 0; t < topoConfigs.size(); t++){
 		string shortName = ((topoConfigs.at(t)).first).substr(string("process_").length()+1);
-        cout << shortName << endl;
 		Config* topoConfig = (topoConfigs.at(t)).second;
 
 		// Pass subConfig to process and let it build itself
@@ -377,7 +371,6 @@ void BuildProPack(string iPath){
 		// Put process in ProPack's PContainer if we want it analyzed
         auto pos = find(to_analyze.begin(), to_analyze.end(), shortName);
         if (analyze_all or pos != to_analyze.end()) {
-            cout << shortName << endl;
             proPack->GetPContainer()->Add(process);
             if (not analyze_all)
                 to_analyze.erase(pos);
@@ -399,8 +392,6 @@ void BuildProPack(string iPath){
     if (topocfg != NULL)
         delete topocfg;
 }
-
-bool const IsArgumentThere(string iArgument){ return IsStringThere(iArgument,inputArguments); }
 
 bool const IsStringThere(string iNeedle, string iHaystack){
 	string haystack = iHaystack;
