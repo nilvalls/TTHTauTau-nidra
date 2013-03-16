@@ -3,6 +3,8 @@ import ROOT
 import copy
 import optparse
 
+ROOT.gROOT.SetBatch()
+
 #
 # begin configuration options
 #
@@ -14,29 +16,33 @@ parser.add_option("-i", "--input-variable", dest="invar",
 parser.add_option("-o", "--output-variable", dest="outvar",
         help="use VAR as output variable", metavar="VAR",
         default="VisMass")
+parser.add_option("-f", "--flavor", dest="flavor",
+        help="input has lepton flavor FLAVOR", metavar="FLAVOR",
+        default="M")
 parser.add_option("-j", "--jets", dest="jets",
         help="input has NUM jets", metavar="NUM",
         default=4)
 parser.add_option("-t", "--tags", dest="tags",
         help="input has NUM tags", metavar="NUM",
         default=2)
-parser.add_option("-f", "--flavor", dest="flavor",
-        help="input has lepton flavor FLAVOR", metavar="FLAVOR",
-        default="M")
+parser.add_option("-s", "--systematics", dest="sys",
+        help="systematic of type SYS", metavar="SYS",
+        default=None)
 (opts, args) = parser.parse_args()
 
 if len(args) != 1:
+    print args
     parser.error("need to specify input path")
-
-inputFilePath = args[0]
-
-inputFileName = 'nidra_rawHistos.root'
-outputFilePath = '2012_TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags) + '.root'
 
 # input hist title : output hist title
 samples = {
-        'TTbar':'ttbar',
-        'Wjets':'wjets',
+        'TTbar_hadronic':'ttbar',
+        'TTbar_semilept':'ttbar_sl',
+        'TTbar_fulllept':'ttbar_fl',
+        'WplusOneJet':'wjets',
+        'WplusTwoJets':'wjets2',
+        'WplusThreeJets':'wjets3',
+        'WplusFourJets':'wjets4',
         'ZjetsM10-50':'zjets_lowmass',
         'ZjetsM50':'zjets',
         'WW':'ww',
@@ -52,14 +58,27 @@ samples = {
         'TTH_125':'ttH125'
 }
 
+if opts.sys is not None:
+    opts.sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
+    del samples['Collisions']
+else:
+    opts.sys = ""
+
 samplesToSum = {
-        'zjets' : ['ZjetsM50','ZjetsM10-50'],
-        'diboson' : ['WW','WZ','ZZ'],
-        'singlet' : ['sT-sCh','sT-tCh','sTbar-sCh','sTbar-tCh','sTW','sTbarW']
+        'zjets': ['ZjetsM50','ZjetsM10-50'],
+        'diboson': ['WW','WZ','ZZ'],
+        'singlet': ['sT-sCh','sT-tCh','sTbar-sCh','sTbar-tCh','sTW','sTbarW'],
+        'ttbar': ['TTbar_hadronic', 'TTbar_semilept', 'TTbar_fulllept'],
+        'wjets': ['WplusOneJet', 'WplusTwoJets', 'WplusThreeJets', 'WplusFourJets']
         #'sT' : ['sT-sCh','sT-tCh'],
         #'sTbar' : ['sTbar-sCh','sTbar-tCh'],
         #'sTplusW' : ['sTW','sTbarW']
 }
+
+inputFilePath = args[0]
+
+inputFileName = 'nidra_rawHistos.root'
+outputFilePath = '2012_TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags) + opts.sys + '.root'
 
 #
 # end configuration options
@@ -80,6 +99,10 @@ for sum in samplesToSum.values():
 
 # get histograms
 fileIn = ROOT.TFile(inputFilePath+inputFileName)
+
+if not fileIn.IsOpen():
+    parser.error("Can't open input file: {f}".format(
+        f=inputFilePath + inputFileName))
 
 hists = {}
 for sample in samples.keys():
@@ -106,7 +129,7 @@ for sample in samplesToSave:
   sampleName = sample
   if sample in samples.keys():
     sampleName = samples[sample]
-  sampleName += '_' + opts.outvar + '_' + 'TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags)
+  sampleName += '_' + opts.outvar + '_' + 'TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags) + opts.sys
   hists[sample].SetName(sampleName)
   # fix y-axis range on data histogram
   if sample is 'Collisions':
