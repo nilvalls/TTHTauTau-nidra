@@ -34,16 +34,8 @@ Stamper::~Stamper(){}
 
 // Function to make the plots
 void Stamper::MakePlots(ProPack * iProPack) {
-
 	// Draw horizontal error bars
  	gStyle->SetErrorX(0.5);
-
-	// Figure out what we have and what we don't
-	bool haveCollisions		= iProPack->PrepareCollisions();	
-	bool haveQCD			= iProPack->PrepareQCD();
-	bool haveMCbackgrounds	= iProPack->PrepareMCbackgrounds();
-	bool haveSignals		= iProPack->PrepareSignals();
-	bool stackSignals		= (params["stackSignals"].compare("true")==0);
 
 	// Loop over all the HWrappers and plot each
 	vector<string> plotNames = iProPack->GetAvailableProcess().GetHContainerForSignal()->GetNames();
@@ -67,6 +59,16 @@ void Stamper::MakePlots(ProPack * iProPack) {
 		HWrapper baseHisto((iProPack->GetAvailableHWrapper(plotName))); baseHisto.ScaleBy(0);
 		subdir = baseHisto.GetSubDir();
 
+        Process* signalToOptimize = iProPack->GetProcess(params.find("signalToOptimize")->second);
+        HWrapper* toDrawS = new HWrapper(*(signalToOptimize->GetHistoForSignal(plotName)));
+        toDrawS->NormalizeTo(1.0);
+        Process* backgroundToOptimize = iProPack->GetProcess(params.find("backgroundToOptimize")->second);
+        HWrapper* toDrawB = new HWrapper(*(backgroundToOptimize->GetHistoForSignal(plotName)));
+        toDrawB->NormalizeTo(1.0);
+
+        maxY = 1.2 * max(toDrawS->GetHisto()->GetMaximum(),
+                toDrawB->GetHisto()->GetMaximum());
+
 		// Plot a base histogram with only the axis
 		TCanvas* canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
 		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001,maxY);
@@ -76,63 +78,22 @@ void Stamper::MakePlots(ProPack * iProPack) {
 		baseHisto.GetHisto()->GetYaxis()->SetTitle("A.U.");
 		baseHisto.GetHisto()->Draw("HIST");
 
-		// If we have signals, plot them next
-		/*if(haveSignals){
-			HContainer signalHistos = iProPack->GetSignalsHWrappers(plotName);
-			for(unsigned int s = 0; s < signalHistos.size(); s++){
-				string name = signalHistos.GetNames().at(s);
-				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
-				toDraw->NormalizeTo(1.0);
-				toDraw->SetFillStyle(0);	
-				toDraw->SetLineWidth(3, iProPack->GetSignals()->at(s).GetColor());	
-				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
-				if(toDraw->GetHisto()->Integral()>0){ toDraw->GetHisto()->Draw("HISTsame"); }
-			}
-		}//*/
-				Process* signalToOptimize = iProPack->GetProcess(params.find("signalToOptimize")->second);
-				HWrapper* toDrawS = new HWrapper(*(signalToOptimize->GetHistoForSignal(plotName)));
-				toDrawS->NormalizeTo(1.0);
-				toDrawS->SetFillStyle(0);	
-				toDrawS->SetLineWidth(3, signalToOptimize->GetColor());
-				toDrawS->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
-				if(toDrawS->GetHisto()->Integral()>0){
-					HWrapper* toDrawSerror = new HWrapper(*toDrawS);
-					toDrawSerror->SetMarkerStyle(0);
-					toDrawSerror->SetFillStyle(3001, signalToOptimize->GetColor());
-					toDrawSerror->GetHisto()->Draw("E2same");
-					toDrawS->GetHisto()->Draw("HISTsame");
-				}
+        toDrawS->SetFillStyle(0);	
+        toDrawS->SetLineWidth(3, signalToOptimize->GetColor());
+        toDrawS->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+        if(toDrawS->GetHisto()->Integral()>0){
+            HWrapper* toDrawSerror = new HWrapper(*toDrawS);
+            toDrawSerror->SetMarkerStyle(0);
+            toDrawSerror->SetFillStyle(3001, signalToOptimize->GetColor());
+            toDrawSerror->GetHisto()->Draw("E2same");
+            toDrawS->GetHisto()->Draw("HISTsame");
+        }
 
-		// If we have backgrounds, plot them next
-		/*if(haveMCbackgrounds){
-			HContainer backgroundHistos = iProPack->GetMCbackgroundsHWrappers(plotName);
-			for(unsigned int b = 0; b < backgroundHistos.size(); b++){
-				string name = backgroundHistos.GetNames().at(b);
-				HWrapper* toDraw = new HWrapper(*backgroundHistos.Get(name));
-				toDraw->NormalizeTo(1.0);
-				toDraw->SetFillStyle(0);	
-				toDraw->SetLineWidth(3, iProPack->GetMCbackgrounds()->at(b).GetColor());	
-				toDraw->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
-				if(toDraw->GetHisto()->Integral()>0){ toDraw->GetHisto()->Draw("Psame"); }
-			}
-		}//*/
-			Process* backgroundToOptimize = iProPack->GetProcess(params.find("backgroundToOptimize")->second);
-			HWrapper* toDrawB = new HWrapper(*(backgroundToOptimize->GetHistoForSignal(plotName)));
-			toDrawB->NormalizeTo(1.0);
-			toDrawB->SetFillStyle(0);	
-			toDrawB->GetHisto()->SetMarkerColor(backgroundToOptimize->GetColor());
-			toDrawB->SetLineWidth(3, backgroundToOptimize->GetColor());
-			toDrawB->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
-			if(toDrawB->GetHisto()->Integral()>0){ toDrawB->GetHisto()->Draw("Psame"); }
-		
-		// Finally plot the collisions if we have them
-		/*if(haveCollisions){ 
-			if(!iProPack->GetCollisions()->Plot()){ continue; }
-			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
-			collisionsHisto.SetMarkerStyle(20);
-			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
-			if(collisionsHisto.GetHisto()->Integral()>0){ collisionsHisto.GetHisto()->Draw("EPsame"); }
-		}	//*/
+        toDrawB->SetFillStyle(0);	
+        toDrawB->GetHisto()->SetMarkerColor(backgroundToOptimize->GetColor());
+        toDrawB->SetLineWidth(3, backgroundToOptimize->GetColor());
+        toDrawB->GetHisto()->GetYaxis()->SetRangeUser(0.001, maxY);
+        if(toDrawB->GetHisto()->Integral()>0){ toDrawB->GetHisto()->Draw("Psame"); }
 
 		// Redraw the axes so they stay on top of everthing...
 		baseHisto.GetHisto()->Draw("AXISsame");
