@@ -85,8 +85,6 @@ int main(int argc, char **argv){
       BackUpConfigFile(argv[0], GetParam("webDir"));
    }
 
-    DistributeProcesses();
-
     if (prep_train or all)
         MakeTMVATrainingSample();
 
@@ -96,6 +94,7 @@ int main(int argc, char **argv){
     }
 
     if (prep_plots or all) {
+        DistributeProcesses();
         PreparePlots();
         CombineProcesses();
     }
