@@ -1,0 +1,325 @@
+# vim: set sw=4 sta et :
+topology_Collisions = [
+    sampleNumber     = -1
+    niceName         = Collisions
+    labelForLegend   = Collisions
+    type             = collisions
+    ntuplePath       = data_SingleElectron_2012A_06Aug data_SingleElectron_2012A_13July data_SingleElectron_2012B_13Jul data_SingleElectron_2012C_24Aug data_SingleElectron_2012C_PR data_SingleElectron_2012D_PR data_SingleMu_2012A_06Aug data_SingleMu_2012A_13July data_SingleMu_2012B_13July data_SingleMu_2012C_24Aug data_SingleMu_2012C_PR data_SingleMu_2012D_PR
+    color            = 1
+    crossSection     = 1
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 560717449
+    NoEreadByNUTter  = 560693
+]
+
+topology_TTbar_hadronic = [
+    sampleNumber     = 2566
+    niceName         = t + tbar H
+    labelForLegend   = t #bar{t} H
+    type             = mcBackground
+    ntuplePath       = TTbar_Hadronic_Summer12
+    color            = 64
+    crossSection     = 106.94 # average of Kidonakis and MCFM
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 31223821
+    NoEreadByNUTter  = 8381
+]
+
+topology_TTbar_semilept = [
+    sampleNumber     = 2563
+    niceName         = t + tbar SL
+    labelForLegend   = t #bar{t} SL
+    type             = mcBackground
+    ntuplePath       = TTbar_SemiLept_Summer12
+    color            = 68
+    crossSection     = 102.4 # average of Kidonakis and MCFM
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    relativeSysUncertainty = 0.2
+    NOEinDS          = 25424818
+    NoEreadByNUTter  = 808274
+]
+
+topology_TTbar_fulllept = [
+    sampleNumber     = 2533
+    niceName         = t + tbar FL
+    labelForLegend   = t #bar{t} FL
+    type             = mcBackground
+    ntuplePath       = TTbar_FullLept_Summer12
+    color            = 72
+    crossSection     = 24.57 # average of Kidonakis and MCFM
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    relativeSysUncertainty = 0.2
+    NOEinDS          = 12119013
+    NoEreadByNUTter  = 737338
+]
+
+topology_WplusOneJet = [
+    sampleNumber     = 2401
+    niceName         = W + jet
+    labelForLegend   = W + jet
+    type             = mcBackground
+    ntuplePath       = WplusOneJet_Summer12
+    color            = 810
+    crossSection     = 6440.4
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 23141598
+    NoEreadByNUTter  = 327
+]
+
+topology_WplusTwoJets = [
+    sampleNumber     = 2402
+    niceName         = W + 2 jets
+    labelForLegend   = W + 2 jets
+    type             = mcBackground
+    ntuplePath       = WplusTwoJets_Summer12
+    color            = 810
+    crossSection     = 2087.2
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 34044921
+    NoEreadByNUTter  = 10316
+]
+
+topology_WplusThreeJets = [
+    sampleNumber     = 2403
+    niceName         = W + 3 jets
+    labelForLegend   = W + 3 jets
+    type             = mcBackground
+    ntuplePath       = WplusThreeJets_Summer12
+    color            = 810
+    crossSection     = 619.0
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 15539503
+    NoEreadByNUTter  = 13490
+]
+
+topology_WplusFourJets = [
+    sampleNumber     = 2404
+    niceName         = W + 4 jets
+    labelForLegend   = W + 4 jets
+    type             = mcBackground
+    ntuplePath       = WplusFourJets_Summer12
+    color            = 810
+    crossSection     = 255.2
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 13382803
+    NoEreadByNUTter  = 26316
+]
+
+topology_WW = [
+    sampleNumber     = 2700
+    niceName         = W + W
+    labelForLegend   = W + W
+    type             = mcBackground
+    ntuplePath       = WW_Summer12
+    color            = 812
+    crossSection     = 55.5 #CTEQ, MSTW, and NNPDF average
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 10000431
+    NoEreadByNUTter  = 5433
+]
+
+topology_WZ = [
+    sampleNumber     = 2701
+    niceName         = W + Z
+    labelForLegend   = W + Z
+    type             = mcBackground
+    ntuplePath       = WZ_Summer12
+    color            = 880
+    crossSection     = 33.6 #CTEQ, MSTW, and NNPDF average
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 10000283
+    NoEreadByNUTter  = 7756
+]
+
+topology_ZZ = [
+    sampleNumber     = 2702
+    niceName         = Z + Z
+    labelForLegend   = Z + Z
+    type             = mcBackground
+    ntuplePath       = ZZ_Summer12
+    color            = 801
+    crossSection     = 17.5 #CTEQ, MSTW, and NNPDF average
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 9799908
+    NoEreadByNUTter  = 10304
+]
+
+topology_ZjetsM50 = [
+    sampleNumber     = 2300
+    niceName         = Z + jets
+    labelForLegend   = Z + jets
+    type             = mcBackground
+    ntuplePath       = ZplusJets_Summer12
+    color            = 628
+    crossSection     = 3503.71 #FEWZ
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 30459503
+    NoEreadByNUTter  = 7076
+]
+
+topology_ZjetsM10-50 = [
+    sampleNumber     = 2310
+    niceName         = Z + jets M10-50
+    labelForLegend   = Z + jets M10-50
+    type             = mcBackground
+    ntuplePath       = ZplusJets_LowMass_Summer12
+    color            = 820
+    crossSection     = 860
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 37835275
+    NoEreadByNUTter  = 274
+]
+
+topology_sTW = [
+    sampleNumber     = 2604
+    niceName         = t + W
+    labelForLegend   = t + W
+    type             = mcBackground
+    ntuplePath       = singleTopPlusW_Summer12
+    color            = 867
+    crossSection     = 11.1
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 497658
+    NoEreadByNUTter  = 7395
+]
+
+topology_sTbarW = [
+    sampleNumber     = 2605
+    niceName         = tbar + W
+    labelForLegend   = #bar{t} + W
+    type             = mcBackground
+    ntuplePath       = singleTopBarPlusW_Summer12
+    color            = 893
+    crossSection     = 7.87
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 493460
+    NoEreadByNUTter  = 7255
+]
+
+topology_sT-sCh = [
+    sampleNumber     = 2600
+    niceName         = t (s-ch)
+    labelForLegend   = t (s-ch)
+    type             = mcBackground
+    ntuplePath       = singleTopSch_Summer12
+    color            = 864
+    crossSection     = 3.79
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 259961
+    NoEreadByNUTter  = 7395
+]
+
+topology_sTbar-sCh = [
+    sampleNumber     = 2601
+    niceName         = tbar (s-ch)
+    labelForLegend   = #bar{t} (s-ch)
+    type             = mcBackground
+    ntuplePath       = singleTopBarSch_Summer12
+    color            = 804
+    crossSection     = 1.76
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 139974
+    NoEreadByNUTter  = 564
+]
+
+topology_sT-tCh = [
+    sampleNumber     = 2602
+    niceName         = t (t-ch)
+    labelForLegend   = t (t-ch)
+    type             = mcBackground
+    ntuplePath       = singleTopTch_Summer12
+    color            = 843
+    crossSection     = 56.4
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 3758227
+    NoEreadByNUTter  = 12122
+]
+
+topology_sTbar-tCh = [
+    sampleNumber     = 2603
+    niceName         = tbar (t-ch)
+    labelForLegend   = #bar{t} (t-ch)
+    type             = mcBackground
+    ntuplePath       = singleTopBarTch_Summer12
+    color            = 819
+    crossSection     = 30.7
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1935072
+    NoEreadByNUTter  = 2473
+]
+
+topology_ttPlusW = [
+    sampleNumber     = 2524
+    niceName         = tbarW
+    labelForLegend   = #bar{t} + W
+    type             = mcBackground
+    ntuplePath       = ttPlusW_Summer12
+    color            = 800 #### change this
+    crossSection     = 0.232
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 196046
+    NoEreadByNUTter  = 8480
+]
+
+topology_ttPlusZ = [
+    sampleNumber     = 2523
+    niceName         = tbarZ
+    labelForLegend   = #bar{t} + Z
+    type             = mcBackground
+    ntuplePath       = ttPlusZ_Summer12
+    color            = 800 #### change this
+    crossSection     = 0.175
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 210160
+    NoEreadByNUTter  = 8487
+]
+
+topology_TTH_125 = [
+    sampleNumber     = 125
+    niceName         = ttHtautau(125)
+    labelForLegend   = t#bar{t}H(125) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTH_125
+    color            = 632
+    crossSection     = 0.0082
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = 130049
+]
+
+topology_TTH_125_real = [
+    sampleNumber     = 125
+    niceName         = ttHtautau(125)
+    labelForLegend   = t#bar{t}H(125)^{*} #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTH_125
+    color            = 414
+    crossSection     = 0.0082
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = 130049
+]
