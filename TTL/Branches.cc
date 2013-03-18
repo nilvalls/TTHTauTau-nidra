@@ -92,11 +92,10 @@ unsigned int TTLBranches::GetTau1MatchIndex(const unsigned int iCombo) const {
 	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 15){	return 2; } // tau
 	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 13){	return 3; } // muon
 	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 11){	return 4; } // electron
-	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 21){	return 5; } // gluon
-	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 22){	return 6; } // photon
-	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 23){	return 7; } // Z
-	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 24){	return 8; } // W
-	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 25){	return 9; } // Higgs
+	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 22){	return 5; } // photon
+	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 23){	return 6; } // Z
+	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 24){	return 7; } // W
+	if(abs(TTL_Tau1GenMatchId->at(iCombo)) == 25){	return 8; } // Higgs
 	return 1; // hadronic
 }
 
@@ -105,11 +104,10 @@ unsigned int TTLBranches::GetTau2MatchIndex(const unsigned int iCombo) const {
 	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 15){	return 2; } // tau
 	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 13){	return 3; } // muon
 	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 11){	return 4; } // electron
-	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 21){	return 5; } // gluon
-	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 22){	return 6; } // photon
-	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 23){	return 7; } // Z
-	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 24){	return 8; } // W
-	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 25){	return 9; } // Higgs
+	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 22){	return 5; } // photon
+	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 23){	return 6; } // Z
+	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 24){	return 7; } // W
+	if(abs(TTL_Tau2GenMatchId->at(iCombo)) == 25){	return 8; } // Higgs
 	return 1; // hadronic
 }
 
