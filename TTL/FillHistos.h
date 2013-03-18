@@ -135,6 +135,13 @@ hContainer->Fill("NumCSVLnonBtags", event->TTL_NumNonCSVLbtagJets->at(iCombo), w
 hContainer->Fill("NumCSVMnonBtags", event->TTL_NumNonCSVMbtagJets->at(iCombo), weightFull);
 hContainer->Fill("NumCSVTnonBtags", event->TTL_NumNonCSVTbtagJets->at(iCombo), weightFull);
 hContainer->Fill("NumCSVnonHTauJets", (event->TTL_NumNonCSVMbtagJets->at(iCombo) + event->TTL_NumCSVMbtagJets->at(iCombo)), weightFull);
+hContainer->Fill("NumCleanCSVLbtags", event->TTL_NumCleanCSVLbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCleanCSVMbtags", event->TTL_NumCleanCSVMbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCleanCSVTbtags", event->TTL_NumCleanCSVTbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCleanCSVLnonBtags", event->TTL_NumCleanNonCSVLbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCleanCSVMnonBtags", event->TTL_NumCleanNonCSVMbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCleanCSVTnonBtags", event->TTL_NumCleanNonCSVTbtagJets->at(iCombo), weightFull);
+hContainer->Fill("NumCleanCSVnonHTauJets", (event->TTL_NumCleanNonCSVMbtagJets->at(iCombo) + event->TTL_NumCleanCSVMbtagJets->at(iCombo)), weightFull);
 
 /*
 hContainer->Fill("CosDeltaPhi_LM", event->Tau1MetCosDphi->at(iCombo), weightFull);
