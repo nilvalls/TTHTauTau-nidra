@@ -305,3 +305,9 @@
 	TTL_NumNonCSVLbtagJets->clear();
 	TTL_NumNonCSVMbtagJets->clear();
 	TTL_NumNonCSVTbtagJets->clear();
+	TTL_NumCleanCSVLbtagJets->clear();
+	TTL_NumCleanCSVMbtagJets->clear();
+	TTL_NumCleanCSVTbtagJets->clear();
+	TTL_NumCleanNonCSVLbtagJets->clear();
+	TTL_NumCleanNonCSVMbtagJets->clear();
+	TTL_NumCleanNonCSVTbtagJets->clear();

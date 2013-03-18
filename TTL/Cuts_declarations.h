@@ -72,6 +72,13 @@
 	bool CutOn_J_NumNonCSVM;				float Min_J_NumNonCSVM;					float Max_J_NumNonCSVM;
 	bool CutOn_J_NumNonCSVT;				float Min_J_NumNonCSVT;					float Max_J_NumNonCSVT;
 	bool CutOn_J_NumInclusive;				float Min_J_NumInclusive;				float Max_J_NumInclusive;
+	bool CutOn_J_NumCleanCSVL;				float Min_J_NumCleanCSVL;				float Max_J_NumCleanCSVL;
+	bool CutOn_J_NumCleanCSVM;				float Min_J_NumCleanCSVM;				float Max_J_NumCleanCSVM;
+	bool CutOn_J_NumCleanCSVT;				float Min_J_NumCleanCSVT;				float Max_J_NumCleanCSVT;
+	bool CutOn_J_NumCleanNonCSVL;			float Min_J_NumCleanNonCSVL;			float Max_J_NumCleanNonCSVL;
+	bool CutOn_J_NumCleanNonCSVM;			float Min_J_NumCleanNonCSVM;			float Max_J_NumCleanNonCSVM;
+	bool CutOn_J_NumCleanNonCSVT;			float Min_J_NumCleanNonCSVT;			float Max_J_NumCleanNonCSVT;
+	bool CutOn_J_NumCleanInclusive;			float Min_J_NumCleanInclusive;			float Max_J_NumCleanInclusive;
 
 	bool CutOn_MVA;							float Min_MVA;							float Max_MVA;
 

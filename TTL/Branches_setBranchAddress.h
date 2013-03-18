@@ -305,3 +305,9 @@
 	fChain->SetBranchAddress("TTL_NumNonCSVLbtagJets", &TTL_NumNonCSVLbtagJets);
 	fChain->SetBranchAddress("TTL_NumNonCSVMbtagJets", &TTL_NumNonCSVMbtagJets);
 	fChain->SetBranchAddress("TTL_NumNonCSVTbtagJets", &TTL_NumNonCSVTbtagJets);
+	fChain->SetBranchAddress("TTL_NumCleanCSVLbtagJets", &TTL_NumCleanCSVLbtagJets);
+	fChain->SetBranchAddress("TTL_NumCleanCSVMbtagJets", &TTL_NumCleanCSVMbtagJets);
+	fChain->SetBranchAddress("TTL_NumCleanCSVTbtagJets", &TTL_NumCleanCSVTbtagJets);
+	fChain->SetBranchAddress("TTL_NumCleanNonCSVLbtagJets", &TTL_NumCleanNonCSVLbtagJets);
+	fChain->SetBranchAddress("TTL_NumCleanNonCSVMbtagJets", &TTL_NumCleanNonCSVMbtagJets);
+	fChain->SetBranchAddress("TTL_NumCleanNonCSVTbtagJets", &TTL_NumCleanNonCSVTbtagJets);

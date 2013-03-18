@@ -281,3 +281,9 @@
 	delete TTL_NumNonCSVLbtagJets;
 	delete TTL_NumNonCSVMbtagJets;
 	delete TTL_NumNonCSVTbtagJets;
+	delete TTL_NumCleanCSVLbtagJets;
+	delete TTL_NumCleanCSVMbtagJets;
+	delete TTL_NumCleanCSVTbtagJets;
+	delete TTL_NumCleanNonCSVLbtagJets;
+	delete TTL_NumCleanNonCSVMbtagJets;
+	delete TTL_NumCleanNonCSVTbtagJets;

@@ -66,6 +66,13 @@
 	CutOn_J_NumNonCSVM				= false;
 	CutOn_J_NumNonCSVT				= false;
 	CutOn_J_NumInclusive			= false;
+	CutOn_J_NumCleanCSVL			= false;
+	CutOn_J_NumCleanCSVM			= false;
+	CutOn_J_NumCleanCSVT			= false;
+	CutOn_J_NumCleanNonCSVL			= false;
+	CutOn_J_NumCleanNonCSVM			= false;
+	CutOn_J_NumCleanNonCSVT			= false;
+	CutOn_J_NumCleanInclusive		= false;
 
 	CutOn_MVA						= false;
 	//NEWCUT

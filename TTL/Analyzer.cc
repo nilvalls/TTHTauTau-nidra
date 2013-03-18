@@ -187,6 +187,13 @@ pair<bool,bool> TTLAnalyzer::ComboPassesCuts(TTLBranches* iEvent, unsigned int i
 	if(CutOn_J_NumNonCSVM){ if(cutFlow.CheckComboAndStop("J_NumNonCSVM",event->TTL_NumNonCSVMbtagJets->at(iCombo), target)){ return target; }}
 	if(CutOn_J_NumNonCSVT){ if(cutFlow.CheckComboAndStop("J_NumNonCSVT",event->TTL_NumNonCSVTbtagJets->at(iCombo), target)){ return target; }}
 	if(CutOn_J_NumInclusive){ if(cutFlow.CheckComboAndStop("J_NumInclusive",event->TTL_NumNonCSVMbtagJets->at(iCombo)+event->TTL_NumCSVMbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanCSVL){ if(cutFlow.CheckComboAndStop("J_NumCleanCSVL",event->TTL_NumCleanCSVLbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanCSVM){ if(cutFlow.CheckComboAndStop("J_NumCleanCSVM",event->TTL_NumCleanCSVMbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanCSVT){ if(cutFlow.CheckComboAndStop("J_NumCleanCSVT",event->TTL_NumCleanCSVTbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanNonCSVL){ if(cutFlow.CheckComboAndStop("J_NumCleanNonCSVL",event->TTL_NumCleanNonCSVLbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanNonCSVM){ if(cutFlow.CheckComboAndStop("J_NumCleanNonCSVM",event->TTL_NumCleanNonCSVMbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanNonCSVT){ if(cutFlow.CheckComboAndStop("J_NumCleanNonCSVT",event->TTL_NumCleanNonCSVTbtagJets->at(iCombo), target)){ return target; }}
+	if(CutOn_J_NumCleanInclusive){ if(cutFlow.CheckComboAndStop("J_NumCleanInclusive",event->TTL_NumCleanNonCSVMbtagJets->at(iCombo)+event->TTL_NumCleanCSVMbtagJets->at(iCombo), target)){ return target; }}
 
 	
 	// ============================= Lepton Cuts ============================= //

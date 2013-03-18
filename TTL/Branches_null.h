@@ -305,3 +305,9 @@
 	TTL_NumNonCSVLbtagJets = NULL;
 	TTL_NumNonCSVMbtagJets = NULL;
 	TTL_NumNonCSVTbtagJets = NULL;
+	TTL_NumCleanCSVLbtagJets = NULL;
+	TTL_NumCleanCSVMbtagJets = NULL;
+	TTL_NumCleanCSVTbtagJets = NULL;
+	TTL_NumCleanNonCSVLbtagJets = NULL;
+	TTL_NumCleanNonCSVMbtagJets = NULL;
+	TTL_NumCleanNonCSVTbtagJets = NULL;

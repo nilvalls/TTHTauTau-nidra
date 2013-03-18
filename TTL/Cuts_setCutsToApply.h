@@ -21,6 +21,13 @@
 	 if(ApplyThisCut("J_NumNonCSVM"				)){ CutOn_J_NumNonCSVM				= 	true; cutFlow.RegisterCut("J_NumNonCSVM", 1);				}
 	 if(ApplyThisCut("J_NumNonCSVT"				)){ CutOn_J_NumNonCSVT				= 	true; cutFlow.RegisterCut("J_NumNonCSVT", 1);				}
 	 if(ApplyThisCut("J_NumInclusive"			)){ CutOn_J_NumInclusive			= 	true; cutFlow.RegisterCut("J_NumInclusive", 1);				}
+	 if(ApplyThisCut("J_NumCleanCSVL"			)){ CutOn_J_NumCleanCSVL			= 	true; cutFlow.RegisterCut("J_NumCleanCSVL", 1);				}
+	 if(ApplyThisCut("J_NumCleanCSVM"			)){ CutOn_J_NumCleanCSVM			= 	true; cutFlow.RegisterCut("J_NumCleanCSVM", 1);				}
+	 if(ApplyThisCut("J_NumCleanCSVT"			)){ CutOn_J_NumCleanCSVT			= 	true; cutFlow.RegisterCut("J_NumCleanCSVT", 1);				}
+	 if(ApplyThisCut("J_NumCleanNonCSVL"		)){ CutOn_J_NumCleanNonCSVL			= 	true; cutFlow.RegisterCut("J_NumCleanNonCSVL", 1);			}
+	 if(ApplyThisCut("J_NumCleanNonCSVM"		)){ CutOn_J_NumCleanNonCSVM			= 	true; cutFlow.RegisterCut("J_NumCleanNonCSVM", 1);			}
+	 if(ApplyThisCut("J_NumCleanNonCSVT"		)){ CutOn_J_NumCleanNonCSVT			= 	true; cutFlow.RegisterCut("J_NumCleanNonCSVT", 1);			}
+	 if(ApplyThisCut("J_NumCleanInclusive"		)){ CutOn_J_NumCleanInclusive		= 	true; cutFlow.RegisterCut("J_NumCleanInclusive", 1);		}
 
 	 if(ApplyThisCut("NumTightLeptons"			)){ CutOn_NumTightLeptons			= 	true; cutFlow.RegisterCut("NumTightLeptons", 1);			}
 	 if(ApplyThisCut("NumTightMuons"			)){ CutOn_NumTightMuons				= 	true; cutFlow.RegisterCut("NumTightMuons", 1);				}

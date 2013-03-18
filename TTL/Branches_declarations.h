@@ -305,3 +305,9 @@
 	vector<unsigned int>* TTL_NumNonCSVLbtagJets;
 	vector<unsigned int>* TTL_NumNonCSVMbtagJets;
 	vector<unsigned int>* TTL_NumNonCSVTbtagJets;
+	vector<unsigned int>* TTL_NumCleanCSVLbtagJets;
+	vector<unsigned int>* TTL_NumCleanCSVMbtagJets;
+	vector<unsigned int>* TTL_NumCleanCSVTbtagJets;
+	vector<unsigned int>* TTL_NumCleanNonCSVLbtagJets;
+	vector<unsigned int>* TTL_NumCleanNonCSVMbtagJets;
+	vector<unsigned int>* TTL_NumCleanNonCSVTbtagJets;
