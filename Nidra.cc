@@ -80,6 +80,7 @@ int main(int argc, char **argv){
       // fist copy config, then analyze
       BackUpConfigFile(argv[0], GetParam("webDir"));
       Analyze();
+      DistributeProcesses();
    } else {
       // copy current config to output directory
       BackUpConfigFile(argv[0], GetParam("webDir"));
@@ -94,7 +95,6 @@ int main(int argc, char **argv){
     }
 
     if (prep_plots or all) {
-        DistributeProcesses();
         PreparePlots();
         CombineProcesses();
     }
