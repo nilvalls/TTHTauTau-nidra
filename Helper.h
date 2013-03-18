@@ -19,6 +19,6 @@ inline float const DeltaR(const float iEta1, const float iPhi1, const float iEta
 // remove this when porting to JSON
 namespace Helper {
    std::vector<std::string> SplitString(std::string &s);
-};
+}
 
 #endif
