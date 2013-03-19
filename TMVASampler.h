@@ -28,12 +28,12 @@ class TMVASampler {
 		TMVASampler();
 		TMVASampler(map<string,string> const &);
 		virtual ~TMVASampler();
+		void MakeTrainingSample();
 
 
 	private: 
 
 	protected:
-		void MakeTrainingSample(ProPack*);
 		virtual void FillTree(TTree*, Process const *);
 
 	protected:

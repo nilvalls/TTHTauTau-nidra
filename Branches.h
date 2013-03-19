@@ -34,6 +34,7 @@ class Branches {
 		Int_t	fCurrent;
 
 	private:
+		int					bestCombo;
 
 
 	protected:
@@ -56,7 +57,6 @@ class Branches {
 	
 		void				SetBestCombo(int);
 		unsigned int const	GetBestCombo() const;
-		int					bestCombo;
 };
 
 #endif

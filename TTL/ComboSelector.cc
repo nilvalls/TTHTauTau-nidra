@@ -12,9 +12,9 @@
 #include "../Helper.h"
 #include "../ProPack.h"
 #include "GenHelper.h"
-#include "TMVAEvaluator.h"
+#include "ComboSelector.h"
 
-#define TTL_TMVAEvaluator_cxx
+#define TTL_ComboSelector_cxx
 using namespace std;
 
 extern ProPack *proPack;
@@ -22,81 +22,66 @@ extern ProPack *proPack;
 #define AT __LINE__
 
 // Default destructor
-TTL_TMVAEvaluator::~TTL_TMVAEvaluator(){
-	delete tmvaReader; tmvaReader = NULL;
-}
+TTL_ComboSelector::~TTL_ComboSelector(){}
 
 // Constructor
-TTL_TMVAEvaluator::TTL_TMVAEvaluator(){
-	mvaBooked = false;
-    tmvaReader = NULL;
-}
-
-TTL_TMVAEvaluator::TTL_TMVAEvaluator(map<string,string>const & iParams) : params(iParams){
+TTL_ComboSelector::TTL_ComboSelector(map<string,string>const & iParams){
+	params = iParams;
 	mvaBooked = false;
     tmvaReader = new TMVA::Reader( "!Color:!Silent" );
     SetupVariables(tmvaReader);
 }
 
-template<typename T> void TTL_TMVAEvaluator::SetupVariables(T* obj){
-
-    // AddVariable(obj, "HT", 'F', HT);
-    AddVariable(obj, "Tau1Pt", 'F', Tau1Pt);
-    AddVariable(obj, "Tau2Pt", 'F', Tau2Pt);
-    AddVariable(obj, "Tau1DecayMode", 'I', Tau1DecayMode);
-    AddVariable(obj, "Tau2DecayMode", 'I', Tau2DecayMode);
-    AddVariable(obj, "Tau1IsolationIndex", 'I', Tau1IsolationIndex);
-    AddVariable(obj, "Tau2IsolationIndex", 'I', Tau2IsolationIndex);
-    //AddVariable(obj, "DeltaRTau1Tau2", 'F', DeltaRTau1Tau2);
-    // AddVariable(obj, "DeltaRTau1Lepton", 'F', DeltaRTau1Lepton);
-    // AddVariable(obj, "DeltaRTau2Lepton", 'F', DeltaRTau2Lepton);
-    // AddVariable(obj, "DeltaRTau1LeadingJet", 'F', DeltaRTau1LeadingJet);
-    // AddVariable(obj, "DeltaRTau2LeadingJet", 'F', DeltaRTau2LeadingJet);
-    // AddVariable(obj, "DeltaRTau1SubleadingJet", 'F', DeltaRTau1SubleadingJet);
-    // AddVariable(obj, "DeltaRTau2SubleadingJet", 'F', DeltaRTau2SubleadingJet);
-    // AddVariable(obj, "DeltaRLeptonLeadingJet", 'F', DeltaRLeptonLeadingJet);
-    // AddVariable(obj, "DeltaRLeptonSubleadingJet", 'F', DeltaRLeptonSubleadingJet);
-    // AddVariable(obj, "LeadingJetSubleadingJetMass", 'F', LeadingJetSubleadingJetMass);
-    // AddVariable(obj, "Tau1LTPt", 'F', Tau1LTPt);
-    // AddVariable(obj, "Tau2LTPt", 'F', Tau2LTPt);
-    // AddVariable(obj, "Tau1NProngs", 'I', Tau1NProngs);
-    // AddVariable(obj, "Tau2NProngs", 'I', Tau2NProngs);
-    AddVariable(obj, "LeadingJetPt", 'F', LeadingJetPt);
-    // AddVariable(obj, "SubLeadingJetPt", 'F', SubLeadingJetPt);
-    AddVariable(obj, "DitauVisibleMass", 'F', DitauVisibleMass);
+template<typename T> void TTL_ComboSelector::SetupVariables(T* obj){
+//	AddVariable(obj, "HT", 'F', HT);
+	AddVariable(obj, "Tau1Pt", 'F', Tau1Pt);
+	AddVariable(obj, "Tau2Pt", 'F', Tau2Pt);
+//	AddVariable(obj, "Tau1DecayMode", 'I', Tau1DecayMode);
+//	AddVariable(obj, "Tau2DecayMode", 'I', Tau2DecayMode);
+	AddVariable(obj, "Tau1IsolationIndex", 'I', Tau1IsolationIndex);
+	AddVariable(obj, "Tau2IsolationIndex", 'I', Tau2IsolationIndex);
+	AddVariable(obj, "Tau1LTPt", 'F', Tau1LTPt);
+	AddVariable(obj, "Tau2LTPt", 'F', Tau2LTPt);
+//	AddVariable(obj, "Tau1NProngs", 'I', Tau1NProngs);
+//	AddVariable(obj, "Tau2NProngs", 'I', Tau2NProngs);
+	AddVariable(obj, "DitauVisibleMass", 'F', DitauVisibleMass);
+	AddVariable(obj, "DeltaRTau1Tau2", 'F', DeltaRTau1Tau2);
+	AddVariable(obj, "DeltaRTau1Lepton", 'F', DeltaRTau1Lepton);
+//	AddVariable(obj, "DeltaRTau2Lepton", 'F', DeltaRTau2Lepton);
+//	AddVariable(obj, "DeltaRTau1LeadingJet", 'F', DeltaRTau1LeadingJet);
+//	AddVariable(obj, "DeltaRTau2LeadingJet", 'F', DeltaRTau2LeadingJet);
+//	AddVariable(obj, "DeltaRTau1SubleadingJet", 'F', DeltaRTau1SubleadingJet);
+//	AddVariable(obj, "DeltaRTau2SubleadingJet", 'F', DeltaRTau2SubleadingJet);
+//	AddVariable(obj, "DeltaRLeptonLeadingJet", 'F', DeltaRLeptonLeadingJet);
+//	AddVariable(obj, "DeltaRLeptonSubleadingJet", 'F', DeltaRLeptonSubleadingJet);
+//	AddVariable(obj, "LeadingJetSubleadingJetMass", 'F', LeadingJetSubleadingJetMass);
+//	AddVariable(obj, "LeadingJetPt", 'F', LeadingJetPt);
+//	AddVariable(obj, "SubLeadingJetPt", 'F', SubLeadingJetPt);
 }
 
-void TTL_TMVAEvaluator::BookMVA() {
-    tmvaReader->BookMVA(TString(params.find("MVAmethod")->second + " method") , TString(params.find("MVAweights")->second));
+void TTL_ComboSelector::BookMVA() {
+	if(mvaBooked){ cout << "WARNING: comboSelector MVA already booked!" << endl; return; }
+    tmvaReader->BookMVA(TString(params.find("comboSelectorMVAmethod")->second + " method") , TString(params.find("comboSelectorMVAweights")->second));
+	mvaBooked = true;
 }
 
-void TTL_TMVAEvaluator::TrainMVA() {
-    TMVA::gConfig().GetIONames().fWeightFileDir = params["tmva_dir"];
+void TTL_ComboSelector::TrainMVA() {
+    TMVA::gConfig().GetIONames().fWeightFileDir = params["comboSelector_dir"];
 
-    TFile outfile(params["tmva_file"].c_str(), "RECREATE");
-    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
-            "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
+    TFile outfile(params["comboSelector_file"].c_str(), "RECREATE");
+    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile, "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
     SetupVariables(factory);
 
-    TTree *stree;
-    TFile infile(params["tmva_sample"].c_str());
+    TFile infile(params["comboSelector_sample"].c_str());
 
+    TTree *stree;
     infile.GetObject("TreeS", stree);
     factory->AddSignalTree(stree, 1.);
 
-    for (const auto& bkg: Helper::SplitString(params["MVAbackground"])) {
-        TTree *btree;
-        string name = "TreeB_" + bkg;
-        double weight = proPack->GetPContainer()->Get(bkg)->GetCrossSection();
-
-        infile.GetObject(name.c_str(), btree);
-
-        if (btree->GetEntries() > 0)
-            factory->AddBackgroundTree(btree, weight);
-        else
-            cerr << "WARNING: skipping " << bkg << " for MVA training (no events)" << endl;
-    }
+	TTree *btree;
+	infile.GetObject("TreeB", btree);
+	factory->AddBackgroundTree(btree, 1.);
 
     factory->PrepareTrainingAndTestTree("", "", "SplitMode=Random:NormMode=NumEvents:!V");
 
@@ -122,9 +107,40 @@ void TTL_TMVAEvaluator::TrainMVA() {
 
     delete factory;
 }
+  
+
+multimap<double, unsigned int> TTL_ComboSelector::GetSortedCombosByPt(Branches* iEvent){
+	multimap<double, unsigned int> result;
+	TTLBranches* event = (TTLBranches*)iEvent;
+
+	for (unsigned int combo = event->TTL_NumCombos; combo --> 0; ){ 
+		result.insert(pair<double, unsigned int>(0, combo));
+	}
+
+	return result;
+}
+
+multimap<double, unsigned int> TTL_ComboSelector::GetSortedCombos(Branches* iEvent){
+	multimap<double, unsigned int> result;
+	TTLBranches* event = (TTLBranches*)iEvent;
+
+	if(params["selectComboBy"] == "pt"){
+		for (unsigned int combo = event->TTL_NumCombos; combo --> 0; ){ 
+			result.insert(pair<double, unsigned int>(0, combo));
+		}
+	}else if (params["selectComboBy"] == "mva"){ 
+		if(!mvaBooked){ BookMVA(); }
+		for (unsigned int combo = 0; combo < event->TTL_NumCombos; combo++){ 
+			double response = Evaluate(event, combo);
+			result.insert(pair<double, unsigned int>(response, combo));
+		}
+	}else{ assert(params["selectComboBy"] == "pt or mva"); }
+
+	return result;
+}
 
 // Evaluate each event
-float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
+float TTL_ComboSelector::Evaluate(TTLBranches const * iEvent, int iCombo){
 
 	if (iCombo < 0){ cerr << "ERROR: 'iCombo' is " << iCombo << "." << endl; exit(1); }
 
@@ -212,19 +228,6 @@ float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
         }
     }
 
-    return tmvaReader->EvaluateMVA(TString(params.find("MVAmethod")->second + " method"));
+    return tmvaReader->EvaluateMVA(TString(params.find("comboSelectorMVAmethod")->second + " method"));
 }
 
-template<typename T>
-void
-TTL_TMVAEvaluator::AddVariable(TMVA::Factory *factory, const string& name, const char& type, T& var)
-{
-    factory->AddVariable(name, type);
-}
-
-template<typename T>
-void
-TTL_TMVAEvaluator::AddVariable(TMVA::Reader *reader, const string& name, const char& type, T& var)
-{
-    reader->AddVariable(name, &var);
-}

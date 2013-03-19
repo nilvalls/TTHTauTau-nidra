@@ -1,26 +1,26 @@
-#ifndef TTL_TMVAEvaluator_h
-#define TTL_TMVAEvaluator_h
+#ifndef TTL_ComboSelector_h
+#define TTL_ComboSelector_h
 
+#include <assert.h>
 #include "Branches.h"
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
-//#include "TMVA/Tools.h"
+#include "TMVAEvaluator.h"
+//#include "multimap"
 
 using namespace std;
 
-class TTL_TMVAEvaluator {
+class TTL_ComboSelector : public TTL_TMVAEvaluator {
 
 	public:
-		TTL_TMVAEvaluator();
-		TTL_TMVAEvaluator(map<string,string> const &);
-		virtual ~TTL_TMVAEvaluator();
+		TTL_ComboSelector(map<string,string> const &);
+		virtual ~TTL_ComboSelector();
 
+		multimap<double, unsigned int> GetSortedCombosByPt(Branches*);
+		multimap<double, unsigned int> GetSortedCombos(Branches*);
 		float Evaluate(TTLBranches const *, int);
         virtual void BookMVA();
         virtual void TrainMVA();
-
-	protected:
-		bool mvaBooked;
 
 
 	private: 
@@ -52,12 +52,8 @@ class TTL_TMVAEvaluator {
         float LeadingJetPt;
         float SubLeadingJetPt;
 
-
 	protected:
         template<typename T> void SetupVariables(T*);
-        template<typename T> void AddVariable(TMVA::Factory*, const string&, const char&, T&);
-        template<typename T> void AddVariable(TMVA::Reader*, const string&, const char&, T&);
-		map<string,string> params;
 
 };
 

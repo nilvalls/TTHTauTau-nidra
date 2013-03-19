@@ -54,6 +54,7 @@ using namespace std;
 
 	void			Initialize(int, char**);
 	void			ReadConfig(string);
+	void			TrainComboSelectorSampler();
 	void			Analyze();
 	void			DistributeProcesses();
 	void			CrunchNumbers();

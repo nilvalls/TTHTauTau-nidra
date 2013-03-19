@@ -26,7 +26,7 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.Process.o .PContainer.o .ProPack.o \
 		.Branches.o .Analyzer.o .Plotter.o \
 		.TMVASampler.o \
-		.TTLBranches.o .TTLAnalyzer.o .TTLPlotter.o .TTL_TMVASampler.o .TTL_TMVAEvaluator.o \
+		.TTLBranches.o .TTLAnalyzer.o .TTLPlotter.o .TTL_TMVASampler.o .TTL_TMVAEvaluator.o .TTL_ComboSelectorSampler.o .TTL_ComboSelector.o\
 		.Combiner.o \
 		.Stacker.o .Stamper.o .Optimizer.o \
 		.Trigger.o .Cruncher.o \
@@ -72,6 +72,11 @@ configParser/libconfigParser.so: configParser/config.h
 .TTL_TMVAEvaluator.o: TTL/TMVAEvaluator.cc TTL/TMVAEvaluator.h TTL/Branches_*.h Helper.h
 	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
 
+.TTL_ComboSelectorSampler.o: TTL/ComboSelectorSampler.cc TTL/ComboSelectorSampler.h TTL/Branches_*.h Helper.h
+	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/ComboSelectorSampler.cc -o $@
+
+.TTL_ComboSelector.o: TTL/ComboSelector.cc TTL/ComboSelector.h TTL/Branches_*.h Helper.h
+	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/ComboSelector.cc -o $@
 
 ########################
 ###      Global      ###

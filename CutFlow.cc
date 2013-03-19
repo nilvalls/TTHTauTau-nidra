@@ -38,8 +38,8 @@ CutFlow::CutFlow(CutFlow const & iCutFlow){
 	comboIsForSignal		= false;
 	comboIsForQCD			= false;
 
-	heaviestComboForSignal	= -1;
-	heaviestComboForQCD		= -1;
+	bestComboForSignal	= -1;
+	bestComboForQCD		= -1;
 }
 
 
@@ -67,16 +67,16 @@ void CutFlow::Zero(){
 	passedEventsForSignal.clear();
 	passedEventsForQCD.clear();
 
-	heaviestComboForSignal	= -1;
-	heaviestComboForQCD		= -1;
+	bestComboForSignal	= -1;
+	bestComboForQCD		= -1;
 
 	eventForSignalPassed	= false;
 	eventForQCDPassed		= false;
 	comboIsForSignal		= false;
 	comboIsForQCD			= false;
 
-	heaviestComboForSignal	= -1;
-	heaviestComboForQCD		= -1;
+	bestComboForSignal	= -1;
+	bestComboForQCD		= -1;
 
 }
 
@@ -174,9 +174,9 @@ void CutFlow::ComboIsGood(string const iName){
 	thisCombosResultsForQCD[iName] = true;
 }
 
-// This function is intended to save time if we have already one good combo for signal and one for QCD. Since the heaviest combos come first, no need to check the rest. This will tell the analyzer it's time to move on.
+// This function is intended to save time if we have already one good combo for signal and one for QCD. Since the best combos come first, no need to check the rest. This will tell the analyzer it's time to move on.
 bool CutFlow::HaveGoodCombos(){
-	return ((heaviestComboForSignal >= 0) && (heaviestComboForQCD >= 0));
+	return ((bestComboForSignal >= 0) && (bestComboForQCD >= 0));
 }
 
 
@@ -187,10 +187,10 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 	bool comboIsForQCD		= iCombosTarget.second;
 
 	// Provided that the each target has not yet been satisfied by any combo, assume the first combo to do so is good
-	// Then assume that the first combo that satisfies the target is the heaviest. If there are registered cuts, they will change this if needed
-	//cout << "end of combo: target: " << comboIsForSignal << " " << comboIsForQCD << " heaviest combo: " << heaviestComboForSignal << " " << heaviestComboForQCD << endl;
-/*	if(comboIsForSignal	&& (heaviestComboForSignal < 0)){ eventForSignalPassed	= true;	heaviestComboForSignal  = iComboNumber; }
-	if(comboIsForQCD	&& (heaviestComboForQCD < 0)){	  eventForQCDPassed		= true;	heaviestComboForQCD  	= iComboNumber; }//*/
+	// Then assume that the first combo that satisfies the target is the best. If there are registered cuts, they will change this if needed
+	//cout << "end of combo: target: " << comboIsForSignal << " " << comboIsForQCD << " best combo: " << bestComboForSignal << " " << bestComboForQCD << endl;
+/*	if(comboIsForSignal	&& (bestComboForSignal < 0)){ eventForSignalPassed	= true;	bestComboForSignal  = iComboNumber; }
+	if(comboIsForQCD	&& (bestComboForQCD < 0)){	  eventForQCDPassed		= true;	bestComboForQCD  	= iComboNumber; }//*/
 
 	// Loop over all the cuts this combo has gone through
 	//cout << "cuts ======" << endl;
@@ -204,13 +204,13 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 		//cout << cutNames.at(c) << " " << thisCombosResultsForSignal.find(cutName)->second << " " << thisCombosResultsForQCD.find(cutName)->second << endl;
 		if(thisCombosResultsForSignal.find(cutName)->second){
 			passedCombosForSignal[cutName]++; 
-			if((heaviestComboForSignal < 0) && (c == cutNames.size()-1)){ heaviestComboForSignal = iComboNumber; }
-			if((heaviestComboForSignal < 0) && (c == cutNames.size()-1)){ eventForSignalPassed = true; }
+			if((bestComboForSignal < 0) && (c == cutNames.size()-1)){ bestComboForSignal = iComboNumber; }
+			if((bestComboForSignal < 0) && (c == cutNames.size()-1)){ eventForSignalPassed = true; }
 		}
 		if(thisCombosResultsForQCD.find(cutName)->second){
 			passedCombosForQCD[cutName]++;
-			if((heaviestComboForQCD < 0) && (c == cutNames.size()-1)){ heaviestComboForQCD = iComboNumber; }
-			if((heaviestComboForQCD < 0) && (c == cutNames.size()-1)){ eventForQCDPassed = true; }
+			if((bestComboForQCD < 0) && (c == cutNames.size()-1)){ bestComboForQCD = iComboNumber; }
+			if((bestComboForQCD < 0) && (c == cutNames.size()-1)){ eventForQCDPassed = true; }
 		}
 
 		thisCombosResultsForSignal.find(cutName)->second = false;
@@ -223,8 +223,8 @@ void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber)
 // Reset counters relevant to the start of the event
 void CutFlow::StartOfEvent(){
 
-	heaviestComboForSignal	= -1;
-	heaviestComboForQCD		= -1;
+	bestComboForSignal	= -1;
+	bestComboForQCD		= -1;
 
 	eventForSignalPassed	= false;	
 	eventForQCDPassed		= false;	
@@ -268,23 +268,23 @@ void CutFlow::EndOfEvent(){
 }
 
 bool CutFlow::EventForSignalPassed(){ 
-	if(eventForSignalPassed && (heaviestComboForSignal==-1)){ cerr << "ERROR: about to return true EventForSignalPassed() but heaviestCombo is -1" << endl; exit(1); }
+	if(eventForSignalPassed && (bestComboForSignal==-1)){ cerr << "ERROR: about to return true EventForSignalPassed() but bestCombo is -1" << endl; exit(1); }
 	return eventForSignalPassed;
 }
 
 bool CutFlow::EventForQCDPassed(){
-	if(eventForQCDPassed && (heaviestComboForQCD==-1)){ cerr << "ERROR: about to return true EventForQCDPassed() but heaviestCombo is -1" << endl; exit(1); }
+	if(eventForQCDPassed && (bestComboForQCD==-1)){ cerr << "ERROR: about to return true EventForQCDPassed() but bestCombo is -1" << endl; exit(1); }
 	return eventForQCDPassed;
 }
 
-int CutFlow::GetHeaviestComboForSignal(){
+int CutFlow::GetBestComboForSignal(){
 	if(!eventForSignalPassed){ cerr << "ERROR: trying to obtain highest combo in event for signal, but no event for signal has passed all the cuts" << endl; exit(1); }
-	return heaviestComboForSignal;
+	return bestComboForSignal;
 }
 
-int CutFlow::GetHeaviestComboForQCD(){
+int CutFlow::GetBestComboForQCD(){
 	if(!eventForQCDPassed){ cerr << "ERROR: trying to obtain highest combo in event for QCD, but no event for QCD has passed all the cuts" << endl; exit(1); }
-	return heaviestComboForQCD;
+	return bestComboForQCD;
 }
 
 

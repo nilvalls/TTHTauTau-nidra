@@ -28,6 +28,9 @@ TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
         mva->BookMVA();
     }
 	mvaWeights.close();
+	comboSelector = new TTL_ComboSelector(iParams);
+	comboSelector->BookMVA();
+
 	MakePlots(proPack);
 	SaveFile();
 }
@@ -36,7 +39,7 @@ TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
 void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter){
 	HContainer* hContainer = iHContainer;
 	TTLBranches* event = (TTLBranches*)iEvent;
-	int iCombo = event->bestCombo;
+	int iCombo = event->GetBestCombo();
 
 	float iTopPtWeight			= 1.0;
 	float iLeptonWeight			= 1.0;
@@ -48,14 +51,14 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		if(IsFlagThere("topPtSF")){		iTopPtWeight	= event->Ev_topPtWeight;	}
 		if(IsFlagThere("topPtSFup")){	iTopPtWeight	= event->Ev_topPtWeightUp;	}
 		if(IsFlagThere("topPtSFdown")){	iTopPtWeight	= event->Ev_topPtWeightDown;}
-		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTL_LeptonEventWeight->at(event->bestCombo);	}
+		if(IsFlagThere("leptonSF")){ iLeptonWeight	= event->TTL_LeptonEventWeight->at(event->GetBestCombo());	}
 		if(IsFlagThere("PUcorr")){ 
 			//OLD: iPuWeight = iPUcorrector->GetWeight(event->Ev_numInteractionsBX0); 
 			iPuWeight = event->Ev_puWeight;
 		}
 		if(IsFlagThere("trigger")){ 
-			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->bestCombo));
-			iTau2TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau2Pt->at(event->bestCombo));
+			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->GetBestCombo()));
+			iTau2TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau2Pt->at(event->GetBestCombo()));
 		}
 	}//*/
 

@@ -19,6 +19,7 @@ using namespace std;
 Branches::Branches(){
 	fChain = NULL;
 	Null();
+	bestCombo = -1;
 }
 
 
@@ -30,6 +31,8 @@ void Branches::SetUp(map<string,string> const & iParams, vector<string> const & 
    for (const auto& p: iPath) {
       fChain->Add((p + "/*.root").c_str());
    }
+
+	bestCombo = -1;
 
 	// Set branch addresses and branch pointers
 	if (!fChain){ cerr << "ERROR: Trying to initialize NULL TChain" << endl; exit(1); }

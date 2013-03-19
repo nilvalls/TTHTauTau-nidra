@@ -37,7 +37,8 @@ TMVASampler::TMVASampler(map<string,string>const & iParams){
 }
 
 
-void TMVASampler::MakeTrainingSample(ProPack * iProPack){
+void TMVASampler::MakeTrainingSample(){
+	ProPack* iProPack = proPack;
     string outputName = params["tmva_sample"];
 	string signalName = iProPack->GetProcess(params.find("MVAsignal")->second)->GetShortName();
 

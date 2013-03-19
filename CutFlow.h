@@ -45,8 +45,8 @@ class CutFlow {
 		bool signalComboLocked;
 		bool qcdComboLocked;
 
-		int heaviestComboForSignal;
-		int heaviestComboForQCD;
+		int bestComboForSignal;
+		int bestComboForQCD;
 
 		bool OutOfRange(float, float, float);
 
@@ -83,8 +83,8 @@ class CutFlow {
 		bool EventForSignalPassed();
 		bool EventForQCDPassed();
 
-		int GetHeaviestComboForSignal();
-		int GetHeaviestComboForQCD();
+		int GetBestComboForSignal();
+		int GetBestComboForQCD();
 
 		vector<string> const		GetCutNames() const;
 		map<string, int> const		GetCutRanks() const;

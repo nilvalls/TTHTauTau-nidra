@@ -44,7 +44,11 @@ void Analyzer::AnalyzeAll(ProPack& iProPack){
 	for(map<string,Process>::iterator p = processes->begin(); p != processes->end(); p++){ Analyze((p)->second); }
 }
 
-void Analyzer::Analyze(Process& iProcess){
+void Analyzer::SampleComboSelectorSampler(Process& iProcess){
+	Analyze(iProcess, true);
+}
+
+void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler){
 
 	//Reset();
 	cout << "\tNow analyzing " << iProcess.GetShortName() << endl;
@@ -64,14 +68,16 @@ void Analyzer::Analyze(Process& iProcess){
 	isSignal		= iProcess.IsSignal();
 	checkReality	= iProcess.CheckReality();
 	isMC			= iProcess.IsMC();
-	pair<double,double> loopResults = Loop(event, iProcess.GetNoEreadByNUTter());
+	pair<double,double> loopResults = Loop(event, iProcess, iTrainComboSelectorSampler);
 	cout << endl;
 
-	iProcess.SetGoodEventsForSignal(goodEventsForSignal);
-	iProcess.SetGoodEventsForQCD(goodEventsForQCD);
-	iProcess.SetNOEinNtuple(loopResults.first);
-	iProcess.SetNOEanalyzed(loopResults.second);
-	iProcess.SetCutFlow(cutFlow);
+	if(!iTrainComboSelectorSampler){ 
+		iProcess.SetGoodEventsForSignal(goodEventsForSignal);
+		iProcess.SetGoodEventsForQCD(goodEventsForQCD);
+		iProcess.SetNOEinNtuple(loopResults.first);
+		iProcess.SetNOEanalyzed(loopResults.second);
+		iProcess.SetCutFlow(cutFlow);
+	}
 
 	delete event;
 	event = NULL;

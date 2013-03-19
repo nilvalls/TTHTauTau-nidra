@@ -6,48 +6,42 @@
 
 */
 
-#include "TMVASampler.h"
+#include "ComboSelectorSampler.h"
+#include "TMVA/Config.h"
+#include "TMVA/Factory.h"
+#include "TMVA/Reader.h"
 
-#define TTL_TMVASampler_cxx
+
+#define TTL_ComboSelectorSampler_cxx
 using namespace std;
 
 #define AT __LINE__
 
-TTL_TMVASampler::TTL_TMVASampler(map<string,string>const & iParams) : TMVASampler(iParams){
-	//MakeTrainingSample(proPack);
+TTL_ComboSelectorSampler::TTL_ComboSelectorSampler(map<string,string>const & iParams) : TMVASampler(){
+	params = iParams;
+
+	output		= new TFile((params["comboSelector_sample"]).c_str(), "RECREATE");
+	output->cd();
+	signal		= new TTree("TreeS","TreeS");
+	background	= new TTree("TreeB","TreeB");
+	output->cd();
+
+	SetUpTree(signal);
+	SetUpTree(background);
+
 }
 
 // Default destructor
-TTL_TMVASampler::~TTL_TMVASampler(){}
+TTL_ComboSelectorSampler::~TTL_ComboSelectorSampler(){
+	if(output->IsOpen()){
+		output->cd();
+		signal->Write();
+		background->Write();
+		output->Close();
+	}
+}
 
-
-void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
-
-	// Define variables going into the trees
-	float HT;
-	float Tau1Pt;
-	float Tau2Pt;
-    unsigned int Tau1DecayMode;
-    unsigned int Tau2DecayMode;
-    unsigned int Tau1IsolationIndex;
-    unsigned int Tau2IsolationIndex;
-    float Tau1LTPt;
-    float Tau2LTPt;
-    unsigned int Tau1NProngs;
-    unsigned int Tau2NProngs;
-    float DitauVisibleMass;
-	float DeltaRTau1Tau2;
-	float DeltaRTau1Lepton;
-	float DeltaRTau2Lepton;
-	float DeltaRTau1LeadingJet;
-	float DeltaRTau2LeadingJet;
-	float DeltaRTau1SubleadingJet;
-	float DeltaRTau2SubleadingJet;
-	float DeltaRLeptonLeadingJet;
-	float DeltaRLeptonSubleadingJet;
-	float LeadingJetSubleadingJetMass;
-    float LeadingJetPt;
-    float SubLeadingJetPt;
+void TTL_ComboSelectorSampler::SetUpTree(TTree* iTree){
 
 	// Define branches
 	iTree->Branch("HT", &HT);
@@ -74,43 +68,29 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
     iTree->Branch("LeadingJetSubleadingJetMass", &LeadingJetSubleadingJetMass);
     iTree->Branch("LeadingJetPt", &LeadingJetPt);
     iTree->Branch("SubLeadingJetPt", &SubLeadingJetPt);
+}
 
-    for (const auto& p: iProcess->GetNtuplePaths())
-        cout << "Background path: " << p << endl;
+void TTL_ComboSelectorSampler::FillTrees(TTLBranches* iEvent){
 
 	// Instantiante Branches to read events more easily
-	TTLBranches* event = new TTLBranches(params, iProcess->GetNtuplePaths());
+	TTLBranches* event = iEvent;
 
 	// Loop over good events
-	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
-	cout << "\n\tNow filling tree for " << iProcess->GetShortName() << endl;
-	cout << "\t>>> OS, filling good events (total " << goodEventsForSignal.size() << "): "; cout.flush();
-	stringstream goodEventsSS; goodEventsSS.str("");
-	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		if(i>0 && (i%10) == 0){
-			cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
-			goodEventsSS.str("");
-			goodEventsSS << i;
-			cout << goodEventsSS.str(); cout.flush();
-		}
-
-		event->GetEntry(goodEventsForSignal.at(i).first);
-		event->SetBestCombo(goodEventsForSignal.at(i).second);
-		unsigned int bestCombo = event->GetBestCombo();
+	for(unsigned int combo = 0; combo < iEvent->TTL_Tau1Pt->size(); ++combo){
 
 		// Assign values
-		HT = event->TTL_HT->at(bestCombo);
-		Tau1Pt = event->TTL_Tau1Pt->at(bestCombo);
-		Tau2Pt = event->TTL_Tau2Pt->at(bestCombo);
-        Tau1DecayMode = event->TTL_Tau1DecayMode->at(bestCombo);
-        Tau2DecayMode = event->TTL_Tau2DecayMode->at(bestCombo);
-        Tau1IsolationIndex = event->GetTau1IsolationIndex(bestCombo);
-        Tau2IsolationIndex = event->GetTau2IsolationIndex(bestCombo);
-        Tau1LTPt = event->TTL_Tau1LTPt->at(bestCombo);
-        Tau2LTPt = event->TTL_Tau2LTPt->at(bestCombo);
-        Tau1NProngs = event->TTL_Tau1NProngs->at(bestCombo);
-        Tau2NProngs = event->TTL_Tau2NProngs->at(bestCombo);
-        DitauVisibleMass = event->TTL_DitauVisibleMass->at(bestCombo);
+		HT = event->TTL_HT->at(combo);
+		Tau1Pt = event->TTL_Tau1Pt->at(combo);
+		Tau2Pt = event->TTL_Tau2Pt->at(combo);
+        Tau1DecayMode = event->TTL_Tau1DecayMode->at(combo);
+        Tau2DecayMode = event->TTL_Tau2DecayMode->at(combo);
+        Tau1IsolationIndex = event->GetTau1IsolationIndex(combo);
+        Tau2IsolationIndex = event->GetTau2IsolationIndex(combo);
+        Tau1LTPt = event->TTL_Tau1LTPt->at(combo);
+        Tau2LTPt = event->TTL_Tau2LTPt->at(combo);
+        Tau1NProngs = event->TTL_Tau1NProngs->at(combo);
+        Tau2NProngs = event->TTL_Tau2NProngs->at(combo);
+        DitauVisibleMass = event->TTL_DitauVisibleMass->at(combo);
 
         float conesize = 0.25;
         LeadingJetPt = 0.;
@@ -118,16 +98,16 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
         for (unsigned int i = 0, c = 0; c < 2 and i < event->J_Pt->size(); i++) {
             if ((DeltaR(event->J_Eta->at(i),
                             event->J_Phi->at(i),
-                            event->TTL_Tau1Eta->at(bestCombo),
-                            event->TTL_Tau1Phi->at(bestCombo)) > conesize) &&
+                            event->TTL_Tau1Eta->at(combo),
+                            event->TTL_Tau1Phi->at(combo)) > conesize) &&
                     (DeltaR(event->J_Eta->at(i),
                             event->J_Phi->at(i),
-                            event->TTL_Tau2Eta->at(bestCombo),
-                            event->TTL_Tau2Phi->at(bestCombo)) > conesize) &&
+                            event->TTL_Tau2Eta->at(combo),
+                            event->TTL_Tau2Phi->at(combo)) > conesize) &&
                     (DeltaR(event->J_Eta->at(i),
                             event->J_Phi->at(i),
-                            event->TTL_LeptonEta->at(bestCombo),
-                            event->TTL_LeptonPhi->at(bestCombo)) > conesize)) {
+                            event->TTL_LeptonEta->at(combo),
+                            event->TTL_LeptonPhi->at(combo)) > conesize)) {
                 if (c == 0)
                     LeadingJetPt = event->J_Pt->at(i);
                 else if (c == 1)
@@ -136,12 +116,12 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
             }
         }
 
-		float tau1eta	= event->TTL_Tau1Eta->at(bestCombo);
-		float tau1phi	= event->TTL_Tau1Phi->at(bestCombo);
-		float tau2eta	= event->TTL_Tau2Eta->at(bestCombo);
-		float tau2phi	= event->TTL_Tau2Phi->at(bestCombo);
-		float lepEta	= event->TTL_LeptonEta->at(bestCombo);
-		float lepPhi	= event->TTL_LeptonPhi->at(bestCombo);
+		float tau1eta	= event->TTL_Tau1Eta->at(combo);
+		float tau1phi	= event->TTL_Tau1Phi->at(combo);
+		float tau2eta	= event->TTL_Tau2Eta->at(combo);
+		float tau2phi	= event->TTL_Tau2Phi->at(combo);
+		float lepEta	= event->TTL_LeptonEta->at(combo);
+		float lepPhi	= event->TTL_LeptonPhi->at(combo);
 
 		float jet1eta = -99;
 		float jet1phi = -99;
@@ -183,8 +163,13 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 			}
 		}
 
-		// Fill tree
-		iTree->Fill();
+		// Fill trees
+		if(
+			abs(event->TTL_Tau1GenMatchId->at(combo)) == 15 &&
+			abs(event->TTL_Tau2GenMatchId->at(combo)) == 15 &&
+			abs(event->TTL_Tau1GenMatchMother0Id->at(combo)) == 25 &&
+			abs(event->TTL_Tau2GenMatchMother0Id->at(combo)) == 25
+		){	signal->Fill();		}
+		else{					background->Fill();	}
 	}
-	cout << endl;
 }

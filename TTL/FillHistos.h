@@ -13,6 +13,8 @@ hContainer->Fill("MomentumRank", event->TTL_MomentumRank->at(iCombo), weightFull
 hContainer->Fill("MET", event->Ev_MET, weightFull);
 hContainer->Fill("HT", event->TTL_HT->at(iCombo), weightFull);
 if(mva!=NULL){ hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull); }
+hContainer->Fill("ComboSelectorResponse", comboSelector->Evaluate(event, iCombo), weightFull);
+hContainer->Fill("SelectedComboRank", iCombo, weightFull);
 
 if(iPuWeight!=0){
 	hContainer->Fill("NumberPV_noPURW", event->Ev_numPrimaryVertices, weightFull/iPuWeight);

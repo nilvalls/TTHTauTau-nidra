@@ -8,6 +8,7 @@
 #ifndef Analyzer_h
 #define Analyzer_h
 
+#include <assert.h>
 #include <typeinfo>
 #include "TROOT.h"
 #include "TFile.h"
@@ -43,15 +44,17 @@ class Analyzer {
 		Analyzer(map<string,string> const &);
 		virtual ~Analyzer();
 		void	AnalyzeAll(ProPack&);
+		void	SampleComboSelectorSampler(Process&);
+		virtual void	TrainComboSelectorSampler() = 0;
+		void	Analyze(Process&, const bool iTrainComboSelectorSampler=false);
+		void	Analyze(vector<Process>&);
 
 
 	protected:
-		void	Analyze(Process&);
-		void	Analyze(vector<Process>&);
 		void	Reset();
 		bool	ApplyThisCut(string);
 		bool	IsFlagThere(string);
-		virtual pair<double,double>		Loop(Branches*, const int&) = 0;
+		virtual pair<double,double>		Loop(Branches*, Process const &, const bool iTrainComboSelectorSampler=false) = 0;
 		virtual pair<bool,bool>			ComboPassesCuts(Branches*, unsigned int);
 
 	private:
