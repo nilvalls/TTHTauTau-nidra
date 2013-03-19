@@ -33,7 +33,7 @@ topology_TTbar_semilept = [
     labelForLegend   = t #bar{t} SL
     type             = mcBackground
     ntuplePath       = TTbar_SemiLept_Summer12
-    color            = 68
+    color            = 67
     crossSection     = 102.49
     branchingRatio   = 1
     otherScaleFactor = 1
@@ -48,13 +48,13 @@ topology_TTbar_fulllept = [
     labelForLegend   = t #bar{t} FL
     type             = mcBackground
     ntuplePath       = TTbar_FullLept_Summer12
-    color            = 72
+    color            = 70
     crossSection     = 24.57
     branchingRatio   = 1
     otherScaleFactor = 1
-    relativeSysUncertainty = 0.2
+    relativeSysUncertainty = 0.15
     NOEinDS          = 12119013
-    NoEreadByNUTter  = 737338
+    NoEreadByNUTter  = 778352
 ]
 
 topology_WplusOneJet = [
