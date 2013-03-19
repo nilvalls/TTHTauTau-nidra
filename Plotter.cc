@@ -176,7 +176,7 @@ void Plotter::MakePlots(Process* iProcess){
 	}
 
 	// Add postCuts
-	if(IsFlagThere("topPtSF")){ cutFlow->RegisterCut("topPt SF", 2, topPtSFEfficiencyForSignal*cutFlow->GetLastCountForSignal(), topPtSFEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("topPtSF") || IsFlagThere("topPtSFup") || IsFlagThere("topPtSFdown")){ cutFlow->RegisterCut("topPt SF", 2, topPtSFEfficiencyForSignal*cutFlow->GetLastCountForSignal(), topPtSFEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
 	if(IsFlagThere("leptonSF")){ cutFlow->RegisterCut("Lepton SF", 2, leptonSFEfficiencyForSignal*cutFlow->GetLastCountForSignal(), leptonSFEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
 	if(IsFlagThere("PUcorr")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal(), puEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
 	if(IsFlagThere("trigger")){ 
