@@ -160,11 +160,67 @@ topology_ZjetsM50 = [
     type             = mcBackground
     ntuplePath       = ZplusJets_Summer12
     color            = 628
-    crossSection     = 3503.71 #FEWZ
+    crossSection     = 3505.7
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 30459503
     NoEreadByNUTter  = 7076
+]
+
+topology_ZplusOneJet = [
+    sampleNumber     = 2301
+    niceName         = Z + 1 jet
+    labelForLegend   = Z + 1 jet
+    type             = mcBackground
+    ntuplePath       = ZplusOneJet_Summer12
+    color            = 
+    crossSection     = 666.7
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 24045248
+    NoEreadByNUTter  = 4490
+]
+
+topology_ZplusTwoJets = [
+    sampleNumber     = 2302
+    niceName         = Z + 2 jets
+    labelForLegend   = Z + 2 jets
+    type             = mcBackground
+    ntuplePath       = ZplusTwoJets_Summer12
+    color            = 
+    crossSection     = 215.1
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 2352304
+    NoEreadByNUTter  = 2935
+]
+
+topology_ZplusThreeJets = [
+    sampleNumber     = 2303
+    niceName         = Z + 3 jets
+    labelForLegend   = Z + 3 jets
+    type             = mcBackground
+    ntuplePath       = ZplusThreeJets_Summer12
+    color            = 
+    crossSection     = 66.07
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 11015445
+    NoEreadByNUTter  = 34327
+]
+
+topology_ZplusFourJets = [
+    sampleNumber     = 2304
+    niceName         = Z + 4 jets
+    labelForLegend   = Z + 4 jets
+    type             = mcBackground
+    ntuplePath       = ZplusFourJets_Summer12
+    color            = 
+    crossSection     = 27.38
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 6402827
+    NoEreadByNUTter  = 41378
 ]
 
 topology_ZjetsM10-50 = [
@@ -295,6 +351,20 @@ topology_ttPlusZ = [
 
 topology_TTH_125 = [
     sampleNumber     = 125
+    niceName         = ttH(125)
+    labelForLegend   = t#bar{t}H(125) 
+    type             = signal
+    ntuplePath       = TTHi_125
+    color            = 632
+    crossSection     = 0.0082
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = 130049
+]
+
+topology_TTHTauTau_125 = [
+    sampleNumber     = 125
     niceName         = ttHtautau(125)
     labelForLegend   = t#bar{t}H(125) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -307,7 +377,7 @@ topology_TTH_125 = [
     NoEreadByNUTter  = 130049
 ]
 
-topology_TTH_125_real = [
+topology_TTHTauTau_125_real = [
     sampleNumber     = 125
     niceName         = ttHtautau(125)
     labelForLegend   = t#bar{t}H(125)^{*} #rightarrow #tau_{h} #tau_{h}
