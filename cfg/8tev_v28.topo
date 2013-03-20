@@ -37,7 +37,6 @@ topology_TTbar_semilept = [
     crossSection     = 102.49
     branchingRatio   = 1
     otherScaleFactor = 1
-    relativeSysUncertainty = 0.2
     NOEinDS          = 25424818
     NoEreadByNUTter  = 808274
 ]
@@ -52,7 +51,6 @@ topology_TTbar_fulllept = [
     crossSection     = 24.57
     branchingRatio   = 1
     otherScaleFactor = 1
-    relativeSysUncertainty = 0.15
     NOEinDS          = 12119013
     NoEreadByNUTter  = 778352
 ]
