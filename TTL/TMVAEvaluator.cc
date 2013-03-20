@@ -42,6 +42,7 @@ template<typename T> void TTL_TMVAEvaluator::SetupVariables(T* obj){
 
     // AddVariable(obj, "HT", 'F', HT);
     AddVariable(obj, "Tau1Pt", 'F', Tau1Pt);
+    AddVariable(obj, "Tau1Eta", 'F', Tau1Eta);
     AddVariable(obj, "Tau2Pt", 'F', Tau2Pt);
     AddVariable(obj, "Tau1DecayMode", 'I', Tau1DecayMode);
     AddVariable(obj, "Tau2DecayMode", 'I', Tau2DecayMode);
@@ -71,16 +72,16 @@ void TTL_TMVAEvaluator::BookMVA() {
 }
 
 void TTL_TMVAEvaluator::TrainMVA() {
-    TMVA::gConfig().GetIONames().fWeightFileDir = params["tmva_dir"];
+    TMVA::gConfig().GetIONames().fWeightFileDir = params["MVAoutput"];
 
-    TFile outfile(params["tmva_file"].c_str(), "RECREATE");
+    TFile outfile(params["MVAoutput"].c_str(), "RECREATE");
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
             "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
     SetupVariables(factory);
 
     TTree *stree;
-    TFile infile(params["tmva_sample"].c_str());
+    TFile infile(params["MVAinput"].c_str());
 
     infile.GetObject("TreeS", stree);
     factory->AddSignalTree(stree, 1.);
@@ -103,16 +104,16 @@ void TTL_TMVAEvaluator::TrainMVA() {
     // the following can be copied from TMVAClassification.C
     factory->BookMethod(TMVA::Types::kCuts, "Cuts",
             "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
-    factory->BookMethod(TMVA::Types::kMLP, "MLP",
-            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator");
-    factory->BookMethod(TMVA::Types::kMLP, "MLPBFGS",
-            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator");
+    // factory->BookMethod(TMVA::Types::kMLP, "MLP",
+            // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator");
+    // factory->BookMethod(TMVA::Types::kMLP, "MLPBFGS",
+            // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator");
     factory->BookMethod(TMVA::Types::kMLP, "MLPBNN",
             "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator"); // BFGS training with bayesian regulators
     factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
             "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
-    factory->BookMethod(TMVA::Types::kTMlpANN, "TMlpANN",
-            "!H:!V:NCycles=200:HiddenLayers=N+1,N:LearningMethod=BFGS:ValidationFraction=0.3"); // n_cycles:#nodes:#nodes:...
+    // factory->BookMethod(TMVA::Types::kTMlpANN, "TMlpANN",
+            // "!H:!V:NCycles=200:HiddenLayers=N+1,N:LearningMethod=BFGS:ValidationFraction=0.3"); // n_cycles:#nodes:#nodes:...
     factory->BookMethod(TMVA::Types::kBDT, "BDT",
             "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
 
@@ -130,6 +131,7 @@ float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
 
     HT = iEvent->TTL_HT->at(iCombo);
     Tau1Pt = iEvent->TTL_Tau1Pt->at(iCombo);
+    Tau1Eta = iEvent->TTL_Tau1Eta->at(iCombo);
     Tau2Pt = iEvent->TTL_Tau2Pt->at(iCombo);
     Tau1DecayMode = iEvent->TTL_Tau1DecayMode->at(iCombo);
     Tau2DecayMode = iEvent->TTL_Tau2DecayMode->at(iCombo);

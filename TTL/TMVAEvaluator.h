@@ -29,6 +29,7 @@ class TTL_TMVAEvaluator {
 
         float HT;
         float Tau1Pt;
+        float Tau1Eta;
         float Tau2Pt;
         float Tau1DecayMode;
         float Tau2DecayMode;

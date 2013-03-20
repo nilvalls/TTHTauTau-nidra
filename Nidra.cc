@@ -104,6 +104,7 @@ int main(int argc, char **argv){
 	}
 
 	if (prep_plots or all) {
+        DistributeProcesses();
 		PreparePlots();
 		CombineProcesses();
 	}

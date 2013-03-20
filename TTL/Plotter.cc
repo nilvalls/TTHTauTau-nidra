@@ -16,21 +16,32 @@ using namespace std;
 
 // Default destructor
 TTLPlotter::~TTLPlotter(){
-	if(mva != NULL){ delete mva; mva = NULL; }
+    if (mva)
+        delete mva;
+    if (comboSelector)
+        delete comboSelector;
 }
 
 // Constructor
 TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
     params = iParams;
-	mva = NULL;
-	ifstream mvaWeights(params.find("MVAweights")->second.c_str());
-	if (mvaWeights.good()) {
+    ifstream mvaWeights(params.find("MVAweights")->second.c_str());
+    if (mvaWeights.good()) {
         mva = new TTL_TMVAEvaluator(iParams);
         mva->BookMVA();
+    } else {
+        mva = 0;
     }
-	mvaWeights.close();
-	comboSelector = new TTL_ComboSelector(iParams);
-	comboSelector->BookMVA();
+    mvaWeights.close();
+
+    ifstream comboWeights(params.find("comboSelectorMVAweights")->second.c_str());
+    if (comboWeights.good()) {
+        comboSelector = new TTL_ComboSelector(iParams);
+        comboSelector->BookMVA();
+    } else {
+        comboSelector = 0;
+    }
+    comboWeights.close();
 
 	MakePlots(proPack);
 	SaveFile();

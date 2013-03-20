@@ -39,7 +39,7 @@ TMVASampler::TMVASampler(map<string,string>const & iParams){
 
 void TMVASampler::MakeTrainingSample(){
 	ProPack* iProPack = proPack;
-    string outputName = params["tmva_sample"];
+    string outputName = params["MVAinput"];
 	string signalName = iProPack->GetProcess(params.find("MVAsignal")->second)->GetShortName();
 
 	TFile* output = new TFile(outputName.c_str(), "RECREATE");

@@ -38,6 +38,7 @@ void ReadConfig(string iPath){
 	// Instatiate configuration parser and take the first argument as the config file
 	Config theConfig(iPath);
 
+    SetParam(theConfig, "MVAdir");
 	SetParam(theConfig, "maxEvents");
 	SetParam(theConfig, "luminosity");
 	SetParam(theConfig, "plotText");
@@ -85,10 +86,13 @@ void ReadConfig(string iPath){
 
 	// Set some additional internal parameters
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
-	SetParam("tmva_dir",string(GetParam("bigDir")+"/tmva"));
-	SetParam("MVAweights",string(GetParam("tmva_dir") + "/TMVAClassification_" + GetParam("MVAmethod") + ".weights.xml"));
-	SetParam("tmva_file",string(GetParam("bigDir")+"/tmva.root"));
-	SetParam("tmva_sample",string(GetParam("bigDir")+"/nidra_trainingSample.root"));
+
+    if (params.find("MVAdir") == params.end())
+        params["MVAdir"] = params["bigDir"] + "/tmva";
+    params["MVAweights"] = params["MVAdir"] + "/TMVAClassification_" + params["MVAmethod"] + ".weights.xml";
+    params["MVAoutput"] = params["MVAdir"] + "/tmva.root";
+    params["MVAinput"] = params["MVAdir"] + "/sample.root";
+
 	SetParam("comboSelector_dir",string(GetParam("bigDir")+"/comboSelector"));
 	SetParam("comboSelectorMVAweights",string(GetParam("comboSelector_dir") + "/TMVAClassification_" + GetParam("comboSelectorMVAmethod") + ".weights.xml"));
 	SetParam("comboSelector_file",string(GetParam("bigDir")+"/tmva.root"));

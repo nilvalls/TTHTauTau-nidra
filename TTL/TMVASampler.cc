@@ -26,6 +26,7 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 	// Define variables going into the trees
 	float HT;
 	float Tau1Pt;
+    float Tau1Eta;
 	float Tau2Pt;
     unsigned int Tau1DecayMode;
     unsigned int Tau2DecayMode;
@@ -52,6 +53,7 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 	// Define branches
 	iTree->Branch("HT", &HT);
 	iTree->Branch("Tau1Pt", &Tau1Pt);
+	iTree->Branch("Tau1Eta", &Tau1Eta);
 	iTree->Branch("Tau2Pt", &Tau2Pt);
     iTree->Branch("Tau1DecayMode", &Tau1DecayMode);
     iTree->Branch("Tau2DecayMode", &Tau2DecayMode);
@@ -101,6 +103,7 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 		// Assign values
 		HT = event->TTL_HT->at(bestCombo);
 		Tau1Pt = event->TTL_Tau1Pt->at(bestCombo);
+        Tau1Eta = event->TTL_Tau1Eta->at(bestCombo);
 		Tau2Pt = event->TTL_Tau2Pt->at(bestCombo);
         Tau1DecayMode = event->TTL_Tau1DecayMode->at(bestCombo);
         Tau2DecayMode = event->TTL_Tau2DecayMode->at(bestCombo);

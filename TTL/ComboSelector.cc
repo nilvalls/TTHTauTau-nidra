@@ -86,18 +86,18 @@ void TTL_ComboSelector::TrainMVA() {
     factory->PrepareTrainingAndTestTree("", "", "SplitMode=Random:NormMode=NumEvents:!V");
 
     // the following can be copied from TMVAClassification.C
-    factory->BookMethod(TMVA::Types::kCuts, "Cuts",
-            "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
-    factory->BookMethod(TMVA::Types::kMLP, "MLP",
-            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator");
-    factory->BookMethod(TMVA::Types::kMLP, "MLPBFGS",
-            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator");
-    factory->BookMethod(TMVA::Types::kMLP, "MLPBNN",
-            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator"); // BFGS training with bayesian regulators
-    factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
-            "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
-    factory->BookMethod(TMVA::Types::kTMlpANN, "TMlpANN",
-            "!H:!V:NCycles=200:HiddenLayers=N+1,N:LearningMethod=BFGS:ValidationFraction=0.3"); // n_cycles:#nodes:#nodes:...
+    // factory->BookMethod(TMVA::Types::kCuts, "Cuts",
+            // "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
+    // factory->BookMethod(TMVA::Types::kMLP, "MLP",
+            // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator");
+    // factory->BookMethod(TMVA::Types::kMLP, "MLPBFGS",
+            // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator");
+    // factory->BookMethod(TMVA::Types::kMLP, "MLPBNN",
+            // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator"); // BFGS training with bayesian regulators
+    // factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
+            // "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
+    // factory->BookMethod(TMVA::Types::kTMlpANN, "TMlpANN",
+            // "!H:!V:NCycles=200:HiddenLayers=N+1,N:LearningMethod=BFGS:ValidationFraction=0.3"); // n_cycles:#nodes:#nodes:...
     factory->BookMethod(TMVA::Types::kBDT, "BDT",
             "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
 
