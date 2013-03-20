@@ -89,12 +89,13 @@ void Plotter::MakePlots(Process* iProcess){
 
 	// Recover the good events for signal and fill histos with them
 	weightCounter weightCounterForSignal;
-	weightCounterForSignal.topPtCorrection	= 0;
-	weightCounterForSignal.leptonCorrection	= 0;
-	weightCounterForSignal.puCorrection		= 0;
-	weightCounterForSignal.tau1Trigger		= 0;
-	weightCounterForSignal.tau2Trigger		= 0;
-	weightCounterForSignal.total			= 0;
+	weightCounterForSignal.topPtCorrection  = 0;
+	weightCounterForSignal.leptonCorrection = 0;
+	weightCounterForSignal.puCorrection     = 0;
+	weightCounterForSignal.tau1Trigger      = 0;
+	weightCounterForSignal.tau2Trigger      = 0;
+	weightCounterForSignal.tauIdSys         = 0;
+	weightCounterForSignal.total            = 0;
 
 	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
@@ -114,17 +115,19 @@ void Plotter::MakePlots(Process* iProcess){
 	}
 	cout << endl;
 
-	double topPtSFEfficiencyForSignal		= 0;
-	double leptonSFEfficiencyForSignal		= 0;
-	double puEfficiencyForSignal			= 0;
-	double tau1TriggerEfficiencyForSignal	= 0;
-	double tau2TriggerEfficiencyForSignal	= 0;
+	double topPtSFEfficiencyForSignal     = 0;
+	double leptonSFEfficiencyForSignal    = 0;
+	double puEfficiencyForSignal          = 0;
+	double tau1TriggerEfficiencyForSignal = 0;
+	double tau2TriggerEfficiencyForSignal = 0;
+	double tauIdSysForSignal              = 0;
 	if(weightCounterForSignal.total > 0){
-		topPtSFEfficiencyForSignal		= weightCounterForSignal.topPtCorrection/weightCounterForSignal.total;
-		leptonSFEfficiencyForSignal		= weightCounterForSignal.leptonCorrection/weightCounterForSignal.total;
-		puEfficiencyForSignal			= weightCounterForSignal.puCorrection/weightCounterForSignal.total;
-		tau1TriggerEfficiencyForSignal	= weightCounterForSignal.tau1Trigger/weightCounterForSignal.puCorrection;
-		tau2TriggerEfficiencyForSignal	= weightCounterForSignal.tau2Trigger/weightCounterForSignal.tau1Trigger;//*/
+		topPtSFEfficiencyForSignal     = weightCounterForSignal.topPtCorrection/weightCounterForSignal.total;
+		leptonSFEfficiencyForSignal    = weightCounterForSignal.leptonCorrection/weightCounterForSignal.total;
+		puEfficiencyForSignal          = weightCounterForSignal.puCorrection/weightCounterForSignal.total;
+		tau1TriggerEfficiencyForSignal = weightCounterForSignal.tau1Trigger/weightCounterForSignal.puCorrection;
+		tau2TriggerEfficiencyForSignal = weightCounterForSignal.tau2Trigger/weightCounterForSignal.tau1Trigger;
+		tauIdSysForSignal           = weightCounterForSignal.tauIdSys/weightCounterForSignal.tau1Trigger;//*/
 	}
 	if(weightCounterForSignal.total > 0){
 		hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
@@ -138,6 +141,7 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounterForQCD.puCorrection		= 0;
 	weightCounterForQCD.tau1Trigger			= 0;
 	weightCounterForQCD.tau2Trigger			= 0;
+	weightCounterForQCD.tauIdSys            = 0;
 	weightCounterForQCD.total				= 0;
 	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
 	double topPtSFEfficiencyForQCD		= 0;
@@ -145,6 +149,7 @@ void Plotter::MakePlots(Process* iProcess){
 	double puEfficiencyForQCD			= 0;
 	double tau1TriggerEfficiencyForQCD	= 0;
 	double tau2TriggerEfficiencyForQCD	= 0;
+	double tauIdSysForQCD               = 0;
 	if(IsFlagThere("LS")){
 		cout << "\t>>> LS, filling good events (total " << goodEventsForQCD.size() << "): "; cout.flush();
 		goodEventsSS.str("");
@@ -162,13 +167,14 @@ void Plotter::MakePlots(Process* iProcess){
 		}
 		cout << endl;
 
-		if(weightCounterForQCD.total > 0){
-			topPtSFEfficiencyForQCD	= weightCounterForQCD.topPtCorrection/weightCounterForQCD.total;
-			leptonSFEfficiencyForQCD	= weightCounterForQCD.leptonCorrection/weightCounterForQCD.total;
-			puEfficiencyForQCD			= weightCounterForQCD.puCorrection/weightCounterForQCD.total;
-			tau1TriggerEfficiencyForQCD	= weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
-			tau2TriggerEfficiencyForQCD	= weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
-		}
+        if(weightCounterForQCD.total > 0){
+          topPtSFEfficiencyForQCD     = weightCounterForQCD.topPtCorrection/weightCounterForQCD.total;
+          leptonSFEfficiencyForQCD    = weightCounterForQCD.leptonCorrection/weightCounterForQCD.total;
+          puEfficiencyForQCD          = weightCounterForQCD.puCorrection/weightCounterForQCD.total;
+          tau1TriggerEfficiencyForQCD = weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
+          tau2TriggerEfficiencyForQCD = weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;//*/
+          tauIdSysForQCD              = weightCounterForQCD.tauIdSys/weightCounterForQCD.tau1Trigger;//*/
+        }
 		if(weightCounterForQCD.total > 0){
 			hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
 		}
@@ -183,6 +189,12 @@ void Plotter::MakePlots(Process* iProcess){
 		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau1TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 		cutFlow->RegisterCut("SL trigger", 2, tau2TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau2TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
 	}
+	if(IsFlagThere("eTauFakeUp")){ cutFlow->RegisterCut("e->tau fake sys up", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("jetTauFakeUp")){ cutFlow->RegisterCut("jet->tau fake sys up", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("tauIdEffUp")){ cutFlow->RegisterCut("tau ID eff. sys up", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("eTauFakeDown")){ cutFlow->RegisterCut("e->tau fake sys down", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("jetTauFakeDown")){ cutFlow->RegisterCut("jet->tau fake sys down", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("tauIdEffDown")){ cutFlow->RegisterCut("tau ID eff. sys down", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
 
 	delete event; event = NULL;
 

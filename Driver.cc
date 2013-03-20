@@ -71,6 +71,9 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "MVAsignal");
 	SetParam(theConfig, "signalToOptimize");
 	SetParam(theConfig, "backgroundToOptimize");
+	SetParam(theConfig, "eTauFakeSys");
+	SetParam(theConfig, "jetTauFakeSys");
+	SetParam(theConfig, "tauIdEffSys");
 	SetParam(theConfig, "comboSelectorProcess");
 	SetParam(theConfig, "selectComboBy");
 

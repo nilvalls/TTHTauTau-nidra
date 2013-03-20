@@ -36,6 +36,7 @@ struct weightCounter{
 	double puCorrection;
 	double tau1Trigger;
 	double tau2Trigger;
+    double tauIdSys;
 	double total;
 };
 
