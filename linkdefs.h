@@ -17,6 +17,7 @@
 #pragma link C++ class PContainer+;
 #pragma link C++ class std::map<std::string, HWrapper>+;
 #pragma link C++ class CutFlow+;
+#pragma link C++ class CutFlow::Cut+;
 #pragma link C++ class Process+;
 #pragma link C++ class ProPack+;
 

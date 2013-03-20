@@ -93,33 +93,35 @@ void HContainer::AddRelErrorInQuadrature(double const iError){
 }
 
 void HContainer::ApplyRosls(double const iValue, CutFlow const * iCutFlow){
-	bool chargeProductApplied = (iCutFlow->GetCutPosition("TT_ChargeProduct") >= 0);
-	bool osRequested = false;
-	if(chargeProductApplied){ osRequested = (iCutFlow->GetMaxThresholds().find("TT_ChargeProduct")->second == -1.0); }
+    cerr << "FIXME" << endl; // TODO Fix this later
+    exit(1);
+    // bool chargeProductApplied = (iCutFlow->GetCutPosition("TT_ChargeProduct") >= 0);
+    // bool osRequested = false;
+    // if(chargeProductApplied){ osRequested = (iCutFlow->GetMaxThresholds().find("TT_ChargeProduct")->second == -1.0); }
 
-	for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){
-		if(ite->first.compare("ChargeProduct_TT") == 0){
-			TH1F* histo = (TH1F*)ite->second.GetHisto();
-			int osBin, lsBin;
-			for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
-				if(histo->GetBinLowEdge(b) == -1){ osBin = b; }	
-				else if(histo->GetBinLowEdge(b) == 1){ lsBin = b; }	
-			}
+    // for(map<string, HWrapper>::iterator ite = container.begin(); ite != container.end(); ite++){
+        // if(ite->first.compare("ChargeProduct_TT") == 0){
+            // TH1F* histo = (TH1F*)ite->second.GetHisto();
+            // int osBin, lsBin;
+            // for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
+                // if(histo->GetBinLowEdge(b) == -1){ osBin = b; }	
+                // else if(histo->GetBinLowEdge(b) == 1){ lsBin = b; }	
+            // }
 
-			if(!chargeProductApplied){ // Copy LS to OS and scale OS by Rosls 
-				histo->SetBinContent(osBin, iValue*histo->GetBinContent(lsBin));
-				histo->SetBinError(osBin, iValue*histo->GetBinError(lsBin));
-			}else if(osRequested){ // Move LS to OS and scale it by Rosls
-				histo->SetBinContent(osBin, iValue*histo->GetBinContent(lsBin));
-				histo->SetBinError(osBin, iValue*histo->GetBinError(lsBin));
-				histo->SetBinContent(lsBin,0);
-				histo->SetBinError(lsBin,0);
-			}
-		}else{ // For all other plots...
-			if(!chargeProductApplied){  ite->second.ScaleBy(1+iValue); } // Scale by 1+Rosls
-			else if(osRequested){ ite->second.ScaleBy(iValue); } // Scale by Rosls
-		}
-	}
+            // if(!chargeProductApplied){ // Copy LS to OS and scale OS by Rosls 
+                // histo->SetBinContent(osBin, iValue*histo->GetBinContent(lsBin));
+                // histo->SetBinError(osBin, iValue*histo->GetBinError(lsBin));
+            // }else if(osRequested){ // Move LS to OS and scale it by Rosls
+                // histo->SetBinContent(osBin, iValue*histo->GetBinContent(lsBin));
+                // histo->SetBinError(osBin, iValue*histo->GetBinError(lsBin));
+                // histo->SetBinContent(lsBin,0);
+                // histo->SetBinError(lsBin,0);
+            // }
+        // }else{ // For all other plots...
+            // if(!chargeProductApplied){  ite->second.ScaleBy(1+iValue); } // Scale by 1+Rosls
+            // else if(osRequested){ ite->second.ScaleBy(iValue); } // Scale by Rosls
+        // }
+    // }
 }
 
 void HContainer::Add(HContainer const & iContainer, double const iFactor){

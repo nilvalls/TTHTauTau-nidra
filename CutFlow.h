@@ -21,19 +21,6 @@ using namespace std;
 
 class CutFlow {
 	private:
-		vector<string>		cutNames;
-		map<string, int>	cutNamesMap;
-		map<string, int>	cutRanks;
-		map<string, float>	minThresholds;
-		map<string, float>	maxThresholds;
-
-		map<string, bool>	thisCombosResultsForSignal;
-		map<string, bool>	thisCombosResultsForQCD;
-		map<string, float>	passedCombosForSignal;
-		map<string, float>	passedCombosForQCD;
-		map<string, float>	passedEventsForSignal;
-		map<string, float>	passedEventsForQCD;
-
 		string cutsToApply;
 
 		bool eventForSignalPassed;
@@ -52,23 +39,37 @@ class CutFlow {
 
 //*/
 	public :
+        struct Cut {
+            string name;
+            int rank;
+            float min;
+            float max;
+            bool currentSignalResult;
+            bool currentQCDResult;
+            float passedSignalCombos;
+            float passedQCDCombos;
+            float passedSignalEvents;
+            float passedQCDEvents;
+
+            Cut(const string n="", const int r=0, const float mn=0., const float=0., const double sig=0., const double qcd=0.);
+
+            ClassDef(CutFlow::Cut, 1);
+        };
+
+        inline vector<CutFlow::Cut> GetCuts() const { return cuts; };
+
 		// Default constructor
 		CutFlow();
 		CutFlow(CutFlow const &);
 		CutFlow(string);
 		virtual ~CutFlow();
 
-		void PrintTable();
-
 		void Reset();
-		void Zero();
 		int const size() const;
 		void InvertSignalAndQCD();
 
-		void RegisterCut(string const, int const);
-		void RegisterCut(string const, int const, double const, double const);
+		void RegisterCut(string const, int const, double const sig=0., double const qcd=0.);
 		void RegisterCutFromLast(string const, int const, double const, double const);
-		void UpdateCutNamesMap();
 		void SetCutCounts(string const, double const, double const);
 
 		bool CheckComboAndStop(string const, float const, pair<bool,bool>, bool iBypassQCD=false);
@@ -86,14 +87,8 @@ class CutFlow {
 		int GetBestComboForSignal();
 		int GetBestComboForQCD();
 
-		vector<string> const		GetCutNames() const;
-		map<string, int> const		GetCutRanks() const;
 		int const					GetCutRank(string const) const;
 		int const					GetCutPosition(string const) const;
-		map<string, float> const	GetMinThresholds() const;
-		map<string, float> const	GetMaxThresholds() const;
-		map<string, float> const	GetPassedEventsForSignal() const;
-		map<string, float> const	GetPassedEventsForQCD() const;
 		float const					GetPassedEventsForSignal(string const) const;
 		float const					GetPassedEventsForQCD(string const) const;
 		float const					GetRelEffForSignal(string const) const;
@@ -107,9 +102,14 @@ class CutFlow {
 		void						Add(CutFlow const &, float const iFactor=1.0);
 		void						BuildNormalizedCutFlow(CutFlow const *);
 		void						ApplyRosls(double const);
+        void Zero();
 
 
 		pair<float,float> ExtractCutThresholds(string);
+    private:
+        vector<CutFlow::Cut> cuts;
+        map<string ,int> name2idx;
+
 		ClassDef(CutFlow, 1);
 		
 };

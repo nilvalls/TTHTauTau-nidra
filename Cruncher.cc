@@ -129,11 +129,11 @@ void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions, bo
     }
     contents << subheader_end << endl;
     vector<string>::const_iterator c;
-    vector<string> cuts = processes.at(0)->GetCutFlow()->GetCutNames();
+    vector<CutFlow::Cut> cuts = processes.at(0)->GetCutFlow()->GetCuts();
     if (iOptions.find("n") != string::npos)
-        cuts = processes.at(0)->GetNormalizedCutFlow()->GetCutNames();
-    for (c = cuts.begin(); c != cuts.end(); ++c) {
-        contents << line_start << *c;
+        cuts = processes.at(0)->GetNormalizedCutFlow()->GetCuts();
+    for (const auto& c: cuts) {
+        contents << line_start << c.name;
         for (p = processes.begin(); p != processes.end(); ++p) {
             if (!(*p)->Plot())
                 continue;
@@ -142,13 +142,13 @@ void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions, bo
                 cutflow = (*p)->GetNormalizedCutFlow();
             if (iOptions.find("e") != string::npos)
                 contents << line_middle << line_middle_e <<
-                    (qcd ? cutflow->GetPassedEventsForQCD(*c) : cutflow->GetPassedEventsForSignal(*c));
+                    (qcd ? cutflow->GetPassedEventsForQCD(c.name) : cutflow->GetPassedEventsForSignal(c.name));
             if (iOptions.find("r") != string::npos)
                 contents << line_middle << line_middle_r << 100 * 
-                    (qcd ? cutflow->GetRelEffForQCD(*c) : cutflow->GetRelEffForSignal(*c));
+                    (qcd ? cutflow->GetRelEffForQCD(c.name) : cutflow->GetRelEffForSignal(c.name));
             if (iOptions.find("c") != string::npos)
                 contents << line_middle << line_middle_c << 100 * 
-                    (qcd ? cutflow->GetCumEffForQCD(*c) : cutflow->GetCumEffForSignal(*c));
+                    (qcd ? cutflow->GetCumEffForQCD(c.name) : cutflow->GetCumEffForSignal(c.name));
         }
         contents << line_end << endl;
     }
