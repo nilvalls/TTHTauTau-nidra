@@ -6,6 +6,8 @@
 
 */
 
+#include <fstream>
+
 #include "TLorentzVector.h"
 #include "TMVA/Config.h"
 
@@ -75,6 +77,10 @@ void TTL_TMVAEvaluator::BookMVA() {
 void TTL_TMVAEvaluator::TrainMVA() {
     TMVA::gConfig().GetIONames().fWeightFileDir = params["MVAdir"];
 
+    ofstream tmp_out(params["MVAlogfile"]);
+    streambuf* old_buf = cout.rdbuf();
+    cout.rdbuf(tmp_out.rdbuf());
+
     TFile outfile(params["MVAoutput"].c_str(), "RECREATE");
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
             "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
@@ -109,8 +115,8 @@ void TTL_TMVAEvaluator::TrainMVA() {
             // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator");
     // factory->BookMethod(TMVA::Types::kMLP, "MLPBFGS",
             // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator");
-    factory->BookMethod(TMVA::Types::kMLP, "MLPBNN",
-            "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator"); // BFGS training with bayesian regulators
+    // factory->BookMethod(TMVA::Types::kMLP, "MLPBNN",
+            // "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:UseRegulator"); // BFGS training with bayesian regulators
     factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
             "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
     // factory->BookMethod(TMVA::Types::kTMlpANN, "TMlpANN",
@@ -123,6 +129,8 @@ void TTL_TMVAEvaluator::TrainMVA() {
     factory->EvaluateAllMethods();
 
     delete factory;
+
+    cout.rdbuf(old_buf);
 }
 
 // Evaluate each event
