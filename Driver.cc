@@ -88,12 +88,13 @@ void ReadConfig(string iPath){
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 
     if (params["MVAdir"].length() == 0) {
-        params["MVAdir"] = params["bigDir"] + "/tmva";
+        params["MVAdir"] = params["bigDir"] + "/tmva/";
     }
     ReMakeDir(params["MVAdir"]);
     params["MVAweights"] = params["MVAdir"] + "/TMVAClassification_" + params["MVAmethod"] + ".weights.xml";
     params["MVAoutput"] = params["MVAdir"] + "/tmva.root";
     params["MVAinput"] = params["MVAdir"] + "/sample.root";
+    params["MVAlogfile"] = params["MVAdir"] + "/tmva.log";
 
 	SetParam("comboSelector_dir",string(GetParam("bigDir")+"/comboSelector"));
 	SetParam("comboSelectorMVAweights",string(GetParam("comboSelector_dir") + "/TMVAClassification_" + GetParam("comboSelectorMVAmethod") + ".weights.xml"));
@@ -395,7 +396,6 @@ void BuildProPack(string iPath){
     }
 
     string analyze_param = GetParam("analyze");
-    cout << analyze_param << endl;
     bool analyze_all = analyze_param == "All";
     vector<string> to_analyze = Helper::SplitString(analyze_param);
 
