@@ -15,7 +15,7 @@ class TTL_TMVAEvaluator {
 		TTL_TMVAEvaluator(map<string,string> const &);
 		virtual ~TTL_TMVAEvaluator();
 
-		float Evaluate(TTLBranches const *, int);
+		float Evaluate(TTLBranches *, int);
         virtual void BookMVA();
         virtual void TrainMVA();
 
@@ -27,6 +27,7 @@ class TTL_TMVAEvaluator {
         TFile *outfile;
 		TMVA::Reader* tmvaReader;
 
+        float csr;
         float HT;
         float Tau1Pt;
         float Tau1Eta;

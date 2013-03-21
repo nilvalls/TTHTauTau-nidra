@@ -1,17 +1,26 @@
-#define TTLBranches_cxx
+#include <fstream>
+
+#include "ComboSelector.h"
+#include "GenHelper.h"
+
 #include "Branches.h"
 
 using namespace std;
 
-#define AT __LINE__
-
 // Default constructor
-TTLBranches::TTLBranches() : Branches(){}
+TTLBranches::TTLBranches() : Branches(), comboSelector(0), conesize(.25), jetIndexCacheCombo(-1) {}
 
 TTLBranches::TTLBranches(
       map<string,string> const & iParams,
-      vector<string> const & iPath) {
+      vector<string> const & iPath) : comboSelector(0), conesize(.25), jetIndexCacheCombo(-1) {
    SetUp(iParams, iPath);
+
+   ifstream comboWeights(params.find("comboSelectorMVAweights")->second.c_str());
+   if (comboWeights.good()) {
+       comboSelector = new TTL_ComboSelector(iParams);
+       comboSelector->BookMVA();
+   }
+   comboWeights.close();
 }
 
 // Default destructor
@@ -24,6 +33,8 @@ TTLBranches::~TTLBranches(){
 	Delete();
 	Null();
 
+    if (comboSelector)
+        delete comboSelector;
 }
 
 void TTLBranches::Null(){
@@ -40,6 +51,13 @@ void TTLBranches::Clear(){
 
 void TTLBranches::SetBranchAddresses(){
 	#include "Branches_setBranchAddress.h"
+}
+
+void
+TTLBranches::GetEntry(double i)
+{
+    fChain->GetEntry(i);
+    jetIndexCacheCombo = -1;
 }
 
 
@@ -111,3 +129,29 @@ unsigned int TTLBranches::GetTau2MatchIndex(const unsigned int iCombo) const {
 	return 1; // hadronic
 }
 
+float
+TTLBranches::GetComboSelectorResponse(const unsigned int idx) const
+{
+    if (comboSelector)
+        return comboSelector->Evaluate(this, idx);
+    else
+        throw "No combo selection MVA defined!"; // TODO add exception class
+}
+
+unsigned int
+TTLBranches::GetJetIndex(const unsigned int idx, const unsigned int num)
+{
+    if (idx != jetIndexCacheCombo) {
+        jetIndexCache.clear();
+        for (unsigned int i = 0, c = 0; i < J_Pt->size(); i++) {
+            if ((DeltaR(J_Eta->at(i), J_Phi->at(i), TTL_Tau1Eta->at(idx), TTL_Tau1Phi->at(idx)) > conesize) &&
+                    (DeltaR(J_Eta->at(i), J_Phi->at(i), TTL_Tau2Eta->at(idx), TTL_Tau2Phi->at(idx)) > conesize) &&
+                    (DeltaR(J_Eta->at(i), J_Phi->at(i), TTL_LeptonEta->at(idx), TTL_LeptonPhi->at(idx)) > conesize)) {
+                jetIndexCache.push_back(i);
+                ++c;
+            }
+        }
+        jetIndexCacheCombo = idx;
+    }
+    return jetIndexCache[num];
+}

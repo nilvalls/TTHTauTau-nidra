@@ -87,8 +87,10 @@ void ReadConfig(string iPath){
 	// Set some additional internal parameters
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 
-    if (params.find("MVAdir") == params.end())
+    if (params["MVAdir"].length() == 0) {
         params["MVAdir"] = params["bigDir"] + "/tmva";
+    }
+    ReMakeDir(params["MVAdir"]);
     params["MVAweights"] = params["MVAdir"] + "/TMVAClassification_" + params["MVAmethod"] + ".weights.xml";
     params["MVAoutput"] = params["MVAdir"] + "/tmva.root";
     params["MVAinput"] = params["MVAdir"] + "/sample.root";

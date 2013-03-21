@@ -40,6 +40,7 @@ TTL_TMVAEvaluator::TTL_TMVAEvaluator(map<string,string>const & iParams) : params
 
 template<typename T> void TTL_TMVAEvaluator::SetupVariables(T* obj){
 
+    AddVariable(obj, "CSR", 'F', csr);
     // AddVariable(obj, "HT", 'F', HT);
     AddVariable(obj, "Tau1Pt", 'F', Tau1Pt);
     AddVariable(obj, "Tau1Eta", 'F', Tau1Eta);
@@ -72,7 +73,7 @@ void TTL_TMVAEvaluator::BookMVA() {
 }
 
 void TTL_TMVAEvaluator::TrainMVA() {
-    TMVA::gConfig().GetIONames().fWeightFileDir = params["MVAoutput"];
+    TMVA::gConfig().GetIONames().fWeightFileDir = params["MVAdir"];
 
     TFile outfile(params["MVAoutput"].c_str(), "RECREATE");
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
@@ -125,10 +126,15 @@ void TTL_TMVAEvaluator::TrainMVA() {
 }
 
 // Evaluate each event
-float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
+float TTL_TMVAEvaluator::Evaluate(TTLBranches * iEvent, int iCombo){
 
 	if (iCombo < 0){ cerr << "ERROR: 'iCombo' is " << iCombo << "." << endl; exit(1); }
 
+    try {
+        csr = iEvent->GetComboSelectorResponse(iCombo);
+    } catch (...) {
+        csr = 0.;
+    }
     HT = iEvent->TTL_HT->at(iCombo);
     Tau1Pt = iEvent->TTL_Tau1Pt->at(iCombo);
     Tau1Eta = iEvent->TTL_Tau1Eta->at(iCombo);
@@ -143,29 +149,8 @@ float TTL_TMVAEvaluator::Evaluate(TTLBranches const * iEvent, int iCombo){
     Tau2NProngs = iEvent->TTL_Tau2NProngs->at(iCombo);
     DitauVisibleMass = iEvent->TTL_DitauVisibleMass->at(iCombo);
 
-    float conesize = 0.25;
-    LeadingJetPt = 0.;
-    SubLeadingJetPt = 0.;
-    for (unsigned int i = 0, c = 0; c < 2 and i < iEvent->J_Pt->size(); i++) {
-        if ((DeltaR(iEvent->J_Eta->at(i),
-                        iEvent->J_Phi->at(i),
-                        iEvent->TTL_Tau1Eta->at(iCombo),
-                        iEvent->TTL_Tau1Phi->at(iCombo)) > conesize) &&
-                (DeltaR(iEvent->J_Eta->at(i),
-                        iEvent->J_Phi->at(i),
-                        iEvent->TTL_Tau2Eta->at(iCombo),
-                        iEvent->TTL_Tau2Phi->at(iCombo)) > conesize) &&
-                (DeltaR(iEvent->J_Eta->at(i),
-                        iEvent->J_Phi->at(i),
-                        iEvent->TTL_LeptonEta->at(iCombo),
-                        iEvent->TTL_LeptonPhi->at(iCombo)) > conesize)) {
-            if (c == 0)
-                LeadingJetPt = iEvent->J_Pt->at(i);
-            else if (c == 1)
-                SubLeadingJetPt = iEvent->J_Pt->at(i);
-            ++c;
-        }
-    }
+    LeadingJetPt = iEvent->J_Pt->at(iEvent->GetJetIndex(iCombo, 0));
+    SubLeadingJetPt = iEvent->J_Pt->at(iEvent->GetJetIndex(iCombo, 1));
 
     float tau1eta	= iEvent->TTL_Tau1Eta->at(iCombo);
     float tau1phi	= iEvent->TTL_Tau1Phi->at(iCombo);

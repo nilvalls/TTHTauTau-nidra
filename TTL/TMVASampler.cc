@@ -24,6 +24,7 @@ TTL_TMVASampler::~TTL_TMVASampler(){}
 void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 
 	// Define variables going into the trees
+    float csr = 0.;
 	float HT;
 	float Tau1Pt;
     float Tau1Eta;
@@ -51,10 +52,11 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
     float SubLeadingJetPt;
 
 	// Define branches
-	iTree->Branch("HT", &HT);
-	iTree->Branch("Tau1Pt", &Tau1Pt);
-	iTree->Branch("Tau1Eta", &Tau1Eta);
-	iTree->Branch("Tau2Pt", &Tau2Pt);
+    iTree->Branch("CSR", &csr);
+    iTree->Branch("HT", &HT);
+    iTree->Branch("Tau1Pt", &Tau1Pt);
+    iTree->Branch("Tau1Eta", &Tau1Eta);
+    iTree->Branch("Tau2Pt", &Tau2Pt);
     iTree->Branch("Tau1DecayMode", &Tau1DecayMode);
     iTree->Branch("Tau2DecayMode", &Tau2DecayMode);
     iTree->Branch("Tau1IsolationIndex", &Tau1IsolationIndex);
@@ -101,10 +103,15 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 		unsigned int bestCombo = event->GetBestCombo();
 
 		// Assign values
-		HT = event->TTL_HT->at(bestCombo);
-		Tau1Pt = event->TTL_Tau1Pt->at(bestCombo);
+        try {
+            csr = event->GetComboSelectorResponse(bestCombo);
+        } catch (...) {
+            csr = 0.;
+        }
+        HT = event->TTL_HT->at(bestCombo);
+        Tau1Pt = event->TTL_Tau1Pt->at(bestCombo);
         Tau1Eta = event->TTL_Tau1Eta->at(bestCombo);
-		Tau2Pt = event->TTL_Tau2Pt->at(bestCombo);
+        Tau2Pt = event->TTL_Tau2Pt->at(bestCombo);
         Tau1DecayMode = event->TTL_Tau1DecayMode->at(bestCombo);
         Tau2DecayMode = event->TTL_Tau2DecayMode->at(bestCombo);
         Tau1IsolationIndex = event->GetTau1IsolationIndex(bestCombo);
@@ -115,29 +122,8 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
         Tau2NProngs = event->TTL_Tau2NProngs->at(bestCombo);
         DitauVisibleMass = event->TTL_DitauVisibleMass->at(bestCombo);
 
-        float conesize = 0.25;
-        LeadingJetPt = 0.;
-        SubLeadingJetPt = 0.;
-        for (unsigned int i = 0, c = 0; c < 2 and i < event->J_Pt->size(); i++) {
-            if ((DeltaR(event->J_Eta->at(i),
-                            event->J_Phi->at(i),
-                            event->TTL_Tau1Eta->at(bestCombo),
-                            event->TTL_Tau1Phi->at(bestCombo)) > conesize) &&
-                    (DeltaR(event->J_Eta->at(i),
-                            event->J_Phi->at(i),
-                            event->TTL_Tau2Eta->at(bestCombo),
-                            event->TTL_Tau2Phi->at(bestCombo)) > conesize) &&
-                    (DeltaR(event->J_Eta->at(i),
-                            event->J_Phi->at(i),
-                            event->TTL_LeptonEta->at(bestCombo),
-                            event->TTL_LeptonPhi->at(bestCombo)) > conesize)) {
-                if (c == 0)
-                    LeadingJetPt = event->J_Pt->at(i);
-                else if (c == 1)
-                    SubLeadingJetPt = event->J_Pt->at(i);
-                ++c;
-            }
-        }
+        LeadingJetPt = event->J_Pt->at(event->GetJetIndex(bestCombo, 0));
+        SubLeadingJetPt = event->J_Pt->at(event->GetJetIndex(bestCombo, 1));
 
 		float tau1eta	= event->TTL_Tau1Eta->at(bestCombo);
 		float tau1phi	= event->TTL_Tau1Phi->at(bestCombo);
