@@ -25,7 +25,7 @@ class TTLBranches : public Branches {
 		TTLBranches(map<string,string> const &, vector<string> const &);
 		~TTLBranches();
 
-        void GetEntry(double);
+        virtual void GetEntry(double);
 
         // Get index (excluding taus) of jet in J_ branches (which include taus)
         unsigned int GetJetIndex(const unsigned int, const unsigned int);

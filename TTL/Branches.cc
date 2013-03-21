@@ -143,12 +143,11 @@ TTLBranches::GetJetIndex(const unsigned int idx, const unsigned int num)
 {
     if (idx != jetIndexCacheCombo) {
         jetIndexCache.clear();
-        for (unsigned int i = 0, c = 0; i < J_Pt->size(); i++) {
+        for (unsigned int i = 0; i < J_Pt->size(); i++) {
             if ((DeltaR(J_Eta->at(i), J_Phi->at(i), TTL_Tau1Eta->at(idx), TTL_Tau1Phi->at(idx)) > conesize) &&
                     (DeltaR(J_Eta->at(i), J_Phi->at(i), TTL_Tau2Eta->at(idx), TTL_Tau2Phi->at(idx)) > conesize) &&
                     (DeltaR(J_Eta->at(i), J_Phi->at(i), TTL_LeptonEta->at(idx), TTL_LeptonPhi->at(idx)) > conesize)) {
                 jetIndexCache.push_back(i);
-                ++c;
             }
         }
         jetIndexCacheCombo = idx;

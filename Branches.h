@@ -48,7 +48,7 @@ class Branches {
 
 	public:
 		void	Init();
-		void	GetEntry(double);
+		virtual void	GetEntry(double);
 		Long64_t GetEntries();
 
 	public:
