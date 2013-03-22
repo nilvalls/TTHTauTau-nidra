@@ -36,7 +36,8 @@ TTL_TMVAEvaluator::TTL_TMVAEvaluator(){
 
 TTL_TMVAEvaluator::TTL_TMVAEvaluator(map<string,string>const & iParams) : params(iParams){
 	mvaBooked = false;
-    tmvaReader = new TMVA::Reader( "!Color:!Silent" );
+    //tmvaReader = new TMVA::Reader( "!Color:!Silent" );
+    tmvaReader = new TMVA::Reader( "!Color:Silent:!V" );
     SetupVariables(tmvaReader);
 }
 
@@ -83,7 +84,8 @@ void TTL_TMVAEvaluator::TrainMVA() {
 
     TFile outfile(params["MVAoutput"].c_str(), "RECREATE");
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
-            "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
+            "!V:Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
+            //"!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
     SetupVariables(factory);
 

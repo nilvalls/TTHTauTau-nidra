@@ -6,11 +6,16 @@
 	double Ev_numInteractionsBXp1;
 	double Ev_numPrimaryVertices;
 	double Ev_puWeight;
+	double Ev_puWeightUp;
+	double Ev_puWeightDown;
 	double Ev_topPtWeight;
 	double Ev_topPtWeightUp;
 	double Ev_topPtWeightDown;
+	double Ev_q2WeightUp;
+	double Ev_q2WeightDown;
 	double Ev_MET;
 	double Ev_METphi;
+	bool Ev_IsTauEvent;
 	int GT_NumGenTaus;
 	vector<float>* GT_MomentumRank;
 	vector<float>* GT_Pt;

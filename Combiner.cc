@@ -46,14 +46,17 @@ void Combiner::Combine(ProPack * iProPack){
 	vector<string> backgrounds;
 
 	backgrounds.clear();
-	backgrounds.push_back("TTbar_hadronic");
-	backgrounds.push_back("TTbar_semilept");
-	backgrounds.push_back("TTbar_fulllept");
+	backgrounds.push_back("TTbar_Hadronic");
+	backgrounds.push_back("TTbar_SemiLept");
+	backgrounds.push_back("TTbar_Fulllept");
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", 870);	
 
 	backgrounds.clear();
-	backgrounds.push_back("ZjetsM10-50");
-	backgrounds.push_back("ZjetsM50");
+	backgrounds.push_back("ZplusJets_LowMass");
+	backgrounds.push_back("ZplusOneJet");
+	backgrounds.push_back("ZplusTwoJets");
+	backgrounds.push_back("ZplusThreeJets");
+	backgrounds.push_back("ZplusFourJets");
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Zjets", "Z + jets", "Z + jets", 5);	
 
 	backgrounds.clear();
@@ -63,12 +66,12 @@ void Combiner::Combine(ProPack * iProPack){
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"DiBoson", "DiBoson", "DiBoson", 3);	
 
 	backgrounds.clear();
-	backgrounds.push_back("sT-sCh");
-	backgrounds.push_back("sTW");
-	backgrounds.push_back("sT-tCh");
-	backgrounds.push_back("sTbarW");
-	backgrounds.push_back("sTbar-sCh");
-	backgrounds.push_back("sTbar-tCh");
+	backgrounds.push_back("singleTopSch");
+	backgrounds.push_back("singleTopBarSch");
+	backgrounds.push_back("singleTopTch");
+	backgrounds.push_back("singleTopBarTch");
+	backgrounds.push_back("singleTopPlusW");
+	backgrounds.push_back("singleTopBarPlusW");
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"SingleTop", "Single t/tbar", "single t/#bar{t}", 4);	
 
 	backgrounds.clear();

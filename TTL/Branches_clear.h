@@ -6,11 +6,16 @@
 	Ev_numInteractionsBXp1 = 0;
 	Ev_numPrimaryVertices = 0;
 	Ev_puWeight = 0;
+	Ev_puWeightUp = 0;
+	Ev_puWeightDown = 0;
 	Ev_topPtWeight = 0;
 	Ev_topPtWeightUp = 0;
 	Ev_topPtWeightDown = 0;
+	Ev_q2WeightUp = 0;
+	Ev_q2WeightDown = 0;
 	Ev_MET = 0;
 	Ev_METphi = 0;
+	Ev_IsTauEvent = 0;
 	GT_NumGenTaus = 0;
 	GT_MomentumRank->clear();
 	GT_Pt->clear();

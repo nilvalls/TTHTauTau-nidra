@@ -1,9 +1,7 @@
-float weightFull	= iLeptonWeight*iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight*iTauIdSysWeight;
-//float weightFull	= iLeptonWeight*iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight;
+float weightFull	= iLeptonWeight*iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight*iTauIdSysWeight*iQ2SysWeight*iTopPtWeight;
 float weightTrigger = iTau1TriggerWeight*iTau2TriggerWeight;
 float weightTau1	= iPuWeight*iTau1TriggerWeight;
 float weightTau2	= iPuWeight*iTau1TriggerWeight;
-//cout << "orig: " << setprecision(4) << iLeptonWeight*iPuWeight*iTau1TriggerWeight*iTau2TriggerWeight << "; tauID: " << setprecision(4) << iTauIdSysWeight << endl;
 
 // GenMatching =========================================================================================================================
 //hContainer->Fill("MatchedTo_T1", event->Tau1MatchedTo(iCombo) , weightFull);

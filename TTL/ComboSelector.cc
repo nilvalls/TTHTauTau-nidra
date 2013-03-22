@@ -28,7 +28,7 @@ TTL_ComboSelector::~TTL_ComboSelector(){}
 TTL_ComboSelector::TTL_ComboSelector(map<string,string>const & iParams){
 	params = iParams;
 	mvaBooked = false;
-    tmvaReader = new TMVA::Reader( "!Color:!Silent" );
+    tmvaReader = new TMVA::Reader( "!Color:Silent" );
     SetupVariables(tmvaReader);
 }
 
@@ -69,7 +69,7 @@ void TTL_ComboSelector::TrainMVA() {
     TMVA::gConfig().GetIONames().fWeightFileDir = params["comboSelector_dir"];
 
     TFile outfile(params["comboSelector_file"].c_str(), "RECREATE");
-    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile, "!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
+    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile, "!V:Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
     SetupVariables(factory);
 
