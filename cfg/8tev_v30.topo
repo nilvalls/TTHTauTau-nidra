@@ -360,7 +360,7 @@ topology_TTHTauTau_125 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1000000
-    NoEreadByNUTter  = %TTHTauTau_125%
+    NoEreadByNUTter  = 68671
 ]
 
 topology_TTHTauTau_125_real = [
@@ -375,5 +375,5 @@ topology_TTHTauTau_125_real = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1000000
-    NoEreadByNUTter  = %TTHTauTau_125%
+    NoEreadByNUTter  = 68671
 ]
