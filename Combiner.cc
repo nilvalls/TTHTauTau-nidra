@@ -48,7 +48,7 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.clear();
 	backgrounds.push_back("TTbar_Hadronic");
 	backgrounds.push_back("TTbar_SemiLept");
-	backgrounds.push_back("TTbar_Fulllept");
+	backgrounds.push_back("TTbar_FullLept");
 	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", 870);	
 
 	backgrounds.clear();
