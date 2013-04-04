@@ -60,6 +60,7 @@ using namespace std;
 	void			CrunchNumbers();
 	void			PreparePlots();
 	void			PlotStacks();
+	void			PlotStacksWithShapeSystematics();
 	void			PlotStamps();
 	void			Optimize();
 	void			Finalize();

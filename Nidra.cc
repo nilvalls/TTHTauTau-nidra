@@ -22,11 +22,12 @@ int main(int argc, char **argv){
 	bool prep_plots = false;
 	bool train = false;
 	bool stack = false;
+	bool stackWithSys = false;
 	bool stamp = false;
 	bool optim = false;
 
 	int opt;
-	while ((opt = getopt(argc, argv, "caAkmnopPtT")) != -1) {
+	while ((opt = getopt(argc, argv, "caAksmnopPtT")) != -1) {
 		switch (opt) {
 			case 'c':
 				train_comboSelectorSampler = true;
@@ -62,6 +63,9 @@ int main(int argc, char **argv){
 			case 'T':
 				train = true;
 				break;
+            case 's':
+                stackWithSys = true;
+                break;
 			default:
 				usage();
 				/* NOTREACHED */
@@ -111,6 +115,8 @@ int main(int argc, char **argv){
 
 	if (stack or all)
 		PlotStacks();
+    if (stackWithSys)
+        PlotStacksWithShapeSystematics();
 	if (stamp or all)
 		PlotStamps();
 	if (crunch or prep_plots or all)

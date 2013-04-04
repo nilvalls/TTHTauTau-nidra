@@ -30,7 +30,8 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.Combiner.o \
 		.Stacker.o .Stamper.o .Optimizer.o \
 		.Trigger.o .Cruncher.o \
-		.RootFileMaker.o .RawHistoSaver.o
+		.RootFileMaker.o .RawHistoSaver.o \
+		.TemplateContainer.o
 
 .%.o: %.cc %.h
 	$(CXX) -std=c++0x $(CXXFLAGS) -c $*.cc -o $@
@@ -40,7 +41,7 @@ all: .nidra.exe
 .nidra.exe: $(NOBJS) linkdefs.h 
 	$(LD) $(LDFLAGS) -o $@ $(GLIBS) $(NOBJS)
 
-.NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h Helper.h linkdefs.h
+.NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h Helper.h TemplateContainer.h linkdefs.h
 	rootcint -f $@ -c $(CXXFLAGS) -p $^
 
 libNidra.so: .NidraDict.cc 

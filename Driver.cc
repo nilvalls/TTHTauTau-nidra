@@ -77,6 +77,8 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "tauIdEffSys");
 	SetParam(theConfig, "comboSelectorProcess");
 	SetParam(theConfig, "selectComboBy");
+	SetParam(theConfig, "saveStackedHistos");
+	SetParam(theConfig, "systematicsFile");
 
 	// Print out some info about the output dirs, etc
 	cout << "\n\t"; PrintURL(GetParam("webDir"));
@@ -108,6 +110,7 @@ void ReadConfig(string iPath){
 	SetParam("config_output",string(GetParam("webDir")+"config/"));
 	SetParam("propack_name","HtoTauTau");
 	SetParam("rawHisto_file",string(GetParam("bigDir")+"nidra_rawHistos.root"));
+	SetParam("stackedHisto_file",string(GetParam("bigDir")+"nidra_stackedHistos.root"));
 
 }
 
@@ -206,7 +209,15 @@ void PlotStacks(){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Stacking plots...");
 	ReMakeDir(GetParam("stacks_output"));
-	Stacker stacker(params);
+	Stacker stacker(params, false);
+	Print(GREEN," done!");
+}
+
+void PlotStacksWithShapeSystematics(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Stacking plots with shape systematics...");
+	ReMakeDir(GetParam("stacks_output"));
+	Stacker stacker(params, true);
 	Print(GREEN," done!");
 }
 

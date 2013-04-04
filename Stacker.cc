@@ -7,6 +7,11 @@
 */
 
 #include "Stacker.h"
+#include "TGraphAsymmErrors.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TH1F.h"
+#include "HContainer.h"
 
 #define Stacker_cxx
 using namespace std;
@@ -15,7 +20,7 @@ using namespace std;
 
 // Default constructor
 //Stacker::Stacker(map<string,string> const & iParams) : Plotter(iParams){
-Stacker::Stacker(map<string,string> const & iParams) {
+Stacker::Stacker(map<string,string> const & iParams, bool includeShapeSystematics = false) {
 
     minY = 0.001;
 
@@ -24,16 +29,35 @@ Stacker::Stacker(map<string,string> const & iParams) {
 	bool badFile = gSystem->GetPathInfo((params["process_file"]).c_str(),id,size,flags,mt);
 	if(badFile){ cerr << "ERROR: trying to stack plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
 
-	file = new TFile((params["process_file"]).c_str(), "UPDATE");
-	file->cd();
+    file = new TFile((params["process_file"]).c_str(), "UPDATE");
+   
+    stacksFile = NULL;
+    if(params.at("saveStackedHistos").compare("true") == 0) {
+      std::cout << "opening stacked histo file " << params["stackedHisto_file"].c_str() << std::endl;
+      stacksFile = new TFile((params["stackedHisto_file"]).c_str(), "UPDATE");
+    }
+    file->cd();
 
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+
+    templateContainer = NULL;
+    if(includeShapeSystematics) templateContainer = new TemplateContainer(params);
 
 	MakePlots(proPack);
 }
 
 // Default destructor
-Stacker::~Stacker(){}
+Stacker::~Stacker(){
+    if(stacksFile!=NULL){
+        stacksFile->Close();
+        delete stacksFile; 
+        stacksFile = NULL;
+    }
+    if(templateContainer!=NULL and templateContainer!=0){
+        delete templateContainer;
+        templateContainer=NULL;
+    }
+}
 
 // Function to make the plots
 void Stacker::MakePlots(ProPack const * iProPack) {
@@ -102,7 +126,19 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
         }
 		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
-		
+	
+        // Get background and signal sums
+        HWrapper backgroundSum;
+        if(haveMCbackgrounds) 
+            backgroundSum = HWrapper(GetBackgroundSum(iProPack, plotName));
+        HContainer signalHistos;
+        if(haveSignals)
+            signalHistos = HContainer(iProPack->GetSignalsHWrappers(plotName));
+
+        // Add errors from shape systematics, if requested
+        if(templateContainer != NULL) 
+            AddShapeSystematicErrors(backgroundSum,plotName);
+
         // If we have backgrounds, make the stack and plot them first
 		THStack* stack = NULL;
 		if(haveQCD || haveMCbackgrounds){ stack = GetBackgroundStack(iProPack, plotName, maxY); } 
@@ -113,7 +149,6 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 		// Draw stack if we have backgrounds
 		if((stack != NULL) ){
-			HWrapper backgroundSum = HWrapper(GetBackgroundSum(iProPack, plotName));
 			if(backgroundSum.GetHisto()->Integral()>0){
 				stack->Draw("HISTsame"); 
 				// Draw background errors if we want them
@@ -125,11 +160,8 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 			}
 		}
 
-		//TFile* file = new TFile("./test.root","RECREATE");
-		//file->cd();
 		// Then, if we have signals, plot them next
 		if(haveSignals){
-			HContainer signalHistos = iProPack->GetSignalsHWrappers(plotName);
 			for(unsigned int s = 0; s < signalHistos.size(); s++){
 				if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
 				string name = signalHistos.GetNames().at(s);
@@ -139,7 +171,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 
 				// If we want the signals on top of the stack, add the background sum
-				if(stackSignals){ toDraw->Add(GetBackgroundSum(iProPack, plotName)); }
+				if(stackSignals){ toDraw->Add(backgroundSum); }
 
 				// Draw signal curves
 				if(toDraw->GetHisto()->Integral()>0){
@@ -147,11 +179,8 @@ void Stacker::MakePlots(ProPack const * iProPack) {
                 }
 				TH1F* histo = new TH1F(*(TH1F*)(toDraw->GetHisto()));
 				histo->GetXaxis()->SetRangeUser(0,2000);
-				//histo->Write();
 			}
 		}
-		//file->Close();
-
 		
 		// Finally plot the collisions if we have them
 		if(haveCollisions){ 
@@ -176,14 +205,9 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             canvas->cd(2);  
 
             // Get variable range (can be tricky when visible ranges are specified)
-            HWrapper backgroundSum = HWrapper(GetBackgroundSum(iProPack, plotName));
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
-            float xMinBin = backgroundSum.GetHisto()->GetXaxis()->GetBinLowEdge(backgroundSum.GetHisto()->GetXaxis()->FindFixBin(backgroundSum.GetMinXVis()));
-            float xMaxBin = backgroundSum.GetHisto()->GetXaxis()->GetBinUpEdge(backgroundSum.GetHisto()->GetXaxis()->FindFixBin(backgroundSum.GetMaxXVis()));
             float xMin = backgroundSum.GetMinXVis();
             float xMax = backgroundSum.GetMaxXVis();
-            //cout << "requested visible range: " << backgroundSum.GetMinXVis() << "-" << backgroundSum.GetMaxXVis() << endl;
-            //cout << "visible range including bin width: " << xMinBin << "-" << xMaxBin << endl;
 
             // Get data/MC ratio
             TH1F* hData = (TH1F*)collisionsHisto.GetHisto();
@@ -194,12 +218,9 @@ void Stacker::MakePlots(ProPack const * iProPack) {
                     hData->GetBinContent(iBin)/hBackground->GetBinContent(iBin) : 0;
                 hRatio->SetBinContent(iBin,value);
             }
-            //hRatio->GetXaxis()->SetRangeUser(xMin,xMax-smallNumber);
             hRatio->GetXaxis()->SetRangeUser(xMin,xMax);
 
             // Fix sizes and locations
-            //hRatio->SetMarkerSize(4);
-            //hRatio->SetMarkerColor(3);
             hRatio->GetYaxis()->SetTitle("Data/MC");
             hRatio->GetYaxis()->CenterTitle();
             hRatio->GetYaxis()->SetTitleSize(0.15);
@@ -212,20 +233,23 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             hRatio->GetYaxis()->SetRangeUser(minY,ratioPlotMax);
             hRatio->Draw("AXIS");
             
-            // Plot errors due to background uncertainty
+            // Plot errors due to MC background uncertainty
             TH1F* hBgErrors = (TH1F*)hRatio->Clone();
             for( int iBin = 1; iBin <= hBgErrors->GetXaxis()->GetNbins(); iBin++) {
                 hBgErrors->SetBinContent(iBin,1);
-                float error = (backgroundSum.GetHisto()->GetBinContent(iBin) < 0.001) ? 
-                    0 : backgroundSum.GetHisto()->GetBinError(iBin)/backgroundSum.GetHisto()->GetBinContent(iBin);
+                // use relative errors!
+                float error = (hBackground->GetBinContent(iBin) < 0.001) ? 
+                    0 : hBackground->GetBinError(iBin)/hBackground->GetBinContent(iBin);
                 hBgErrors->SetBinError(iBin,error);
             }
             hBgErrors->GetXaxis()->SetRangeUser(xMin,xMax);
             hBgErrors->SetMarkerSize(0);
             hBgErrors->SetFillColor(29);
+            
+            // Draw MC uncertainty first, so it sits behind the data/MC ratio points
             hBgErrors->Draw("same E2");
             
-            // Get asymetric errors for ratio
+            // Get asymetric errors for data/MC ratio
             TGraphAsymmErrors * ratioErr = new TGraphAsymmErrors(backgroundSum.GetHisto());
             for( int iBin = 0; iBin < ratioErr->GetN(); iBin++ ) {
                 float xRatioValue = hRatio->GetBinCenter(iBin+1);
@@ -246,7 +270,11 @@ void Stacker::MakePlots(ProPack const * iProPack) {
                     ratioErr->SetPoint(iBin,xRatioValue,999);
                 }
             }
+            ratioErr->SetMarkerSize(1.);
+            ratioErr->SetMarkerStyle(8);
+            // Draw the ratio points + errors on top of the background MC uncertainty
             ratioErr->Draw("P SAME Z");
+            // Draw a good axis
             hRatio->Draw("AXIS SAME");
             
             // Make line at 1
@@ -261,6 +289,13 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		// Do we want a log version?
 		if(doRatioPlot) SaveCanvasLog(canvas, params["stacks_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ(),1);
         else SaveCanvasLog(canvas, params["stacks_output"]+subdir, plotName, baseHisto.GetLogX(), baseHisto.GetLogY(), baseHisto.GetLogZ(),0);
+
+        // Save TCanvas if requested
+        if(params.at("saveStackedHistos").compare("true") == 0) {
+          stacksFile->cd();
+          canvas->Write();
+          file->cd();
+        }
 
 		// Clean up canvas
 		delete canvas;
@@ -436,4 +471,13 @@ double const Stacker::GetMaximum(ProPack const * iProPack, string const iName, b
 	}
 	
 	return result;
+}
+
+void Stacker::AddShapeSystematicErrors(HWrapper& backgroundSum, string plotName ) {
+
+    for( int iBin = 0; iBin < backgroundSum.GetHisto()->GetNbinsX(); iBin++ ) {
+        float relativeError = 0;
+        relativeError = templateContainer->GetRelativeError(plotName,iBin,backgroundSum.GetHisto()->GetBinContent(iBin));
+        backgroundSum.AddRelErrorInQuadrature(relativeError,iBin);
+    }    
 }
