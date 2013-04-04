@@ -365,8 +365,8 @@ topology_TTHTauTau_125 = [
 
 topology_TTHTauTau_125_real = [
     sampleNumber     = 125
-    niceName         = ttHtautau(125)
-    labelForLegend   = t#bar{t}H(125)^{*} #rightarrow #tau_{h} #tau_{h}
+    niceName         = ttHtautau(125)*
+    labelForLegend   = t#bar{t}H(125)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
     checkReality     = true
     ntuplePath       = TTHTauTau_125
