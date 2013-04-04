@@ -13,10 +13,7 @@
 #include "TH1F.h"
 #include "HContainer.h"
 
-#define Stacker_cxx
 using namespace std;
-
-#define AT __LINE__
 
 // Default constructor
 //Stacker::Stacker(map<string,string> const & iParams) : Plotter(iParams){
@@ -163,11 +160,23 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		// Then, if we have signals, plot them next
 		if(haveSignals){
 			for(unsigned int s = 0; s < signalHistos.size(); s++){
-				if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
-				string name = signalHistos.GetNames().at(s);
+                string name = signalHistos.GetNames().at(s);
+                const Process *proc;
+
+                // TODO remove this stupid hotfix:
+                // GetSignals() returns an unsorted vector, while
+                // everything returned by GetSignalsHWrappers() is going
+                // through a map sort.
+                for (const auto& p: *(iProPack->GetSignals()))
+                    if (p.GetLabelForLegend() == name)
+                        proc = &p;
+
+                if (not proc->Plot())
+                    continue;
+
 				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
 				toDraw->SetFillStyle(0);	
-				toDraw->SetLineWidth(3, iProPack->GetSignals()->at(s).GetColor());	
+				toDraw->SetLineWidth(3, proc->GetColor());
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 
 				// If we want the signals on top of the stack, add the background sum
@@ -181,7 +190,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 				histo->GetXaxis()->SetRangeUser(0,2000);
 			}
 		}
-		
+
 		// Finally plot the collisions if we have them
 		if(haveCollisions){ 
 			if(!iProPack->GetCollisions()->Plot()){ continue; }
