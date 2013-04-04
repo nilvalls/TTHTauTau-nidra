@@ -22,7 +22,6 @@ Plotter::Plotter(){
 
 // Default destructor
 Plotter::~Plotter(){
-
 	delete ditauTrigger; ditauTrigger = NULL;
 	if(file!=NULL){ file->Close(); }
 	delete file; file = NULL;
@@ -37,7 +36,6 @@ Plotter::Plotter(map<string,string>const & iParams){
 
 	file = new TFile((params["process_file"]).c_str(), "UPDATE");
 	file->cd();
-
 	proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
 	ditauTrigger = new Trigger(proPack->GetIntegratedLumiInInvPb());
 
@@ -215,15 +213,15 @@ void Plotter::BookHistos(HContainer* iHContainer){
 	}else if((params.find("histoList")->second).length() > 0){
 
 		string line;
-		ifstream file((params.find("histoList")->second).c_str());
-		if (file.is_open()){
-			while ( file.good() ){
-				getline(file, line);
+		ifstream fileStr((params.find("histoList")->second).c_str());
+		if (fileStr.is_open()){
+			while ( fileStr.good() ){
+				getline(fileStr, line);
 				if(line.substr(0,1).compare("#")==0){ continue; }
 				if(line.length()==0){ continue; }
 				LoopOverHistoCfgFile(line, iHContainer);
 			}
-			file.close();
+			fileStr.close();
 		}else{ cerr << "ERROR: Unable to open histoList file '" << (params.find("histoList")->second) << "'." << endl; exit(1); }
 	}else{
 		cerr << "ERROR: No valid histoCfg or histoList." << endl; exit(1);	
@@ -266,9 +264,6 @@ void Plotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const i
 // Save canvas
 void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename) const {
 
-	
-
-
 	// Create output dir if it doesn't exists already
 	TString sysCommand = "if [ ! -d " + iDir + " ]; then mkdir -p " + iDir + "; fi";
 	if(gSystem->Exec(sysCommand) > 0){ cout << ">>> ERROR: problem creating dir for plots " << iDir << endl; exit(1); }
@@ -280,7 +275,6 @@ void Plotter::SaveCanvas(TCanvas const * iCanvas, string iDir, string iFilename)
 	for( unsigned int ext = 0; ext < extension.size(); ext++){
 		iCanvas->SaveAs( (iDir + iFilename + extension.at(ext)).c_str() );
 	}
-
 }
 
 // Check to see if we want this a copy of a plot with some log scales
