@@ -35,8 +35,8 @@ class HWrapper{
 		TH2F	histo2;
 		bool	isTH2F;
 		bool	isTH1F;
-		float	xbins[100000];
-		string	xbinLabels[100000];
+		float	xbins[1000];
+		string	xbinLabels[1000];
 		float	xMinVis;
 		float	xMaxVis;
 		float	yMinVis;
@@ -104,6 +104,7 @@ class HWrapper{
 		void	ScaleBy(double const);
 		void	ScaleErrorBy(double const);
 		void	AddRelErrorInQuadrature(double const);
+		void	AddRelErrorInQuadrature(double const, int);
 		void	Positivize();
 		void	FillRandom(string const);
 

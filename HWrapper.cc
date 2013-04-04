@@ -217,9 +217,14 @@ void HWrapper::ScaleErrorBy(double const iFactor){
 void HWrapper::AddRelErrorInQuadrature(double const iError){	
 	if(iError != iError){ cerr << "ERROR: trying to AddRelErrorInQuadrature(nan)" << endl; exit(1); }
 	for(unsigned int b=0; b<=histo->GetNbinsX(); b++){ 
-      double newError = sqrt(histo->GetBinError(b)*histo->GetBinError(b) + iError*histo->GetBinContent(b)*iError*histo->GetBinContent(b));
-      histo->SetBinError(b, newError); 
+        AddRelErrorInQuadrature(iError, b); 
     }
+}
+
+void HWrapper::AddRelErrorInQuadrature(double const iError, int iBin){	
+	if(iError != iError){ cerr << "ERROR: trying to AddRelErrorInQuadrature(nan)" << endl; exit(1); }
+    double newError = sqrt(histo->GetBinError(iBin)*histo->GetBinError(iBin) + iError*histo->GetBinContent(iBin)*iError*histo->GetBinContent(iBin));
+    histo->SetBinError(iBin,newError); 
 }
 
 void HWrapper::NormalizeTo(double const iNormalization){	ScaleBy(iNormalization/(double)histo->Integral()); }
