@@ -6,13 +6,15 @@ ROOTGLIBS     = $(shell $(ROOTSYS)/bin/root-config --glibs)
 # -- DEFINE ARCH to something sensible!
 #######################################
 
-CXXFLAGS      = -g -fPIC
+#  CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic -pg
+CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic
+#  LDFLAGS       = -g -lboost_filesystem -pg
 LDFLAGS       = -g -lboost_filesystem
 LD = $(CXX)
 
 
 CXXFLAGS      += $(ROOTCFLAGS) -I.
-LIBS           = $(ROOTLIBS) 
+LIBS           = $(ROOTLIBS)
 
 NGLIBS         = $(ROOTGLIBS) -lMinuit
 NGLIBS		  += -L./ -lNidra
@@ -34,7 +36,7 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.TemplateContainer.o
 
 .%.o: %.cc %.h
-	$(CXX) -std=c++0x $(CXXFLAGS) -c $*.cc -o $@
+	$(CXX) $(CXXFLAGS) -c $*.cc -o $@
 
 all: .nidra.exe
 
@@ -42,7 +44,7 @@ all: .nidra.exe
 	$(LD) $(LDFLAGS) -o $@ $(GLIBS) $(NOBJS)
 
 .NidraDict.cc: HWrapper.h HContainer.h PContainer.h CutFlow.h Process.h ProPack.h Helper.h TemplateContainer.h linkdefs.h
-	rootcint -f $@ -c $(CXXFLAGS) -p $^
+	rootcint -f $@ -c -g -fPIC -p $^
 
 libNidra.so: .NidraDict.cc 
 	g++ -shared -o$@ `root-config --ldflags` $(CXXFLAGS) -I$(ROOTSYS)/include $^ 
@@ -51,7 +53,7 @@ configParser/libconfigParser.so: configParser/config.h
 	cd configParser && make && cd -	
 
 .Driver.o: Driver.cc Driver.h Nidra.cc style-CMSTDR.h
-	$(CXX) -std=c++0x $(CXXFLAGS) -c Nidra.cc -o $@
+	$(CXX) $(CXXFLAGS) -c Nidra.cc -o $@
 
 ########################
 ### Channel-specific ###
@@ -68,16 +70,16 @@ configParser/libconfigParser.so: configParser/config.h
 	$(CXX) $(CXXFLAGS) -c TTL/Plotter.cc -o $@
 
 .TTL_TMVASampler.o: TTL/TMVASampler.cc TTL/TMVASampler.h TTL/Branches_*.h Helper.h
-	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/TMVASampler.cc -o $@
+	$(CXX) $(CXXFLAGS) -c TTL/TMVASampler.cc -o $@
 
 .TTL_TMVAEvaluator.o: TTL/TMVAEvaluator.cc TTL/TMVAEvaluator.h TTL/Branches_*.h Helper.h
-	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
+	$(CXX) $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
 
 .TTL_ComboSelectorSampler.o: TTL/ComboSelectorSampler.cc TTL/ComboSelectorSampler.h TTL/Branches_*.h Helper.h
-	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/ComboSelectorSampler.cc -o $@
+	$(CXX) $(CXXFLAGS) -c TTL/ComboSelectorSampler.cc -o $@
 
 .TTL_ComboSelector.o: TTL/ComboSelector.cc TTL/ComboSelector.h TTL/Branches_*.h Helper.h
-	$(CXX) -std=c++0x $(CXXFLAGS) -c TTL/ComboSelector.cc -o $@
+	$(CXX) $(CXXFLAGS) -c TTL/ComboSelector.cc -o $@
 
 ########################
 ###      Global      ###
@@ -86,7 +88,7 @@ configParser/libconfigParser.so: configParser/config.h
 cleanDicts:
 	rm -f .*Dict.cc && rm -f *.so
 
-clean: 
+clean:
 	rm -rf .*.o && rm -f .nidra.exe && make cleanDicts
 
 make ca:
