@@ -12,9 +12,8 @@ then
 fi
 
 skim=$1
-cp $CMSSW_BASE/TTHTauTau/Analysis/nidra/cfg/8tev_template.topo tmp.topo
+cp $CMSSW_BASE/src/TTHTauTau/Analysis/nidra/cfg/8tev_template.topo tmp.topo
 eventsInData=0
-#for dir in `/bin/ls -d crab/*$skim*`
 for dir in `/bin/ls -d /store/user/jkolb/data/ntuples/${skim}/2012/*`
 do
   events=`python ~jkolb/Public/tools/countEventsInNUTs.py $dir | awk '{print $5}'`
