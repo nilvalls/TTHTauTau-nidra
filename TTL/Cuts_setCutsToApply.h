@@ -81,6 +81,7 @@
 	 if(ApplyThisCut("T2_IsolationIndex"		)){ CutOn_T2_IsolationIndex			= 	true; cutFlow.RegisterCut("T2_IsolationIndex", 1);			}
 
 	 if(ApplyThisCut("TT_ChargeProduct"			)){ CutOn_TT_ChargeProduct			= 	true; cutFlow.RegisterCut("TT_ChargeProduct", 1);			}
+	 if(ApplyThisCut("TT_VisMass"			    )){ CutOn_TT_VisMass			    = 	true; cutFlow.RegisterCut("TT_VisMass", 1);			}
 	 if(ApplyThisCut("TT_DeltaEta"				)){ CutOn_TT_DeltaEta				= 	true; cutFlow.RegisterCut("TT_DeltaEta", 1);				}
 	 if(ApplyThisCut("TT_CosDeltaPhi"			)){ CutOn_TT_CosDeltaPhi			= 	true; cutFlow.RegisterCut("TT_CosDeltaPhi", 1);				}
 	 if(ApplyThisCut("MET"						)){ CutOn_MET						= 	true; cutFlow.RegisterCut("MET", 1);						}

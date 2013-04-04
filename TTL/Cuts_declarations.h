@@ -61,6 +61,7 @@
 	bool CutOn_T2_IsolationIndex;			float Min_T2_IsolationIndex;			float Max_T2_IsolationIndex;
 
 	bool CutOn_TT_ChargeProduct;			float Min_TT_ChargeProduct;				float Max_TT_ChargeProduct;
+	bool CutOn_TT_VisMass;			        float Min_TT_VisMass;				    float Max_TT_VisMass;
 	bool CutOn_TT_DeltaEta;					float Min_TT_DeltaEta;					float Max_TT_DeltaEta;
 	bool CutOn_TT_CosDeltaPhi;				float Min_TT_CosDeltaPhi;				float Max_TT_CosDeltaPhi;
 

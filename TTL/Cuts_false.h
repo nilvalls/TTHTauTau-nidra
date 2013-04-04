@@ -56,6 +56,7 @@
 	CutOn_T2_IsolationIndex			= false;
 
 	CutOn_TT_ChargeProduct			= false;
+	CutOn_TT_VisMass			    = false;
 	CutOn_TT_DeltaEta				= false;
 	CutOn_TT_CosDeltaPhi			= false;
 	CutOn_MET						= false;

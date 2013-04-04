@@ -318,6 +318,9 @@ pair<bool,bool> TTLAnalyzer::ComboPassesCuts(TTLBranches* iEvent, unsigned int i
 		if(cutFlow.CheckComboAndStop("TT_ChargeProduct", chargeProduct, target, true)){ return target; }
 	}
 
+	// Mass of visible di-tau system
+	if(CutOn_TT_VisMass){ if(cutFlow.CheckComboAndStop("TT_VisMass", event->TTL_DitauVisibleMass->at(iCombo), target)){ return target; }}
+
 	// Delta eta between taus
 	if(CutOn_TT_DeltaEta){ if(cutFlow.CheckComboAndStop("TT_DeltaEta", event->TTL_Tau1Eta->at(iCombo)-event->TTL_Tau2Eta->at(iCombo), target)){ return target; }}
 
