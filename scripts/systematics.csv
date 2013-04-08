@@ -18,7 +18,7 @@ Q2scale_ttH_ttbar_cc  , shape , -     , -     , -              , 1              
 Q2scale_ttH_V         , lnN   , -     , -     , -              , -              , -       , -     , -     , -      , -      , -
 CMS_fake_bRate        , shape , 1     , 1     , 1              , 1              , 1       , 1     , 1     , 1      , 1      , 1
 CMS_eff_bRate         , shape , 1     , 1     , 1              , 1              , 1       , 1     , 1     , 1      , 1      , 1
-CMS_scale_j           , shape , 1     , 1     , 1              , 1              , 1       , 1     , 1     , 1      , 1      , 1
+CMS_scale_j           , shape , 1     , 1     , 1              , 1              , 1       , -     , 1     , 1      , 1      , 1
 CMS_ttH_topPtcorr     , shape , 1     , 1     , 1              , 1              , 1       , 1     , 1     , 1      , 1      , 1
 CMS_ttH_QCDscale_ttbb , lnN   , -     , -     , x              , -              , -       , -     , -     , -      , -      , -
 TES                   , shape , 1     , 1     , -              , -              , 1       , 1     , 1     , -      , -      , 1

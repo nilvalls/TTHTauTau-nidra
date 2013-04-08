@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 
-"""Notes
+"""
+===================
+Creating a Datacard
+===================
+
+Usage
+=====
+
+Workflow / Customization
+========================
+
+Notes
 =====
 * Sample and discriminant names may not contain underscores (with the
   exception of the sample "data_obs")
@@ -10,16 +21,19 @@
 
 ToDo
 ----
-* `statUncertainties.C`
 * doNorm
 * summary of signal + background numbers for each category (stdout)
 
 To Test
 -------
+
+Recently Tested
+---------------
 * b-tag uncertainty splitting
   * Inject b-tag uncertainties properly
   * `splitUncertainties_byCat.C`
 * `copyQ2.C`
+* `statUncertainties.C`
 """
 
 import csv
@@ -37,9 +51,74 @@ r.gROOT.SetBatch()
 sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*?)((?:Up|Down)?)$')
 signal_re = re.compile(r'(ttH).*')
 
-# Regular expressions to match systematics
-sys_qscale_re = re.compile(r'Q2scale_tth_ttbar(\dp)$')
-sys_bshape_re = re.compile(r'(.*)_(eff|fake)_bShape$')
+def get_ann_systematics(file, discriminant, categories, samples, data_sample="data_obs",
+        signal_sample="ttH"):
+    """
+    """
+    new_sys = []
+
+    for c in categories:
+        data_hist = file.Get("{s}_{d}_{c}".format(s=data_sample, d=discriminant, c=c))
+        sig_hist = file.Get("{s}_{d}_{c}".format(s=signal_sample + "125", d=discriminant, c=c))
+        bkg_hist = None
+
+        # Build background sum
+        for (s, cats) in samples.items():
+            s = s + "125" if s == "ttH" else s
+            if s in (data_sample, signal_sample) or c not in cats:
+                continue
+
+            hist = file.Get("{s}_{d}_{c}".format(s=s, d=discriminant, c=c))
+            if bkg_hist:
+                bkg_hist.Add(hist)
+            else:
+                bkg_hist = hist.Clone()
+
+        # Loop over samples for category and find low stats bins
+        for (s, cats) in samples.items():
+            file_s = s + "125" if s == "ttH" else s
+
+            if c not in cats:
+                continue
+
+            hist = file.Get("{s}_{d}_{c}".format(s=file_s, d=discriminant, c=c))
+
+            for b in range(1, hist.GetNbinsX() + 1):
+                data = data_hist.GetBinContent(b)
+                data_err = data_hist.GetBinError(b)
+
+                sig = sig_hist.GetBinContent(b)
+                sig_err = sig_hist.GetBinError(b)
+
+                bkg = bkg_hist.GetBinContent(b)
+                bkg_err = bkg_hist.GetBinError(b)
+
+                val = hist.GetBinContent(b)
+                val_err = hist.GetBinError(b)
+
+                other_frac = math.sqrt(bkg_err**2 - val_err**2)
+
+                if val < .01 or bkg_err < data_err / 3. or other_frac / bkg_err > .95 \
+                        or sig / bkg < .02:
+                    continue
+
+                # FIXME Subtract 1 from bin name for comparability with
+                # original C macro
+                sys_name = "{s}_{c}_{e}_ANNbin{b:d}".format(
+                        s=s, c=c, e="8TeV" if is_8_tev else "7TeV", b=b - 1)
+
+                stub = "{s}_{d}_{c}_".format(s=file_s, d=discriminant, c=c)
+                hist_up = hist.Clone(stub + sys_name + "Up")
+                hist_up.SetBinContent(b, val + val_err)
+                hist_down = hist.Clone(stub + sys_name + "Down")
+                hist_down.SetBinContent(b, val - val_err)
+
+                file.WriteObject(hist_up, hist_up.GetName())
+                file.WriteObject(hist_down, hist_down.GetName())
+
+                new_sys.append((sys_name, "shape",
+                    dict([(sam, ("1" if sam == s else "-")) for sam in samples.keys()])))
+    return new_sys
 
 def get_integral(file, discriminant, category, sample="data_obs", uncertainty="", fmt="{n:.3f}"):
     """Get the integral of the histogram specified by the arguments.  The
@@ -131,7 +210,6 @@ def split_q2(file, disc, which):
                 oldname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{dir}".format(d=disc, c=c, dir=d)
                 newname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{p}{dir}".format(d=disc, c=c, p=p, dir=d)
                 hold = file.Get(oldname)
-                print p, c, d
                 hnew = hold.Clone(newname)
                 file.WriteObject(hnew, newname)
 
@@ -153,7 +231,7 @@ def split_systematics(file, disc, samples):
         for c in cats:
             stub = "_".join((s, disc, c))
             orig = file.Get(stub)
-            print stub, orig
+            # print stub, orig
             sum = orig.Integral()
             for kind in ("eff", "fake"):
                 for dir in ("Up", "Down"):
@@ -162,11 +240,9 @@ def split_systematics(file, disc, samples):
                     shape_old = file.Get("{s}_CMS_{k}_b{dir}".format(s=stub, k=kind, dir=dir))
                     shape = shape_old.Clone("{s}_{c}_{k}_bShape{dir}".format(s=stub, c=c, k=kind, dir=dir))
 
-                    rate_sum = rate.Integral()
-                    rate.Scale(sum / rate_sum if rate_sum > 0 else 1)
-
                     shape_sum = shape.Integral()
-                    shape.Scale(sum / shape_sum if shape_sum > 0 else 1)
+                    rate.Scale((shape_sum / sum) if sum > 0 else 1)
+                    shape.Scale((sum / shape_sum) if shape_sum > 0 else 1)
 
                     file.WriteObject(rate, rate.GetName())
                     file.WriteObject(shape, shape.GetName())
@@ -174,7 +250,7 @@ def split_systematics(file, disc, samples):
                     new_sys.append((
                         "{c}_{k}_bShape".format(c=c, k=kind),
                         "shape",
-                        dict([(s, "1") for s in samples.keys()])))
+                        dict([(sam, "1") for sam in samples.keys()])))
             done.add(c)
     return new_sys
 
@@ -199,6 +275,19 @@ parton_split = {
         "0p": "ljets_j4_t3 ljets_j4_t4 e2je2t SS_e3je1t SS_e3jge2t".split(),
         "1p": "ljets_j5_t3 ljets_j5_tge4 ge3t e3je2t SS_ge4je1t SS_ge4jge2t".split(),
         "2p": "ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge4je2t".split()}
+
+def jet_multiplicity(cat):
+    if "e2je2t" in cat:
+        return 2
+    elif "3j" in cat or "ge3t" in cat:
+        return 3
+    elif "ge4j" in cat or "j4_t" in cat:
+        return 4
+    elif "j5_t" in cat:
+        return 5
+    elif "jge6_t" in cat:
+        return 6
+    return -1
 
 f = r.TFile(infile, "UPDATE")
 
@@ -233,9 +322,13 @@ cats = dict(map(
 
 systematics = get_systematics(sysfile, overrides=overrides)
 systematics += split_systematics(f, disc, cats)
+systematics += get_ann_systematics(f, disc, categories, samples_cat)
 import pprint
+print pprint.pprint(cats)
+print "FOOBAR"
 print pprint.pprint(systematics)
 split_q2(f, disc, parton_split)
+f.ls()
 
 # Print preamble
 print """imax * # number of channels
@@ -269,25 +362,44 @@ print "---------------"
 for (unc, type, vals) in systematics:
     if unc == "lumi":
         unc += "_8TeV" if is_8_tev else "_7TeV";
+    sys.stderr.write(unc + "\n")
     sys.stdout.write(unc + " " + type)
 
     for s in samples:
         file_s = s + "125" if s == "ttH" else s
         for c in cats[s]:
-            if type == "shape":
+            if type == "shape" and vals[s] != "-":
                 try:
-                    if get_integral(f, disc, c, file_s, unc + "Up") == "0.000":
-                        raise
-                    if get_integral(f, disc, c, file_s, unc + "Down") == "0.000":
-                        raise
+                    get_integral(f, disc, c, file_s, unc + "Up")
+                    get_integral(f, disc, c, file_s, unc + "Down")
+                    # if get_integral(f, disc, c, file_s, unc + "Up") == "0.000" and "bShape" not in unc:
+                        # raise
+                    # if get_integral(f, disc, c, file_s, unc + "Down") == "0.000" and "bShape" not in unc:
+                        # raise
                     sys.stdout.write(" " + vals[s])
                     # sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v=vals[s]))
                 except:
+                    if unc == "CMS_fake_bRate" and c == "ljets_j4_t4":
+                        sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v="-"))
+                        # sys.stderr.write("{u:f} {d:f}\n".format(
+                            # get_integral(f, disc, c, file_s, unc + "Up"),
+                            # get_integral(f, disc, c, file_s, unc + "Down")))
+
                     sys.stdout.write(" -")
                     # sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v="-"))
-            elif vals[s] in ["-", "1"]:
+            elif vals[s] in ["-", "1"] and not \
+                    (unc == "Q2scale_ttH_V" and s in ("wjets", "zjets")):
                 sys.stdout.write(" " + vals[s])
             else:
+                if unc == "Q2scale_ttH_V" and s in ("wjets", "zjets"):
+                    mult = jet_multiplicity(c)
+                    # sys.stderr.write("{c} {m}\n".format(c=c, m=mult))
+                    if mult > 0:
+                        vals[s] = str(1 + .1 * mult)
+                    else:
+                        sys.stdout.write(" -")
+                        continue
+
                 new_val = math.e ** (math.sqrt(
                     math.log(1 + (float(vals[s]) - 1)**2)))
                 sys.stdout.write(" {n:.3f}".format(n=new_val))
