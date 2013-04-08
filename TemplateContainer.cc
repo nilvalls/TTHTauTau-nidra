@@ -9,8 +9,8 @@
 #include "TemplateContainer.h"
 
 #include "math.h"
-#include "TH1F.h"
-#include "ProPack.h"
+#include "TFile.h"
+#include <stdlib.h>
 
 #include "boost/filesystem/operations.hpp"
 
@@ -19,30 +19,34 @@ using namespace std;
 #define AT __LINE__
 
 // Default constructor
-TemplateContainer::TemplateContainer(){
+TemplateContainer::TemplateContainer(): storageFile(0) {
 	cout << "WARNING: Using default constructor of TemplateContainer." << endl;
 }
 
 // Default destructor
 TemplateContainer::~TemplateContainer(){
-    
-    // clean up ROOT files
-    for( vector<Shift>::iterator shiftIterator = shifts.begin(); shiftIterator != shifts.end(); ++shiftIterator) {
-        shiftIterator->file->Close();
-        delete shiftIterator->file;
-        shiftIterator->file = NULL;
-        shiftIterator->proPack = NULL;
+   
+    if( storageFile != NULL ) {
+        //cout << "Closing storage file" << endl;
+        storageFile->Close();
     }
-
+    
+    TString removeCmd = "rm -f ";
+    removeCmd += storageFile->GetName();
+    system(removeCmd);
 }
 
-TemplateContainer::TemplateContainer(map<string,string>const & iParams) {
+TemplateContainer::TemplateContainer(map<string,string>const & iParams): storageFile(0) {
 	
     params = iParams;
     
+    TString storageFileName(".storage_");
+    storageFileName += params["analysisTag"];
+    storageFileName += ".root";
+    storageFile = new TFile(storageFileName,"RECREATE");
+
     // parse systematics configuration
     map<string,Config*> sysConfigs;
-    //vector<pair<string,Config*> > sysConfigs;
     Config* sysCfg = NULL;
     if (params.find("systematicsFile") != params.end()) {
         
@@ -57,7 +61,8 @@ TemplateContainer::TemplateContainer(map<string,string>const & iParams) {
         //    path epath = system_complete(lpath);
         //    systematicsFile = epath.string();
         //}
-        cout << "Using systematics file at: " << endl << systematicsFile << endl;
+        
+        //cout << "Using systematics file at: " << endl << systematicsFile << endl;
 
         sysCfg = new Config(systematicsFile);
         sysConfigs = sysCfg->getGroups();
@@ -65,37 +70,50 @@ TemplateContainer::TemplateContainer(map<string,string>const & iParams) {
         cout << "Configuration parameter 'systematicsFile' is not found! No shape systematic uncertainties will be plotted." << endl;
     }
 
-    cout << "Adding shape uncertainties from..." << endl;
+    //cout << "Adding shape uncertainties from..." << endl;
     
     // loop over entries in systematics cfg file
     for(map<string,Config*>::const_iterator cfgIterator = sysConfigs.begin(); cfgIterator != sysConfigs.end(); ++cfgIterator) {
         string fileName = cfgIterator->second->pString("fullFilePath");
-        cout << fileName;
+        string sysName = cfgIterator->first;
+        cout << fileName << endl; 
         if( fileName == "" ) {
-            cout << "Missing 'fullFilePath' parameter for systematic " << cfgIterator->first << "...skipping!" << endl; 
+            cout << "Missing 'fullFilePath' parameter for systematic " << sysName << "...skipping!" << endl; 
             continue;
         }
         TFile* file = NULL;
         file = new TFile(fileName.c_str());
         if( file == NULL ) {
-            cout << "File " << fileName << " can not be opened! Skipping '" << cfgIterator->first << "' systematic..." << endl;
+            cout << "File " << fileName << " can not be opened! Skipping '" << sysName << "' systematic..." << endl;
             continue;
         }
         ProPack* proPack = NULL;
         proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
         if( proPack == NULL ) {
-            cout << "Can't get ProPack from file " << fileName << " for '" << cfgIterator->first << "' systematic...skipping!" << endl;
+            cout << "Can't get ProPack from file " << fileName << " for '" << sysName << "' systematic...skipping!" << endl;
             continue;
         }
 
-        cout << " / " << cfgIterator->first << endl;
-
+        // Get map of shifted templates
+        vector<string> plotNames = proPack->GetAvailableProcess().GetHContainerForSignal()->GetNames();
+        map<string,TH1*> backgroundSums;
+        for( vector<string>::const_iterator plotNameIt = plotNames.begin(); plotNameIt != plotNames.end(); ++plotNameIt) {
+            backgroundSums.insert(pair<string,TH1*>(*plotNameIt,GetSumOfBackgroundTemplates(*plotNameIt,proPack)));
+        }
+        
         // Fill and store struct
-        Shift shift;
-        shift.file = file;
-        shift.name = cfgIterator->first;
-        shift.proPack = proPack;
-        shifts.push_back(shift);
+        if((sysName.find("up") != string::npos) || (sysName.find("Up") != string::npos)) {
+            string sysNameStripped = sysName.substr(0,sysName.size()-2);
+            shifts[sysNameStripped].bgSumsUp = backgroundSums;
+        }
+        if((sysName.find("down") != string::npos) || (sysName.find("Down") != string::npos)) {
+            string sysNameStripped = sysName.substr(0,sysName.size()-4);
+            shifts[sysNameStripped].bgSumsDown = backgroundSums;
+        }
+        
+        // Close input ROOT file
+        file->Close();
+        delete file;
     }
 
     if( sysCfg!=NULL ) {
@@ -103,46 +121,57 @@ TemplateContainer::TemplateContainer(map<string,string>const & iParams) {
     }
 }
 
-// assume symmetric errors for now
-float TemplateContainer::GetAbsoluteError(string variableName, int iBin, float centralBinContent) {
-    TH1F* shiftedTemplate;
+float TemplateContainer::GetAbsoluteErrorUp(string variableName, int iBin, float centralBinContent) {
+    return GetAbsoluteError(variableName,iBin,centralBinContent,true);
+}
+float TemplateContainer::GetAbsoluteErrorDown(string variableName, int iBin, float centralBinContent) {
+    return GetAbsoluteError(variableName,iBin,centralBinContent,false);
+}
+float TemplateContainer::GetAbsoluteError(string variableName, int iBin, float centralBinContent, bool shiftUp) {
+
+    TH1* shiftedTemplate;
     float absError = 0;
-    // loop over systematics
-    for( vector<Shift>::const_iterator shiftIterator = shifts.begin(); shiftIterator != shifts.end(); ++shiftIterator) {
-        // only consider "Up" shifts
-        if( shiftIterator->name.find("Up") ==  string::npos ) continue;
-        shiftedTemplate = (TH1F*)((GetSumOfBackgroundTemplates(variableName,shiftIterator->proPack)).GetHisto());
+  
+    for( map<string,Shift>::iterator shiftIterator = shifts.begin(); shiftIterator != shifts.end(); ++shiftIterator) {
+        
+        if(shiftUp && shiftIterator->second.bgSumsUp.find(variableName) != shiftIterator->second.bgSumsUp.end()) 
+            shiftedTemplate = shiftIterator->second.bgSumsUp[variableName];
+        else if(!shiftUp && shiftIterator->second.bgSumsDown.find(variableName) != shiftIterator->second.bgSumsDown.end()) 
+            shiftedTemplate = shiftIterator->second.bgSumsUp[variableName];
+        else 
+            continue;
+        
         float binContent = shiftedTemplate->GetBinContent(iBin);
         float binDiff = fabs(binContent - centralBinContent);
         absError = sqrt(absError*absError + binDiff*binDiff);
+        //cout << "var = " << variableName << "; bin = " << iBin << "; sys = " << shiftIterator->first << (shiftUp ? "Up" : "Down") << "; binContent = " << binContent << "; centralBinContent = " << centralBinContent << "; abs error = " << binDiff << "; total abs error = " << absError << endl;
     }
     return absError;
 }
 
-float TemplateContainer::GetRelativeError(string variableName, int iBin, float centralBinContent) {
-    if( abs(centralBinContent) > 0.00001 ) 
-        return (GetAbsoluteError(variableName,iBin,centralBinContent)/centralBinContent);
-    else
-        return 0;
-}
-
-HWrapper TemplateContainer::GetSumOfBackgroundTemplates(string variableName, ProPack* proPack) {
+// code adapted from Plotter::GetBackgroundSum
+TH1* TemplateContainer::GetSumOfBackgroundTemplates(string variableName, ProPack* proPack) {
+    
+    // Put new histograms in storage file
+    storageFile->cd();
 
     // Get sum of MC backgrounds
-	HWrapper* buffer = NULL;
-
+	TH1* buffer = NULL;
+    
 	// Add each MC background if we have them
 	if(proPack->HaveMCbackgrounds()){
 		for(unsigned int b = 0; b < proPack->GetMCbackgrounds()->size(); b++){
-			if(!proPack->GetMCbackgrounds()->at(b).Plot()){ continue; }
-			if(buffer == NULL){	buffer = new HWrapper(*(proPack->GetMCbackgrounds()->at(b).GetHistoForSignal(variableName))); }
-			else{ buffer->Add(*(proPack->GetMCbackgrounds()->at(b).GetHistoForSignal(variableName))); }
+			if(!proPack->GetMCbackgrounds()->at(b).Plot())
+                continue; 
+			if(buffer == NULL) {
+                buffer = (TH1*)proPack->GetMCbackgrounds()->at(b).GetHistoForSignal(variableName)->GetHisto()->Clone(); 
+            } else {
+                buffer->Add(proPack->GetMCbackgrounds()->at(b).GetHistoForSignal(variableName)->GetHisto()); 
+            }
 		}
 	}
 
 	if(buffer == NULL){ cerr << "ERROR: requested sum of backgrounds for " << variableName << " but result came out NULL" << endl; exit(1); }
-	HWrapper result = HWrapper(*buffer);
-	delete buffer;
 
-    return result;
+    return buffer;
 }

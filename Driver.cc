@@ -39,6 +39,7 @@ void ReadConfig(string iPath){
 	Config theConfig(iPath);
 
     SetParam(theConfig, "MVAdir");
+    SetParam(theConfig, "analysisTag");
 	SetParam(theConfig, "maxEvents");
 	SetParam(theConfig, "luminosity");
 	SetParam(theConfig, "plotText");

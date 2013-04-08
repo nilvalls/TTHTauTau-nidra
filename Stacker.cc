@@ -7,7 +7,6 @@
 */
 
 #include "Stacker.h"
-#include "TGraphAsymmErrors.h"
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TH1F.h"
@@ -16,8 +15,7 @@
 using namespace std;
 
 // Default constructor
-//Stacker::Stacker(map<string,string> const & iParams) : Plotter(iParams){
-Stacker::Stacker(map<string,string> const & iParams, bool includeShapeSystematics = false) {
+Stacker::Stacker(map<string,string> const & iParams, bool includeShapeSystematics) {
 
     minY = 0.001;
 
@@ -101,7 +99,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		// Skip if 2D (gotta change this)
 		if(baseHisto.IsTH2F()){ continue; }
 
-		TCanvas* canvas = 0;
+		TCanvas* canvas = NULL;
         // magic numbers for data/MC ratio plotting
         float padding      = 0.0001;
         float yDivide      = 0.25;
@@ -124,7 +122,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
         }
 		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
 	
-        // Get background and signal sums
+        // Get background and signal sums 
         HWrapper backgroundSum;
         if(haveMCbackgrounds) 
             backgroundSum = HWrapper(GetBackgroundSum(iProPack, plotName));
@@ -132,9 +130,16 @@ void Stacker::MakePlots(ProPack const * iProPack) {
         if(haveSignals)
             signalHistos = HContainer(iProPack->GetSignalsHWrappers(plotName));
 
-        // Add errors from shape systematics, if requested
-        if(templateContainer != NULL) 
-            AddShapeSystematicErrors(backgroundSum,plotName);
+        // Add asymmetric errors from shape systematics, if requested
+        TGraphAsymmErrors* absBackgroundErr = NULL;
+        TGraphAsymmErrors* relBackgroundErr = NULL;
+        if(templateContainer != NULL) {
+            
+            // asymmetric errors
+            pair<TGraphAsymmErrors*,TGraphAsymmErrors*> backgroundErr = AddAsymmShapeSystematicErrors(backgroundSum,plotName);
+            absBackgroundErr = backgroundErr.first;
+            relBackgroundErr = backgroundErr.second;
+        }
 
         // If we have backgrounds, make the stack and plot them first
 		THStack* stack = NULL;
@@ -152,8 +157,17 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 				if(params["showBackgroundError"].compare("true")==0){
 					backgroundSum.SetFillStyle(3004,kBlack);
 					backgroundSum.SetMarkerStyle(0);
-					backgroundSum.GetHisto()->Draw("E2same");
-				}
+                    // if we're not using asymmetric errors,
+                    // only draw statistical error 
+					if(absBackgroundErr == NULL) {
+                        backgroundSum.GetHisto()->Draw("E2same");
+                    } else {
+                        absBackgroundErr->SetMarkerStyle(0);
+                        absBackgroundErr->SetFillStyle(3004);
+                        absBackgroundErr->SetFillColor(kBlack);
+                        absBackgroundErr->Draw("SAMEp2");
+                    }
+                }
 			}
 		}
 
@@ -213,7 +227,8 @@ void Stacker::MakePlots(ProPack const * iProPack) {
         if( doRatioPlot ) {
             canvas->cd(2);  
 
-            // Get variable range (can be tricky when visible ranges are specified)
+            // Get variable range 
+            // (can be tricky when visible ranges are specified, still not completely correct)
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
             float xMin = backgroundSum.GetMinXVis();
             float xMax = backgroundSum.GetMaxXVis();
@@ -238,11 +253,11 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             hRatio->GetXaxis()->SetTitleSize(0.15);
             hRatio->GetXaxis()->SetLabelSize(0.1);
             
-            // use hRatio only for axes; use errors (see below) to plots points 
+            // Use hRatio only for axes; use errors (see below) to plots points 
             hRatio->GetYaxis()->SetRangeUser(minY,ratioPlotMax);
             hRatio->Draw("AXIS");
             
-            // Plot errors due to MC background uncertainty
+            // Get symmetric errors on MC background 
             TH1F* hBgErrors = (TH1F*)hRatio->Clone();
             for( int iBin = 1; iBin <= hBgErrors->GetXaxis()->GetNbins(); iBin++) {
                 hBgErrors->SetBinContent(iBin,1);
@@ -256,12 +271,18 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             hBgErrors->SetFillColor(29);
             
             // Draw MC uncertainty first, so it sits behind the data/MC ratio points
-            hBgErrors->Draw("same E2");
+            if( relBackgroundErr != 0 ) {
+                relBackgroundErr->SetMarkerSize(0);
+                relBackgroundErr->SetFillColor(30);
+                relBackgroundErr->Draw("same2");
+            } else 
+                hBgErrors->Draw("same E2");
             
             // Get asymetric errors for data/MC ratio
-            TGraphAsymmErrors * ratioErr = new TGraphAsymmErrors(backgroundSum.GetHisto());
+            TGraphAsymmErrors * ratioErr = new TGraphAsymmErrors(hRatio);
             for( int iBin = 0; iBin < ratioErr->GetN(); iBin++ ) {
-                float xRatioValue = hRatio->GetBinCenter(iBin+1);
+                
+                float xCoordinateValue = hRatio->GetBinCenter(iBin+1);
                 float yRatioValue = hRatio->GetBinContent(iBin+1);
                 float yDataValue = collisionsHisto.GetHisto()->GetBinContent(iBin+1);
                 float yDataError = collisionsHisto.GetHisto()->GetBinError(iBin+1);
@@ -270,13 +291,13 @@ void Stacker::MakePlots(ProPack const * iProPack) {
                 if( yRatioValue > smallNumber && yRatioValue < ratioPlotMax*0.99) {
                     float yUp = (yBgValue > smallNumber) ? (yDataValue+yDataError)/yBgValue : 0;
                     float yDown = (yBgValue > smallNumber) ? (yDataValue-yDataError)/yBgValue : 0;
-                    ratioErr->SetPoint(iBin,xRatioValue,yRatioValue);
+                    ratioErr->SetPoint(iBin,xCoordinateValue,yRatioValue);
                     ratioErr->SetPointEYhigh(iBin,yUp-yRatioValue);
                     ratioErr->SetPointEYlow(iBin,yRatioValue-yDown);
                     ratioErr->SetPointEXhigh(iBin,0);
                     ratioErr->SetPointEXlow(iBin,0);
                 } else {
-                    ratioErr->SetPoint(iBin,xRatioValue,999);
+                    ratioErr->SetPoint(iBin,xCoordinateValue,999);
                 }
             }
             ratioErr->SetMarkerSize(1.);
@@ -353,7 +374,7 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
 		temp->SetFillStyle(3004,kBlack);
 		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),"Bkg. stat. err. ","f");
+		result->AddEntry(temp->GetHisto(),"Bkg. err. ","f");
 	}
 
 	// QCD comes next
@@ -481,12 +502,57 @@ double const Stacker::GetMaximum(ProPack const * iProPack, string const iName, b
 	
 	return result;
 }
-
+// only use if errors are symmetric 
 void Stacker::AddShapeSystematicErrors(HWrapper& backgroundSum, string plotName ) {
 
     for( int iBin = 0; iBin < backgroundSum.GetHisto()->GetNbinsX(); iBin++ ) {
         float relativeError = 0;
-        relativeError = templateContainer->GetRelativeError(plotName,iBin,backgroundSum.GetHisto()->GetBinContent(iBin));
+        if( backgroundSum.GetHisto()->GetBinContent(iBin) > 0.001) relativeError = templateContainer->GetAbsoluteError(plotName,iBin,backgroundSum.GetHisto()->GetBinContent(iBin));
         backgroundSum.AddRelErrorInQuadrature(relativeError,iBin);
     }    
+}
+// must use TGraphAsymmErrors class to draw asymmetric error bars
+pair<TGraphAsymmErrors*,TGraphAsymmErrors*> Stacker::AddAsymmShapeSystematicErrors(HWrapper& backgroundSum, string plotName) {
+   
+    // NOTE: bin 0 for TH1's is the underflow bin
+    // so bin n for the TGraph corresponds to bin n+1 for the TH1
+    TH1F* backgroundSumHisto = (TH1F*)backgroundSum.GetHisto();
+    TGraphAsymmErrors* backgroundErrAbs = new TGraphAsymmErrors(backgroundSumHisto);
+    TGraphAsymmErrors* backgroundErrRel = new TGraphAsymmErrors(backgroundSumHisto);
+    for( int iBin = 0; iBin < backgroundErrAbs->GetN(); iBin++ ) {
+       
+        float binContent = backgroundSumHisto->GetBinContent(iBin+1);
+        float binError = backgroundSumHisto->GetBinError(iBin+1);
+        // Get errors from shape systematics
+        float errorUpAbs = templateContainer->GetAbsoluteErrorUp(plotName,iBin+1,binContent);
+        float errorDownAbs = templateContainer->GetAbsoluteErrorDown(plotName,iBin+1,binContent);
+        
+        // Add rate systematics and statistical errors
+        float errorUpRel = 0;
+        float errorDownRel = 0;
+        if( binContent > 0.001) {
+            errorUpRel = sqrt(errorUpAbs*errorUpAbs + binError*binError)/binContent;
+            errorDownRel = sqrt(errorDownAbs*errorDownAbs + binError*binError)/binContent;
+        }
+
+        float binWidth = backgroundSumHisto->GetBinWidth(iBin+1);
+        float xCoordinateValue = backgroundSumHisto->GetBinCenter(iBin+1);
+        float yCoordinateValue = backgroundSumHisto->GetBinContent(iBin+1);
+
+        // set y value to one for relative rrrors, since this is for data/MC ratio
+        backgroundErrRel->SetPoint(iBin,xCoordinateValue,1);
+        backgroundErrAbs->SetPoint(iBin,xCoordinateValue,yCoordinateValue);
+        
+        backgroundErrAbs->SetPointEXlow(iBin,binWidth/2);
+        backgroundErrAbs->SetPointEXhigh(iBin,binWidth/2);
+        backgroundErrAbs->SetPointEYlow(iBin,errorDownAbs);
+        backgroundErrAbs->SetPointEYhigh(iBin,errorUpAbs);
+        
+        backgroundErrRel->SetPointEXlow(iBin,binWidth/2);
+        backgroundErrRel->SetPointEXhigh(iBin,binWidth/2);
+        backgroundErrRel->SetPointEYlow(iBin,errorDownRel);
+        backgroundErrRel->SetPointEYhigh(iBin,errorUpRel);
+    }
+    pair<TGraphAsymmErrors*,TGraphAsymmErrors*> errPair(backgroundErrAbs,backgroundErrRel);
+    return errPair;
 }

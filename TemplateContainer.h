@@ -4,9 +4,8 @@
 
 #include <string>
 #include <map>
+#include "TH1.h"
 #include "ProPack.h"
-#include "HWrapper.h"
-#include "TFile.h"
 
 class TemplateContainer {
 
@@ -15,20 +14,21 @@ class TemplateContainer {
     TemplateContainer();
     TemplateContainer(std::map<std::string,std::string> const & );
     virtual ~TemplateContainer();
-    float GetRelativeError(std::string, int, float);
-    float GetAbsoluteError(std::string, int, float);
+    float GetAbsoluteError(std::string s, int i, float f, bool up = true);
+    float GetAbsoluteErrorUp(std::string, int, float);
+    float GetAbsoluteErrorDown(std::string, int, float);
 
     private: 
     
     struct Shift {
-        std::string name;
-        TFile* file;
-        ProPack* proPack;
+        std::map<std::string,TH1*> bgSumsUp;
+        std::map<std::string,TH1*> bgSumsDown;
     };
     
-    std::map<std::string,std::string>	params;
-    std::vector<Shift> shifts;
-    HWrapper GetSumOfBackgroundTemplates(std::string, ProPack*);
+    std::map<std::string,std::string> params;
+    std::map<std::string,Shift> shifts;
+    TFile* storageFile;
+    TH1* GetSumOfBackgroundTemplates(std::string, ProPack*);
     
 
 };

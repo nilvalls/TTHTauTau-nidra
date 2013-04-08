@@ -12,27 +12,29 @@
 #include "THStack.h"
 #include "HWrapper.h"
 #include "TemplateContainer.h"
+#include "TGraphAsymmErrors.h"
 
-using namespace std;
 
 class Stacker : public Plotter {
 
 	public:
-		Stacker(map<string,string> const &, bool includeShapeSystematics);
+		Stacker(std::map<std::string,std::string> const &, bool includeShapeSystematics = false);
 		virtual ~Stacker();
 		void MakePlots(ProPack const *) ;
 
 	private: 
-		map<string,string> params;
+        std::map<std::string,std::string> params;
         TFile*             stacksFile;
         TemplateContainer* templateContainer;
 
-		TLegend*		GetLegend(ProPack const *);
-		THStack*		GetBackgroundStack(ProPack const *, string const, double const) const;
-		double const	GetMaximum(ProPack const *, string const, bool const) const;
-		double const	GetMaximum(ProPack const *, string const) const;
-		double const	GetMaximumWithError(ProPack const *, string const) const;
-        void            AddShapeSystematicErrors(HWrapper&, string);
+        TLegend*		GetLegend(ProPack const *);
+        THStack*		GetBackgroundStack(ProPack const *, std::string const, double const) const;
+        double const	GetMaximum(ProPack const *, std::string const, bool const) const;
+        double const	GetMaximum(ProPack const *, std::string const) const;
+        double const	GetMaximumWithError(ProPack const *, std::string const) const;
+        void            AddShapeSystematicErrors(HWrapper&, std::string);
+        std::pair<TGraphAsymmErrors*,TGraphAsymmErrors*>            
+                        AddAsymmShapeSystematicErrors(HWrapper& bg, std::string plot);
 
         float minY;
 
