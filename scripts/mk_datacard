@@ -2,14 +2,14 @@
 
 """Notes
 =====
-* Sample and discriminant names may not contain underscores
-* Indentation shall be four spaces, TABS ARE VERBOTEN!
+* Sample and discriminant names may not contain underscores (with the
+  exception of the sample "data_obs")
+* Indentation shall be four spaces
+* "systematics.csv" shall be aligned at the delimiter "," with spaces.
+  (best achieved with the `tabularized.vim` plugin)
 
 ToDo
 ----
-* Inject b-tag uncertainties properly
-* `splitUncertainties_byCat.C`
-* `copyQ2.C`
 * `statUncertainties.C`
 * doNorm
 * summary of signal + background numbers for each category (stdout)
@@ -17,9 +17,9 @@ ToDo
 To Test
 -------
 * b-tag uncertainty splitting
-
-Done
-----
+  * Inject b-tag uncertainties properly
+  * `splitUncertainties_byCat.C`
+* `copyQ2.C`
 """
 
 import csv
@@ -36,6 +36,10 @@ r.gROOT.SetBatch()
 # systematics) and signal
 sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*?)((?:Up|Down)?)$')
 signal_re = re.compile(r'(ttH).*')
+
+# Regular expressions to match systematics
+sys_qscale_re = re.compile(r'Q2scale_tth_ttbar(\dp)$')
+sys_bshape_re = re.compile(r'(.*)_(eff|fake)_bShape$')
 
 def get_integral(file, discriminant, category, sample="data_obs", uncertainty="", fmt="{n:.3f}"):
     """Get the integral of the histogram specified by the arguments.  The
@@ -118,25 +122,45 @@ def get_systematics(file, overrides={}, samples=False):
         sys.append((unc, type, row))
     return sys
 
+def split_q2(file, disc, which):
+    """Split Q2-systematics by parton number as specified in `which`.
+    """
+    for (p, cats) in which.items():
+        for c in cats:
+            for d in ("Up", "Down"):
+                oldname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{dir}".format(d=disc, c=c, dir=d)
+                newname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{p}{dir}".format(d=disc, c=c, p=p, dir=d)
+                hold = file.Get(oldname)
+                print p, c, d
+                hnew = hold.Clone(newname)
+                file.WriteObject(hnew, newname)
+
 def split_systematics(file, disc, samples):
     """Split b-tag uncertainties:  copy category histogram w/o systematics
     for rates, systematics of form "CMS_eff_bUp" to a shape uncertainty.
 
     The parameter `samples` should be a dictionary containing the
     categories per sample.
+
+    Returns a list of systematics to be injected into the systematics file.
     """
+    done = set()
+    new_sys = []
     r.TH1.SetDefaultSumw2()
 
     for (s, cats) in samples.items():
+        s = s + "125" if s == "ttH" else s
         for c in cats:
             stub = "_".join((s, disc, c))
             orig = file.Get(stub)
+            print stub, orig
             sum = orig.Integral()
             for kind in ("eff", "fake"):
                 for dir in ("Up", "Down"):
-                    rate = orig.Clone("{s}_{k}_bRate{dir}".format(s=stub, k=kind, dir=dir))
-                    shape = file.Get("{s}_{k}_b{dir}".format(s=stub, k=kind, dir=dir)).Clone(
-                            "{s}_CMS_{k}_bShape{dir}".format(s=stub, k=kind, dir=dir))
+                    rate = orig.Clone("{s}_CMS_{k}_bRate{dir}".format(s=stub, k=kind, dir=dir))
+
+                    shape_old = file.Get("{s}_CMS_{k}_b{dir}".format(s=stub, k=kind, dir=dir))
+                    shape = shape_old.Clone("{s}_{c}_{k}_bShape{dir}".format(s=stub, c=c, k=kind, dir=dir))
 
                     rate_sum = rate.Integral()
                     rate.Scale(sum / rate_sum if rate_sum > 0 else 1)
@@ -144,8 +168,15 @@ def split_systematics(file, disc, samples):
                     shape_sum = shape.Integral()
                     shape.Scale(sum / shape_sum if shape_sum > 0 else 1)
 
-                    file.Write(rate)
-                    file.Write(shape)
+                    file.WriteObject(rate, rate.GetName())
+                    file.WriteObject(shape, shape.GetName())
+                if c not in done:
+                    new_sys.append((
+                        "{c}_{k}_bShape".format(c=c, k=kind),
+                        "shape",
+                        dict([(s, "1") for s in samples.keys()])))
+            done.add(c)
+    return new_sys
 
 # =============
 # begin Program
@@ -156,32 +187,55 @@ sysfile = os.path.join(os.path.dirname(execfile), "systematics.csv")
 
 is_8_tev = True
 
+# This replaces "x" in the systematics csv file with the values specified
+# for certain uncertainties
 overrides = {
         "lumi": "1.044" if is_8_tev else "1.022",
         "CMS_ttH_eff_lep": "1.04" if is_8_tev else "1.018",
         "CMS_ttH_QCDscale_ttbb": "1.5"}
 
+# This defines which categories should be split into which parton number
+parton_split = {
+        "0p": "ljets_j4_t3 ljets_j4_t4 e2je2t SS_e3je1t SS_e3jge2t".split(),
+        "1p": "ljets_j5_t3 ljets_j5_tge4 ge3t e3je2t SS_ge4je1t SS_ge4jge2t".split(),
+        "2p": "ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge4je2t".split()}
+
 f = r.TFile(infile, "UPDATE")
+
 # Get available stuff (optional)
+# only care about `samples_cat` really: which categories are present for
+# which samples
 discriminants, samples_cat, categories, systematics = get_contents(f)
 
+disc = discriminants[0]
+
 use_samples = "ttH ttbar singlet wjets zjets".split()
+use_samples = "ttH ttbar ttbarPlusBBbar ttbarPlusCCbar singlet wjets zjets ttbarW ttbarZ diboson".split()
 
 samples = get_systematics(sysfile, samples=True)
+
 # print list(samples)
 # print map(lambda (n, s): s, list(samples))
 # print map(lambda (n, s): s in use_samples, samples)
 # print filter(lambda (n, s): s in use_samples, samples)
+
 nums = dict([(s, n) for (n, s) in enumerate(samples)])
 sys.stderr.write(str(nums) + "\n")
 samples = filter(lambda s: s in use_samples, samples)
+samples_cat = dict(filter(lambda (k,v): k in samples, samples_cat.items()))
 
-categories = "TTL_j2_t1 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
-disc = discriminants[0]
+# categories = "TTL_j2_t1 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
+categories = "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge3t e3je2t ge4je2t SS_ge4je1t SS_e3jge2t SS_ge4jge2t".split()
 
 cats = dict(map(
         lambda (k, v): (k, filter(lambda c: c in v, categories)),
         samples_cat.items()))
+
+systematics = get_systematics(sysfile, overrides=overrides)
+systematics += split_systematics(f, disc, cats)
+import pprint
+print pprint.pprint(systematics)
+split_q2(f, disc, parton_split)
 
 # Print preamble
 print """imax * # number of channels
@@ -193,7 +247,8 @@ observed = map(lambda c: get_integral(f, disc, c, fmt="{n:.6f}"), categories)
 print "bin " + " ".join(categories)
 print "observation " + " ".join(map(str, observed))
 
-del cats["data_obs"]
+if "data_obs" in cats:
+    del cats["data_obs"]
 
 print """---------------
 shapes * * {f} $PROCESS_{d}_$CHANNEL $PROCESS_{d}_$CHANNEL_$SYSTEMATIC
@@ -211,7 +266,7 @@ for s in samples[1:]:
 sys.stdout.write("\n")
 print "---------------"
 
-for (unc, type, vals) in get_systematics(sysfile, overrides=overrides):
+for (unc, type, vals) in systematics:
     if unc == "lumi":
         unc += "_8TeV" if is_8_tev else "_7TeV";
     sys.stdout.write(unc + " " + type)
@@ -226,10 +281,10 @@ for (unc, type, vals) in get_systematics(sysfile, overrides=overrides):
                     if get_integral(f, disc, c, file_s, unc + "Down") == "0.000":
                         raise
                     sys.stdout.write(" " + vals[s])
-                    sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v=vals[s]))
+                    # sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v=vals[s]))
                 except:
                     sys.stdout.write(" -")
-                    sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v="-"))
+                    # sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v="-"))
             elif vals[s] in ["-", "1"]:
                 sys.stdout.write(" " + vals[s])
             else:
