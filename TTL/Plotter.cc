@@ -69,8 +69,8 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		if(IsFlagThere("PUcorr")){ iPuWeight = event->Ev_puWeight; }
 		if(IsFlagThere("PUcorrUp")){ iPuWeight = event->Ev_puWeightUp; }
 		if(IsFlagThere("PUcorrDown")){ iPuWeight = event->Ev_puWeightDown; }
-		if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = event->Ev_q2WeightUp; }
-		if(IsFlagThere("qSquaredDown")){ iQ2SysWeight = event->Ev_q2WeightDown; }
+		if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = 1.402*event->Ev_q2WeightUp; }
+		if(IsFlagThere("qSquaredDown")){ iQ2SysWeight =  0.683*event->Ev_q2WeightDown; }
 		
         if(IsFlagThere("trigger")){ 
 			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->GetBestCombo()));
@@ -95,19 +95,20 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
             wt = 1 - (atof((params["jetTauFakeSys"]).c_str()) - 1);
         }
         if(IsFlagThere("tauIdEffUp")){
-            matchIndex = 1; //tau
+            matchIndex = 2; //tau
             wt = atof((params["tauIdEffSys"]).c_str());
         }
         if(IsFlagThere("tauIdEffDown")){
-            matchIndex = 1; //tau 
+            matchIndex = 2; //tau 
             wt = 1 - (atof((params["tauIdEffSys"]).c_str()) - 1);
-        }   
+        }
+        //cout << "wt = " << wt << endl;
         if( ( event->GetTau1MatchIndex(iCombo) == matchIndex ) || ( event->GetTau2MatchIndex(iCombo) == matchIndex ) )
             iTauIdSysWeight = wt;
         if( ( event->GetTau1MatchIndex(iCombo) == matchIndex ) && ( event->GetTau2MatchIndex(iCombo) == matchIndex ) )
-            iTauIdSysWeight = sqrt(wt*wt + wt*wt);//*/
+            iTauIdSysWeight = wt*wt;//*/
 	}//*/
-
+    //cout << "iTauIdSysWeight = " << iTauIdSysWeight << endl;
 	iWeightCounter->topPtCorrection		+= iTopPtWeight;
 	iWeightCounter->leptonCorrection	+= iLeptonWeight;
 	iWeightCounter->puCorrection		+= iPuWeight;
