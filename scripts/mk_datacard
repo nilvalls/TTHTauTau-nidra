@@ -1,0 +1,241 @@
+#!/usr/bin/env python
+
+"""Notes
+=====
+* Sample and discriminant names may not contain underscores
+* Indentation shall be four spaces, TABS ARE VERBOTEN!
+
+ToDo
+----
+* Inject b-tag uncertainties properly
+* `splitUncertainties_byCat.C`
+* `copyQ2.C`
+* `statUncertainties.C`
+* doNorm
+* summary of signal + background numbers for each category (stdout)
+
+To Test
+-------
+* b-tag uncertainty splitting
+
+Done
+----
+"""
+
+import csv
+import math
+import os
+import re
+import ROOT as r
+import sys
+
+# The holy first line of PyROOT
+r.gROOT.SetBatch()
+
+# Define some regular expressions to match samples (with optional
+# systematics) and signal
+sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*?)((?:Up|Down)?)$')
+signal_re = re.compile(r'(ttH).*')
+
+def get_integral(file, discriminant, category, sample="data_obs", uncertainty="", fmt="{n:.3f}"):
+    """Get the integral of the histogram specified by the arguments.  The
+    first argument has to be an open ROOT TFile.
+    """
+    if len(uncertainty) > 0:
+        uncertainty = "_" + uncertainty
+    h = file.Get("{s}_{d}_{c}{u}".format(s=sample, d=discriminant, c=category, u=uncertainty))
+    return fmt.format(n=h.Integral())
+
+def get_contents(file):
+    """Reads the contents of `file`, an open ROOT TFile, and tries to
+    extract available categories, discriminants, samples, and systematics.
+    Returns a tuple containing the four aforementioned quantities.
+    """
+    samples = {}
+    discriminants = set()
+    categories = set()
+    systematics = set()
+
+    for k in f.GetListOfKeys():
+        m = sample_re.match(k.GetName())
+        if not m:
+            sys.stderr.write("File content '{k}' does not match "
+                    "expected pattern!\n".format(k=k.GetName()))
+        else:
+            sample, disc, title, dir = m.groups()
+
+            m = signal_re.match(sample)
+            if m:
+                sample = m.group(1)
+
+            discriminants.add(disc)
+
+            if dir == "":
+                categories.add(title)
+
+                if sample not in samples:
+                    samples[sample] = set()
+                samples[sample].add(title)
+            else:
+                systematics.add(title)
+
+    # Filter systematics by removing the best fitting category string
+    systematics = set(
+            map(lambda s: min(map(lambda c: s.replace(c + "_", ""), categories),
+                    key=str.__len__),
+                systematics))
+
+    return (sorted(discriminants), samples, categories, systematics)
+
+def get_systematics(file, overrides={}, samples=False):
+    """Reads `file` and returns a list of (uncertainty, type, {sample:
+    value}).
+
+    The parameter `overrides` allows to specify a dict of form
+    {uncertainty: value}, and values of "x" n the systematics file are
+    replaced by the one specified in the dict.
+
+    The parameter `samples` can be set to `True` to obtain the available
+    sample names defined in the systematics file.
+    """
+    reader = csv.DictReader(open(sysfile))
+    reader.fieldnames = map(str.strip, reader.fieldnames)
+    sys_samples = reader.fieldnames[2:]
+
+    if samples:
+        return sys_samples
+
+    sys = []
+    for row in reader:
+        unc = row.pop("Uncertainty").strip()
+        type = row.pop("Type").strip()
+        row = dict(map(lambda (k,v): (k, v.strip()), row.items()))
+        if unc in overrides:
+            row = dict(
+                    map(
+                        lambda (k,v): (k, overrides[unc] if v == "x" else v),
+                        row.items()))
+        sys.append((unc, type, row))
+    return sys
+
+def split_systematics(file, disc, samples):
+    """Split b-tag uncertainties:  copy category histogram w/o systematics
+    for rates, systematics of form "CMS_eff_bUp" to a shape uncertainty.
+
+    The parameter `samples` should be a dictionary containing the
+    categories per sample.
+    """
+    r.TH1.SetDefaultSumw2()
+
+    for (s, cats) in samples.items():
+        for c in cats:
+            stub = "_".join((s, disc, c))
+            orig = file.Get(stub)
+            sum = orig.Integral()
+            for kind in ("eff", "fake"):
+                for dir in ("Up", "Down"):
+                    rate = orig.Clone("{s}_{k}_bRate{dir}".format(s=stub, k=kind, dir=dir))
+                    shape = file.Get("{s}_{k}_b{dir}".format(s=stub, k=kind, dir=dir)).Clone(
+                            "{s}_CMS_{k}_bShape{dir}".format(s=stub, k=kind, dir=dir))
+
+                    rate_sum = rate.Integral()
+                    rate.Scale(sum / rate_sum if rate_sum > 0 else 1)
+
+                    shape_sum = shape.Integral()
+                    shape.Scale(sum / shape_sum if shape_sum > 0 else 1)
+
+                    file.Write(rate)
+                    file.Write(shape)
+
+# =============
+# begin Program
+# =============
+execfile = sys.argv[0]
+infile = sys.argv[1]
+sysfile = os.path.join(os.path.dirname(execfile), "systematics.csv")
+
+is_8_tev = True
+
+overrides = {
+        "lumi": "1.044" if is_8_tev else "1.022",
+        "CMS_ttH_eff_lep": "1.04" if is_8_tev else "1.018",
+        "CMS_ttH_QCDscale_ttbb": "1.5"}
+
+f = r.TFile(infile, "UPDATE")
+# Get available stuff (optional)
+discriminants, samples_cat, categories, systematics = get_contents(f)
+
+use_samples = "ttH ttbar singlet wjets zjets".split()
+
+samples = get_systematics(sysfile, samples=True)
+# print list(samples)
+# print map(lambda (n, s): s, list(samples))
+# print map(lambda (n, s): s in use_samples, samples)
+# print filter(lambda (n, s): s in use_samples, samples)
+nums = dict([(s, n) for (n, s) in enumerate(samples)])
+sys.stderr.write(str(nums) + "\n")
+samples = filter(lambda s: s in use_samples, samples)
+
+categories = "TTL_j2_t1 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
+disc = discriminants[0]
+
+cats = dict(map(
+        lambda (k, v): (k, filter(lambda c: c in v, categories)),
+        samples_cat.items()))
+
+# Print preamble
+print """imax * # number of channels
+jmax * # number of backgrounds
+kmax * # number of nuisance parameters
+---------------"""
+
+observed = map(lambda c: get_integral(f, disc, c, fmt="{n:.6f}"), categories)
+print "bin " + " ".join(categories)
+print "observation " + " ".join(map(str, observed))
+
+del cats["data_obs"]
+
+print """---------------
+shapes * * {f} $PROCESS_{d}_$CHANNEL $PROCESS_{d}_$CHANNEL_$SYSTEMATIC
+shapes ttH * {f} $PROCESS$MASS_{d}_$CHANNEL $PROCESS$MASS_{d}_$CHANNEL_$SYSTEMATIC
+---------------""".format(d=disc, f=infile)
+
+ncat = len(categories)
+print "bin " + " ".join(categories * len(samples))
+print "process" + "".join(map(lambda s: (" " + s) * len(cats[s]), samples))
+print "process" + "".join(map(lambda s: (" " + str(nums[s])) * len(cats[s]), samples))
+sys.stdout.write("rate" + " -1" * len(cats["ttH"]))
+for s in samples[1:]:
+    for c in cats[s]:
+        sys.stdout.write(" " + str(get_integral(f, disc, c, s, fmt="{n:.6}")))
+sys.stdout.write("\n")
+print "---------------"
+
+for (unc, type, vals) in get_systematics(sysfile, overrides=overrides):
+    if unc == "lumi":
+        unc += "_8TeV" if is_8_tev else "_7TeV";
+    sys.stdout.write(unc + " " + type)
+
+    for s in samples:
+        file_s = s + "125" if s == "ttH" else s
+        for c in cats[s]:
+            if type == "shape":
+                try:
+                    if get_integral(f, disc, c, file_s, unc + "Up") == "0.000":
+                        raise
+                    if get_integral(f, disc, c, file_s, unc + "Down") == "0.000":
+                        raise
+                    sys.stdout.write(" " + vals[s])
+                    sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v=vals[s]))
+                except:
+                    sys.stdout.write(" -")
+                    sys.stderr.write("{u}: {c} {s} {v}\n".format(u=unc, s=s, c=c, v="-"))
+            elif vals[s] in ["-", "1"]:
+                sys.stdout.write(" " + vals[s])
+            else:
+                new_val = math.e ** (math.sqrt(
+                    math.log(1 + (float(vals[s]) - 1)**2)))
+                sys.stdout.write(" {n:.3f}".format(n=new_val))
+    sys.stdout.write("\n")
+
+print "---------------"
