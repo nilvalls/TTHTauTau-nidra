@@ -52,6 +52,12 @@ r.gROOT.SetBatch()
 sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*)(?!(?:Up|Down)$)')
 signal_re = re.compile(r'(ttH).*')
 
+class IntegralException(Exception):
+    """To catch integrals evaluating to zero.  `combine` does not like this
+    for systematics.
+    """
+    pass
+
 def get_ann_systematics(file, discriminant, categories, samples, data_sample="data_obs",
         signal_sample="ttH"):
     """For all samples and categories, this functions produces single bin
@@ -133,7 +139,7 @@ def get_integral(file, discriminant, category, sample="data_obs", uncertainty=""
     h = file.Get("{s}_{d}_{c}{u}".format(s=sample, d=discriminant, c=category, u=uncertainty))
     i = h.Integral()
     if i == 0. and throw:
-        raise Exception("The integral for {s}, {d}, {c}, {u} in {f} is zero!".format(
+        raise IntegralException("The integral for {s}, {d}, {c}, {u} in {f} is zero!".format(
             s=sample, d=discriminant, c=category, u=uncertainty, f=file.GetName()))
     return fmt.format(n=h.Integral())
 
@@ -160,13 +166,16 @@ def get_samples(file, discriminant):
             samples[sample].add(cat)
     return samples
 
-def get_systematics(file, overrides={}, samples=False):
+def get_systematics(file, overrides={}, rename=lambda u: u, samples=False):
     """Reads `file` and returns a list of (uncertainty, type, {sample:
     value}).
 
     The parameter `overrides` allows to specify a dict of form
     {uncertainty: value}, and values of "x" n the systematics file are
     replaced by the one specified in the dict.
+
+    A function passed as `rename` allows to alter the uncertainty name,
+    _after_ all other processing has happened.
 
     The parameter `samples` can be set to `True` to obtain the available
     sample names defined in the systematics file.
@@ -188,7 +197,7 @@ def get_systematics(file, overrides={}, samples=False):
                     map(
                         lambda (k,v): (k, overrides[unc] if v == "x" else v),
                         row.items()))
-        sys.append((unc, type, row))
+        sys.append((rename(unc), type, row))
     return sys
 
 def split_q2(file, disc, which):
@@ -253,11 +262,16 @@ def split_systematics(file, disc, samples):
 # =============
 # begin Program
 # =============
-execfile = sys.argv[0]
 infile = sys.argv[1]
-sysfile = os.path.join(os.path.dirname(execfile), "systematics.csv")
 
 is_8_tev = True
+
+disc = "CFMlpANN"
+all_categories = \
+        "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 " \
+        "ge3t e3je2t ge4je2t " \
+        "SS_ge4je1t SS_e3jge2t SS_ge4jge2t " \
+        "TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
 
 # This replaces "x" in the systematics csv file with the values specified
 # for certain uncertainties
@@ -271,6 +285,14 @@ parton_split = {
         "0p": "ljets_j4_t3 ljets_j4_t4 e2je2t SS_e3je1t SS_e3jge2t".split(),
         "1p": "ljets_j5_t3 ljets_j5_tge4 ge3t e3je2t SS_ge4je1t SS_ge4jge2t".split(),
         "2p": "ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge4je2t".split()}
+
+execfile = sys.argv[0]
+sysfile = os.path.join(os.path.dirname(execfile), "systematics.csv")
+
+def rename(unc):
+    if unc == "lumi":
+        return unc + "_8TeV" if is_8_tev else unc + "_7TeV"
+    return unc
 
 def jet_multiplicity(cat):
     if "e2je2t" in cat:
@@ -287,29 +309,27 @@ def jet_multiplicity(cat):
 
 f = r.TFile(infile, "UPDATE")
 
-disc = "CFMlpANN"
-categories = "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge3t e3je2t ge4je2t SS_ge4je1t SS_e3jge2t SS_ge4jge2t TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
-
 # Retrieve list of samples (ordered) from systematics file
 samples = get_systematics(sysfile, samples=True)
 
 # Get available categories for every sample
-samples_cat = get_samples(f, disc)
+all_samples = get_samples(f, disc)
 
-# Trim previous to the samples defined in the systematics file
-samples_cat = dict(filter(lambda (k,v): k in samples, samples_cat.items()))
-
-# Filter categories to the ones defined above
+# Trim previous to the samples defined in the systematics file and filter
+# categories to the ones defined above
 cats = dict(map(
-        lambda (k, v): (k, filter(lambda c: c in v, categories)),
-        samples_cat.items()))
+        lambda (k, v): (k, filter(lambda c: c in v, all_categories)),
+        filter(
+            lambda (k, v): k in samples,
+            all_samples.items())))
 
 # Enumerate samples for combine
 nums = dict([(s, n) for (n, s) in enumerate(samples)])
 
-systematics = get_systematics(sysfile, overrides=overrides)
+systematics = get_systematics(sysfile, overrides=overrides, rename=rename)
+all_uncertainties = map(lambda (u, t, vs): u, systematics)
 systematics += split_systematics(f, disc, cats)
-systematics += get_ann_systematics(f, disc, categories, cats)
+systematics += get_ann_systematics(f, disc, all_categories, cats)
 
 new_cats = set()
 for (s, cs) in cats.items():
@@ -359,9 +379,10 @@ for s in samples[1:]:
 sys.stdout.write("\n")
 print "---------------"
 
+active_unc = []
 for (unc, type, vals) in systematics:
-    if unc == "lumi":
-        unc += "_8TeV" if is_8_tev else "_7TeV"
+
+    active = False
 
     for s in samples:
         file_s = s + "125" if s == "ttH" else s
@@ -371,13 +392,24 @@ for (unc, type, vals) in systematics:
                     get_integral(f, disc, c, file_s, unc + "Up", throw=True)
                     get_integral(f, disc, c, file_s, unc + "Down", throw=True)
                     sys.stdout.write(" " + vals[s])
-                except:
-                    sys.stderr.write("Integral not available for {s}, {c}, {u}: disabling "
-                            "systematics\n".format(s=s, c=c, u=unc))
+                    active = True
+                except IntegralException, e:
                     sys.stdout.write(" -")
+                    # Print for everything _except_ for b-tag shape or ANN
+                    # uncertainties with inappropriate category
+                    if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
+                        sys.stderr.write("Integral zero for {s}, {c}, {u}: disabling "
+                                "systematics\n".format(s=s, c=c, u=unc))
+                except:
+                    sys.stdout.write(" -")
+                    if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
+                        sys.stderr.write("Integral not available for {s}, {c}, {u}: disabling "
+                                "systematics\n".format(s=s, c=c, u=unc))
             elif vals[s] in ["-", "1"] and not \
                     (unc == "Q2scale_ttH_V" and s in ("wjets", "zjets")):
                 sys.stdout.write(" " + vals[s])
+                if vals[s] == "1":
+                    active = True
             else:
                 if unc == "Q2scale_ttH_V" and s in ("wjets", "zjets"):
                     mult = jet_multiplicity(c)
@@ -387,9 +419,33 @@ for (unc, type, vals) in systematics:
                         sys.stdout.write(" -")
                         continue
 
+                active = True
                 new_val = math.e ** (math.sqrt(
                     math.log(1 + (float(vals[s]) - 1)**2)))
                 sys.stdout.write(" {n:.3f}".format(n=new_val))
     sys.stdout.write("\n")
 
+    if active:
+        active_unc.append(unc)
+
 print "---------------"
+
+cstring = " ".join(map(lambda c: c if c in categories else "[" + c + "]",
+    all_categories)).replace("] [", " ")
+sstring = " ".join(map(lambda s: s if s in all_samples.keys() else "[" + s + "]",
+    samples)).replace("] [", " ")
+ustring = " ".join(map(lambda u: u if u in active_unc else "[" + u + "]",
+    all_uncertainties)).replace("] [", " ")
+
+sys.stderr.write("""
+Executive Summary
+=================
+
+Included in Datacard
+--------------------
+Categories:    {cs}
+Samples:       {ss}
+Uncertainties: {us}
+~~~
+Disabled objects present within []s
+""".format(cs=cstring, ss=sstring, us=ustring))
