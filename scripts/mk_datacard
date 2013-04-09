@@ -46,14 +46,18 @@ import sys
 # The holy first line of PyROOT
 r.gROOT.SetBatch()
 
-# Define some regular expressions to match samples (with optional
-# systematics) and signal
-sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*?)((?:Up|Down)?)$')
+# Define some regular expressions to match samples and signal.  The last
+# part of the former expression is a negative look-ahead making sure that
+# systematics are not caught by the category definition.
+sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*)(?!(?:Up|Down)$)')
 signal_re = re.compile(r'(ttH).*')
 
 def get_ann_systematics(file, discriminant, categories, samples, data_sample="data_obs",
         signal_sample="ttH"):
-    """
+    """For all samples and categories, this functions produces single bin
+    systematics, shifts present in only one bin.  These shift will be
+    produced when a process has significant expectation and the systematic
+    is expected to contribute to the error.
     """
     new_sys = []
 
@@ -133,46 +137,28 @@ def get_integral(file, discriminant, category, sample="data_obs", uncertainty=""
             s=sample, d=discriminant, c=category, u=uncertainty, f=file.GetName()))
     return fmt.format(n=h.Integral())
 
-def get_contents(file):
+def get_samples(file, discriminant):
     """Reads the contents of `file`, an open ROOT TFile, and tries to
-    extract available categories, discriminants, samples, and systematics.
-    Returns a tuple containing the four aforementioned quantities.
+    extract available categories per sample.
     """
     samples = {}
-    discriminants = set()
-    categories = set()
-    systematics = set()
 
     for k in f.GetListOfKeys():
         m = sample_re.match(k.GetName())
-        if not m:
-            sys.stderr.write("File content '{k}' does not match "
-                    "expected pattern!\n".format(k=k.GetName()))
-        else:
-            sample, disc, title, dir = m.groups()
+        if m:
+            sample, disc, cat = m.groups()
+
+            if disc != discriminant:
+                continue
 
             m = signal_re.match(sample)
             if m:
                 sample = m.group(1)
 
-            discriminants.add(disc)
-
-            if dir == "":
-                categories.add(title)
-
-                if sample not in samples:
-                    samples[sample] = set()
-                samples[sample].add(title)
-            else:
-                systematics.add(title)
-
-    # Filter systematics by removing the best fitting category string
-    systematics = set(
-            map(lambda s: min(map(lambda c: s.replace(c + "_", ""), categories),
-                    key=str.__len__),
-                systematics))
-
-    return (sorted(discriminants), samples, categories, systematics)
+            if sample not in samples:
+                samples[sample] = set()
+            samples[sample].add(cat)
+    return samples
 
 def get_systematics(file, overrides={}, samples=False):
     """Reads `file` and returns a list of (uncertainty, type, {sample:
@@ -301,32 +287,25 @@ def jet_multiplicity(cat):
 
 f = r.TFile(infile, "UPDATE")
 
-# Get available stuff (optional)
-# only care about `samples_cat` really: which categories are present for
-# which samples
-not_used_disc, samples_cat, categories, not_used_systematics = get_contents(f)
-
 disc = "CFMlpANN"
+categories = "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge3t e3je2t ge4je2t SS_ge4je1t SS_e3jge2t SS_ge4jge2t TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
 
 # Retrieve list of samples (ordered) from systematics file
 samples = get_systematics(sysfile, samples=True)
 
-# Enumerate samples for combine
-nums = dict([(s, n) for (n, s) in enumerate(samples)])
+# Get available categories for every sample
+samples_cat = get_samples(f, disc)
 
-# use_samples = "ttH ttbar singlet wjets zjets".split()
-# use_samples = "ttH ttbar ttbarPlusBBbar ttbarPlusCCbar singlet wjets zjets ttbarW ttbarZ diboson".split()
-# samples = filter(lambda s: s in use_samples, samples)
-
-# Trim {sample: categories} map to the samples defined in the systematics
-# file
+# Trim previous to the samples defined in the systematics file
 samples_cat = dict(filter(lambda (k,v): k in samples, samples_cat.items()))
 
-categories = "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge3t e3je2t ge4je2t SS_ge4je1t SS_e3jge2t SS_ge4jge2t TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
-
+# Filter categories to the ones defined above
 cats = dict(map(
         lambda (k, v): (k, filter(lambda c: c in v, categories)),
         samples_cat.items()))
+
+# Enumerate samples for combine
+nums = dict([(s, n) for (n, s) in enumerate(samples)])
 
 systematics = get_systematics(sysfile, overrides=overrides)
 systematics += split_systematics(f, disc, cats)
@@ -345,7 +324,6 @@ samples = filter(lambda s: s in cats, samples)
 # print "FOOBAR"
 # print pprint.pprint(systematics)
 split_q2(f, disc, parton_split)
-# f.ls()
 
 # Print preamble
 print """imax * # number of channels
@@ -383,9 +361,7 @@ print "---------------"
 
 for (unc, type, vals) in systematics:
     if unc == "lumi":
-        unc += "_8TeV" if is_8_tev else "_7TeV";
-    sys.stderr.write(unc + "\n")
-    sys.stdout.write(unc + " " + type)
+        unc += "_8TeV" if is_8_tev else "_7TeV"
 
     for s in samples:
         file_s = s + "125" if s == "ttH" else s
