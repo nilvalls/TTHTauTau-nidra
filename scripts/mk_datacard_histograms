@@ -36,40 +36,54 @@ if len(args) != 1:
 
 # input hist title : output hist title
 samples = {
-        'TTbar_hadronic':'ttbar',
-        'TTbar_semilept':'ttbar_sl',
-        'TTbar_fulllept':'ttbar_fl',
+        'TTbar_Hadronic':'ttbar',
+        'TTbar_SemiLept':'ttbar_sl',
+        'TTbar_FullLept':'ttbar_fl',
         'WplusOneJet':'wjets',
         'WplusTwoJets':'wjets2',
         'WplusThreeJets':'wjets3',
         'WplusFourJets':'wjets4',
-        'ZjetsM10-50':'zjets_lowmass',
-        'ZjetsM50':'zjets',
+        'ZplusOneJet': 'zjets',
+        'ZplusTwoJets': 'zjets2',
+        'ZplusThreeJets': 'zjets3',
+        'ZplusFourJets': 'zjets4',
         'WW':'ww',
         'WZ':'wz',
         'ZZ':'zz',
-        'sT-sCh':'sts',
-        'sTbar-sCh':'stbs',
-        'sT-tCh':'stt',
-        'sTbar-tCh':'stbt',
-        'sTW':'stw',
-        'sTbarW':'stbw',
+        'singleTopSch':'sts',
+        'singleTopBarSch':'stbs',
+        'singleTopTch':'stt',
+        'singleTopBarTch':'stbt',
+        'singleTopPlusW':'stw',
+        'singleTopBarPlusW':'stbw',
         'Collisions':'data_obs',
-        'TTH_125':'ttH125'
+        'TTHTauTau_125':'ttH125',
+        # 'TTH_125':'ttH125'
+}
+
+sys_rename = {
+        'JES': 'CMS_scale_j',
+        'hfSF': 'CMS_eff_b',
+        'lfSF': 'CMS_fake_b',
+        'topPtSF': 'CMS_ttH_topPtcorr',
+        'PUcorr': 'CMS_ttH_pu'
 }
 
 if opts.sys is not None:
     opts.sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
+    for (key, val) in sys_rename.items():
+        if key in opts.sys:
+            opts.sys = opts.sys.replace(key, val)
     del samples['Collisions']
 else:
     opts.sys = ""
 
 samplesToSum = {
-        'zjets': ['ZjetsM50','ZjetsM10-50'],
         'diboson': ['WW','WZ','ZZ'],
-        'singlet': ['sT-sCh','sT-tCh','sTbar-sCh','sTbar-tCh','sTW','sTbarW'],
-        'ttbar': ['TTbar_hadronic', 'TTbar_semilept', 'TTbar_fulllept'],
-        'wjets': ['WplusOneJet', 'WplusTwoJets', 'WplusThreeJets', 'WplusFourJets']
+        'singlet': ['singleTopSch', 'singleTopBarSch', 'singleTopTch', 'singleTopBarTch', 'singleTopPlusW', 'singleTopBarPlusW'],
+        'ttbar': ['TTbar_Hadronic', 'TTbar_SemiLept', 'TTbar_FullLept'],
+        'wjets': ['WplusOneJet', 'WplusTwoJets', 'WplusThreeJets', 'WplusFourJets'],
+        'zjets': ['ZplusOneJet', 'ZplusTwoJets', 'ZplusThreeJets', 'ZplusFourJets'],
         #'sT' : ['sT-sCh','sT-tCh'],
         #'sTbar' : ['sTbar-sCh','sTbar-tCh'],
         #'sTplusW' : ['sTW','sTbarW']
@@ -119,7 +133,11 @@ for sum,summed in samplesToSum.items():
     # do sum
     hists[sum] = copy.deepcopy(hists[summed[0]])
     for sample in summed[1:]:
-      hists[sum].Add(hists[sample])
+        try:
+            hists[sum].Add(hists[sample])
+        except Exception, e:
+            print e
+            print "occurent while processing " + sample
 
 # save histograms
 fileOut = ROOT.TFile(outputFilePath,'RECREATE')
