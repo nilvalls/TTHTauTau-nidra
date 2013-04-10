@@ -4,12 +4,8 @@
 
 using namespace std;
 
-
-
 // Default constructor
-HWrapper::HWrapper(){
-	histo	= NULL;
-}
+HWrapper::HWrapper() : histo(0) {}
 
 // Copy constructor
 HWrapper::HWrapper(HWrapper const & iHWrapper){
@@ -69,7 +65,7 @@ HWrapper::HWrapper(string iName, string iSubDir, string iType, const Config& iCo
 
 	// Error setup
 	histo->SetDefaultSumw2(kFALSE);
-	for(unsigned bin=0; bin <= histo->GetNbinsX(); bin++){
+	for(int bin=0; bin <= histo->GetNbinsX(); bin++){
 		histo->SetBinError(bin,0);	
 	}
 	//histo->Sumw2();
@@ -211,12 +207,12 @@ void HWrapper::ScaleBy(double const iFactor){
 
 void HWrapper::ScaleErrorBy(double const iFactor){	
 	if(iFactor != iFactor){ cerr << "ERROR: trying to ScaleErrorBy(nan)" << endl; exit(1); }
-	for(unsigned int b=0; b<=histo->GetNbinsX(); b++){ histo->SetBinError(b, iFactor*(histo->GetBinError(b))); }
+	for(int b=0; b<=histo->GetNbinsX(); b++){ histo->SetBinError(b, iFactor*(histo->GetBinError(b))); }
 }
 
 void HWrapper::AddRelErrorInQuadrature(double const iError){	
 	if(iError != iError){ cerr << "ERROR: trying to AddRelErrorInQuadrature(nan)" << endl; exit(1); }
-	for(unsigned int b=0; b<=histo->GetNbinsX(); b++){ 
+	for(int b=0; b<=histo->GetNbinsX(); b++){ 
         AddRelErrorInQuadrature(iError, b); 
     }
 }
@@ -245,13 +241,13 @@ void HWrapper::Fill(double iValue1, double iValue2, double iWeight){
 // Zero negative bins only
 void HWrapper::Positivize(){
 	if(isTH1F){
-		for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
+		for(int b = 1; b <= histo->GetNbinsX(); b++){
 			float oldContent = histo->GetBinContent(b);
 			if(oldContent < 0){ histo->SetBinContent(b, 0); }
 		}
 	}else{
-		for(unsigned int bx = 1; bx <= histo->GetNbinsX(); bx++){
-			for(unsigned int by = 1; by <= histo->GetNbinsY(); by++){
+		for(int bx = 1; bx <= histo->GetNbinsX(); bx++){
+			for(int by = 1; by <= histo->GetNbinsY(); by++){
 				float oldContent = histo->GetBinContent(bx,by);
 				if(oldContent < 0){ histo->SetBinContent(bx, by, 0); }
 			}
@@ -265,7 +261,7 @@ void HWrapper::FillRandom(string const iFunction){ histo->FillRandom(iFunction.c
 double const HWrapper::GetMaximum() const { return histo->GetBinContent(histo->GetMaximumBin()); }
 double const HWrapper::GetMaximumWithError() const {
 	double result = 0;
-	for(unsigned int b = 1; b <= histo->GetNbinsX(); b++){
+	for(int b = 1; b <= histo->GetNbinsX(); b++){
 		double content = histo->GetBinContent(b);	
 		double error = histo->GetBinError(b);	
 		if((content+error) > result){ result = content+error; }
@@ -285,7 +281,7 @@ void HWrapper::PrintInfo(){
 	cout << "\tMax w err.." << GetMaximumWithError() << endl;
 	cout << "--------------------------" << endl;
 
-	for(unsigned int b=0; b <= histo->GetNbinsX(); b++){
+	for(int b=0; b <= histo->GetNbinsX(); b++){
 		cout << "\t" << b << "\t" << histo->GetBinLowEdge(b) << "\t" << histo->GetBinContent(b) << "\t+/-\t" << histo->GetBinError(b) << endl;
 	}
 	cout << "==========================\n\n" << endl;
