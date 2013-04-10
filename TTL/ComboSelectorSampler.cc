@@ -123,11 +123,6 @@ void TTL_ComboSelectorSampler::FillTrees(TTLBranches* iEvent){
 		float lepEta	= event->TTL_LeptonEta->at(combo);
 		float lepPhi	= event->TTL_LeptonPhi->at(combo);
 
-		float jet1eta = -99;
-		float jet1phi = -99;
-		float jet2eta = -99;
-		float jet2phi = -99;
-
 		DeltaRTau1Tau2 = DeltaR(tau1eta, tau1phi, tau2eta, tau2phi);
 		DeltaRTau1Lepton = DeltaR(tau1eta, tau1phi, lepEta, lepPhi);
 		DeltaRTau2Lepton = DeltaR(tau2eta, tau2phi, lepEta, lepPhi);

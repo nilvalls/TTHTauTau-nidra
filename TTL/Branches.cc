@@ -139,7 +139,7 @@ TTLBranches::GetComboSelectorResponse(const unsigned int idx) const
 }
 
 unsigned int
-TTLBranches::GetJetIndex(const unsigned int idx, const unsigned int num)
+TTLBranches::GetJetIndex(const int idx, const unsigned int num)
 {
     if (idx != jetIndexCacheCombo) {
         jetIndexCache.clear();

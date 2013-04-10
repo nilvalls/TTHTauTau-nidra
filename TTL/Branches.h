@@ -28,7 +28,7 @@ class TTLBranches : public Branches {
         virtual void GetEntry(double);
 
         // Get index (excluding taus) of jet in J_ branches (which include taus)
-        unsigned int GetJetIndex(const unsigned int, const unsigned int);
+        unsigned int GetJetIndex(const int, const unsigned int);
 		unsigned int	GetTau1IsolationIndex(const unsigned int) const;
 		unsigned int	GetTau2IsolationIndex(const unsigned int) const;
 		unsigned int	GetTau1AntiElectronIndex(const unsigned int) const;

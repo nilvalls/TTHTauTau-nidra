@@ -173,7 +173,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 		// Then, if we have signals, plot them next
 		if(haveSignals){
-			for(unsigned int s = 0; s < signalHistos.size(); s++){
+			for(int s = 0; s < signalHistos.size(); s++){
                 string name = signalHistos.GetNames().at(s);
                 const Process *proc;
 
