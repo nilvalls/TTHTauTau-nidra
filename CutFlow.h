@@ -44,12 +44,12 @@ class CutFlow {
             int rank;
             float min;
             float max;
-            bool currentSignalResult;
-            bool currentQCDResult;
             float passedSignalCombos;
             float passedQCDCombos;
             float passedSignalEvents;
             float passedQCDEvents;
+            bool currentSignalResult;
+            bool currentQCDResult;
 
             Cut(const string n="", const int r=0, const float mn=0., const float=0., const double sig=0., const double qcd=0.);
 

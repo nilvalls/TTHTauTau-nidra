@@ -8,10 +8,7 @@
 
 #include "TMVASampler.h"
 
-#define TTL_TMVASampler_cxx
 using namespace std;
-
-#define AT __LINE__
 
 TTL_TMVASampler::TTL_TMVASampler(map<string,string>const & iParams) : TMVASampler(iParams){
 	//MakeTrainingSample(proPack);
@@ -131,11 +128,6 @@ void TTL_TMVASampler::FillTree(TTree* iTree, Process const * iProcess){
 		float tau2phi	= event->TTL_Tau2Phi->at(bestCombo);
 		float lepEta	= event->TTL_LeptonEta->at(bestCombo);
 		float lepPhi	= event->TTL_LeptonPhi->at(bestCombo);
-
-		float jet1eta = -99;
-		float jet1phi = -99;
-		float jet2eta = -99;
-		float jet2phi = -99;
 
 		DeltaRTau1Tau2 = DeltaR(tau1eta, tau1phi, tau2eta, tau2phi);
 		DeltaRTau1Lepton = DeltaR(tau1eta, tau1phi, lepEta, lepPhi);

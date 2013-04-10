@@ -95,8 +95,6 @@ void CutFlow::RegisterCut(string const iName, int const iRank,  double const iEv
 }
 
 void CutFlow::RegisterCutFromLast(string const iName, int const iRank, double const iFactorForSignal, double const iFactorForQCD){
-	double lastCountForSignal = GetLastCountForSignal();
-	double lastCountForQCD = GetLastCountForQCD();
 	RegisterCut(iName, iRank, iFactorForSignal*GetLastCountForSignal(), iFactorForQCD*GetLastCountForQCD());
 }
 
@@ -153,8 +151,8 @@ bool CutFlow::HaveGoodCombos(){
 void CutFlow::EndOfCombo(pair<bool, bool> iCombosTarget, int const iComboNumber){
 
 	// At the end of the cutflow for this very combo, determine its target, and fill the signal/QCD combo counters accordingly
-	bool comboIsForSignal	= iCombosTarget.first;
-	bool comboIsForQCD		= iCombosTarget.second;
+    // bool comboIsForSignal	= iCombosTarget.first;
+    // bool comboIsForQCD		= iCombosTarget.second;
 
 	// Provided that the each target has not yet been satisfied by any combo, assume the first combo to do so is good
 	// Then assume that the first combo that satisfies the target is the best. If there are registered cuts, they will change this if needed
@@ -278,9 +276,11 @@ float const CutFlow::GetPassedEventsForQCD(string const iCut) const {
 
 float const CutFlow::GetRelEffForSignal(string const iCut) const {
     const int idx = name2idx.find(iCut)->second;
-    if (idx > 0)
-        return cuts[idx].passedSignalEvents / cuts[idx - 1].passedSignalEvents;
-    return 0.;
+    if (idx < 0)
+        return 0.;
+    else if (not cuts[idx - 1].passedSignalEvents)
+        return 1e10;
+    return cuts[idx].passedSignalEvents / cuts[idx - 1].passedSignalEvents;
 }
 
 float const CutFlow::GetCumEffForSignal(string const iCut) const {
