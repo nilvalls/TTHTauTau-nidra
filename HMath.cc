@@ -1,6 +1,3 @@
- #pragma warning
-
-#define HMath_cxx
 #include "HMath.h"
 
 using namespace std;

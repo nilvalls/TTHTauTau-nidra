@@ -49,8 +49,7 @@ inline unsigned int GetNumberOfGenHadTausFromHWithinDeltaR(TTLBranches* iEvent, 
 			}
 		}
 	}
-
-
+    return result;
 }
 
 
@@ -141,7 +140,7 @@ cout << "test" << endl;
 
 	double recoEta = iEvent->TTL_Tau1Eta->at(iCombo);
 	double recoPhi = iEvent->TTL_Tau1Phi->at(iCombo);
-	for(unsigned int g = 0; g < iEvent->GT_NumGenTaus; g++){
+	for(int g = 0; g < iEvent->GT_NumGenTaus; g++){
 		double genEta = iEvent->GT_Eta->at(g);
 		double genPhi = iEvent->GT_Phi->at(g);
 		double currentDeltaR = DeltaR(recoEta, recoPhi, genEta, genPhi);
@@ -164,7 +163,7 @@ inline int GetTau2ParentPDGid(TTLBranches* iEvent, unsigned int iCombo){
 
 	double recoEta = iEvent->TTL_Tau2Eta->at(iCombo);
 	double recoPhi = iEvent->TTL_Tau2Phi->at(iCombo);
-	for(unsigned int g = 0; g < iEvent->GT_NumGenTaus; g++){
+	for(int g = 0; g < iEvent->GT_NumGenTaus; g++){
 		double genEta = iEvent->GT_Eta->at(g);
 		double genPhi = iEvent->GT_Phi->at(g);
 		double currentDeltaR = DeltaR(recoEta, recoPhi, genEta, genPhi);
