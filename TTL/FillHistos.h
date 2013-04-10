@@ -13,11 +13,11 @@ hContainer->Fill("MomentumRank", event->TTL_MomentumRank->at(iCombo), weightFull
 hContainer->Fill("MET", event->Ev_MET, weightFull);
 hContainer->Fill("HT", event->TTL_HT->at(iCombo), weightFull);
 if (mva != NULL)
-   hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull);
-if (comboSelector != NULL) {
-    hContainer->Fill("ComboSelectorResponse", comboSelector->Evaluate(event, iCombo), weightFull);
-    hContainer->Fill("SelectedComboRank", iCombo, weightFull);
-}
+    hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull);
+try {
+    hContainer->Fill("ComboSelectorResponse", event->GetComboSelectorResponse(iCombo), weightFull);
+} catch (...) {}
+hContainer->Fill("SelectedComboRank", iCombo, weightFull);
 
 if(iPuWeight!=0){
 	hContainer->Fill("NumberPV_noPURW", event->Ev_numPrimaryVertices, weightFull/iPuWeight);
@@ -82,54 +82,47 @@ hContainer->Fill("DeltaR_LT2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->T
 
 // Jets ============================================================================================================================
 // tau/jet matching con size
-float conesize = 0.25;
-int jetCounter = 0;
-for( unsigned int iJet = 0; iJet < event->J_Pt->size(); iJet++ ) {
-    if( (DeltaR( event->J_Eta->at(iJet),
-            event->J_Phi->at(iJet),
-            event->TTL_Tau1Eta->at(iCombo),
-            event->TTL_Tau1Phi->at(iCombo)) > conesize) &&
-        (DeltaR( event->J_Eta->at(iJet),
-            event->J_Phi->at(iJet),
-            event->TTL_Tau2Eta->at(iCombo),
-            event->TTL_Tau2Phi->at(iCombo)) > conesize) &&
-        (DeltaR( event->J_Eta->at(iJet),
-            event->J_Phi->at(iJet),
-            event->TTL_LeptonEta->at(iCombo),
-            event->TTL_LeptonPhi->at(iCombo)) > conesize)
-    ) {
-		if (jetCounter == 0) {
-			hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
-			hContainer->Fill("LeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
 
-			hContainer->Fill("DeltaR_LJ1", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-			hContainer->Fill("DeltaR_T1J1", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-			hContainer->Fill("DeltaR_T2J1", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-		} else if (jetCounter==1) {
-			hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
-			hContainer->Fill("SubLeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
+unsigned int ljet = event->GetJetIndex(iCombo, 0);
+hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(ljet), weightFull);
+hContainer->Fill("LeadingJet_Eta", event->J_Eta->at(ljet), weightFull);
+hContainer->Fill("DeltaR_LJ1", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
+hContainer->Fill("DeltaR_T1J1", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
+hContainer->Fill("DeltaR_T2J1", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
 
-			hContainer->Fill("DeltaR_LJ2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-			hContainer->Fill("DeltaR_T1J2", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-			hContainer->Fill("DeltaR_T2J2", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(iJet), event->J_Phi->at(iJet)), weightFull);
-		} else if (jetCounter == 2) {
-			hContainer->Fill("SubSubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
-			hContainer->Fill("SubSubLeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
-		} else if (jetCounter == 3) {
-			hContainer->Fill("SubSubSubLeadingJet_Pt", event->J_Pt->at(iJet), weightFull);
-			hContainer->Fill("SubSubSubLeadingJet_Eta", event->J_Eta->at(iJet), weightFull);
-		}
+unsigned int sljet = event->GetJetIndex(iCombo, 1);
+hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(sljet), weightFull);
+hContainer->Fill("SubLeadingJet_Eta", event->J_Eta->at(sljet), weightFull);
+hContainer->Fill("DeltaR_LJ2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
+hContainer->Fill("DeltaR_T1J2", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
+hContainer->Fill("DeltaR_T2J2", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
 
-        if (event->J_combSecVtxMediumBTag->at(iJet)) {
-           hContainer->Fill("BTagJet_Pt", event->J_Pt->at(iJet), weightFull);
-           hContainer->Fill("BTagJet_Eta", event->J_Eta->at(iJet), weightFull);
+try {
+    unsigned int ssljet = event->GetJetIndex(iCombo, 2);
+    hContainer->Fill("SubSubLeadingJet_Pt", event->J_Pt->at(ssljet), weightFull);
+    hContainer->Fill("SubSubLeadingJet_Eta", event->J_Eta->at(ssljet), weightFull);
+} catch (...) {}
+
+try {
+    unsigned int sssljet = event->GetJetIndex(iCombo, 2);
+    hContainer->Fill("SubSubLeadingJet_Pt", event->J_Pt->at(sssljet), weightFull);
+    hContainer->Fill("SubSubLeadingJet_Eta", event->J_Eta->at(sssljet), weightFull);
+} catch (...) {}
+
+float conesize = .25;
+for (unsigned int i = 0, c = 0; c < 2 and i < event->J_Pt->size(); i++) {
+    if ((DeltaR(event->J_Eta->at(i), event->J_Phi->at(i), event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo)) > conesize) &&
+            (DeltaR(event->J_Eta->at(i), event->J_Phi->at(i), event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo)) > conesize) &&
+            (DeltaR(event->J_Eta->at(i), event->J_Phi->at(i), event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo)) > conesize)) {
+        if (event->J_combSecVtxMediumBTag->at(i)) {
+           hContainer->Fill("BTagJet_Pt", event->J_Pt->at(i), weightFull);
+           hContainer->Fill("BTagJet_Eta", event->J_Eta->at(i), weightFull);
         } else {
-           hContainer->Fill("NonBTagJet_Pt", event->J_Pt->at(iJet), weightFull);
-           hContainer->Fill("NonBTagJet_Eta", event->J_Eta->at(iJet), weightFull);
+           hContainer->Fill("NonBTagJet_Pt", event->J_Pt->at(i), weightFull);
+           hContainer->Fill("NonBTagJet_Eta", event->J_Eta->at(i), weightFull);
         }
 
-        jetCounter++;
-        // if(jetCounter > 3){ break; }
+        ++c;
     }
 }
 
