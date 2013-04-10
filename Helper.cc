@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace Helper {
-   vector<string> SplitString(string &s) {
+   vector<string> SplitString(const string &s) {
       vector<string> result;
       istringstream iss(s);
       while (iss) {
