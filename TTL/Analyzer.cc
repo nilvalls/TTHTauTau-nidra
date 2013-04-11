@@ -309,6 +309,8 @@ pair<bool,bool> TTLAnalyzer::ComboPassesCuts(TTLBranches* iEvent, unsigned int i
 //	cout << "Min tau1-gen deltaR: " << MinGenTau1DeltaR(event, iCombo) << endl;
 	if(CutOn_T1_IsolationIndex){ if(cutFlow.CheckComboAndStop("T1_IsolationIndex", event->GetTau1IsolationIndex(iCombo), target)){ return target; }}
 	if(CutOn_T2_IsolationIndex){ if(cutFlow.CheckComboAndStop("T2_IsolationIndex", event->GetTau2IsolationIndex(iCombo), target)){ return target; }}
+	if(CutOn_T1_IsolationMVA2Raw){ if(cutFlow.CheckComboAndStop("T1_IsolationMVA2Raw", event->TTL_Tau1HPSbyIsolationMVA2raw->at(iCombo), target)){ return target; }}
+	if(CutOn_T2_IsolationMVA2Raw){ if(cutFlow.CheckComboAndStop("T2_IsolationMVA2Raw", event->TTL_Tau2HPSbyIsolationMVA2raw->at(iCombo), target)){ return target; }}
 
 	// ============================= Topological Cuts ============================= //
 

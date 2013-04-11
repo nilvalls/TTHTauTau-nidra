@@ -54,6 +54,8 @@
 	CutOn_T2_AntiMuonIndex			= false;
 	CutOn_T1_IsolationIndex			= false;
 	CutOn_T2_IsolationIndex			= false;
+	CutOn_T1_IsolationMVA2Raw			= false;
+	CutOn_T2_IsolationMVA2Raw			= false;
 
 	CutOn_TT_ChargeProduct			= false;
 	CutOn_TT_VisMass			    = false;

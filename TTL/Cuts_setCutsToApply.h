@@ -79,6 +79,8 @@
 	 if(ApplyThisCut("T2_AntiMuonIndex"			)){ CutOn_T2_AntiMuonIndex			= 	true; cutFlow.RegisterCut("T2_AntiMuonIndex", 1);			}
 	 if(ApplyThisCut("T1_IsolationIndex"		)){ CutOn_T1_IsolationIndex			= 	true; cutFlow.RegisterCut("T1_IsolationIndex", 1);			}
 	 if(ApplyThisCut("T2_IsolationIndex"		)){ CutOn_T2_IsolationIndex			= 	true; cutFlow.RegisterCut("T2_IsolationIndex", 1);			}
+	 if(ApplyThisCut("T1_IsolationMVA2Raw"		)){ CutOn_T1_IsolationMVA2Raw			= 	true; cutFlow.RegisterCut("T1_IsolationMVA2Raw", 1);			}
+	 if(ApplyThisCut("T2_IsolationMVA2Raw"		)){ CutOn_T2_IsolationMVA2Raw			= 	true; cutFlow.RegisterCut("T2_IsolationMVA2Raw", 1);			}
 
 	 if(ApplyThisCut("TT_ChargeProduct"			)){ CutOn_TT_ChargeProduct			= 	true; cutFlow.RegisterCut("TT_ChargeProduct", 1);			}
 	 if(ApplyThisCut("TT_VisMass"			    )){ CutOn_TT_VisMass			    = 	true; cutFlow.RegisterCut("TT_VisMass", 1);			}

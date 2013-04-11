@@ -59,6 +59,8 @@
 	bool CutOn_T2_AntiMuonIndex;			float Min_T2_AgainstMuonIndex;			float Max_T2_AgainstMuonIndex;
 	bool CutOn_T1_IsolationIndex;			float Min_T1_IsolationIndex;			float Max_T1_IsolationIndex;
 	bool CutOn_T2_IsolationIndex;			float Min_T2_IsolationIndex;			float Max_T2_IsolationIndex;
+	bool CutOn_T1_IsolationMVA2Raw;			float Min_T1_IsolationMVA2Raw;			float Max_T1_IsolationMVA2Raw;
+	bool CutOn_T2_IsolationMVA2Raw;			float Min_T2_IsolationMVA2Raw;			float Max_T2_IsolationMVA2Raw;
 
 	bool CutOn_TT_ChargeProduct;			float Min_TT_ChargeProduct;				float Max_TT_ChargeProduct;
 	bool CutOn_TT_VisMass;			        float Min_TT_VisMass;				    float Max_TT_VisMass;
