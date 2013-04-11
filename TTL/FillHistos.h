@@ -20,22 +20,23 @@ try {
 hContainer->Fill("SelectedComboRank", iCombo, weightFull);
 
 if(iPuWeight!=0){
-	hContainer->Fill("NumberPV_noPURW", event->Ev_numPrimaryVertices, weightFull/iPuWeight);
-	hContainer->Fill("NumberBXm1_noPURW", event->Ev_numInteractionsBXm1, weightFull/iPuWeight);
-	hContainer->Fill("NumberBX0_noPURW", event->Ev_numInteractionsBX0, weightFull/iPuWeight);
-	hContainer->Fill("NumberBXp1_noPURW", event->Ev_numInteractionsBXp1, weightFull/iPuWeight);
+	hContainer->Fill("NumberPV_noPURW", event->V_NumVertices, weightFull/iPuWeight);
+	hContainer->Fill("NumberBXm1_noPURW", event->V_NumInteractionsBXm1, weightFull/iPuWeight);
+	hContainer->Fill("NumberBX0_noPURW", event->V_NumInteractionsBX0, weightFull/iPuWeight);
+	hContainer->Fill("NumberBXp1_noPURW", event->V_NumInteractionsBXp1, weightFull/iPuWeight);
 	hContainer->Fill("PUweights_noPURW", iPuWeight, weightFull/iPuWeight);
 }else{
-	//cout << "zero found in iPUweight, numBX: " << event->Ev_numInteractionsBX0 << endl;
+	//cout << "zero found in iPUweight, numBX: " << event->V_numInteractionsBX0 << endl;
 }
 
 if(IsFlagThere("PUcorr")){
-	hContainer->Fill("NumberPV_afterPURW", event->Ev_numPrimaryVertices, weightFull);
-	hContainer->Fill("NumberBXm1_afterPURW", event->Ev_numInteractionsBXm1, weightFull);
-	hContainer->Fill("NumberBX0_afterPURW", event->Ev_numInteractionsBX0, weightFull);
-	hContainer->Fill("NumberBXp1_afterPURW", event->Ev_numInteractionsBXp1, weightFull);
+	hContainer->Fill("NumberPV_afterPURW", event->V_NumVertices, weightFull);
+	hContainer->Fill("NumberBXm1_afterPURW", event->V_NumInteractionsBXm1, weightFull);
+	hContainer->Fill("NumberBX0_afterPURW", event->V_NumInteractionsBX0, weightFull);
+	hContainer->Fill("NumberBXp1_afterPURW", event->V_NumInteractionsBXp1, weightFull);
 	hContainer->Fill("PUweights_afterPURW", iPuWeight, weightFull);
 }
+//hContainer->Fill("", event->V_XcoordweightFull);
 
 hContainer->Fill("ChargeProduct_TT", (event->TTL_Tau1Charge->at(iCombo) * event->TTL_Tau2Charge->at(iCombo)), weightFull);
 
@@ -57,10 +58,42 @@ hContainer->Fill("NProngs_T1", event->TTL_Tau1NProngs->at(iCombo), weightFull);
 hContainer->Fill("NProngs_T2", event->TTL_Tau2NProngs->at(iCombo), weightFull);
 hContainer->Fill("IsolationIndex_T1", event->GetTau1IsolationIndex(iCombo), weightFull);
 hContainer->Fill("IsolationIndex_T2", event->GetTau2IsolationIndex(iCombo), weightFull);
+hContainer->Fill("IsolationIndexMVA_T1", event->GetTau1IsolationIndexMVA(iCombo), weightFull);
+hContainer->Fill("IsolationIndexMVA_T2", event->GetTau2IsolationIndexMVA(iCombo), weightFull);
+hContainer->Fill("IsolationIndexMVA2_T1", event->GetTau1IsolationIndexMVA2(iCombo), weightFull);
+hContainer->Fill("IsolationIndexMVA2_T2", event->GetTau2IsolationIndexMVA2(iCombo), weightFull);
+hContainer->Fill("IsolationIndex3Hits_T1", event->GetTau1IsolationIndex3Hits(iCombo), weightFull);
+hContainer->Fill("IsolationIndex3Hits_T2", event->GetTau2IsolationIndex3Hits(iCombo), weightFull);
+hContainer->Fill("CombIsoDBcorrRaw_T1", event->TTL_Tau1HPSbyCombinedIsolationDeltaBetaCorrRaw->at(iCombo), weightFull);
+hContainer->Fill("CombIsoDBcorrRaw_T2", event->TTL_Tau2HPSbyCombinedIsolationDeltaBetaCorrRaw->at(iCombo), weightFull);
+hContainer->Fill("CombIsoDBcorrRaw3Hits_T1", event->TTL_Tau1HPSbyCombinedIsolationDeltaBetaCorrRaw3Hits->at(iCombo), weightFull);
+hContainer->Fill("CombIsoDBcorrRaw3Hits_T2", event->TTL_Tau2HPSbyCombinedIsolationDeltaBetaCorrRaw3Hits->at(iCombo), weightFull);
+hContainer->Fill("IsolationMVAraw_T1", event->TTL_Tau1HPSbyIsolationMVAraw->at(iCombo), weightFull);
+hContainer->Fill("IsolationMVAraw_T2", event->TTL_Tau2HPSbyIsolationMVAraw->at(iCombo), weightFull);
+hContainer->Fill("IsolationMVA2raw_T1", event->TTL_Tau1HPSbyIsolationMVA2raw->at(iCombo), weightFull);
+hContainer->Fill("IsolationMVA2raw_T2", event->TTL_Tau2HPSbyIsolationMVA2raw->at(iCombo), weightFull);
 hContainer->Fill("AntiElectronIndex_T1", event->GetTau1AntiElectronIndex(iCombo), weightFull);
 hContainer->Fill("AntiElectronIndex_T2", event->GetTau2AntiElectronIndex(iCombo), weightFull);
+hContainer->Fill("AntiElectronIndexMVA2_T1", event->GetTau1AntiElectronIndexMVA2(iCombo), weightFull);
+hContainer->Fill("AntiElectronIndexMVA2_T2", event->GetTau2AntiElectronIndexMVA2(iCombo), weightFull);
+hContainer->Fill("AntiElectronIndexMVA3_T1", event->GetTau1AntiElectronIndexMVA3(iCombo), weightFull);
+hContainer->Fill("AntiElectronIndexMVA3_T2", event->GetTau2AntiElectronIndexMVA3(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA_T1", event->TTL_Tau1HPSagainstElectronMVA->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA_T2", event->TTL_Tau2HPSagainstElectronMVA->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA2raw_T1", event->TTL_Tau1HPSagainstElectronMVA2raw->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA2raw_T2", event->TTL_Tau2HPSagainstElectronMVA2raw->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA3raw_T1", event->TTL_Tau1HPSagainstElectronMVA3raw->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA3raw_T2", event->TTL_Tau2HPSagainstElectronMVA3raw->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA2category_T1", event->TTL_Tau1HPSagainstElectronMVA2category->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA2category_T2", event->TTL_Tau2HPSagainstElectronMVA2category->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA3category_T1", event->TTL_Tau1HPSagainstElectronMVA3category->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronMVA3category_T2", event->TTL_Tau2HPSagainstElectronMVA3category->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronDeadECAL_T1", event->TTL_Tau1HPSagainstElectronDeadECAL->at(iCombo), weightFull);
+hContainer->Fill("AgainstElectronDeadECAL_T2", event->TTL_Tau2HPSagainstElectronDeadECAL->at(iCombo), weightFull);
 hContainer->Fill("AntiMuonIndex_T1", event->GetTau1AntiMuonIndex(iCombo), weightFull);
 hContainer->Fill("AntiMuonIndex_T2", event->GetTau2AntiMuonIndex(iCombo), weightFull);
+hContainer->Fill("AntiMuonIndex2_T1", event->GetTau1AntiMuonIndex2(iCombo), weightFull);
+hContainer->Fill("AntiMuonIndex2_T2", event->GetTau2AntiMuonIndex2(iCombo), weightFull);
 hContainer->Fill("Match_T1", event->GetTau1MatchIndex(iCombo), weightFull);
 hContainer->Fill("Match_T2", event->GetTau2MatchIndex(iCombo), weightFull);
 
