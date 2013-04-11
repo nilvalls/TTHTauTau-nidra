@@ -69,8 +69,12 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		if(IsFlagThere("PUcorr")){ iPuWeight = event->Ev_puWeight; }
 		if(IsFlagThere("PUcorrUp")){ iPuWeight = event->Ev_puWeightUp; }
 		if(IsFlagThere("PUcorrDown")){ iPuWeight = event->Ev_puWeightDown; }
-		if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = 1.402*event->Ev_q2WeightUp; }
-		if(IsFlagThere("qSquaredDown")){ iQ2SysWeight =  0.683*event->Ev_q2WeightDown; }
+		// use this for v32
+        if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = event->Ev_q2WeightUp; }
+		if(IsFlagThere("qSquaredDown")){ iQ2SysWeight = event->Ev_q2WeightDown; }
+		// use this for v31
+		//if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = 1.402*event->Ev_q2WeightUp; }
+		//if(IsFlagThere("qSquaredDown")){ iQ2SysWeight =  0.683*event->Ev_q2WeightDown; }
 		
         if(IsFlagThere("trigger")){ 
 			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->GetBestCombo()));
