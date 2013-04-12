@@ -85,47 +85,45 @@ main(int argc, char **argv) {
     const Config cfg = ReadConfig(string(argv[0]));
     BuildProPack(string(argv[0]));
 
-    if (analyze or train_combo_mva or all) {
-        ReMakeDir(GetParam("webDir"));
-        ReMakeDir(GetParam("bigDir"));
-        // fist copy config, then analyze
-        BackUpConfigFile(argv[0], GetParam("webDir"));
+    ReMakeDir(GetParam("webDir"));
+    ReMakeDir(GetParam("bigDir"));
+    // fist copy config, then analyze
+    BackUpConfigFile(argv[0], GetParam("webDir"));
+
+    std::string method = cfg.pString("comboSelectorMVAmethod");
+    if (method.length() > 0) {
+        std::string basedir = cfg.pString("comboSelectorMVAdir");
+        // FIXME this ugliness should disappear
+        if (basedir.length() == 0) {
+            basedir = cfg.pString("bigDir") + "/combos/";
+        }
+        // FIXME the trailing slash is a safety measure to _really_ create
+        // a directory
+        ReMakeDir(basedir + "/");
 
         std::string method = cfg.pString("comboSelectorMVAmethod");
-        if (method.length() > 0) {
-            std::string basedir = cfg.pString("comboSelectorMVAdir");
-            // FIXME this ugliness should disappear
-            if (basedir.length() == 0) {
-                basedir = cfg.pString("bigDir") + "/combos/";
-            }
-            // FIXME the trailing slash is a safety measure to _really_ create
-            // a directory
-            ReMakeDir(basedir + "/");
+        std::string options = cfg.pString("comboSelectorMVAoptions");
+        std::vector<std::string> vars = Helper::SplitString(cfg.pString("comboSelectorMVAvariables"));
 
-            std::string method = cfg.pString("comboSelectorMVAmethod");
-            std::string options = cfg.pString("comboSelectorMVAoptions");
-            std::vector<std::string> vars = Helper::SplitString(cfg.pString("comboSelectorMVAvariables"));
+        TTL_ComboSelector::gComboMVA = new TTL_ComboSelector(basedir, method, options, vars);
 
-            TTL_ComboSelector::gComboMVA = new TTL_ComboSelector(basedir, method, options, vars);
-
-            if (train_combo_mva or all) {
-                TTLAnalyzer analyzr(params);
-                TTL_ComboSelector::gComboMVA->InitiateTrainingSample();
-                analyzr.SampleComboSelectorSampler(*proPack->GetPContainer()->Get(cfg.pString("comboSelectorProcess")));
-                cout << "Finalizing" << endl;
-                TTL_ComboSelector::gComboMVA->FinalizeTrainingSample();
-                cout << "Training" << endl;
-                TTL_ComboSelector::gComboMVA->TrainMVA();
-            }
-
-            cout << "Booking" << endl;
-            TTL_ComboSelector::gComboMVA->BookMVA();
+        if (train_combo_mva or all) {
+            TTLAnalyzer analyzr(params);
+            TTL_ComboSelector::gComboMVA->InitiateTrainingSample();
+            analyzr.SampleComboSelectorSampler(*proPack->GetPContainer()->Get(cfg.pString("comboSelectorProcess")));
+            cout << "Finalizing" << endl;
+            TTL_ComboSelector::gComboMVA->FinalizeTrainingSample();
+            cout << "Training" << endl;
+            TTL_ComboSelector::gComboMVA->TrainMVA();
         }
 
-        if (analyze or all) {
-            Analyze();
-            DistributeProcesses();
-        }
+        cout << "Booking" << endl;
+        TTL_ComboSelector::gComboMVA->BookMVA();
+    }
+
+    if (analyze or all) {
+        Analyze();
+        DistributeProcesses();
     } else {
         // copy current config to output directory
         BackUpConfigFile(argv[0], GetParam("webDir"));
@@ -134,12 +132,12 @@ main(int argc, char **argv) {
     if (proPack)
         delete proPack;
 
-    // FIXME the proPack should be up date at all times!
+    // FIXME the proPack should be up to date at all times!
     TFile file((params["process_file"]).c_str(), "UPDATE");
     file.GetObject((params["propack_name"]).c_str(), proPack);
     file.Close();
 
-    std::string method = cfg.pString("MVAmethod");
+    method = cfg.pString("MVAmethod");
     if (method.length() > 0) {
         std::string basedir = cfg.pString("MVAdir");
         // FIXME this ugliness should disappear

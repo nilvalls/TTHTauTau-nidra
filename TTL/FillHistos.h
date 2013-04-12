@@ -115,29 +115,26 @@ hContainer->Fill("DeltaR_LT2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->T
 
 // Jets ============================================================================================================================
 // tau/jet matching con size
-
-unsigned int ljet = event->GetJetIndex(iCombo, 0);
-hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(ljet), weightFull);
-hContainer->Fill("LeadingJet_Eta", event->J_Eta->at(ljet), weightFull);
-hContainer->Fill("DeltaR_LJ1", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
-hContainer->Fill("DeltaR_T1J1", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
-hContainer->Fill("DeltaR_T2J1", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
-
-unsigned int sljet = event->GetJetIndex(iCombo, 1);
-hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(sljet), weightFull);
-hContainer->Fill("SubLeadingJet_Eta", event->J_Eta->at(sljet), weightFull);
-hContainer->Fill("DeltaR_LJ2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
-hContainer->Fill("DeltaR_T1J2", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
-hContainer->Fill("DeltaR_T2J2", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
-
 try {
+    unsigned int ljet = event->GetJetIndex(iCombo, 0);
+    hContainer->Fill("LeadingJet_Pt", event->J_Pt->at(ljet), weightFull);
+    hContainer->Fill("LeadingJet_Eta", event->J_Eta->at(ljet), weightFull);
+    hContainer->Fill("DeltaR_LJ1", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
+    hContainer->Fill("DeltaR_T1J1", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
+    hContainer->Fill("DeltaR_T2J1", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(ljet), event->J_Phi->at(ljet)), weightFull);
+
+    unsigned int sljet = event->GetJetIndex(iCombo, 1);
+    hContainer->Fill("SubLeadingJet_Pt", event->J_Pt->at(sljet), weightFull);
+    hContainer->Fill("SubLeadingJet_Eta", event->J_Eta->at(sljet), weightFull);
+    hContainer->Fill("DeltaR_LJ2", DeltaR(event->TTL_LeptonEta->at(iCombo), event->TTL_LeptonPhi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
+    hContainer->Fill("DeltaR_T1J2", DeltaR(event->TTL_Tau1Eta->at(iCombo), event->TTL_Tau1Phi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
+    hContainer->Fill("DeltaR_T2J2", DeltaR(event->TTL_Tau2Eta->at(iCombo), event->TTL_Tau2Phi->at(iCombo), event->J_Eta->at(sljet), event->J_Phi->at(sljet)), weightFull);
+
     unsigned int ssljet = event->GetJetIndex(iCombo, 2);
     hContainer->Fill("SubSubLeadingJet_Pt", event->J_Pt->at(ssljet), weightFull);
     hContainer->Fill("SubSubLeadingJet_Eta", event->J_Eta->at(ssljet), weightFull);
-} catch (...) {}
 
-try {
-    unsigned int sssljet = event->GetJetIndex(iCombo, 2);
+    unsigned int sssljet = event->GetJetIndex(iCombo, 3);
     hContainer->Fill("SubSubLeadingJet_Pt", event->J_Pt->at(sssljet), weightFull);
     hContainer->Fill("SubSubLeadingJet_Eta", event->J_Eta->at(sssljet), weightFull);
 } catch (...) {}

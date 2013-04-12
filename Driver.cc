@@ -67,8 +67,6 @@ const Config ReadConfig(string iPath){
 	SetParam(theConfig, "stackSignals");
 	SetParam(theConfig, "doRatioPlot");
 
-	SetParam(theConfig, "comboSelectorMVAdir");
-	SetParam(theConfig, "comboSelectorMVAmethod");
 	SetParam(theConfig, "comboSelectorProcess");
 	SetParam(theConfig, "selectComboBy");
 
@@ -77,8 +75,6 @@ const Config ReadConfig(string iPath){
 	SetParam(theConfig, "eTauFakeSys");
 	SetParam(theConfig, "jetTauFakeSys");
 	SetParam(theConfig, "tauIdEffSys");
-	SetParam(theConfig, "comboSelectorProcess");
-	SetParam(theConfig, "selectComboBy");
 	SetParam(theConfig, "saveStackedHistos");
 	SetParam(theConfig, "systematicsFile");
 
@@ -92,7 +88,7 @@ const Config ReadConfig(string iPath){
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 
     if (params["comboSelectorMVAdir"].length() == 0) {
-        params["comboSelectorMVAdir"] = params["bigDir"] + "/comboSelector/";
+        params["comboSelectorMVAdir"] = params["bigDir"] + "/combos/";
     }
     ReMakeDir(params["comboSelectorMVAdir"]);
 	SetParam("comboSelectorMVAweights",string(GetParam("comboSelectorMVAdir") + "/TMVAClassification_" + GetParam("comboSelectorMVAmethod") + ".weights.xml"));

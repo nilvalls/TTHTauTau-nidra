@@ -31,12 +31,9 @@
 #include "Stacker.h"
 #include "Stamper.h"
 #include "Optimizer.h"
-#include "TMVASampler.h"
 
 #include "TTL/Analyzer.h"
 #include "TTL/Plotter.h"
-#include "TTL/TMVASampler.h"
-
 
 #ifndef Driver_h
 #define Driver_h

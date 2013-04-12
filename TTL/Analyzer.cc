@@ -95,7 +95,6 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
                 || params["selectComboBy"] == "pt"){
             combos = comboSelector->GetSortedCombosByPt(event);
         } else {
-            cout << "\tSorting combos by MVA score..." << endl;
             combos = comboSelector->GetSortedCombos(event);
         }
 
