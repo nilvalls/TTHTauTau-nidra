@@ -1,84 +1,10 @@
 #!/usr/bin/env python
 import ROOT
 import copy
-import optparse
 
-ROOT.gROOT.SetBatch()
-
-#
-# begin configuration options
-#
-
-parser = optparse.OptionParser(usage="%prog [options] path")
-parser.add_option("-i", "--input-variable", dest="invar",
-        help="use VAR as input variable", metavar="VAR",
-        default="OS/VisibleMass_TT")
-parser.add_option("-o", "--output-variable", dest="outvar",
-        help="use VAR as output variable", metavar="VAR",
-        default="VisMass")
-parser.add_option("-f", "--flavor", dest="flavor",
-        help="input has lepton flavor FLAVOR", metavar="FLAVOR",
-        default="M")
-parser.add_option("-j", "--jets", dest="jets",
-        help="input has NUM jets", metavar="NUM",
-        default=4)
-parser.add_option("-t", "--tags", dest="tags",
-        help="input has NUM tags", metavar="NUM",
-        default=2)
-parser.add_option("-s", "--systematics", dest="sys",
-        help="systematic of type SYS", metavar="SYS",
-        default=None)
-(opts, args) = parser.parse_args()
-
-if len(args) != 1:
-    print args
-    parser.error("need to specify input path")
-
-# input hist title : output hist title
 samples = {
-        'TTbar_Hadronic':'ttbar',
-        'TTbar_SemiLept':'ttbar_sl',
-        'TTbar_FullLept':'ttbar_fl',
-        'WplusOneJet':'wjets',
-        'WplusTwoJets':'wjets2',
-        'WplusThreeJets':'wjets3',
-        'WplusFourJets':'wjets4',
-        'ZplusOneJet': 'zjets',
-        'ZplusTwoJets': 'zjets2',
-        'ZplusThreeJets': 'zjets3',
-        'ZplusFourJets': 'zjets4',
-        'WW':'ww',
-        'WZ':'wz',
-        'ZZ':'zz',
-        'singleTopSch':'sts',
-        'singleTopBarSch':'stbs',
-        'singleTopTch':'stt',
-        'singleTopBarTch':'stbt',
-        'singleTopPlusW':'stw',
-        'singleTopBarPlusW':'stbw',
-        'Collisions':'data_obs',
-        'TTHTauTau_125':'ttH125',
-        # 'TTH_125':'ttH125'
-}
-
-sys_rename = {
-        'JES': 'CMS_scale_j',
-        'hfSF': 'CMS_eff_b',
-        'lfSF': 'CMS_fake_b',
-        'topPtSF': 'CMS_ttH_topPtcorr',
-        'PUcorr': 'CMS_ttH_pu'
-}
-
-if opts.sys is not None:
-    opts.sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
-    for (key, val) in sys_rename.items():
-        if key in opts.sys:
-            opts.sys = opts.sys.replace(key, val)
-    del samples['Collisions']
-else:
-    opts.sys = ""
-
-samplesToSum = {
+        'data_obs': ['Collisions'],
+        'ttH125': ['TTHTauTau_125'],
         'diboson': ['WW','WZ','ZZ'],
         'singlet': ['singleTopSch', 'singleTopBarSch', 'singleTopTch', 'singleTopBarTch', 'singleTopPlusW', 'singleTopBarPlusW'],
         'ttbar': ['TTbar_Hadronic', 'TTbar_SemiLept', 'TTbar_FullLept'],
@@ -89,68 +15,74 @@ samplesToSum = {
         #'sTplusW' : ['sTW','sTbarW']
 }
 
-inputFilePath = args[0]
+sys_rename = {
+        'JES': 'CMS_scale_j',
+        'hfSF': 'CMS_eff_b',
+        'lfSF': 'CMS_fake_b',
+        'topPtSF': 'CMS_ttH_topPtcorr',
+        'PUcorr': 'CMS_ttH_pu'
+}
 
-inputFileName = 'nidra_rawHistos.root'
-outputFilePath = '2012_TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags) + opts.sys + '.root'
-
-#
-# end configuration options
-#
-
-# fix paths
-if not inputFilePath.endswith('/'):
-  inputFilePath += '/'
-if not opts.invar.startswith('/'):
-  opts.invar = '/' + opts.invar
-
-# check that samples to sum are loaded
-for sum in samplesToSum.values():
-  for sample in sum: 
-    if sample not in samples.keys():
-      print "Can't sum " + sample + " if it isn't loaded!"
-      exit(1)
-
-# get histograms
-fileIn = ROOT.TFile(inputFilePath+inputFileName)
-
-if not fileIn.IsOpen():
-    parser.error("Can't open input file: {f}".format(
-        f=inputFilePath + inputFileName))
-
-hists = {}
-for sample in samples.keys():
-  hists[sample] = fileIn.Get(sample+opts.invar)
-
-# do summed samples
-samplesToSave = copy.deepcopy(samples.keys())
-for sum,summed in samplesToSum.items():
-  # make list of samples to be saved
-    samplesToSave[samplesToSave.index(summed[0])] = sum
-    for sample in summed:
-      if sample in samplesToSave:
-        samplesToSave.remove(sample)
-    # do sum
-    hists[sum] = copy.deepcopy(hists[summed[0]])
-    for sample in summed[1:]:
+def copy_histos(infile, outfile, invar, outvar, mod_string):
+    for (new_name, ss) in samples.items():
         try:
-            hists[sum].Add(hists[sample])
-        except Exception, e:
-            print e
-            print "occurent while processing " + sample
+            base_histo = infile.Get(ss[0] + '/' + invar)
 
-# save histograms
-fileOut = ROOT.TFile(outputFilePath,'RECREATE')
+            for s in ss[1:]:
+                try:
+                    plus_histo = infile.Get(s + '/' + invar)
+                    base_histo.Add(plus_histo)
+                except:
+                    print "Could not find " + s
+                    pass
 
-# set proper histogram names and save
-for sample in samplesToSave:
-  sampleName = sample
-  if sample in samples.keys():
-    sampleName = samples[sample]
-  sampleName += '_' + opts.outvar + '_' + 'TT' + opts.flavor + '_j' + str(opts.jets) + '_t' + str(opts.tags) + opts.sys
-  hists[sample].SetName(sampleName)
-  # fix y-axis range on data histogram
-  if sample is 'Collisions':
-    hists[sample].GetYaxis().SetRangeUser(0,hists[sample].GetBinContent(hists[sample].GetMaximumBin())*1.1)
-  hists[sample].Write()
+            new_name += '_' + outvar + '_' + mod_string
+            base_histo.SetName(new_name)
+            outfile.WriteObject(base_histo, new_name)
+        except:
+            print "Could not find " + ss[0]
+            pass
 
+if __name__ == "__main__":
+    ROOT.gROOT.SetBatch()
+
+    import optparse
+    import os.path
+
+    parser = optparse.OptionParser(usage="%prog [options] path")
+    parser.add_option("-i", "--input-variable", dest="invar",
+            help="use VAR as input variable", metavar="VAR",
+            default="OS/VisibleMass_TT")
+    parser.add_option("-o", "--output-variable", dest="outvar",
+            help="use VAR as output variable", metavar="VAR",
+            default="VisMass")
+    parser.add_option("-j", "--jets", dest="jets",
+            help="input has NUM jets", metavar="NUM",
+            default=4)
+    parser.add_option("-t", "--tags", dest="tags",
+            help="input has NUM tags", metavar="NUM",
+            default=2)
+    parser.add_option("-s", "--systematics", dest="sys",
+            help="systematic of type SYS", metavar="SYS",
+            default=None)
+    (opts, args) = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("need to specify input path")
+
+    if opts.sys is not None:
+        opts.sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
+        for (key, val) in sys_rename.items():
+            if key in opts.sys:
+                opts.sys = opts.sys.replace(key, val)
+        del samples['Collisions']
+    else:
+        opts.sys = ""
+
+    mod_string = 'TTL_j{j}_t{t}{s}'.format(j=opts.jets, t=opts.tags, s=opts.sys)
+
+    infile = ROOT.TFile(os.path.join(args[0], 'nidra_rawHistos.root'))
+    outfile = ROOT.TFile(mod_string + '.root', 'RECREATE')
+    outfile.cd()
+
+    copy_histos(infile, outfile, opts.invar, opts.outvar, mod_string)

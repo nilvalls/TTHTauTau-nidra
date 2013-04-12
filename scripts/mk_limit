@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import datacard
+import datacard_histograms
+
+import glob
+import os
+import os.path
+import ROOT as r
+import sys
+
+ofilename = "temp.root"
+ocardname = "temp.card"
+
+invar = "OS/MVA"
+outvar = "CFMlpANN"
+
+pattern = sys.argv[1]
+categories = sys.argv[2].split()
+
+of = r.TFile(ofilename, "RECREATE")
+
+new_cs = set()
+for c in categories:
+    for d in glob.glob(pattern.format(c=c)):
+        new_c = "TTL_" + c
+        print "Processing", d
+        syst = d.split(c)[1]
+        infile = r.TFile(os.path.join(d, 'nidra_rawHistos.root'))
+        datacard_histograms.copy_histos(infile, of, invar, outvar, new_c + syst)
+        infile.Close()
+        new_cs.add(new_c)
+
+datacard.create_datacard(of, ofilename, open(ocardname, 'w'), outvar, list(new_cs), True)
+
+of.Close()
+
+os.system("combine -M Asymptotic --minosAlgo stepping -m 125 -t -1 " +
+        ocardname)

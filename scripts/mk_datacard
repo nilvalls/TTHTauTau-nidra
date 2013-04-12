@@ -43,9 +43,6 @@ import re
 import ROOT as r
 import sys
 
-# The holy first line of PyROOT
-r.gROOT.SetBatch()
-
 # Define some regular expressions to match samples and signal.  The last
 # part of the former expression is a negative look-ahead making sure that
 # systematics are not caught by the category definition.
@@ -59,7 +56,7 @@ class IntegralException(Exception):
     pass
 
 def get_ann_systematics(file, discriminant, categories, samples, data_sample="data_obs",
-        signal_sample="ttH"):
+        signal_sample="ttH", is_8_tev=True):
     """For all samples and categories, this functions produces single bin
     systematics, shifts present in only one bin.  These shift will be
     produced when a process has significant expectation and the systematic
@@ -149,7 +146,7 @@ def get_samples(file, discriminant):
     """
     samples = {}
 
-    for k in f.GetListOfKeys():
+    for k in file.GetListOfKeys():
         m = sample_re.match(k.GetName())
         if m:
             sample, disc, cat = m.groups()
@@ -180,7 +177,7 @@ def get_systematics(file, overrides={}, rename=lambda u: u, samples=False):
     The parameter `samples` can be set to `True` to obtain the available
     sample names defined in the systematics file.
     """
-    reader = csv.DictReader(open(sysfile))
+    reader = csv.DictReader(open(file))
     reader.fieldnames = map(str.strip, reader.fieldnames)
     sys_samples = reader.fieldnames[2:]
 
@@ -259,185 +256,187 @@ def split_systematics(file, disc, samples):
             done.add(c)
     return new_sys
 
-# =============
-# begin Program
-# =============
-infile = sys.argv[1]
+def write_datacard(file, filename, discriminant, categories, cats, samples, systematics,
+        jet_mult, ofile=sys.stdout):
+    """
+    """
+    observed = map(lambda c: get_integral(file, discriminant, c, fmt="{n:.6f}"), categories)
 
-is_8_tev = True
+    if "data_obs" in cats:
+        del cats["data_obs"]
 
-disc = "CFMlpANN"
-all_categories = \
-        "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 " \
-        "ge3t e3je2t ge4je2t " \
-        "SS_ge4je1t SS_e3jge2t SS_ge4jge2t " \
-        "TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
+    bins = []
+    for (n, s) in samples:
+        bins += cats[s]
 
-# This replaces "x" in the systematics csv file with the values specified
-# for certain uncertainties
-overrides = {
-        "lumi": "1.044" if is_8_tev else "1.022",
-        "CMS_ttH_eff_lep": "1.04" if is_8_tev else "1.018",
-        "CMS_ttH_QCDscale_ttbb": "1.5"}
+    sprocs = "".join(map(lambda (n, s): (" " + s) * len(cats[s]), samples))
+    nprocs = "".join(map(lambda (n, s): (" " + str(n)) * len(cats[s]), samples))
 
-# This defines which categories should be split into which parton number
-parton_split = {
-        "0p": "ljets_j4_t3 ljets_j4_t4 e2je2t SS_e3je1t SS_e3jge2t".split(),
-        "1p": "ljets_j5_t3 ljets_j5_tge4 ge3t e3je2t SS_ge4je1t SS_ge4jge2t".split(),
-        "2p": "ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge4je2t".split()}
+    rates = ["-1"] * len(cats["ttH"])
+    for (n, s) in samples[1:]:
+        for c in cats[s]:
+            rates.append(str(get_integral(file, discriminant, c, s, fmt="{n:.6}")))
 
-execfile = sys.argv[0]
-sysfile = os.path.join(os.path.dirname(execfile), "systematics.csv")
-
-def rename(unc):
-    if unc == "lumi":
-        return unc + "_8TeV" if is_8_tev else unc + "_7TeV"
-    return unc
-
-def jet_multiplicity(cat):
-    if "e2je2t" in cat:
-        return 2
-    elif "3j" in cat or "ge3t" in cat:
-        return 3
-    elif "ge4j" in cat or "j4_t" in cat:
-        return 4
-    elif "j5_t" in cat:
-        return 5
-    elif "jge6_t" in cat:
-        return 6
-    return -1
-
-f = r.TFile(infile, "UPDATE")
-
-# Retrieve list of samples (ordered) from systematics file
-samples = get_systematics(sysfile, samples=True)
-
-# Get available categories for every sample
-all_samples = get_samples(f, disc)
-
-# Trim previous to the samples defined in the systematics file and filter
-# categories to the ones defined above
-cats = dict(map(
-        lambda (k, v): (k, filter(lambda c: c in v, all_categories)),
-        filter(
-            lambda (k, v): k in samples,
-            all_samples.items())))
-
-# Enumerate samples for combine
-nums = dict([(s, n) for (n, s) in enumerate(samples)])
-
-systematics = get_systematics(sysfile, overrides=overrides, rename=rename)
-all_uncertainties = map(lambda (u, t, vs): u, systematics)
-systematics += split_systematics(f, disc, cats)
-systematics += get_ann_systematics(f, disc, all_categories, cats)
-
-new_cats = set()
-for (s, cs) in cats.items():
-    for c in cs:
-        new_cats.add(c)
-categories = list(new_cats)
-
-samples = filter(lambda s: s in cats, samples)
-
-# import pprint
-# print pprint.pprint(cats)
-# print "FOOBAR"
-# print pprint.pprint(systematics)
-split_q2(f, disc, parton_split)
-
-# Print preamble
-print """imax * # number of channels
+    # Print preamble
+    ofile.write("""imax * # number of channels
 jmax * # number of backgrounds
 kmax * # number of nuisance parameters
----------------"""
-
-observed = map(lambda c: get_integral(f, disc, c, fmt="{n:.6f}"), categories)
-print "bin " + " ".join(categories)
-print "observation " + " ".join(map(str, observed))
-
-if "data_obs" in cats:
-    del cats["data_obs"]
-
-print """---------------
+---------------
+bin {c}
+observation {o}
+---------------
 shapes * * {f} $PROCESS_{d}_$CHANNEL $PROCESS_{d}_$CHANNEL_$SYSTEMATIC
 shapes ttH * {f} $PROCESS$MASS_{d}_$CHANNEL $PROCESS$MASS_{d}_$CHANNEL_$SYSTEMATIC
----------------""".format(d=disc, f=infile)
+---------------
+bin {bs}
+process {ps}
+process {ns}
+rate {rs}
+---------------
+""".format(
+        c=" ".join(categories),
+        o=" ".join(map(str, observed)),
+        d=discriminant,
+        f=filename,
+        bs=" ".join(bins),
+        ps=sprocs,
+        ns=nprocs,
+        rs=" ".join(rates)))
 
-sys.stdout.write("bin")
-for s in samples:
-    for c in cats[s]:
-        sys.stdout.write(" " + c)
-sys.stdout.write("\n")
+    active_unc = []
+    for (unc, type, vals) in systematics:
+        active = False
 
-# print "bin " + " ".join(categories * len(samples))
-print "process" + "".join(map(lambda s: (" " + s) * len(cats[s]), samples))
-print "process" + "".join(map(lambda s: (" " + str(nums[s])) * len(cats[s]), samples))
-sys.stdout.write("rate" + " -1" * len(cats["ttH"]))
-for s in samples[1:]:
-    for c in cats[s]:
-        sys.stdout.write(" " + str(get_integral(f, disc, c, s, fmt="{n:.6}")))
-sys.stdout.write("\n")
-print "---------------"
+        ofile.write("{u} {t}".format(u=unc, t=type))
+        for (n, s) in samples:
+            file_s = s + "125" if s == "ttH" else s
+            for c in cats[s]:
+                if type == "shape" and vals[s] != "-":
+                    try:
+                        get_integral(file, discriminant, c, file_s, unc + "Up", throw=True)
+                        get_integral(file, discriminant, c, file_s, unc + "Down", throw=True)
+                        ofile.write(" " + vals[s])
+                        active = True
+                    except IntegralException, e:
+                        ofile.write(" -")
+                        # Print for everything _except_ for b-tag shape or ANN
+                        # uncertainties with inappropriate category
+                        if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
+                            sys.stderr.write("Integral zero for {s}, {c}, {u}: disabling "
+                                    "systematics\n".format(s=s, c=c, u=unc))
+                    except:
+                        ofile.write(" -")
+                        if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
+                            sys.stderr.write("Integral not available for {s}, {c}, {u}: disabling "
+                                    "systematics\n".format(s=s, c=c, u=unc))
+                elif vals[s] in ["-", "1"] and not \
+                        (unc == "Q2scale_ttH_V" and s in ("wjets", "zjets")):
+                    ofile.write(" " + vals[s])
+                    if vals[s] == "1":
+                        active = True
+                else:
+                    if unc == "Q2scale_ttH_V" and s in ("wjets", "zjets"):
+                        mult = jet_mult(c)
+                        if mult > 0:
+                            vals[s] = str(1 + .1 * mult)
+                        else:
+                            ofile.write(" -")
+                            continue
 
-active_unc = []
-for (unc, type, vals) in systematics:
-    active = False
-
-    sys.stdout.write("{u} {t}".format(u=unc, t=type))
-    for s in samples:
-        file_s = s + "125" if s == "ttH" else s
-        for c in cats[s]:
-            if type == "shape" and vals[s] != "-":
-                try:
-                    get_integral(f, disc, c, file_s, unc + "Up", throw=True)
-                    get_integral(f, disc, c, file_s, unc + "Down", throw=True)
-                    sys.stdout.write(" " + vals[s])
                     active = True
-                except IntegralException, e:
-                    sys.stdout.write(" -")
-                    # Print for everything _except_ for b-tag shape or ANN
-                    # uncertainties with inappropriate category
-                    if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
-                        sys.stderr.write("Integral zero for {s}, {c}, {u}: disabling "
-                                "systematics\n".format(s=s, c=c, u=unc))
-                except:
-                    sys.stdout.write(" -")
-                    if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
-                        sys.stderr.write("Integral not available for {s}, {c}, {u}: disabling "
-                                "systematics\n".format(s=s, c=c, u=unc))
-            elif vals[s] in ["-", "1"] and not \
-                    (unc == "Q2scale_ttH_V" and s in ("wjets", "zjets")):
-                sys.stdout.write(" " + vals[s])
-                if vals[s] == "1":
-                    active = True
-            else:
-                if unc == "Q2scale_ttH_V" and s in ("wjets", "zjets"):
-                    mult = jet_multiplicity(c)
-                    if mult > 0:
-                        vals[s] = str(1 + .1 * mult)
-                    else:
-                        sys.stdout.write(" -")
-                        continue
+                    new_val = math.e ** (math.sqrt(math.log(1 + (float(vals[s]) - 1)**2)))
+                    ofile.write(" {n:.3f}".format(n=new_val))
+        ofile.write("\n")
 
-                active = True
-                new_val = math.e ** (math.sqrt(
-                    math.log(1 + (float(vals[s]) - 1)**2)))
-                sys.stdout.write(" {n:.3f}".format(n=new_val))
-    sys.stdout.write("\n")
+        if active:
+            active_unc.append(unc)
 
-    if active:
-        active_unc.append(unc)
+    ofile.write("---------------\n")
+    return active_unc
 
-print "---------------"
+def create_datacard(ifile, filename, ofile, disc, all_categories, print_summary=False):
+    sysfile = os.path.join(os.path.dirname(__file__), "systematics.csv")
 
-cstring = " ".join(map(lambda c: c if c in categories else "[" + c + "]",
-    all_categories)).replace("] [", " ")
-sstring = " ".join(map(lambda s: s if s in all_samples.keys() else "[" + s + "]",
-    samples)).replace("] [", " ")
-ustring = " ".join(map(lambda u: u if u in active_unc else "[" + u + "]",
-    all_uncertainties)).replace("] [", " ")
+    # This defines which categories should be split into which parton number
+    parton_split = {
+            "0p": "ljets_j4_t3 ljets_j4_t4 e2je2t SS_e3je1t SS_e3jge2t".split(),
+            "1p": "ljets_j5_t3 ljets_j5_tge4 ge3t e3je2t SS_ge4je1t SS_ge4jge2t".split(),
+            "2p": "ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge4je2t".split()}
 
-sys.stderr.write("""
+    def jet_multiplicity(cat):
+        if "e2je2t" in cat:
+            return 2
+        elif "3j" in cat or "ge3t" in cat:
+            return 3
+        elif "ge4j" in cat or "j4_t" in cat:
+            return 4
+        elif "j5_t" in cat:
+            return 5
+        elif "jge6_t" in cat:
+            return 6
+        return -1
+
+    is_8_tev = True
+    def rename(unc):
+        if unc == "lumi":
+            return unc + "_8TeV" if is_8_tev else unc + "_7TeV"
+        return unc
+
+    # This replaces "x" in the systematics csv file with the values specified
+    # for certain uncertainties
+    overrides = {
+            "lumi": "1.044" if is_8_tev else "1.022",
+            "CMS_ttH_eff_lep": "1.04" if is_8_tev else "1.018",
+            "CMS_ttH_QCDscale_ttbb": "1.5"}
+
+    # Retrieve list of samples (ordered) from systematics file
+    samples = get_systematics(sysfile, samples=True)
+
+    # Get available categories for every sample
+    all_samples = get_samples(ifile, disc)
+
+    # Trim previous to the samples defined in the systematics file and filter
+    # categories to the ones defined above
+    cats = dict(map(
+            lambda (k, v): (k, filter(lambda c: c in v, all_categories)),
+            filter(
+                lambda (k, v): k in samples,
+                all_samples.items())))
+
+    # Enumerate samples for combine
+    # nums = dict([(s, n) for (n, s) in enumerate(samples)])
+    samples = enumerate(samples)
+
+    systematics = get_systematics(sysfile, overrides=overrides, rename=rename)
+    all_uncertainties = map(lambda (u, t, vs): u, systematics)
+    systematics += split_systematics(ifile, disc, cats)
+    systematics += get_ann_systematics(ifile, disc, all_categories, cats, is_8_tev=is_8_tev)
+
+    new_cats = set()
+    for (s, cs) in cats.items():
+        for c in cs:
+            new_cats.add(c)
+    categories = list(new_cats)
+
+    # keep only essential samples
+    samples = filter(lambda (n, s): s in cats, samples)
+
+    split_q2(ifile, disc, parton_split)
+
+    active_unc = write_datacard(ifile, filename, disc, categories, cats, samples, systematics,
+            jet_multiplicity, ofile=ofile)
+
+    if not print_summary:
+        return
+
+    cstring = " ".join(map(lambda c: c if c in categories else "[" + c + "]",
+        all_categories)).replace("] [", " ")
+    sstring = " ".join(map(lambda (n, s): s if s in all_samples.keys() else "[" + s + "]",
+        samples)).replace("] [", " ")
+    ustring = " ".join(map(lambda u: u if u in active_unc else "[" + u + "]",
+        all_uncertainties)).replace("] [", " ")
+
+    sys.stderr.write("""
 Executive Summary
 =================
 
@@ -449,3 +448,50 @@ Uncertainties: {us}
 ~~~
 Disabled objects present within []s
 """.format(cs=cstring, ss=sstring, us=ustring))
+
+if __name__ == '__main__':
+    r.gROOT.SetBatch()
+
+    import optparse
+
+    all_categories = \
+            "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 " \
+            "ge3t e3je2t ge4je2t " \
+            "SS_ge4je1t SS_e3jge2t SS_ge4jge2t " \
+            "TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
+
+    parser = optparse.OptionParser(usage="%prog [options] file")
+    parser.add_option("-d", "--discriminant", dest="disc",
+            help="use DISC as discriminant", metavar="DISC",
+            default="CFMlpANN")
+    parser.add_option("-o", "--outfile", dest="ofile",
+            help="write datacard to FILE", metavar="FILE")
+    parser.add_option("-c", "--categories", dest="categories",
+            help="use CATS for possible categories (separated by whitespace).  "
+            "A leading `+` adds to the default, a leading `-` removes.",
+            metavar="CATS")
+
+    (opts, args) = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("need to specify input file")
+
+    if not opts.ofile:
+        ofile = sys.stdout
+    else:
+        ofile = open(opts.ofile, 'w')
+
+    if opts.categories:
+        if opts.categories.startswith("+"):
+            categories = all_categories + opts.categories[1:].split()
+        elif opts.categories.startswith("-"):
+            categories = all_categories
+            for c in opts.categories[1:].split():
+                categories.remove(c)
+        else:
+            categories = opts.categories.split()
+    else:
+        categories = all_categories
+
+    f = r.TFile(args[0], "UPDATE")
+    create_datacard(f, args[0], ofile, opts.disc, categories, True)
