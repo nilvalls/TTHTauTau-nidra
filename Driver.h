@@ -53,7 +53,7 @@ using namespace std;
 	// ========== Function declarations ========== //
 
 	void			Initialize(int, char**);
-	void			ReadConfig(string);
+    const Config ReadConfig(string);
 	void			TrainComboSelectorSampler();
 	void			Analyze();
 	void			DistributeProcesses();
@@ -83,6 +83,5 @@ using namespace std;
 	void			Print(string, string);
 	void			BackUpConfigFile(string, string);
 	void			NewSection(TStopwatch&);
-	void			MakeTMVATrainingSample();
 
 #endif

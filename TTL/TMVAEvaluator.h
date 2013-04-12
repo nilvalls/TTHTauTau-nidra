@@ -1,31 +1,45 @@
 #ifndef TTL_TMVAEvaluator_h
 #define TTL_TMVAEvaluator_h
 
+#include "../ProPack.h"
 #include "Branches.h"
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
-//#include "TMVA/Tools.h"
-
-using namespace std;
 
 class TTL_TMVAEvaluator {
+    public:
+        static TTL_TMVAEvaluator *gMVA;
 
-	public:
-		TTL_TMVAEvaluator();
-		TTL_TMVAEvaluator(map<string,string> const &);
-		virtual ~TTL_TMVAEvaluator();
+        TTL_TMVAEvaluator(const std::string&, const std::string&, const std::string&, const std::vector<std::string>&);
+        virtual ~TTL_TMVAEvaluator();
 
-		float Evaluate(TTLBranches *, int);
+        void CreateTrainingSample(const std::string&, const std::string&, ProPack*);
+        float Evaluate(TTLBranches*, int);
+        void FillTree(TTree*, const Process*);
+        void FillVariables(TTLBranches*, const int);
         virtual void BookMVA();
-        virtual void TrainMVA();
+        virtual void TrainMVA(const std::string&, ProPack*);
 
-	protected:
-		bool mvaBooked;
+    protected:
+        template<typename T> void SetupVariables(T*);
+        template<typename W, typename T> void AddVariableConditionally(W*, const string&, const char&, T&);
+        template<typename T> void AddVariable(TMVA::Factory*, const string&, const char&, T&);
+        template<typename T> void AddVariable(TMVA::Reader*, const string&, const char&, T&);
+        template<typename T> void AddVariable(TTree*, const string&, const char&, T&);
 
+        TMVA::Reader* tmvaReader;
 
-	private: 
-        TFile *outfile;
-		TMVA::Reader* tmvaReader;
+        bool want_csr;
+
+        std::string basedir;
+        std::vector<std::string> variables;
+        std::string method;
+        std::string method_options;
+
+        std::string log_filename;
+        std::string output_filename;
+        std::string sample_filename;
+        std::string weight_filename;
 
         float csr;
         float HT;
@@ -53,14 +67,6 @@ class TTL_TMVAEvaluator {
         float LeadingJetSubleadingJetMass;
         float LeadingJetPt;
         float SubLeadingJetPt;
-
-
-	protected:
-        template<typename T> void SetupVariables(T*);
-        template<typename T> void AddVariable(TMVA::Factory*, const string&, const char&, T&);
-        template<typename T> void AddVariable(TMVA::Reader*, const string&, const char&, T&);
-		map<string,string> params;
-
 };
 
 #endif

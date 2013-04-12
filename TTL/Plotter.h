@@ -4,7 +4,6 @@
 #include "Branches.h"
 #include "TMVAEvaluator.h"
 #include "../Plotter.h"
-#include "ComboSelector.h"
 
 using namespace std;
 
@@ -18,7 +17,6 @@ class TTLPlotter : public Plotter {
 
 	private:
 		TTL_TMVAEvaluator*		mva;
-		TTL_ComboSelector*		comboSelector;
 		void	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
 
 };

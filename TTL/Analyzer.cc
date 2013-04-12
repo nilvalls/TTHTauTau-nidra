@@ -22,29 +22,14 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
 	string cutsToApply = params["cutsToApply"];
 	#include "Cuts_setCutsToApply.h"
 
-    if (CutOn_MVA) {
-        mva = new TTL_TMVAEvaluator(iParams);
-        mva->BookMVA();
-    } else {
-        mva = NULL;
-    }
-
-	comboSelectorSampler = new TTL_ComboSelectorSampler(iParams);
-	comboSelector = new TTL_ComboSelector(iParams);
-
+    mva = TTL_TMVAEvaluator::gMVA;
+    comboSelector = TTL_ComboSelector::gComboMVA;
 }
 
 // Default destructor
-TTLAnalyzer::~TTLAnalyzer(){
-	if(mva != NULL){ delete mva; mva = NULL; }
-	if(comboSelectorSampler != NULL){ delete comboSelectorSampler; comboSelectorSampler = NULL; }
-	if(comboSelector != NULL){ delete comboSelector; comboSelector = NULL; }
-}
+TTLAnalyzer::~TTLAnalyzer() {}
 
-
-void TTLAnalyzer::Reset(){}
-
-void TTLAnalyzer::TrainComboSelectorSampler(){ comboSelector->TrainMVA(); }
+void TTLAnalyzer::Reset() {}
 
 pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess, const bool iTrainComboSelectorSampler){
 	int n_to_read = iProcess.GetNoEreadByNUTter();
@@ -53,7 +38,7 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
 	pair<double,double> result = make_pair(0,0);
 	int maxEvents = atoi((params["maxEvents"]).c_str());
 
-	Long64_t nentries = event->GetEntries(); 
+	Long64_t nentries = event->GetEntries();
     if (nentries == 0) {
         cerr << "ERROR: this process has zero events to read" << endl;
         exit(1);
@@ -106,11 +91,13 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
 		// Loop over all the combos
 
 		multimap<double, unsigned int> combos;
-		if(params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler){
-			combos = comboSelector->GetSortedCombosByPt(event);
-		}else{
-			combos = comboSelector->GetSortedCombos(event);
-		}
+        if ((params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler)
+                || params["selectComboBy"] == "pt"){
+            combos = comboSelector->GetSortedCombosByPt(event);
+        } else {
+            cout << "\tSorting combos by MVA score..." << endl;
+            combos = comboSelector->GetSortedCombos(event);
+        }
 
 		for(multimap<double, unsigned int>::reverse_iterator combo = combos.rbegin(); combo != combos.rend(); ++combo){
 
@@ -137,7 +124,10 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
 			int bestComboForSignal = cutFlow.GetBestComboForSignal();
 			event->SetBestCombo(bestComboForSignal);
 			goodEventsForSignal.push_back(make_pair(jentry, bestComboForSignal));
-			if(params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler){ comboSelectorSampler->FillTrees(event); }
+
+            if (params["comboSelectorProcess"] == iProcess.GetShortName() &&
+                    iTrainComboSelectorSampler)
+                TTL_ComboSelector::gComboMVA->FillTrees(event);
 		}
 
 		// Fill good event vectors for QCD analysis
@@ -154,8 +144,6 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
 	if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", NOEanalyzed, NOEanalyzed); }
 	cutFlow.SetCutCounts("TTL_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
 
-	if(params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler){ delete comboSelectorSampler; comboSelectorSampler = NULL; }
-
 	//fout.close();
 	result = make_pair(nentries, NOEanalyzed);
 	return result;
@@ -168,7 +156,6 @@ pair<bool,bool> TTLAnalyzer::ComboPassesCuts(TTLBranches* iEvent, unsigned int i
 	TTLBranches* event = iEvent;
 
 	///***/// LS QCD business, this is a bit tricky... ///***///
-	bool isForSignal = true;
 	bool isForQCD = false;
 
 	int chargeProduct = (event->TTL_Tau1Charge->at(iCombo))*(event->TTL_Tau2Charge->at(iCombo));

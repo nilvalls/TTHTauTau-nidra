@@ -15,12 +15,7 @@ TTLBranches::TTLBranches(
       vector<string> const & iPath) : comboSelector(0), conesize(.25), jetIndexCacheCombo(-1) {
    SetUp(iParams, iPath);
 
-   ifstream comboWeights(params.find("comboSelectorMVAweights")->second.c_str());
-   if (comboWeights.good()) {
-       comboSelector = new TTL_ComboSelector(iParams);
-       comboSelector->BookMVA();
-   }
-   comboWeights.close();
+   comboSelector = TTL_ComboSelector::gComboMVA;
 }
 
 // Default destructor
@@ -32,9 +27,6 @@ TTLBranches::~TTLBranches(){
 
 	Delete();
 	Null();
-
-    if (comboSelector)
-        delete comboSelector;
 }
 
 void TTLBranches::Null(){
@@ -219,7 +211,7 @@ unsigned int TTLBranches::GetTau2MatchIndex(const unsigned int iCombo) const {
 }
 
 float
-TTLBranches::GetComboSelectorResponse(const unsigned int idx) const
+TTLBranches::GetComboSelectorResponse(const unsigned int idx)
 {
     if (comboSelector)
         return comboSelector->Evaluate(this, idx);
@@ -241,5 +233,5 @@ TTLBranches::GetJetIndex(const int idx, const unsigned int num)
         }
         jetIndexCacheCombo = idx;
     }
-    return jetIndexCache[num];
+    return jetIndexCache.at(num);
 }

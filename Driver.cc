@@ -32,13 +32,12 @@ void Initialize() {
 }
 
 // Read in config file and set up parameters
-void ReadConfig(string iPath){
+const Config ReadConfig(string iPath){
 	NewSection(stopwatch);
 	Print(CYAN,">>>>>>>> Reading configuration file from "+iPath);
 	// Instatiate configuration parser and take the first argument as the config file
 	Config theConfig(iPath);
 
-    SetParam(theConfig, "MVAdir");
     SetParam(theConfig, "analysisTag");
 	SetParam(theConfig, "maxEvents");
 	SetParam(theConfig, "luminosity");
@@ -67,10 +66,12 @@ void ReadConfig(string iPath){
 	SetParam(theConfig, "showBackgroundError");
 	SetParam(theConfig, "stackSignals");
 	SetParam(theConfig, "doRatioPlot");
-	SetParam(theConfig, "MVAmethod");
+
+	SetParam(theConfig, "comboSelectorMVAdir");
 	SetParam(theConfig, "comboSelectorMVAmethod");
-	SetParam(theConfig, "MVAbackground");
-	SetParam(theConfig, "MVAsignal");
+	SetParam(theConfig, "comboSelectorProcess");
+	SetParam(theConfig, "selectComboBy");
+
 	SetParam(theConfig, "signalToOptimize");
 	SetParam(theConfig, "backgroundToOptimize");
 	SetParam(theConfig, "eTauFakeSys");
@@ -90,19 +91,14 @@ void ReadConfig(string iPath){
 	// Set some additional internal parameters
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 
-    if (params["MVAdir"].length() == 0) {
-        params["MVAdir"] = params["bigDir"] + "/tmva/";
+    if (params["comboSelectorMVAdir"].length() == 0) {
+        params["comboSelectorMVAdir"] = params["bigDir"] + "/comboSelector/";
     }
-    ReMakeDir(params["MVAdir"]);
-    params["MVAweights"] = params["MVAdir"] + "/TMVAClassification_" + params["MVAmethod"] + ".weights.xml";
-    params["MVAoutput"] = params["MVAdir"] + "/tmva.root";
-    params["MVAinput"] = params["MVAdir"] + "/sample.root";
-    params["MVAlogfile"] = params["MVAdir"] + "/tmva.log";
-
-	SetParam("comboSelector_dir",string(GetParam("bigDir")+"/comboSelector"));
-	SetParam("comboSelectorMVAweights",string(GetParam("comboSelector_dir") + "/TMVAClassification_" + GetParam("comboSelectorMVAmethod") + ".weights.xml"));
+    ReMakeDir(params["comboSelectorMVAdir"]);
+	SetParam("comboSelectorMVAweights",string(GetParam("comboSelectorMVAdir") + "/TMVAClassification_" + GetParam("comboSelectorMVAmethod") + ".weights.xml"));
 	SetParam("comboSelector_file",string(GetParam("bigDir")+"/tmva.root"));
 	SetParam("comboSelector_sample",string(GetParam("bigDir")+"/comboSelector_trainingSample.root"));
+
 	SetParam("goodEvents_file",string(GetParam("bigDir")+"goodEvents.root"));
 	SetParam("stacks_output",string(GetParam("webDir")+"stacks/"));
 	SetParam("stamps_output",string(GetParam("webDir")+"stamps/"));
@@ -113,6 +109,7 @@ void ReadConfig(string iPath){
 	SetParam("rawHisto_file",string(GetParam("bigDir")+"nidra_rawHistos.root"));
 	SetParam("stackedHisto_file",string(GetParam("bigDir")+"nidra_stackedHistos.root"));
 
+    return theConfig;
 }
 
 void Analyze(){
@@ -147,6 +144,10 @@ void DistributeProcesses(){
 	file->cd();
 
 	ProPack* tempProPack = (ProPack*)file->Get((params["propack_name"]).c_str());
+    if (not tempProPack) {
+        // FIXME
+        cout << "SOMETHING WENT HORRIBLY WRONG!" << endl;
+    }
 		
 	tempProPack->DistributeProcesses();
 	tempProPack->Update(proPack);
@@ -235,45 +236,6 @@ void Optimize(){
 	Print(CYAN,">>>>>>>> Making optimization plots...");
 	ReMakeDir(GetParam("optimization_output"));
 	Optimizer optimizer(params);
-	Print(GREEN," done!");
-}
-
-void TrainComboSelectorSampler(){
-	NewSection(stopwatch);
-	Print(CYAN,">>>>>>>> Training combo selector...");
-
-	// Set up analyzer with global paramaters
-	Analyzer* analyzer = NULL;
-	
-	string channel = GetParam("channel");
-	if(channel == "TTL"){	analyzer = new TTLAnalyzer(params); }
-	else{	assert(GetParam("channel") == "TTL");		}
-
-	// Pass topopack to analyzer to analyze
-	analyzer->SampleComboSelectorSampler(*proPack->GetPContainer()->Get(GetParam("comboSelectorProcess")));
-	analyzer->TrainComboSelectorSampler();
-
-	// Save analyzed ProPack to a root file
-	delete analyzer; analyzer = NULL;
-	Print(GREEN," done!");
-
-
-}
-
-void MakeTMVATrainingSample(){
-	NewSection(stopwatch);
-	Print(CYAN,">>>>>>>> Making TMVA training sample...");
-
-	// Setup TMVAsampler and produce training sample
-	TMVASampler* tmvaSampler = NULL;
-	
-	string channel = GetParam("channel");
-	if(channel == "TTL"){	tmvaSampler = new TTL_TMVASampler(params); }
-	else{	assert(GetParam("channel") == "TTL");		}
-
-	tmvaSampler->MakeTrainingSample();
-	delete tmvaSampler; tmvaSampler = NULL;
-
 	Print(GREEN," done!");
 }
 

@@ -49,7 +49,7 @@ class TTLBranches : public Branches {
 		unsigned int	GetTau2AntiMuonIndex2(const unsigned int) const;
         unsigned int    GetTau1MatchIndex(const unsigned int) const;
         unsigned int    GetTau2MatchIndex(const unsigned int) const;
-        float GetComboSelectorResponse(const unsigned int) const;
+        float GetComboSelectorResponse(const unsigned int);
         // float GetMVAResponse(const unsigned int) const;
 
 		#include "Branches_declarations.h"

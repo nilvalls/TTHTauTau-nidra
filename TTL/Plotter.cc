@@ -15,34 +15,11 @@ using namespace std;
 #define AT __LINE__
 
 // Default destructor
-TTLPlotter::~TTLPlotter(){
-    if (mva)
-        delete mva;
-    if (comboSelector)
-        delete comboSelector;
-}
+TTLPlotter::~TTLPlotter() {}
 
 // Constructor
 TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
-    params = iParams;
-    ifstream mvaWeights(params.find("MVAweights")->second.c_str());
-    if (mvaWeights.good()) {
-        mva = new TTL_TMVAEvaluator(iParams);
-        mva->BookMVA();
-    } else {
-        mva = 0;
-    }
-    mvaWeights.close();
-
-    ifstream comboWeights(params.find("comboSelectorMVAweights")->second.c_str());
-    if (comboWeights.good()) {
-        comboSelector = new TTL_ComboSelector(iParams);
-        comboSelector->BookMVA();
-    } else {
-        comboSelector = 0;
-    }
-    comboWeights.close();
-
+    mva = TTL_TMVAEvaluator::gMVA;
 	MakePlots(proPack);
 	SaveFile();
 }
@@ -103,7 +80,7 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
             wt = atof((params["tauIdEffSys"]).c_str());
         }
         if(IsFlagThere("tauIdEffDown")){
-            matchIndex = 2; //tau 
+            matchIndex = 2; //tau
             wt = 1 - (atof((params["tauIdEffSys"]).c_str()) - 1);
         }
         //cout << "wt = " << wt << endl;
