@@ -381,9 +381,9 @@ print "---------------"
 
 active_unc = []
 for (unc, type, vals) in systematics:
-
     active = False
 
+    sys.stdout.write("{u} {t}".format(u=unc, t=type))
     for s in samples:
         file_s = s + "125" if s == "ttH" else s
         for c in cats[s]:
