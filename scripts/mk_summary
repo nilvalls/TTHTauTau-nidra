@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+# vim: set fileencoding=utf-8 :
+
+import math
+import re
+import sys
+
+if len(sys.argv) == 1:
+    sys.stderr.write('usage: {p} files...\n'.format(p=sys.argv[0]))
+    sys.exit(1)
+
+# match filename to extract no. of btags and non-tags
+fpattern = re.compile(r'(\d+\+?)nb_(\d+)b')
+altfpattern = re.compile(r'(\d+)b_(\d+\+?)nb')
+
+proc_map = None
+proc_order = None
+
+for f in sys.argv[1:]:
+    m = fpattern.search(f)
+    if not m:
+        m = altfpattern.search(f)
+        if not m:
+            sys.stderr('File does not match expected pattern: {f}\n'.format(f=f))
+            sys.exit(1)
+        cat = list(reversed(m.groups()))
+    else:
+        cat = m.groups()
+
+    lines = map(str.strip, open(f).readlines())
+    procs = lines[0].split(',')[1:]
+    nums = lines[-1].split(',')[1:]
+
+    if proc_map is None:
+        proc_order = procs
+        proc_map = dict([(p, []) for p in procs])
+        proc_map['category'] = []
+        proc_map['total'] = []
+
+    proc_map['category'].append(cat)
+
+    sum_bkg = 0.
+    for (p, n) in zip(procs, nums):
+        proc_map[p].append(n)
+        if 'ttH' not in p and p != 'Collisions':
+            sum_bkg += float(n)
+    proc_map['total'].append(str(sum_bkg))
+
+output = '\\begin{tabular}{l' + len(sys.argv[1:]) * 'S' + """}
+  \\toprule
+  \\multirow{3}{*}{Jets}"""
+
+for (nb, b) in proc_map['category']:
+    output += ' & {'
+    # if (nb.endswith('+')):
+        # output += '≥' + str(int(nb[:-1]) + int(b) + 2)
+    # else:
+        # output += str(int(nb) + int(b) + 2)
+    output += '2 τ-tagged}'
+output += ' \\\\\n '
+
+for (nb, b) in proc_map['category']:
+    output += ' & {'
+    if (nb.endswith('+')):
+        output += '≥' + nb[:-1]
+    else:
+        output += nb
+    output += ' untagged}'
+
+output += ' \\\\\n '
+for (nb, b) in proc_map['category']:
+    output += ' & {' + b + ' b-tagged}'
+output += ' \\\\\n  \midrule\n  '
+
+signal = filter(lambda s: s.startswith('ttH'), proc_order)
+proc_order = filter(lambda s: s not in signal + ['Collisions'], proc_order)
+
+def num(s):
+    """Format string `s` and replace trailing 0s by spaces"""
+    return re.sub('0*$', lambda e: ' ' * len(e.group(0)), '%7.3f' % float(s))
+
+for p in signal + proc_order + ['total', 'Collisions']:
+    nums = map(num, proc_map[p])
+
+    if p == proc_order[0] and len(signal) == 2:
+        rels = map(lambda (s, r): num((float(s) - float(r)) / float(s)),
+                zip(proc_map[signal[0]], proc_map[signal[1]]))
+        output += ' & '.join(['%- 15s' % 'Reality fraction'] + rels) + ' \\\\\n  \midrule\n  '
+
+    if p in ['total', 'Collisions']:
+        output += '\midrule\n  '
+
+    output += ' & '.join(['%- 15s' % p] + nums) + ' \\\\\n  '
+
+    if p in signal:
+        sigs = map(lambda (s, b): num(float(s) / math.sqrt(float(b))),
+                zip(proc_map[p], proc_map['total']))
+        output += ' & '.join(['%- 15s' % 'σ'] + sigs) + ' \\\\\n  \midrule\n  '
+
+output += '\\bottomrule\n\end{tabular}'
+
+print output
