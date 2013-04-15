@@ -53,9 +53,9 @@ TTL_TMVAEvaluator::SetupVariables(T* obj)
     AddVariableConditionally(obj, "Tau1DecayMode", 'I', Tau1DecayMode);
     AddVariableConditionally(obj, "Tau2DecayMode", 'I', Tau2DecayMode);
     AddVariableConditionally(obj, "Tau1IsolationIndex", 'I', Tau1IsolationIndex);
-    AddVariableConditionally(obj, "Tau1IsolationMVA2Raw", 'I', Tau1IsolationMVA2Raw);
+    AddVariableConditionally(obj, "Tau1IsolationMVA2Raw", 'F', Tau1IsolationMVA2Raw);
     AddVariableConditionally(obj, "Tau2IsolationIndex", 'I', Tau2IsolationIndex);
-    AddVariableConditionally(obj, "Tau2IsolationMVA2Raw", 'I', Tau2IsolationMVA2Raw);
+    AddVariableConditionally(obj, "Tau2IsolationMVA2Raw", 'F', Tau2IsolationMVA2Raw);
     AddVariableConditionally(obj, "DeltaRTau1Tau2", 'F', DeltaRTau1Tau2);
     AddVariableConditionally(obj, "DeltaRTau1Lepton", 'F', DeltaRTau1Lepton);
     AddVariableConditionally(obj, "DeltaRTau2Lepton", 'F', DeltaRTau2Lepton);
@@ -197,7 +197,7 @@ TTL_TMVAEvaluator::FillVariables(TTLBranches *event, const int combo)
     }
     HT = event->TTL_HT->at(combo);
     Tau1Pt = event->TTL_Tau1Pt->at(combo);
-    Tau1Eta = event->TTL_Tau1Eta->at(combo);
+    Tau1Eta = abs(event->TTL_Tau1Eta->at(combo));
     Tau2Pt = event->TTL_Tau2Pt->at(combo);
     Tau1DecayMode = event->TTL_Tau1DecayMode->at(combo);
     Tau2DecayMode = event->TTL_Tau2DecayMode->at(combo);
