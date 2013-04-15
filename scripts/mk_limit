@@ -9,6 +9,8 @@ import os.path
 import ROOT as r
 import sys
 
+r.gROOT.SetBatch()
+
 ofilename = "temp.root"
 ocardname = "temp.card"
 

@@ -23,7 +23,12 @@ sys_rename = {
         'PUcorr': 'CMS_ttH_pu'
 }
 
-def copy_histos(infile, outfile, invar, outvar, mod_string):
+def copy_histos(infile, outfile, invar, outvar, mod_string=None):
+    mod_string = mod_string.replace("up", "Up").replace("down", "Down")
+    for (key, val) in sys_rename.items():
+        if key in mod_string:
+            mod_string = mod_string.replace(key, val)
+
     for (new_name, ss) in samples.items():
         try:
             base_histo = infile.Get(ss[0] + '/' + invar)
@@ -39,6 +44,7 @@ def copy_histos(infile, outfile, invar, outvar, mod_string):
             new_name += '_' + outvar + '_' + mod_string
             base_histo.SetName(new_name)
             outfile.WriteObject(base_histo, new_name)
+            print "Saved", new_name, "with", base_histo.Integral(), "events"
         except:
             print "Could not find " + ss[0]
             pass
@@ -71,13 +77,12 @@ if __name__ == "__main__":
         parser.error("need to specify input path")
 
     if opts.sys is not None:
-        opts.sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
+        sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
         for (key, val) in sys_rename.items():
-            if key in opts.sys:
-                opts.sys = opts.sys.replace(key, val)
-        del samples['Collisions']
+            if key in sys:
+                sys = sys.replace(key, val)
     else:
-        opts.sys = ""
+        sys = ""
 
     mod_string = 'TTL_j{j}_t{t}{s}'.format(j=opts.jets, t=opts.tags, s=opts.sys)
 
@@ -85,4 +90,4 @@ if __name__ == "__main__":
     outfile = ROOT.TFile(mod_string + '.root', 'RECREATE')
     outfile.cd()
 
-    copy_histos(infile, outfile, opts.invar, opts.outvar, mod_string)
+    copy_histos(infile, outfile, opts.invar, opts.outvar, opts.sys)
