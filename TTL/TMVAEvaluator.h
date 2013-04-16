@@ -49,8 +49,10 @@ class TTL_TMVAEvaluator {
         float Tau1DecayMode;
         float Tau2DecayMode;
         float Tau1IsolationIndex;
+        float Tau1IsolationIndexMVA2;
         float Tau1IsolationMVA2Raw;
         float Tau2IsolationIndex;
+        float Tau2IsolationIndexMVA2;
         float Tau2IsolationMVA2Raw;
         float Tau1LTPt;
         float Tau2LTPt;
