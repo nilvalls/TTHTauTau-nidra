@@ -4,9 +4,9 @@ import datacard
 import datacard_histograms
 
 import glob
-import os
 import os.path
 import ROOT as r
+import subprocess
 import sys
 
 r.gROOT.SetBatch()
@@ -17,6 +17,11 @@ ocardname = "temp.card"
 invar = "OS/MVA"
 outvar = "CFMlpANN"
 
+if len(sys.argv) != 3:
+    sys.stderr.write("usage: {p} pattern "
+            "categories\n".format(p=os.path.basename(sys.argv[0])))
+    sys.exit(1)
+
 pattern = sys.argv[1]
 categories = sys.argv[2].split()
 
@@ -26,16 +31,30 @@ new_cs = set()
 for c in categories:
     for d in glob.glob(pattern.format(c=c)):
         new_c = "TTL_" + c
-        print "Processing", d
         syst = d.split(c)[1]
         infile = r.TFile(os.path.join(d, 'nidra_rawHistos.root'))
+        if not infile.IsOpen():
+            print "Not processing", d
+            continue
+        else:
+            print "Processing", d
         datacard_histograms.copy_histos(infile, of, invar, outvar, new_c + syst)
         infile.Close()
         new_cs.add(new_c)
 
-datacard.create_datacard(of, ofilename, open(ocardname, 'w'), outvar, list(new_cs), True)
+cs = list(new_cs)
+if len(cs) == 0:
+    sys.stderr.write("No categories found for '{p}', "
+            "{c}!\n".format(p=pattern, c=categories))
+    sys.exit(1)
+
+datacard.log = sys.stdout
+datacard.create_datacard(of, ofilename, open(ocardname, 'w'), outvar, cs, True)
 
 of.Close()
 
-os.system("combine -M Asymptotic --minosAlgo stepping -m 125 -t -1 " +
-        ocardname)
+proc = subprocess.Popen(["combine", "-M", "Asymptotic", "--minosAlgo", "stepping",
+    "-m", "125", "-t", "-1", ocardname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+proc.wait()
+for l in proc.stdout.readlines():
+    sys.stdout.write(l)

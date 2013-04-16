@@ -7,20 +7,37 @@ Creating a Datacard
 
 Usage
 =====
+::
+
+    mk_datacard file.root > your_data.card
+    mk_datacard -o your_data.card file.root
+    mk_datacard -d MyOtherFancyDiscriminant file.root
+    mk_datacard -c "+my special additional categories" file.root
+
+Note that the input ROOT file _will_ be modified!
 
 Workflow / Customization
 ========================
+* To add new systematics, edit `systematics.csv`
+* To change categories:
+  - edit the definition of `all_categories` at the very end of this file
+  - use the following command-line options:
+    + `-c "+my_cat1 my_cat2"` adds two new categories
+    + `-c "-my_cat"` removes one category from being considered
+    + `-c "my_cat1 my_cat2 my_cat3"` will only consider the three
+      categories passed.
+  - only save the desired categories in the input file.
 
 Notes
 =====
 * Sample and discriminant names may not contain underscores (with the
   exception of the sample "data_obs")
-* Indentation shall be four spaces
-* "systematics.csv" shall be aligned at the delimiter "," with spaces.
+* Indentation is four spaces
+* "systematics.csv" is aligned at the delimiter "," with spaces.
   (best achieved with the `tabularized.vim` plugin)
 
-ToDo
-----
+To Do
+-----
 * doNorm
 * summary of signal + background numbers for each category (stdout)
 
@@ -48,6 +65,9 @@ import sys
 # systematics are not caught by the category definition.
 sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*)(?!(?:Up|Down)$)')
 signal_re = re.compile(r'(ttH).*')
+
+# This is the default logging instance (open file or stream)
+log = sys.stderr
 
 class IntegralException(Exception):
     """To catch integrals evaluating to zero.  `combine` does not like this
@@ -210,7 +230,7 @@ def split_q2(file, disc, which):
                     hnew = hold.Clone(newname)
                     file.WriteObject(hnew, newname)
                 except:
-                    sys.stderr.write("Can't create Q^2 scale shifts for '{c}'\n".format(c=c))
+                    log.write("Can't create Q^2 scale shifts for '{c}'\n".format(c=c))
 
 def split_systematics(file, disc, samples):
     """Split b-tag uncertainties:  copy category histogram w/o systematics
@@ -246,7 +266,7 @@ def split_systematics(file, disc, samples):
                         file.WriteObject(rate, rate.GetName())
                         file.WriteObject(shape, shape.GetName())
                     except:
-                        sys.stderr.write("Can't create b-tag shape uncertainties for '{s}'"
+                        log.write("Can't create b-tag shape uncertainties for '{s}'"
                                 "in '{c}'\n".format(s=c, c=c))
                 if c not in done:
                     new_sys.append((
@@ -257,7 +277,7 @@ def split_systematics(file, disc, samples):
     return new_sys
 
 def write_datacard(file, filename, discriminant, categories, cats, samples, systematics,
-        jet_mult, ofile=sys.stdout):
+        jet_mult, ofile=log):
     """
     """
     observed = map(lambda c: get_integral(file, discriminant, c, fmt="{n:.6f}"), categories)
@@ -322,12 +342,12 @@ rate {rs}
                         # Print for everything _except_ for b-tag shape or ANN
                         # uncertainties with inappropriate category
                         if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
-                            sys.stderr.write("Integral zero for {s}, {c}, {u}: disabling "
+                            log.write("Integral zero for {s}, {c}, {u}: disabling "
                                     "systematics\n".format(s=s, c=c, u=unc))
                     except:
                         ofile.write(" -")
                         if not (not unc.startswith(c) and ("bShape" in unc or "ANNbin" in unc)):
-                            sys.stderr.write("Integral not available for {s}, {c}, {u}: disabling "
+                            log.write("Integral not available for {s}, {c}, {u}: disabling "
                                     "systematics\n".format(s=s, c=c, u=unc))
                 elif vals[s] in ["-", "1"] and not \
                         (unc == "Q2scale_ttH_V" and s in ("wjets", "zjets")):
@@ -436,7 +456,7 @@ def create_datacard(ifile, filename, ofile, disc, all_categories, print_summary=
     ustring = " ".join(map(lambda u: u if u in active_unc else "[" + u + "]",
         all_uncertainties)).replace("] [", " ")
 
-    sys.stderr.write("""
+    log.write("""
 Executive Summary
 =================
 
