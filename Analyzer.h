@@ -25,9 +25,6 @@
 using namespace std;
 
 class Analyzer {
-
-	private:
-	
 	protected:
 		bool					isBaseAnalyzer;
 		map<string,string>		params;
@@ -47,18 +44,10 @@ class Analyzer {
 		void	Analyze(Process&, const bool iTrainComboSelectorSampler=false);
 		void	Analyze(vector<Process>&);
 
-
 	protected:
 		void	Reset();
-		bool	ApplyThisCut(string);
 		bool	IsFlagThere(string);
 		virtual pair<double,double>		Loop(Branches*, Process const &, const bool iTrainComboSelectorSampler=false) = 0;
-		virtual pair<bool,bool>			ComboPassesCuts(Branches*, unsigned int);
-
-	private:
-
-
-
 };
 
 #endif

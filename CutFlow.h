@@ -1,27 +1,18 @@
-
 #ifndef CutFlow_h
 #define CutFlow_h
 
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <climits>
-#include <float.h>
-#include <math.h>
 
-#include <iomanip>
-#include <TROOT.h>
+#include <climits>
 #include <map>
 #include <vector>
 
-
-using namespace std;
-
+#include "TTL/Branches.h"
 
 class CutFlow {
 	private:
-		string cutsToApply;
+        std::string cutsToApply;
+        std::map< std::string, std::pair<float, float> > cuts_to_consider;
 
 		bool eventForSignalPassed;
 		bool eventForQCDPassed;
@@ -40,7 +31,12 @@ class CutFlow {
 //*/
 	public :
         struct Cut {
+            // typedef decltype([](TTLBranches*, const int) -> float { return 0.; }) val_f;
+            // typedef std::function<float (TTLBranches*, const int&)> val_f;
+            typedef float (*val_f)(TTLBranches*, const int);
+
             string name;
+            val_f GetVal;
             int rank;
             float min;
             float max;
@@ -50,8 +46,12 @@ class CutFlow {
             float passedQCDEvents;
             bool currentSignalResult;
             bool currentQCDResult;
+            bool skip;
 
-            Cut(const string n="", const int r=0, const float mn=0., const float=0., const double sig=0., const double qcd=0.);
+            bool Check(TTLBranches *b, const int, const bool bypass=false);
+
+            Cut(const string n="", val_f=0, const int r=0, const float mn=0., const float mx=0.,
+                    const double sig=0., const double qcd=0., bool bypass=false);
 
             ClassDef(CutFlow::Cut, 1);
         };
@@ -68,24 +68,14 @@ class CutFlow {
 		int const size() const;
 		void InvertSignalAndQCD();
 
-		void RegisterCut(string const, int const, double const sig=0., double const qcd=0.);
+        void RegisterCut(string const, int const, double const sig=0., double const qcd=0.);
+        void RegisterCut(const string, const int, Cut::val_f, bool bypass=false, const double sig=0., const double qcd=0.);
 		void RegisterCutFromLast(string const, int const, double const, double const);
 		void SetCutCounts(string const, double const, double const);
 
-		bool CheckComboAndStop(string const, float const, pair<bool,bool>, bool iBypassQCD=false);
-		bool CheckComboDiscretely(string const, float const);
-		void ComboIsGood(string const);
-		void EndOfCombo(pair<bool, bool>, int const);
+        bool CheckCuts(TTLBranches*, const int, const bool bypass=false);
 		void StartOfEvent();
 		void EndOfEvent();
-
-		bool HaveGoodCombos();
-
-		bool EventForSignalPassed();
-		bool EventForQCDPassed();
-
-		int GetBestComboForSignal();
-		int GetBestComboForQCD();
 
 		int const					GetCutRank(string const) const;
 		int const					GetCutPosition(string const) const;
@@ -96,6 +86,7 @@ class CutFlow {
 		float const					GetCumEffForSignal(string const) const;
 		float const					GetCumEffForQCD(string const) const;
 		string const				GetCutsToApply() const;
+        inline std::map< std::string, std::pair<float, float> > GetCutsToConsider() const { return cuts_to_consider; };
 		string const				GetLastCut() const;
 		double const				GetLastCountForSignal() const;
 		double const				GetLastCountForQCD() const;
@@ -104,14 +95,11 @@ class CutFlow {
 		void						ApplyRosls(double const);
         void Zero();
 
-
-		pair<float,float> ExtractCutThresholds(string);
     private:
         vector<CutFlow::Cut> cuts;
         map<string ,int> name2idx;
 
 		ClassDef(CutFlow, 1);
-		
 };
 
 #endif

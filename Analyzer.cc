@@ -85,27 +85,6 @@ void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler)
 
 void Analyzer::Analyze(vector<Process>& iProcesses){ for(unsigned int p=0; p<iProcesses.size(); p++){ Analyze(iProcesses.at(p)); } }
 
-
-pair<bool,bool> Analyzer::ComboPassesCuts(Branches* iEvent, unsigned int iCombo){ return make_pair(false, false); }
-
-bool Analyzer::ApplyThisCut(string thisCut){
-
-	bool result = false;
-
-	string cutsToApply = params["cutsToApply"];
-	cutsToApply = " " + cutsToApply + " ";
-
-	size_t foundNDef = cutsToApply.find(" " + thisCut + ":");
-	size_t length = cutsToApply.length();
-
-	if ( 0 <= foundNDef && foundNDef <= length ){ result = true; }
-	else{ result = false; }
-
-	return result;
-
-}
-
-
 bool Analyzer::IsFlagThere(string iFlag){
 	string flags = params["flags"];
 	size_t found = flags.find(iFlag);

@@ -23,13 +23,6 @@ class TTLAnalyzer : public Analyzer {
 		TTL_ComboSelector*		comboSelector;
 		void 					Reset();
 		pair<double,double>		Loop(Branches*, Process const &, const bool iTrainComboSelectorSampler=false);
-		pair<bool,bool>			ComboPassesCuts(TTLBranches*, unsigned int);
-
-
-	private:
-		#include "Cuts_declarations.h"
-
-
 };
 
 #endif
