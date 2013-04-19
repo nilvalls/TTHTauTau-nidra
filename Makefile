@@ -62,7 +62,7 @@ configParser/libconfigParser.so: configParser/config.h
 .TTLBranches.o: TTL/Branches.cc TTL/Branches.h TTL/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTL/Branches.cc -o $@
 
-.TTLAnalyzer.o: TTL/Analyzer.cc TTL/Analyzer.h TTL/Branches_*.h TTL/Cuts_*.h Analyzer.cc Analyzer.h Helper.h
+.TTLAnalyzer.o: TTL/Analyzer.cc TTL/Analyzer.h TTL/Branches_*.h Analyzer.cc Analyzer.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTL/Analyzer.cc -o  $@
 
 .TTLPlotter.o: TTL/Plotter.cc TTL/Plotter.h TTL/FillHistos.h TTL/Branches_*.h Helper.h
