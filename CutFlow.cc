@@ -143,6 +143,8 @@ void
 CutFlow::RegisterCut(const string name, const int rank, CutFlow::Cut::val_f f, bool bypass, const double sig, const double qcd)
 {
     auto res = cuts_to_consider.find(name);
+    if (res == cuts_to_consider.end())
+        return;
 
     Cut new_cut(name, f, rank, res->second.first, res->second.second, sig, qcd, bypass);
     cuts.push_back(new_cut);
@@ -162,7 +164,7 @@ bool
 CutFlow::CheckCuts(TTLBranches* b, const int idx, const bool bypass)
 {
     for (auto& c: cuts)
-        if (c.rank > 0 && !c.Check(b, idx, bypass))
+        if (c.rank == 1 && !c.Check(b, idx, bypass))
             return false;
     return true;
 }
