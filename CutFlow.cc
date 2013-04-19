@@ -67,7 +67,6 @@ CutFlow::CutFlow(string cuts)
 }
 
 CutFlow::CutFlow(CutFlow const & iCutFlow){
-    std::cout << "COPY" << std::endl;
     cuts = iCutFlow.GetCuts();
     name2idx.clear();
     int idx = 0;
@@ -84,7 +83,6 @@ CutFlow::CutFlow(CutFlow const & iCutFlow){
 
 	bestComboForSignal	= -1;
 	bestComboForQCD		= -1;
-    std::cout << "COPY Done" << std::endl;
 }
 
 
