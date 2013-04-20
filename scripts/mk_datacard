@@ -60,6 +60,12 @@ import re
 import ROOT as r
 import sys
 
+# b-tag split mode
+B_OFF = 1
+B_RATE = 2
+B_SHAPE = 4
+B_CAT_SHAPE = 8
+
 # Define some regular expressions to match samples and signal.  The last
 # part of the former expression is a negative look-ahead making sure that
 # systematics are not caught by the category definition.
@@ -232,7 +238,7 @@ def split_q2(file, disc, which):
                 except:
                     log.write("Can't create Q^2 scale shifts for '{c}'\n".format(c=c))
 
-def split_systematics(file, disc, samples):
+def split_systematics(file, disc, samples, btag_mode=B_CAT_SHAPE):
     """Split b-tag uncertainties:  copy category histogram w/o systematics
     for rates, systematics of form "CMS_eff_bUp" to a shape uncertainty.
 
@@ -244,6 +250,9 @@ def split_systematics(file, disc, samples):
     done = set()
     new_sys = []
     r.TH1.SetDefaultSumw2()
+
+    if btag_mode == B_OFF:
+        return new_sys
 
     for (s, cats) in samples.items():
         s = s + "125" if s == "ttH" else s
@@ -257,7 +266,12 @@ def split_systematics(file, disc, samples):
 
                     try:
                         shape_old = file.Get("{s}_CMS_{k}_b{dir}".format(s=stub, k=kind, dir=dir))
-                        shape = shape_old.Clone("{s}_{c}_{k}_bShape{dir}".format(s=stub, c=c, k=kind, dir=dir))
+                        if btag_mode == B_SHAPE:
+                            shape = shape_old.Clone("{s}_CMS_{k}_bShape{dir}".format(s=stub, k=kind, dir=dir))
+                        elif btag_mode == B_CAT_SHAPE:
+                            shape = shape_old.Clone("{s}_{c}_{k}_bShape{dir}".format(s=stub, c=c, k=kind, dir=dir))
+                        else:
+                            continue
 
                         shape_sum = shape.Integral()
                         rate.Scale((shape_sum / sum) if sum > 0 else 1)
@@ -268,11 +282,17 @@ def split_systematics(file, disc, samples):
                     except:
                         log.write("Can't create b-tag shape uncertainties for '{s}'"
                                 "in '{c}'\n".format(s=c, c=c))
-                if c not in done:
+                if btag_mode == B_SHAPE and 'all' not in done:
+                    new_sys.append((
+                        "CMS_{k}_bShape".format(k=kind),
+                        "shape",
+                        dict([(sam, "1") for sam in samples.keys()])))
+                elif btag_mode == B_CAT_SHAPE and c not in done:
                     new_sys.append((
                         "{c}_{k}_bShape".format(c=c, k=kind),
                         "shape",
                         dict([(sam, "1") for sam in samples.keys()])))
+            done.add('all')
             done.add(c)
     return new_sys
 
@@ -375,7 +395,8 @@ rate {rs}
     return active_unc
 
 def create_datacard(ifile, filename, ofile, disc, all_categories,
-        disabled_systematics=None, print_summary=False):
+        disabled_systematics=None, btag_mode=B_CAT_SHAPE,
+        print_summary=False):
     sysfile = os.path.join(os.path.dirname(__file__), "systematics.csv")
 
     # This defines which categories should be split into which parton number
@@ -431,7 +452,7 @@ def create_datacard(ifile, filename, ofile, disc, all_categories,
     systematics = get_systematics(sysfile, overrides=overrides, rename=rename)
     all_uncertainties = map(lambda (u, t, vs): u, systematics)
     systematics = filter(lambda (u, t, vs): u not in disabled_systematics, systematics)
-    systematics += split_systematics(ifile, disc, cats)
+    systematics += split_systematics(ifile, disc, cats, btag_mode)
     systematics += get_ann_systematics(ifile, disc, all_categories, cats, is_8_tev=is_8_tev)
 
     new_cats = set()
@@ -495,11 +516,26 @@ if __name__ == '__main__':
     parser.add_option("-s", "--disable-systematic", dest="nosys",
             help="disable uncertainties in SYS (separated by whitespace).",
             metavar="SYS", default="")
+    parser.add_option("-b", "--btag-mode", dest="btag",
+            help="set b-tag uncertainty treatment to MODE.  (Allowed "
+            "values: off, rate, shape, category)", metavar="MODE",
+            default="category")
 
     (opts, args) = parser.parse_args()
 
     if len(args) != 1:
         parser.error("need to specify input file")
+
+    if opts.btag == "off":
+        btag_mode = B_OFF
+    elif opts.btag == "rate":
+        btag_mode = B_RATE
+    elif opts.btag == "shape":
+        btag_mode = B_SHAPE
+    elif opts.btag == "category":
+        btag_mode = B_CAT_SHAPE
+    else:
+        parser.error("invalid b-tag mode: " + opts.btag)
 
     if not opts.ofile:
         ofile = sys.stdout
@@ -520,4 +556,5 @@ if __name__ == '__main__':
 
     f = r.TFile(args[0], "UPDATE")
     create_datacard(f, args[0], ofile, opts.disc, categories,
-            disabled_systematics=opts.nosys.split(), print_summary=True)
+            disabled_systematics=opts.nosys.split(),
+            btag_mode=btag_mode, print_summary=True)
