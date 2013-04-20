@@ -374,7 +374,8 @@ rate {rs}
     ofile.write("---------------\n")
     return active_unc
 
-def create_datacard(ifile, filename, ofile, disc, all_categories, print_summary=False):
+def create_datacard(ifile, filename, ofile, disc, all_categories,
+        disabled_systematics=None, print_summary=False):
     sysfile = os.path.join(os.path.dirname(__file__), "systematics.csv")
 
     # This defines which categories should be split into which parton number
@@ -429,6 +430,7 @@ def create_datacard(ifile, filename, ofile, disc, all_categories, print_summary=
 
     systematics = get_systematics(sysfile, overrides=overrides, rename=rename)
     all_uncertainties = map(lambda (u, t, vs): u, systematics)
+    systematics = filter(lambda (u, t, vs): u not in disabled_systematics, systematics)
     systematics += split_systematics(ifile, disc, cats)
     systematics += get_ann_systematics(ifile, disc, all_categories, cats, is_8_tev=is_8_tev)
 
@@ -490,6 +492,9 @@ if __name__ == '__main__':
             help="use CATS for possible categories (separated by whitespace).  "
             "A leading `+` adds to the default, a leading `-` removes.",
             metavar="CATS")
+    parser.add_option("-s", "--disable-systematic", dest="nosys",
+            help="disable uncertainties in SYS (separated by whitespace).",
+            metavar="SYS", default="")
 
     (opts, args) = parser.parse_args()
 
@@ -514,4 +519,5 @@ if __name__ == '__main__':
         categories = all_categories
 
     f = r.TFile(args[0], "UPDATE")
-    create_datacard(f, args[0], ofile, opts.disc, categories, True)
+    create_datacard(f, args[0], ofile, opts.disc, categories,
+            disabled_systematics=opts.nosys.split(), print_summary=True)
