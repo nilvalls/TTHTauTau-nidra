@@ -38,6 +38,7 @@ Notes
 
 To Do
 -----
+* treat categories as [(cat_name, cat_partons, cat_jets)]
 * doNorm
 * summary of signal + background numbers for each category (stdout)
 
