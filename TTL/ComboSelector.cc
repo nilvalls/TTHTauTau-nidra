@@ -119,26 +119,3 @@ TTL_ComboSelector::TrainMVA()
 
     cout.rdbuf(old_buf);
 }
-
-multimap<double, unsigned int> TTL_ComboSelector::GetSortedCombosByPt(Branches* iEvent){
-    multimap<double, unsigned int> result;
-    TTLBranches* event = (TTLBranches*)iEvent;
-
-    for (unsigned int combo = event->TTL_NumCombos; combo --> 0; ){ 
-        result.insert(pair<double, unsigned int>(0, combo));
-    }
-
-    return result;
-}
-
-multimap<double, unsigned int> TTL_ComboSelector::GetSortedCombos(Branches* iEvent){
-    multimap<double, unsigned int> result;
-    TTLBranches* event = (TTLBranches*)iEvent;
-
-    for (unsigned int combo = 0; combo < event->TTL_NumCombos; combo++){ 
-        double response = Evaluate(event, combo);
-        result.insert(pair<double, unsigned int>(response, combo));
-    }
-
-    return result;
-}

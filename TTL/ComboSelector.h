@@ -13,8 +13,6 @@ class TTL_ComboSelector : public TTL_TMVAEvaluator {
         void InitiateTrainingSample();
         void FinalizeTrainingSample();
         void FillTrees(TTLBranches*);
-        multimap<double, unsigned int> GetSortedCombosByPt(Branches*);
-        multimap<double, unsigned int> GetSortedCombos(Branches*);
         virtual void TrainMVA();
 
     private:

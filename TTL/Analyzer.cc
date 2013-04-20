@@ -241,54 +241,44 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
       // cerr << "combos: " << event->TTL_NumCombos << endl;
 		if(event->TTL_NumCombos > 0){ NOEwithAtLeastOneCombo++; }
 
-		// Inform cutFlow that a new event is starting
-		cutFlow.StartOfEvent();
+        // Inform cutFlow that a new event is starting
+        cutFlow.StartOfEvent();
 
-		// Loop over all the combos
+        vector<int> combos;
+        for (unsigned int i = 0; i < event->TTL_NumCombos; ++i) {
+            float comboMass = event->TTL_DitauVisibleMass->at(i);
+            if( comboMass <= 0 ){ cout << "WARNING: ditauMass < 0!" << endl;  continue; }
 
-		multimap<double, unsigned int> combos;
-        if ((params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler)
-                || params["selectComboBy"] == "pt"){
-            combos = comboSelector->GetSortedCombosByPt(event);
-        } else {
-            combos = comboSelector->GetSortedCombos(event);
+            if (cutFlow.CheckCuts(event, i, !checkReality))
+                combos.push_back(i);
         }
 
-        int bestComboForSignal = -1;
-		for(multimap<double, unsigned int>::reverse_iterator combo = combos.rbegin(); combo != combos.rend(); ++combo){
-
-			// Obtain combo's mass
-			float comboMass = event->TTL_DitauVisibleMass->at(combo->second);
-			if( comboMass <= 0 ){ cout << "WARNING: ditauMass < 0!" << endl;  continue; }
-
-			// If we already have one good combo for signal and one for QCD, no need to check the rest since the heaviest combos come first
-            if (cutFlow.CheckCuts(event, combo->second, !checkReality)) {
-                bestComboForSignal = combo->second;
-                break;
+        // Fill good event vectors for signal analysis
+        if (combos.size() > 0) {
+            if (combos.size() > 1
+                    and params["selectComboBy"] == "mva"
+                    and not (params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler)) {
+                stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) {
+                            return comboSelector->Evaluate(event, a) > comboSelector->Evaluate(event, b);
+                        });
             }
-		}
+            int best_combo = combos[0];
 
-		// Inform cutFlow that we've checked all the combos
-        // cutFlow.EndOfEvent();
-		//cutFlow.PrintTable() ;
-
-		// Fill good event vectors for signal analysis
-		if (bestComboForSignal >= 0) {
-			event->SetBestCombo(bestComboForSignal);
-			goodEventsForSignal.push_back(make_pair(jentry, bestComboForSignal));
+            event->SetBestCombo(best_combo);
+            goodEventsForSignal.push_back(make_pair(jentry, best_combo));
 
             if (params["comboSelectorProcess"] == iProcess.GetShortName() &&
                     iTrainComboSelectorSampler)
                 TTL_ComboSelector::gComboMVA->FillTrees(event);
-		}
+        }
 
-		NOEanalyzed++;
-	}
+        NOEanalyzed++;
+    }
 
-	if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", NOEanalyzed, NOEanalyzed); }
-	cutFlow.SetCutCounts("TTL_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
+    if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", NOEanalyzed, NOEanalyzed); }
+    cutFlow.SetCutCounts("TTL_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
 
-	//fout.close();
-	result = make_pair(nentries, NOEanalyzed);
-	return result;
+    //fout.close();
+    result = make_pair(nentries, NOEanalyzed);
+    return result;
 }
