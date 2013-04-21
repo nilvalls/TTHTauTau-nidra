@@ -33,7 +33,7 @@ class CutFlow {
         struct Cut {
             // typedef decltype([](TTLBranches*, const int) -> float { return 0.; }) val_f;
             // typedef std::function<float (TTLBranches*, const int&)> val_f;
-            typedef float (*val_f)(TTLBranches*, const int);
+            typedef float (*val_f)(TTLBranches*&, const int&);
 
             string name;
             val_f GetVal;
@@ -73,7 +73,7 @@ class CutFlow {
 		void RegisterCutFromLast(string const, int const, double const, double const);
 		void SetCutCounts(string const, double const, double const);
 
-        bool CheckCuts(TTLBranches*, const int, const bool bypass=false);
+        bool CheckCuts(TTLBranches*&, const int&, const bool bypass=false);
 		void StartOfEvent();
 		void EndOfEvent();
 
