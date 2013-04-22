@@ -75,6 +75,8 @@ B_CAT_SHAPE = 4 # Split into shape by category and rate
 sample_re = re.compile(r'([^_]+(?:_obs)?)_([^_]+)_(.*)(?!(?:Up|Down)$)')
 signal_re = re.compile(r'(ttH).*')
 
+category_re = re.compile(r'(.*?)(?::(\d+)(?::(\d+))?)?$')
+
 # This is the default logging instance (open file or stream)
 log = sys.stderr
 
@@ -93,7 +95,7 @@ def get_ann_systematics(file, discriminant, categories, samples, data_sample="da
     """
     new_sys = []
 
-    for c in categories:
+    for (c, j, p) in categories:
         data_hist = file.Get("{s}_{d}_{c}".format(s=data_sample, d=discriminant, c=c))
         sig_hist = file.Get("{s}_{d}_{c}".format(s=signal_sample + "125", d=discriminant, c=c))
         bkg_hist = None
@@ -226,20 +228,32 @@ def get_systematics(file, overrides={}, rename=lambda u: u, samples=False):
         sys.append((rename(unc), type, row))
     return sys
 
-def split_q2(file, disc, which):
-    """Split Q2-systematics by parton number as specified in `which`.
+def split_category_string(s):
+    """Split a string of form "category:jets:partons" into components.
+    Returns a list of a string and two integers.
     """
-    for (p, cats) in which.items():
-        for c in cats:
-            for d in ("Up", "Down"):
-                try:
-                    oldname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{dir}".format(d=disc, c=c, dir=d)
-                    newname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{p}{dir}".format(d=disc, c=c, p=p, dir=d)
-                    hold = file.Get(oldname)
-                    hnew = hold.Clone(newname)
-                    file.WriteObject(hnew, newname)
-                except:
-                    log.write("Can't create Q^2 scale shifts for '{c}'\n".format(c=c))
+    def try_conv(v):
+        try:
+            return int(v)
+        except:
+            return v
+    return map(try_conv, category_re.match(s).groups())
+
+def split_q2(file, disc, categories):
+    """Split Q2-systematics by parton number as specified in `categories`,
+    which is a list containing tuples of `(category, jet_multiplicity,
+    partons)`.
+    """
+    for (c, j, p) in categories:
+        for d in ("Up", "Down"):
+            try:
+                oldname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{dir}".format(d=disc, c=c, dir=d)
+                newname = "ttbar_{d}_{c}_Q2scale_ttH_ttbar{p}p{dir}".format(d=disc, c=c, p=p, dir=d)
+                hold = file.Get(oldname)
+                hnew = hold.Clone(newname)
+                file.WriteObject(hnew, newname)
+            except:
+                log.write("Can't create Q^2 scale shifts for '{c}'\n".format(c=c))
 
 def split_systematics(file, disc, samples, btag_mode=B_CAT_SHAPE):
     """Split b-tag uncertainties:  copy category histogram w/o systematics
@@ -302,11 +316,13 @@ def split_systematics(file, disc, samples, btag_mode=B_CAT_SHAPE):
             done.add(c)
     return new_sys
 
-def write_datacard(file, filename, discriminant, categories, cats, samples, systematics,
-        jet_mult, ofile=log):
+def write_datacard(file, discriminant, categories, cats, samples, systematics, ofile=log):
     """
     """
-    observed = map(lambda c: get_integral(file, discriminant, c, fmt="{n:.6f}"), categories)
+    filename = file.GetName()
+    observed = map(
+            lambda c: get_integral(file, discriminant, c, fmt="{n:.6f}"),
+            map(lambda (c, j, p): c, categories))
 
     if "data_obs" in cats:
         del cats["data_obs"]
@@ -340,7 +356,7 @@ process {ns}
 rate {rs}
 ---------------
 """.format(
-        c=" ".join(categories),
+    c=" ".join(map(lambda (c, j, p): c, categories)),
         o=" ".join(map(str, observed)),
         d=discriminant,
         f=filename,
@@ -382,10 +398,10 @@ rate {rs}
                         active = True
                 else:
                     if unc == "Q2scale_ttH_V" and s in ("wjets", "zjets"):
-                        mult = jet_mult(c)
-                        if mult > 0:
+                        try:
+                            mult = filter(lambda (cat, j, p): cat == c, categories)[0][1]
                             vals[s] = str(1 + .1 * mult)
-                        else:
+                        except:
                             ofile.write(" -")
                             continue
 
@@ -400,29 +416,15 @@ rate {rs}
     ofile.write("---------------\n")
     return active_unc
 
-def create_datacard(ifile, filename, ofile, disc, all_categories,
+def create_datacard(ifile, ofile, disc, all_categories,
         disabled_systematics=[], btag_mode=B_CAT_SHAPE,
         print_summary=False):
+    """Create a datacard for `ifile` (an open ROOT file) using the
+    discriminant `disc` and categories, jet multiplicities, parton counts
+    defined in `all_categories`.
+    """
     sysfile = os.path.join(os.path.dirname(__file__), "systematics.csv")
-
-    # This defines which categories should be split into which parton number
-    parton_split = {
-            "0p": "ljets_j4_t3 ljets_j4_t4 e2je2t SS_e3je1t SS_e3jge2t".split(),
-            "1p": "ljets_j5_t3 ljets_j5_tge4 ge3t e3je2t SS_ge4je1t SS_ge4jge2t".split(),
-            "2p": "ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 ge4je2t".split()}
-
-    def jet_multiplicity(cat):
-        if "e2je2t" in cat:
-            return 2
-        elif "3j" in cat or "ge3t" in cat:
-            return 3
-        elif "ge4j" in cat or "j4_t" in cat:
-            return 4
-        elif "j5_t" in cat:
-            return 5
-        elif "jge6_t" in cat:
-            return 6
-        return -1
+    all_category_names = map(lambda (c, j, p): c, all_categories)
 
     is_8_tev = True
     def rename(unc):
@@ -446,9 +448,9 @@ def create_datacard(ifile, filename, ofile, disc, all_categories,
     # Trim previous to the samples defined in the systematics file and filter
     # categories to the ones defined above
     cats = dict(map(
-            lambda (k, v): (k, filter(lambda c: c in v, all_categories)),
+            lambda (k, cs): (k, filter(lambda c: c in cs, all_category_names)),
             filter(
-                lambda (k, v): k in samples,
+                lambda (k, cs): k in samples,
                 all_samples.items())))
 
     # Enumerate samples for combine
@@ -465,21 +467,24 @@ def create_datacard(ifile, filename, ofile, disc, all_categories,
     for (s, cs) in cats.items():
         for c in cs:
             new_cats.add(c)
-    categories = list(new_cats)
+    new_cats = list(new_cats)
+    categories = filter(lambda (c, j, p): c in new_cats, all_categories)
 
     # keep only essential samples
     samples = filter(lambda (n, s): s in cats, samples)
 
-    split_q2(ifile, disc, parton_split)
+    split_q2(ifile, disc, all_categories)
 
-    active_unc = write_datacard(ifile, filename, disc, categories, cats, samples, systematics,
-            jet_multiplicity, ofile=ofile)
+    active_unc = write_datacard(ifile, disc, categories, cats, samples, systematics,
+            ofile=ofile)
 
     if not print_summary:
         return
 
-    cstring = " ".join(map(lambda c: c if c in categories else "[" + c + "]",
-        all_categories)).replace("] [", " ")
+    category_names = map(lambda (c, j, p): c, categories)
+
+    cstring = " ".join(map(lambda c: c if c in category_names else "[" + c + "]",
+        all_category_names)).replace("] [", " ")
     sstring = " ".join(map(lambda (n, s): s if s in all_samples.keys() else "[" + s + "]",
         samples)).replace("] [", " ")
     ustring = " ".join(map(lambda u: u if u in active_unc else "[" + u + "]",
@@ -503,11 +508,15 @@ if __name__ == '__main__':
 
     import optparse
 
-    all_categories = \
-            "ljets_j4_t3 ljets_j4_t4 ljets_j5_t3 ljets_j5_tge4 ljets_jge6_t2 ljets_jge6_t3 ljets_jge6_tge4 " \
-            "ge3t e3je2t ge4je2t " \
-            "SS_ge4je1t SS_e3jge2t SS_ge4jge2t " \
-            "TTL_j2_t1 TTL_j2_t2 TTL_j3_t1 TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split()
+    # This has the format "category:jet_multiplicity:partons" where the
+    # latter two are optional.
+    all_categories = map(split_category_string,
+            "ljets_j4_t3:4:0 ljets_j4_t4:4:0 ljets_j5_t3:5:1 ljets_j5_tge4:5:1 " \
+            "ljets_jge6_t2:6:2 ljets_jge6_t3:6:2 ljets_jge6_tge4:6:2 " \
+            "ge3t:3:1 e3je2t:3:1 ge4je2t:4:2 " \
+            "SS_ge4je1t:4:1 SS_e3jge2t:3:0 SS_ge4jge2t:3:1 " \
+            "TTL_j2_t1:2 TTL_j2_t2:2 TTL_j3_t1:3 " \
+            "TTL_jge4_t1 TTL_j3_t2 TTL_jge4_t2".split())
 
     parser = optparse.OptionParser(usage="%prog [options] file")
     parser.add_option("-d", "--discriminant", dest="disc",
@@ -550,17 +559,17 @@ if __name__ == '__main__':
 
     if opts.categories:
         if opts.categories.startswith("+"):
-            categories = all_categories + opts.categories[1:].split()
+            categories = all_categories + map(split_category_string, opts.categories[1:].split())
         elif opts.categories.startswith("-"):
             categories = all_categories
-            for c in opts.categories[1:].split():
-                categories.remove(c)
+            disabled = map(lambda (c, j, p): c, map(split_category_string, opts.categories[1:].split()))
+            categories = filter(lambda (c, j, p): c not in disabled, categories)
         else:
-            categories = opts.categories.split()
+            categories = map(split_category_string, opts.categories.split())
     else:
         categories = all_categories
 
     f = r.TFile(args[0], "UPDATE")
-    create_datacard(f, args[0], ofile, opts.disc, categories,
+    create_datacard(f, ofile, opts.disc, categories,
             disabled_systematics=opts.nosys.split(),
             btag_mode=btag_mode, print_summary=True)
