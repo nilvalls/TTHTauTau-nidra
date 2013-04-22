@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import datacard
+import BEAN.DatacardMaker.datacard as datacard
 import datacard_histograms
 
 import glob
