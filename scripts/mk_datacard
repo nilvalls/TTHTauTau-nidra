@@ -39,11 +39,13 @@ Notes
 To Do
 -----
 * treat categories as [(cat_name, cat_partons, cat_jets)]
+* finish documentation
 * doNorm
 * summary of signal + background numbers for each category (stdout)
 
 To Test
 -------
+* new b-tag split modes
 
 Recently Tested
 ---------------
@@ -61,11 +63,11 @@ import re
 import ROOT as r
 import sys
 
-# b-tag split mode
-B_OFF = 1
-B_RATE = 2
-B_SHAPE = 4
-B_CAT_SHAPE = 8
+# b-tag split mode:
+B_OFF = 0
+B_RATE = 1      # Use rate only
+B_SHAPE = 2     # Split into shape and rate
+B_CAT_SHAPE = 4 # Split into shape by category and rate
 
 # Define some regular expressions to match samples and signal.  The last
 # part of the former expression is a negative look-ahead making sure that
@@ -263,10 +265,15 @@ def split_systematics(file, disc, samples, btag_mode=B_CAT_SHAPE):
             sum = orig.Integral()
             for kind in ("eff", "fake"):
                 for dir in ("Up", "Down"):
-                    rate = orig.Clone("{s}_CMS_{k}_bRate{dir}".format(s=stub, k=kind, dir=dir))
-
                     try:
+                        # Get rate uncertainty from the shape uncertainty
                         shape_old = file.Get("{s}_CMS_{k}_b{dir}".format(s=stub, k=kind, dir=dir))
+                        shape_sum = shape_old.Integral()
+                        rate = orig.Clone("{s}_CMS_{k}_bRate{dir}".format(s=stub, k=kind, dir=dir))
+                        rate.Scale((shape_sum / sum) if sum > 0 else 1)
+                        file.WriteObject(rate, rate.GetName())
+
+                        # Treat shape uncertainties, if desired
                         if btag_mode == B_SHAPE:
                             shape = shape_old.Clone("{s}_CMS_{k}_bShape{dir}".format(s=stub, k=kind, dir=dir))
                         elif btag_mode == B_CAT_SHAPE:
@@ -275,10 +282,8 @@ def split_systematics(file, disc, samples, btag_mode=B_CAT_SHAPE):
                             continue
 
                         shape_sum = shape.Integral()
-                        rate.Scale((shape_sum / sum) if sum > 0 else 1)
                         shape.Scale((sum / shape_sum) if shape_sum > 0 else 1)
 
-                        file.WriteObject(rate, rate.GetName())
                         file.WriteObject(shape, shape.GetName())
                     except:
                         log.write("Can't create b-tag shape uncertainties for '{s}'"
@@ -396,7 +401,7 @@ rate {rs}
     return active_unc
 
 def create_datacard(ifile, filename, ofile, disc, all_categories,
-        disabled_systematics=None, btag_mode=B_CAT_SHAPE,
+        disabled_systematics=[], btag_mode=B_CAT_SHAPE,
         print_summary=False):
     sysfile = os.path.join(os.path.dirname(__file__), "systematics.csv")
 
