@@ -117,8 +117,13 @@ main(int argc, char **argv) {
             TTL_ComboSelector::gComboMVA->TrainMVA();
         }
 
-        cout << "Booking" << endl;
-        TTL_ComboSelector::gComboMVA->BookMVA();
+        if (!TTL_ComboSelector::gComboMVA->BookMVA()) {
+            cout << "Booking combo MVA failed!" << endl;
+            delete TTL_ComboSelector::gComboMVA;
+            TTL_ComboSelector::gComboMVA = 0;
+        } else {
+            cout << "Booked combo MVA" << endl;
+        }
     }
 
     if (analyze or all) {
@@ -163,7 +168,13 @@ main(int argc, char **argv) {
         if (train or all)
             TTL_TMVAEvaluator::gMVA->TrainMVA(background, proPack);
 
-        TTL_TMVAEvaluator::gMVA->BookMVA();
+        if (!TTL_TMVAEvaluator::gMVA->BookMVA()) {
+            cout << "Booking final MVA failed!" << endl;
+            delete TTL_TMVAEvaluator::gMVA;
+            TTL_TMVAEvaluator::gMVA = 0;
+        } else {
+            cout << "Booked final MVA" << endl;
+        }
     }
 
     if (prep_plots or all) {

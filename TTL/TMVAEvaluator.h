@@ -17,7 +17,7 @@ class TTL_TMVAEvaluator {
         float Evaluate(TTLBranches*, int);
         void FillTree(TTree*, const Process*);
         void FillVariables(TTLBranches*, const int);
-        virtual void BookMVA();
+        virtual bool BookMVA();
         virtual void TrainMVA(const std::string&, ProPack*);
 
     protected:

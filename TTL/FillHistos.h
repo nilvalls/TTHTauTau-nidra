@@ -12,7 +12,7 @@ hContainer->Fill("Events", 0, weightFull);
 hContainer->Fill("MomentumRank", (*event->TTL_MomentumRank)[iCombo], weightFull);
 hContainer->Fill("MET", event->Ev_MET, weightFull);
 hContainer->Fill("HT", (*event->TTL_HT)[iCombo], weightFull);
-if (mva != NULL)
+if (mva)
     hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull);
 try {
     hContainer->Fill("ComboSelectorResponse", event->GetComboSelectorResponse(iCombo), weightFull);

@@ -8,6 +8,8 @@
 
 #include <fstream>
 
+#include "boost/filesystem/operations.hpp"
+
 #include "TLorentzVector.h"
 #include "TMVA/Config.h"
 
@@ -77,10 +79,25 @@ TTL_TMVAEvaluator::SetupVariables(T* obj)
     AddVariableConditionally(obj, "DitauVisibleMass", 'F', DitauVisibleMass);
 }
 
-void
+bool
 TTL_TMVAEvaluator::BookMVA()
 {
-    tmvaReader->BookMVA(method + " method", weight_filename);
+    using namespace boost::filesystem;
+
+    // TMVA just aborts if anything goes wrong... so clean up the filename
+    // (remove '//'), and check for the physical file.
+    string clean_weight_filename;
+    clean_weight_filename = weight_filename[0];
+    auto i = weight_filename.begin();
+    while (++i != weight_filename.end())
+        if (*i != '/' or *i != clean_weight_filename.back())
+            clean_weight_filename.push_back(*i);
+
+    if (exists(clean_weight_filename)) {
+        tmvaReader->BookMVA(method + " method", weight_filename);
+        return true;
+    }
+    return false;
 }
 
 void
@@ -173,8 +190,8 @@ TTL_TMVAEvaluator::TrainMVA(const std::string& backgrounds, ProPack *propack)
             // "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
     factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
             "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
-    factory->BookMethod(TMVA::Types::kBDT, "BDT",
-            "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
+    // factory->BookMethod(TMVA::Types::kBDT, "BDT",
+            // "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
 
     factory->TrainAllMethods();
     factory->TestAllMethods();
