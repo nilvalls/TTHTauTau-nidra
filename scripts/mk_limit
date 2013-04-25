@@ -4,6 +4,7 @@ import BEAN.DatacardMaker.datacard as datacard
 import datacard_histograms
 
 import glob
+import optparse
 import os.path
 import ROOT as r
 import subprocess
@@ -14,42 +15,59 @@ r.gROOT.SetBatch()
 ofilename = "temp.root"
 ocardname = "temp.card"
 
+parser = optparse.OptionParser(usage="%prog [options] pattern categories")
+parser.add_option("-s", "--disable-systematic", dest="nosys",
+        help="disable uncertainties in SYS (separated by whitespace).",
+        metavar="SYS", default="")
+parser.add_option("-b", "--btag-mode", dest="btag",
+        help="set b-tag uncertainty treatment to MODE.  (Allowed "
+        "values: off, rate, shape, category)", metavar="MODE",
+        default="category")
+
+(opts, args) = parser.parse_args()
+
+try:
+    pattern = args[0]
+    categories = args[1].split()
+except:
+    parser.error("need both pattern and categories specified")
+
+try:
+    btag_mode = datacard.parse_btag_mode(opts.btag)
+except:
+    parser.error("invalid b-tag mode: " + opts.btag)
+
 invar = "OS/MVA"
 outvar = "CFMlpANN"
-
-if len(sys.argv) != 3:
-    sys.stderr.write("usage: {p} pattern "
-            "categories\n".format(p=os.path.basename(sys.argv[0])))
-    sys.exit(1)
-
-pattern = sys.argv[1]
-categories = sys.argv[2].split()
 
 of = r.TFile(ofilename, "RECREATE")
 
 new_cs = set()
 for c in categories:
-    for d in glob.glob(pattern.format(c=c)):
-        new_c = "TTL_" + c
-        syst = d.split(c)[1]
+    cname = datacard.split_category_string(c)[0]
+    for d in glob.glob(pattern.format(c=cname)):
+        new_cname = "TTL_" + cname
+        syst = d.split(cname)[1]
         infile = r.TFile(os.path.join(d, 'nidra_rawHistos.root'))
         if not infile.IsOpen():
             print "Not processing", d
             continue
         else:
             print "Processing", d
-        datacard_histograms.copy_histos(infile, of, invar, outvar, new_c + syst)
+        datacard_histograms.copy_histos(infile, of, invar, outvar, new_cname + syst)
         infile.Close()
-        new_cs.add(new_c)
+        new_cs.add("TTL_" + c)
 
 cs = map(datacard.split_category_string, list(new_cs))
-if len(cs) == 0:
-    sys.stderr.write("No categories found for '{p}', "
-            "{c}!\n".format(p=pattern, c=categories))
-    sys.exit(1)
+if len(cs) != len(categories):
+    parser.error("not all specified categories were found")
 
 datacard.log = sys.stdout
-datacard.create_datacard(of, open(ocardname, 'w'), outvar, cs, print_summary=True)
+try:
+    datacard.create_datacard(of, open(ocardname, 'w'), outvar, cs, print_summary=True,
+            btag_mode=btag_mode, disabled_systematics=opts.nosys.split())
+except:
+    pass
 
 of.Close()
 

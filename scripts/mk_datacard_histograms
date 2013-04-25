@@ -20,7 +20,8 @@ sys_rename = {
         'hfSF': 'CMS_eff_b',
         'lfSF': 'CMS_fake_b',
         'topPtSF': 'CMS_ttH_topPtcorr',
-        'PUcorr': 'CMS_ttH_pu'
+        'PUcorr': 'CMS_ttH_pu',
+        'qSquared': 'Q2scale_ttH_ttbar'
 }
 
 def copy_histos(infile, outfile, invar, outvar, mod_string=None):
