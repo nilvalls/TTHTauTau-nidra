@@ -37,6 +37,15 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
 
     // if(ApplyThisCut("G_NumGenHadTausFromH"  )){ CutOn_G_NumGenHadTausFromH  =  true; cutFlow.RegisterCut("G_NumGenHadTausFromH", 1);  }
 
+    cutFlow.RegisterCut("T1_MatchAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return abs((*e->TTL_Tau1GenMatchId)[idx]); }, true);
+    cutFlow.RegisterCut("T2_MatchAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return abs((*e->TTL_Tau2GenMatchId)[idx]); }, true);
+    cutFlow.RegisterCut("T1_ParentAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return abs((*e->TTL_Tau1GenMatchMother0Id)[idx]); }, true);
+    cutFlow.RegisterCut("T2_ParentAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return abs((*e->TTL_Tau2GenMatchMother0Id)[idx]); }, true);
+
     cutFlow.RegisterCut("J_NumCSVL", 1, [](TTLBranches *& e, const int& idx) -> float {
             return (*e->TTL_NumCSVLbtagJets)[idx]; });
     cutFlow.RegisterCut("J_NumCSVM", 1, [](TTLBranches *& e, const int& idx) -> float {
@@ -94,15 +103,6 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
             return (*e->TTL_LeptonIsTight)[idx]; });
     cutFlow.RegisterCut("L_RelIso", 1, [](TTLBranches *& e, const int& idx) -> float {
             return (*e->TTL_LeptonRelIso)[idx]; });
-
-    cutFlow.RegisterCut("T1_MatchAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
-            return abs((*e->TTL_Tau1GenMatchId)[idx]); }, true);
-    cutFlow.RegisterCut("T2_MatchAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
-            return abs((*e->TTL_Tau2GenMatchId)[idx]); }, true);
-    cutFlow.RegisterCut("T1_ParentAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
-            return abs((*e->TTL_Tau1GenMatchMother0Id)[idx]); }, true);
-    cutFlow.RegisterCut("T2_ParentAbsId", 1, [](TTLBranches *& e, const int& idx) -> float {
-            return abs((*e->TTL_Tau2GenMatchMother0Id)[idx]); }, true);
 
     cutFlow.RegisterCut("T1_pT", 1, [](TTLBranches *& e, const int& idx) -> float {
             return (*e->TTL_Tau1Pt)[idx]; });
