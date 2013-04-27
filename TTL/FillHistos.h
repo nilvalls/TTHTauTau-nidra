@@ -30,14 +30,16 @@ if(iPuWeight!=0){
 }
 
 if(IsFlagThere("PUcorr")){
-	hContainer->Fill("NumberPV_afterPURW", event->V_NumVertices, weightFull);
-	hContainer->Fill("NumberBXm1_afterPURW", event->V_NumInteractionsBXm1, weightFull);
-	hContainer->Fill("NumberBX0_afterPURW", event->V_NumInteractionsBX0, weightFull);
-	hContainer->Fill("NumberBXp1_afterPURW", event->V_NumInteractionsBXp1, weightFull);
-	hContainer->Fill("PUweights_afterPURW", iPuWeight, weightFull);
+    hContainer->Fill("NumberPV_afterPURW", event->V_NumVertices, weightFull);
+    hContainer->Fill("NumberBXm1_afterPURW", event->V_NumInteractionsBXm1, weightFull);
+    hContainer->Fill("NumberBX0_afterPURW", event->V_NumInteractionsBX0, weightFull);
+    hContainer->Fill("NumberBXp1_afterPURW", event->V_NumInteractionsBXp1, weightFull);
+    hContainer->Fill("PUweights_afterPURW", iPuWeight, weightFull);
+   
+    for( vector<float>::const_iterator vertexIt = event->V_Zcoord->begin(); vertexIt != event->V_Zcoord->end(); ++vertexIt ) {
+        hContainer->Fill("VertexZcoord_afterPURW", *vertexIt,weightFull);
+    }
 }
-//hContainer->Fill("", event->V_XcoordweightFull);
-
 hContainer->Fill("ChargeProduct_TT", ((*event->TTL_Tau1Charge)[iCombo] * (*event->TTL_Tau2Charge)[iCombo]), weightFull);
 
 // Taus ============================================================================================================================
