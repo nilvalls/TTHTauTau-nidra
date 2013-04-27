@@ -84,16 +84,7 @@ TTL_TMVAEvaluator::BookMVA()
 {
     using namespace boost::filesystem;
 
-    // TMVA just aborts if anything goes wrong... so clean up the filename
-    // (remove '//'), and check for the physical file.
-    string clean_weight_filename;
-    clean_weight_filename = weight_filename[0];
-    auto i = weight_filename.begin();
-    while (++i != weight_filename.end())
-        if (*i != '/' or *i != clean_weight_filename.back())
-            clean_weight_filename.push_back(*i);
-
-    if (exists(clean_weight_filename)) {
+    if (exists(path(weight_filename, &boost::filesystem::native))) {
         tmvaReader->BookMVA(method + " method", weight_filename);
         return true;
     }
