@@ -38,6 +38,7 @@ struct weightCounter{
 	double tau2Trigger;
     double tauIdSys;
     double q2Sys;
+    double jetCSV;
 	double total;
 };
 
