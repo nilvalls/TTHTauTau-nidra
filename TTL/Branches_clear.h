@@ -374,7 +374,6 @@
 	TTL_NumLooseElectrons->clear();
 	TTL_NumExLooseElectrons->clear();
 	TTL_NumTightElectrons->clear();
-	TTL_LeptonEventWeight->clear();
 	TTL_LeptonGenMatchDaughter0Id->clear();
 	TTL_LeptonGenMatchDaughter1Id->clear();
 	TTL_LeptonGenMatchId->clear();
@@ -412,3 +411,17 @@
 	TTL_NumCleanNonCSVLbtagJets->clear();
 	TTL_NumCleanNonCSVMbtagJets->clear();
 	TTL_NumCleanNonCSVTbtagJets->clear();
+	TTL_LeptonEventWeight->clear();
+	TTL_CSVeventWeight->clear();
+	TTL_CSVeventWeightHFdown->clear();
+	TTL_CSVeventWeightHFup->clear();
+	TTL_CSVeventWeightLFdown->clear();
+	TTL_CSVeventWeightLFup->clear();
+	TTL_CSVeventWeightHFStats1down->clear();
+	TTL_CSVeventWeightHFStats1up->clear();
+	TTL_CSVeventWeightLFStats1down->clear();
+	TTL_CSVeventWeightLFStats1up->clear();
+	TTL_CSVeventWeightHFStats2down->clear();
+	TTL_CSVeventWeightHFStats2up->clear();
+	TTL_CSVeventWeightLFStats2down->clear();
+	TTL_CSVeventWeightLFStats2up->clear();

@@ -374,7 +374,6 @@
 	TTL_NumLooseElectrons = NULL;
 	TTL_NumExLooseElectrons = NULL;
 	TTL_NumTightElectrons = NULL;
-	TTL_LeptonEventWeight = NULL;
 	TTL_LeptonGenMatchDaughter0Id = NULL;
 	TTL_LeptonGenMatchDaughter1Id = NULL;
 	TTL_LeptonGenMatchId = NULL;
@@ -412,3 +411,17 @@
 	TTL_NumCleanNonCSVLbtagJets = NULL;
 	TTL_NumCleanNonCSVMbtagJets = NULL;
 	TTL_NumCleanNonCSVTbtagJets = NULL;
+	TTL_LeptonEventWeight = NULL;
+	TTL_CSVeventWeight = NULL;
+	TTL_CSVeventWeightHFdown = NULL;
+	TTL_CSVeventWeightHFup = NULL;
+	TTL_CSVeventWeightLFdown = NULL;
+	TTL_CSVeventWeightLFup = NULL;
+	TTL_CSVeventWeightHFStats1down = NULL;
+	TTL_CSVeventWeightHFStats1up = NULL;
+	TTL_CSVeventWeightLFStats1down = NULL;
+	TTL_CSVeventWeightLFStats1up = NULL;
+	TTL_CSVeventWeightHFStats2down = NULL;
+	TTL_CSVeventWeightHFStats2up = NULL;
+	TTL_CSVeventWeightLFStats2down = NULL;
+	TTL_CSVeventWeightLFStats2up = NULL;

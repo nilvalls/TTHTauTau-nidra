@@ -374,7 +374,6 @@
 	fChain->SetBranchAddress("TTL_NumLooseElectrons", &TTL_NumLooseElectrons);
 	fChain->SetBranchAddress("TTL_NumExLooseElectrons", &TTL_NumExLooseElectrons);
 	fChain->SetBranchAddress("TTL_NumTightElectrons", &TTL_NumTightElectrons);
-	fChain->SetBranchAddress("TTL_LeptonEventWeight", &TTL_LeptonEventWeight);
 	fChain->SetBranchAddress("TTL_LeptonGenMatchDaughter0Id", &TTL_LeptonGenMatchDaughter0Id);
 	fChain->SetBranchAddress("TTL_LeptonGenMatchDaughter1Id", &TTL_LeptonGenMatchDaughter1Id);
 	fChain->SetBranchAddress("TTL_LeptonGenMatchId", &TTL_LeptonGenMatchId);
@@ -412,3 +411,17 @@
 	fChain->SetBranchAddress("TTL_NumCleanNonCSVLbtagJets", &TTL_NumCleanNonCSVLbtagJets);
 	fChain->SetBranchAddress("TTL_NumCleanNonCSVMbtagJets", &TTL_NumCleanNonCSVMbtagJets);
 	fChain->SetBranchAddress("TTL_NumCleanNonCSVTbtagJets", &TTL_NumCleanNonCSVTbtagJets);
+	fChain->SetBranchAddress("TTL_LeptonEventWeight", &TTL_LeptonEventWeight);
+	fChain->SetBranchAddress("TTL_CSVeventWeight", &TTL_CSVeventWeight);
+	fChain->SetBranchAddress("TTL_CSVeventWeightHFdown", &TTL_CSVeventWeightHFdown);
+	fChain->SetBranchAddress("TTL_CSVeventWeightHFup", &TTL_CSVeventWeightHFup);
+	fChain->SetBranchAddress("TTL_CSVeventWeightLFdown", &TTL_CSVeventWeightLFdown);
+	fChain->SetBranchAddress("TTL_CSVeventWeightLFup", &TTL_CSVeventWeightLFup);
+	fChain->SetBranchAddress("TTL_CSVeventWeightHFStats1down", &TTL_CSVeventWeightHFStats1down);
+	fChain->SetBranchAddress("TTL_CSVeventWeightHFStats1up", &TTL_CSVeventWeightHFStats1up);
+	fChain->SetBranchAddress("TTL_CSVeventWeightLFStats1down", &TTL_CSVeventWeightLFStats1down);
+	fChain->SetBranchAddress("TTL_CSVeventWeightLFStats1up", &TTL_CSVeventWeightLFStats1up);
+	fChain->SetBranchAddress("TTL_CSVeventWeightHFStats2down", &TTL_CSVeventWeightHFStats2down);
+	fChain->SetBranchAddress("TTL_CSVeventWeightHFStats2up", &TTL_CSVeventWeightHFStats2up);
+	fChain->SetBranchAddress("TTL_CSVeventWeightLFStats2down", &TTL_CSVeventWeightLFStats2down);
+	fChain->SetBranchAddress("TTL_CSVeventWeightLFStats2up", &TTL_CSVeventWeightLFStats2up);

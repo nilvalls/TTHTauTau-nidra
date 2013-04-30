@@ -345,7 +345,6 @@
 	delete TTL_NumLooseElectrons;
 	delete TTL_NumExLooseElectrons;
 	delete TTL_NumTightElectrons;
-	delete TTL_LeptonEventWeight;
 	delete TTL_LeptonGenMatchDaughter0Id;
 	delete TTL_LeptonGenMatchDaughter1Id;
 	delete TTL_LeptonGenMatchId;
@@ -383,3 +382,17 @@
 	delete TTL_NumCleanNonCSVLbtagJets;
 	delete TTL_NumCleanNonCSVMbtagJets;
 	delete TTL_NumCleanNonCSVTbtagJets;
+	delete TTL_LeptonEventWeight;
+	delete TTL_CSVeventWeight;
+	delete TTL_CSVeventWeightHFdown;
+	delete TTL_CSVeventWeightHFup;
+	delete TTL_CSVeventWeightLFdown;
+	delete TTL_CSVeventWeightLFup;
+	delete TTL_CSVeventWeightHFStats1down;
+	delete TTL_CSVeventWeightHFStats1up;
+	delete TTL_CSVeventWeightLFStats1down;
+	delete TTL_CSVeventWeightLFStats1up;
+	delete TTL_CSVeventWeightHFStats2down;
+	delete TTL_CSVeventWeightHFStats2up;
+	delete TTL_CSVeventWeightLFStats2down;
+	delete TTL_CSVeventWeightLFStats2up;

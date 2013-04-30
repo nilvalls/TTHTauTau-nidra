@@ -374,7 +374,6 @@
 	vector<unsigned int>* TTL_NumLooseElectrons;
 	vector<unsigned int>* TTL_NumExLooseElectrons;
 	vector<unsigned int>* TTL_NumTightElectrons;
-	vector<float>* TTL_LeptonEventWeight;
 	vector<int>* TTL_LeptonGenMatchDaughter0Id;
 	vector<int>* TTL_LeptonGenMatchDaughter1Id;
 	vector<int>* TTL_LeptonGenMatchId;
@@ -412,3 +411,17 @@
 	vector<unsigned int>* TTL_NumCleanNonCSVLbtagJets;
 	vector<unsigned int>* TTL_NumCleanNonCSVMbtagJets;
 	vector<unsigned int>* TTL_NumCleanNonCSVTbtagJets;
+	vector<float>* TTL_LeptonEventWeight;
+	vector<float>* TTL_CSVeventWeight;
+	vector<float>* TTL_CSVeventWeightHFdown;
+	vector<float>* TTL_CSVeventWeightHFup;
+	vector<float>* TTL_CSVeventWeightLFdown;
+	vector<float>* TTL_CSVeventWeightLFup;
+	vector<float>* TTL_CSVeventWeightHFStats1down;
+	vector<float>* TTL_CSVeventWeightHFStats1up;
+	vector<float>* TTL_CSVeventWeightLFStats1down;
+	vector<float>* TTL_CSVeventWeightLFStats1up;
+	vector<float>* TTL_CSVeventWeightHFStats2down;
+	vector<float>* TTL_CSVeventWeightHFStats2up;
+	vector<float>* TTL_CSVeventWeightLFStats2down;
+	vector<float>* TTL_CSVeventWeightLFStats2up;
