@@ -85,9 +85,9 @@ void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler)
 
 void Analyzer::Analyze(vector<Process>& iProcesses){ for(unsigned int p=0; p<iProcesses.size(); p++){ Analyze(iProcesses.at(p)); } }
 
-bool Analyzer::IsFlagThere(string iFlag){
-	string flags = params["flags"];
-	size_t found = flags.find(iFlag);
-	return ((0 <= found) && (found < flags.length()));
+bool Analyzer::IsFlagThere(string iFlag)
+{
+    string flags = params["flags"];
+    return (flags.find(iFlag) != string::npos);
 }
 

@@ -160,7 +160,11 @@ void Cruncher::PrintEfficienciesForQCD(string const iFormat, string const iOptio
     PrintEfficiencies(iFormat, iOptions, true);
 }
 
-bool Cruncher::IsOptionThere(string const iOption, string const iOptions){ return ((0 <= iOptions.find(iOption)) && (iOptions.find(iOption) < iOptions.length())); }
+bool Cruncher::IsOptionThere(string const opt, string const opts)
+{
+    return (opts.find(opt) != string::npos);
+}
+
 int Cruncher::GetNumberOfOptions(string const iOptions){
 	int result = 0;
 	if(IsOptionThere("e", iOptions)){ result++; }

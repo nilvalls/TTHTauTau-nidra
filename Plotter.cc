@@ -433,10 +433,11 @@ TPaveText * Plotter::GetPlotText(const string iString){
 
 }
 
-bool const Plotter::IsFlagThere(string const iFlag) const {
-	string flags = params.find("flags")->second;
-	size_t found = flags.find(iFlag);
-	return ((0 <= found) && (found < flags.length()));
+bool const
+Plotter::IsFlagThere(string const iFlag) const
+{
+    string flags = params.find("flags")->second;
+    return (flags.find(iFlag) != string::npos);
 }
 
 

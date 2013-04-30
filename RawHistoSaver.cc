@@ -106,9 +106,9 @@ void RawHistoSaver::SaveRawHistos(Process const * iProcess) const {
 
 }
 
-bool const RawHistoSaver::IsFlagThere(string const iFlag) const {
-	string flags = params.find("flags")->second;
-	size_t found = flags.find(iFlag);
-	return ((0 <= found) && (found < flags.length()));
+bool const
+RawHistoSaver::IsFlagThere(string const iFlag) const
+{
+    string flags = params.find("flags")->second;
+    return (flags.find(iFlag) != string::npos);
 }
-

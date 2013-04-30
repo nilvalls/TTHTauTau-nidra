@@ -68,7 +68,7 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->GetBestCombo()));
 			iTau2TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau2Pt->at(event->GetBestCombo()));
 		}
-        int matchIndex = -1;
+        unsigned int matchIndex = 666666;
         double wt = 1.0;
         if(IsFlagThere("eTauFakeUp")){
             matchIndex = 4; //electron
