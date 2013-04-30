@@ -1,14 +1,10 @@
 #ifndef GenHelper_h
 #define GenHelper_h
 
+#include "../Helper.h"
 #include "Branches.h"
 
 using namespace std;
-
-inline double DeltaR(double eta1, double phi1, double eta2, double phi2){
-	return sqrt(pow(eta1-eta2, 2) + pow(phi1-phi2, 2));
-}
-
 
 inline unsigned int NumGenTauHad(TTLBranches* iEvent){
 	unsigned int result = 0;
