@@ -49,7 +49,20 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		if(IsFlagThere("PUcorrDown")){ iPuWeight = event->Ev_puWeightDown; }
         if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = event->Ev_q2WeightUp; }
 		if(IsFlagThere("qSquaredDown")){ iQ2SysWeight = event->Ev_q2WeightDown; }
-		if(IsFlagThere("JetCSVWeight")){ iJetCSVweight = event->TTL_TotalJetWeight->at(iCombo); }
+		
+        if(IsFlagThere("CSVeventWeight")){ iJetCSVweight = event->TTL_CSVeventWeight->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightHFdown")){ iJetCSVweight = event->TTL_CSVeventWeightHFdown->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightHFup")){ iJetCSVweight = event->TTL_CSVeventWeightHFup->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightLFdown")){ iJetCSVweight = event->TTL_CSVeventWeightLFdown->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightLFup")){ iJetCSVweight = event->TTL_CSVeventWeightLFup->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightHFStats1down")){ iJetCSVweight = event->TTL_CSVeventWeightHFStats1down->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightHFStats1up")){ iJetCSVweight = event->TTL_CSVeventWeightHFStats1up->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightLFStats1down")){ iJetCSVweight = event->TTL_CSVeventWeightLFStats1down->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightLFStats1up")){ iJetCSVweight = event->TTL_CSVeventWeightLFStats1up->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightHFStats2down")){ iJetCSVweight = event->TTL_CSVeventWeightHFStats2down->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightHFStats2up")){ iJetCSVweight = event->TTL_CSVeventWeightHFStats2up->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightLFStats2down")){ iJetCSVweight = event->TTL_CSVeventWeightLFStats2down->at(iCombo); }
+		if(IsFlagThere("CSVeventWeightLFStats2up")){ iJetCSVweight = event->TTL_CSVeventWeightLFStats2up->at(iCombo); }
 		
         if(IsFlagThere("trigger")){ 
 			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->GetBestCombo()));
