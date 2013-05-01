@@ -63,12 +63,14 @@ if len(cs) != len(categories):
     parser.error("not all specified categories were found")
 
 datacard.log = sys.stdout
+oc = open(ocardname, 'w')
 try:
-    datacard.create_datacard(of, open(ocardname, 'w'), outvar, cs, print_summary=True,
+    datacard.create_datacard(of, oc, outvar, cs, print_summary=True,
             btag_mode=btag_mode, disabled_systematics=opts.nosys.split())
 except:
     pass
 
+oc.close()
 of.Close()
 
 proc = subprocess.Popen(["combine", "-M", "Asymptotic", "--minosAlgo", "stepping",
@@ -76,3 +78,5 @@ proc = subprocess.Popen(["combine", "-M", "Asymptotic", "--minosAlgo", "stepping
 proc.wait()
 for l in proc.stdout.readlines():
     sys.stdout.write(l)
+for l in proc.stderr.readlines():
+    sys.stderr.write(l)
