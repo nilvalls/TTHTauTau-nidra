@@ -144,10 +144,10 @@ CutFlow::RegisterCut(const string name, const int rank, CutFlow::Cut::val_f f, b
 {
     auto res = cuts_to_consider.find(name);
     if (res == cuts_to_consider.end()) {
-        cout << "DISABLE " << name << endl;
+        // cout << "DISABLE " << name << endl;
         return;
     }
-    cout << "ENABLE " << name << ", " << rank << endl;
+    // cout << "ENABLE " << name << ", " << rank << endl;
 
     Cut new_cut(name, f, rank, res->second.first, res->second.second, sig, qcd, bypass);
     cuts.push_back(new_cut);
@@ -242,10 +242,10 @@ float const CutFlow::GetPassedEventsForQCD(string const iCut) const {
 
 float const CutFlow::GetRelEffForSignal(string const iCut) const {
     const int idx = name2idx.find(iCut)->second;
-    if (idx < 0)
+    if (idx == 0)
+        return 1.;
+    else if (idx < 0 || !cuts[idx - 1].passedSignalEvents)
         return 0.;
-    else if (not cuts[idx - 1].passedSignalEvents)
-        return 1e10;
     return cuts[idx].passedSignalEvents / cuts[idx - 1].passedSignalEvents;
 }
 
