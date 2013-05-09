@@ -7,9 +7,11 @@ ROOTGLIBS     = $(shell $(ROOTSYS)/bin/root-config --glibs)
 #######################################
 
 #  CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic -pg
-CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic
+#  CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic
+CXXFLAGS      = -O2 -fPIC -std=c++0x -Wall -pedantic
 #  LDFLAGS       = -g -lboost_filesystem -pg
-LDFLAGS       = -g -lboost_filesystem
+#  LDFLAGS       = -g -lboost_filesystem
+LDFLAGS       = -O2 -lboost_filesystem
 LD = $(CXX)
 
 
@@ -27,7 +29,7 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.HWrapper.o .HContainer.o .HMath.o .Helper.o .CutFlow.o \
 		.Process.o .PContainer.o .ProPack.o \
 		.Branches.o .Analyzer.o .Plotter.o \
-		.TTLBranches.o .TTLAnalyzer.o .TTLPlotter.o .TTL_TMVAEvaluator.o .TTL_ComboSelector.o\
+		.TTLBranches.o .TTLAnalyzer.o .TTLPlotter.o .TTL_TMVAEvaluator.o \
 		.Combiner.o \
 		.Stacker.o .Stamper.o .Optimizer.o \
 		.Trigger.o .Cruncher.o \
@@ -70,9 +72,6 @@ configParser/libconfigParser.so: configParser/config.h
 
 .TTL_TMVAEvaluator.o: TTL/TMVAEvaluator.cc TTL/TMVAEvaluator.h TTL/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
-
-.TTL_ComboSelector.o: TTL/ComboSelector.cc TTL/ComboSelector.h TTL/Branches_*.h Helper.h
-	$(CXX) $(CXXFLAGS) -c TTL/ComboSelector.cc -o $@
 
 ########################
 ###      Global      ###

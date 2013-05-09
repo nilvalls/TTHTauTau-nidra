@@ -14,7 +14,6 @@ using namespace std;
 Analyzer::Analyzer(){
 		isBaseAnalyzer = true;
 		goodEventsForSignal.clear();
-		goodEventsForQCD.clear();
 }
 
 // Default constructor
@@ -23,7 +22,6 @@ Analyzer::Analyzer(map<string,string> const & iParams){
 	params = iParams;
 
 	goodEventsForSignal.clear();
-	goodEventsForQCD.clear();
 
 	cutFlow	= CutFlow(params["cutsToApply"]);
 	cutFlow.Reset();
@@ -57,7 +55,6 @@ void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler)
 	cutFlow.SetCutCounts("Read from DS", iProcess.GetNOEinDS(), iProcess.GetNOEinDS());
 	cutFlow.SetCutCounts("skimming + PAT", iProcess.GetNoEreadByNUTter(), iProcess.GetNoEreadByNUTter());
 	goodEventsForSignal.clear();
-	goodEventsForQCD.clear();
 
 	Branches* event = NULL;
 
@@ -73,7 +70,6 @@ void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler)
 
 	if(!iTrainComboSelectorSampler){ 
 		iProcess.SetGoodEventsForSignal(goodEventsForSignal);
-		iProcess.SetGoodEventsForQCD(goodEventsForQCD);
 		iProcess.SetNOEinNtuple(loopResults.first);
 		iProcess.SetNOEanalyzed(loopResults.second);
 		iProcess.SetCutFlow(cutFlow);

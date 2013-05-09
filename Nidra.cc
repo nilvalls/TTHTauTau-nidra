@@ -90,6 +90,23 @@ main(int argc, char **argv) {
     // fist copy config, then analyze
     BackUpConfigFile(argv[0], GetParam("webDir"));
 
+    if (analyze or all) {
+        Analyze();
+    } else {
+        // copy current config to output directory
+        BackUpConfigFile(argv[0], GetParam("webDir"));
+    }
+
+    DistributeProcesses();
+
+    if (proPack)
+        delete proPack;
+
+    // FIXME the proPack should be up to date at all times!
+    TFile file((params["process_file"]).c_str(), "UPDATE");
+    file.GetObject((params["propack_name"]).c_str(), proPack);
+    file.Close();
+
     std::string method = cfg.pString("comboSelectorMVAmethod");
     if (method.length() > 0) {
         std::string basedir = cfg.pString("comboSelectorMVAdir");
@@ -103,44 +120,24 @@ main(int argc, char **argv) {
 
         std::string method = cfg.pString("comboSelectorMVAmethod");
         std::string options = cfg.pString("comboSelectorMVAoptions");
+        std::string sample = cfg.pString("comboSelectorProcess");
         std::vector<std::string> vars = Helper::SplitString(cfg.pString("comboSelectorMVAvariables"));
 
-        TTL_ComboSelector::gComboMVA = new TTL_ComboSelector(basedir, method, options, vars);
+        TTL_TMVAEvaluator::gComboMVA = new TTL_TMVAEvaluator(basedir, method, options, vars, 0);
 
         if (train_combo_mva or all) {
-            TTLAnalyzer analyzr(params);
-            TTL_ComboSelector::gComboMVA->InitiateTrainingSample();
-            analyzr.SampleComboSelectorSampler(*proPack->GetPContainer()->Get(cfg.pString("comboSelectorProcess")));
-            cout << "Finalizing" << endl;
-            TTL_ComboSelector::gComboMVA->FinalizeTrainingSample();
-            cout << "Training" << endl;
-            TTL_ComboSelector::gComboMVA->TrainMVA();
+            TTL_TMVAEvaluator::gComboMVA->CreateTrainingSample(sample, proPack);
+            TTL_TMVAEvaluator::gComboMVA->TrainMVA();
         }
 
-        if (!TTL_ComboSelector::gComboMVA->BookMVA()) {
+        if (!TTL_TMVAEvaluator::gComboMVA->BookMVA()) {
             cout << "Booking combo MVA failed!" << endl;
-            delete TTL_ComboSelector::gComboMVA;
-            TTL_ComboSelector::gComboMVA = 0;
+            delete TTL_TMVAEvaluator::gComboMVA;
+            TTL_TMVAEvaluator::gComboMVA = 0;
         } else {
             cout << "Booked combo MVA" << endl;
         }
     }
-
-    if (analyze or all) {
-        Analyze();
-        DistributeProcesses();
-    } else {
-        // copy current config to output directory
-        BackUpConfigFile(argv[0], GetParam("webDir"));
-    }
-
-    if (proPack)
-        delete proPack;
-
-    // FIXME the proPack should be up to date at all times!
-    TFile file((params["process_file"]).c_str(), "UPDATE");
-    file.GetObject((params["propack_name"]).c_str(), proPack);
-    file.Close();
 
     method = cfg.pString("MVAmethod");
     if (method.length() > 0) {
@@ -158,7 +155,6 @@ main(int argc, char **argv) {
         std::string signal = cfg.pString("MVAsignal");
         std::string background = cfg.pString("MVAbackground");
         std::vector<std::string> vars = Helper::SplitString(cfg.pString("MVAvariables"));
-        // SetParam(theConfig, "MVAsignal");
 
         TTL_TMVAEvaluator::gMVA = new TTL_TMVAEvaluator(basedir, method, options, vars);
 
@@ -166,7 +162,7 @@ main(int argc, char **argv) {
             TTL_TMVAEvaluator::gMVA->CreateTrainingSample(signal, background, proPack);
 
         if (train or all)
-            TTL_TMVAEvaluator::gMVA->TrainMVA(background, proPack);
+            TTL_TMVAEvaluator::gMVA->TrainMVA();
 
         if (!TTL_TMVAEvaluator::gMVA->BookMVA()) {
             cout << "Booking final MVA failed!" << endl;
@@ -178,7 +174,6 @@ main(int argc, char **argv) {
     }
 
     if (prep_plots or all) {
-        DistributeProcesses();
         PreparePlots();
         CombineProcesses();
     }

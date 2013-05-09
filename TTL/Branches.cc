@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "ComboSelector.h"
+#include "TMVAEvaluator.h"
 #include "GenHelper.h"
 
 #include "Branches.h"
@@ -15,7 +15,7 @@ TTLBranches::TTLBranches(
       vector<string> const & iPath) : comboSelector(0), conesize(.25), jetIndexCacheCombo(-1) {
    SetUp(iParams, iPath);
 
-   comboSelector = TTL_ComboSelector::gComboMVA;
+   comboSelector = TTL_TMVAEvaluator::gComboMVA;
 }
 
 // Default destructor
@@ -52,6 +52,13 @@ TTLBranches::GetEntry(double i)
     jetIndexCacheCombo = -1;
 }
 
+bool
+TTLBranches::IsGoodGenMatch(const int& idx) const {
+    return (abs((*TTL_Tau1GenMatchId)[idx]) == 15 &&
+            abs((*TTL_Tau2GenMatchId)[idx]) == 15 &&
+            abs((*TTL_Tau1GenMatchMother0Id)[idx]) == 25 &&
+            abs((*TTL_Tau2GenMatchMother0Id)[idx]) == 25);
+}
 
 unsigned int TTLBranches::GetTau1IsolationIndex(const unsigned int iCombo) const {
 	if((*TTL_Tau1HPSbyTightCombinedIsolationDeltaBetaCorr)[iCombo]){	return 4; }

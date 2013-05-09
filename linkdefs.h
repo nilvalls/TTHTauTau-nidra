@@ -19,6 +19,7 @@
 #pragma link C++ class CutFlow+;
 #pragma link C++ class CutFlow::Cut+;
 #pragma link C++ class Process+;
+#pragma link C++ class Process::Event+;
 #pragma link C++ class ProPack+;
 
 #endif

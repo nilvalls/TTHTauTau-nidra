@@ -28,8 +28,7 @@ class Analyzer {
 	protected:
 		bool					isBaseAnalyzer;
 		map<string,string>		params;
-		vector<pair<int,int> >	goodEventsForSignal;
-		vector<pair<int,int> >	goodEventsForQCD;
+        std::vector<Process::Event> goodEventsForSignal;
 		CutFlow					cutFlow;
 		bool					isSignal;
 		bool					checkReality;

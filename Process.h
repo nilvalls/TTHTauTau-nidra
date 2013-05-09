@@ -22,17 +22,25 @@
 
 #include "configParser/config.h"
 
-using namespace std;
-//using namespace Common;
-
-
 class Process {
+    public:
+        struct Event {
+            Event(const int& n, const std::vector<int>& cs) : entry(n), combos(cs) {};
+            Event(const Event& e) : entry(e.entry), combos(e.combos) {};
+            Event() : entry(-1), combos() {};
+
+            int entry;
+            std::vector<int> combos;
+
+            ClassDef(Process::Event, 1);
+        };
+
 	protected:
-		map<string, string> params;
+        std::map<std::string, std::string> params;
 
 	private:
-		vector<pair<int, int> >	goodEventsForSignal;
-		vector<pair<int, int> >	goodEventsForQCD;
+        std::vector<Process::Event> goodEventsForSignal;
+        std::vector<pair<int, int> >	goodEventsForQCD;
 		HContainer				hContainerForSignal;
 		HContainer				hContainerForQCD;
 		CutFlow					cutFlow;
@@ -43,7 +51,7 @@ class Process {
 		string labelForLegend;
 		string type;
 		bool checkReality;
-      vector<string> ntuplePaths;
+        std::vector<std::string> ntuplePaths;
 		int color;
 		bool analyzed;
 		bool plot;
@@ -80,24 +88,24 @@ class Process {
 		// Default constructor
 		Process();
 		Process(Process const &);
-		Process(string const, map<string,string> const &, Config const &);
+		Process(std::string const, std::map<std::string, std::string> const &, Config const &);
 		virtual ~Process();
 		void Update(Process const *);
 
 
-		map<string, string> const GetParams() const;
+        std::map<std::string, std::string> const GetParams() const;
 		int const			GetNOEinDS() const;
 		int const			GetNoEreadByNUTter() const;
 		int const			GetNOEinNtuple() const;
 		int const			GetNOEanalyzed() const;
 
-		void				SetShortName(string const);
-		void				SetNiceName(string const);
-		void				SetLabelForLegend(string const);
+		void				SetShortName(std::string const);
+		void				SetNiceName(std::string const);
+		void				SetLabelForLegend(std::string const);
 		void				SetColor(int const);
 		void				SetNOEanalyzed(double const);
 		void				SetNOEinNtuple(double const);
-		void				SetNtuplePaths(vector<string> const);
+		void				SetNtuplePaths(std::vector<std::string> const);
         void                SetRelSysUncertainty(double const);
 
 		void				NormalizeToLumi(double const);
@@ -107,8 +115,8 @@ class Process {
 		void				SetAnalyzed();
 		bool const			Analyzed() const;
 
-		vector<pair<int, int> > const 	GetGoodEventsForSignal() const;
-		vector<pair<int, int> > const 	GetGoodEventsForQCD() const;
+        std::vector<Event> const GetGoodEventsForSignal() const;
+        std::vector<std::pair<int, int> > const 	GetGoodEventsForQCD() const;
 		void				SetHContainerForSignal(HContainer const &);
 		void				SetHContainerForQCD(HContainer const &);
 		void				SetCutFlow(CutFlow const &);
@@ -122,7 +130,7 @@ class Process {
 		string const		GetShortName() const;
 		string const		GetNiceName() const;
 		string const		GetLabelForLegend() const;
-		vector<string> const		GetNtuplePaths() const;
+        std::vector<std::string> const		GetNtuplePaths() const;
 		string const		GetType() const;
 		bool const			CheckReality() const;
 		bool const			IsCollisions() const;
@@ -131,7 +139,7 @@ class Process {
 		bool const			IsSignal() const;
 		bool const			IsMC() const;
 		bool const			Plot() const;
-		void				SetPlot(map<string,string> const &);
+		void				SetPlot(std::map<std::string, std::string> const &);
 
 		double const		GetCrossSection() const;
 		double const		GetBranchingRatio() const;
@@ -164,8 +172,8 @@ class Process {
 		void				SetFillStyle(int const);
 		void				SetLineColor(int const);
 		void				SetLineWidth(int const);
-		void 				SetGoodEventsForSignal(vector<pair<int, int> > const);
-		void 				SetGoodEventsForQCD(vector<pair<int, int> > const);
+		void 				SetGoodEventsForSignal(const std::vector<Process::Event>&);
+		void 				SetGoodEventsForQCD(std::vector<std::pair<int, int> > const);
 		void				Add(Process*);
 
 		ClassDef(Process, 1);

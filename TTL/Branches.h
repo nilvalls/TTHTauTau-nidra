@@ -6,11 +6,11 @@
 
 using namespace std;
 
-class TTL_ComboSelector;
+class TTL_TMVAEvaluator;
 
 class TTLBranches : public Branches {
 	private:
-        TTL_ComboSelector *comboSelector;
+        TTL_TMVAEvaluator *comboSelector;
         float conesize;
         vector<int> jetIndexCache;
         int jetIndexCacheCombo;
@@ -26,6 +26,7 @@ class TTLBranches : public Branches {
 		~TTLBranches();
 
         virtual void GetEntry(double);
+        virtual bool IsGoodGenMatch(const int&) const;
 
         // Get index (excluding taus) of jet in J_ branches (which include taus)
         unsigned int GetJetIndex(const int, const unsigned int);

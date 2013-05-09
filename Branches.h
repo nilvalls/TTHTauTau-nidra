@@ -45,6 +45,7 @@ class Branches {
 		virtual Long64_t	LoadTree(Long64_t entry);
 		virtual void		SetBranchAddresses();
 		virtual void		SetChain(TChain*);
+        virtual bool IsGoodGenMatch(const int&) const = 0;
 
 	public:
 		void	Init();

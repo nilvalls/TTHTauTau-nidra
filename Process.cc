@@ -20,8 +20,7 @@ Process::Process(){
 Process::Process(Process const & iProcess){
 
 	params							= iProcess.GetParams();
-	goodEventsForSignal				= vector<pair<int, int> >(iProcess.GetGoodEventsForSignal());
-	goodEventsForQCD				= vector<pair<int, int> >(iProcess.GetGoodEventsForQCD());
+	goodEventsForSignal				= iProcess.GetGoodEventsForSignal();
 
 	hContainerForSignal				= HContainer(*iProcess.GetHContainerForSignal());
 	hContainerForQCD				= HContainer(*iProcess.GetHContainerForQCD());
@@ -63,7 +62,6 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 
 	params						= map<string,string>(iParams);
 	goodEventsForSignal.clear();
-	goodEventsForQCD.clear();
 
 	// Id
 	shortName					= iShortName;
@@ -155,7 +153,7 @@ void Process::Update(Process const * iProcess){
 map<string, string> const Process::GetParams() const { return params; }
 void Process::SetHContainerForSignal(HContainer const & iHContainer){ hContainerForSignal = HContainer(iHContainer); }
 void Process::SetHContainerForQCD(HContainer const & iHContainer){ hContainerForQCD = HContainer(iHContainer); }
-vector<pair<int, int> > const Process::GetGoodEventsForSignal() const { return goodEventsForSignal; }
+vector<Process::Event> const Process::GetGoodEventsForSignal() const { return goodEventsForSignal; }
 vector<pair<int, int> > const Process::GetGoodEventsForQCD() const {	return goodEventsForQCD; }
 void Process::SetCutFlow(CutFlow const & iCutFlow){ cutFlow	= CutFlow(iCutFlow); }
 void Process::SetNormalizedCutFlow(CutFlow const & iCutFlow){ normalizedCutFlow	= CutFlow(iCutFlow); }
@@ -257,7 +255,7 @@ void Process::SetFillStyle(int const iVal){ hContainerForSignal.SetFillStyle(iVa
 void Process::SetFillColor(int const iVal){ hContainerForSignal.SetFillColor(iVal); }
 void Process::SetLineColor(int const iVal){ hContainerForSignal.SetLineColor(iVal); }
 void Process::SetLineWidth(int const iVal){ hContainerForSignal.SetLineWidth(iVal,color); }
-void Process::SetGoodEventsForSignal(vector<pair<int,int> > const iVector){ goodEventsForSignal = iVector; }
+void Process::SetGoodEventsForSignal(const vector<Process::Event>& iVector){ goodEventsForSignal = iVector; }
 void Process::SetGoodEventsForQCD(vector<pair<int,int> > const iVector){ goodEventsForQCD = iVector; }
 
 
@@ -333,3 +331,4 @@ void Process::Add(Process* iProcess){
 }
 
 ClassImp(Process)
+ClassImp(Process::Event)

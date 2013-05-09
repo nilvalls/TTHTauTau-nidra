@@ -4,7 +4,6 @@
 #include "../Analyzer.h"
 #include "Branches.h"
 #include "TMVAEvaluator.h"
-#include "ComboSelector.h"
 //#include "GenHelper.h"
 
 using namespace std;
@@ -20,7 +19,7 @@ class TTLAnalyzer : public Analyzer {
 
 	private:
 		TTL_TMVAEvaluator*		mva;
-		TTL_ComboSelector*		comboSelector;
+		TTL_TMVAEvaluator*		comboSelector;
 		void 					Reset();
 		pair<double,double>		Loop(Branches*, Process const &, const bool iTrainComboSelectorSampler=false);
 };

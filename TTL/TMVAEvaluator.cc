@@ -20,28 +20,29 @@
 using namespace std;
 
 TTL_TMVAEvaluator* TTL_TMVAEvaluator::gMVA = 0;
+TTL_TMVAEvaluator* TTL_TMVAEvaluator::gComboMVA = 0;
 
 TTL_TMVAEvaluator::~TTL_TMVAEvaluator()
 {
-    delete tmvaReader;
+    delete reader;
 }
 
 TTL_TMVAEvaluator::TTL_TMVAEvaluator(const std::string& dir, const std::string& mthd,
-        const std::string& opts, const std::vector<std::string>& vars) :
-    want_csr(true),
+        const std::string& opts, const std::vector<std::string>& vars, const int rnk) :
     basedir(dir),
     variables(vars),
     method(mthd),
-    method_options(opts)
+    method_options(opts),
+    rank(rnk)
 {
-    tmvaReader = new TMVA::Reader( "!Color:Silent:!V" );
+    reader = new TMVA::Reader( "!Color:Silent:!V" );
 
     log_filename = basedir + "/tmva.log";
     output_filename = basedir + "/tmva.root";
     sample_filename = basedir + "/sample.root";
     weight_filename = basedir + "/TMVAClassification_" + method + ".weights.xml";
 
-    SetupVariables(tmvaReader);
+    SetupVariables(reader);
 }
 
 template<typename T> void
@@ -85,10 +86,28 @@ TTL_TMVAEvaluator::BookMVA()
     using namespace boost::filesystem;
 
     if (exists(path(weight_filename, &boost::filesystem::native))) {
-        tmvaReader->BookMVA(method + " method", weight_filename);
+        reader->BookMVA(method + " method", weight_filename);
         return true;
     }
     return false;
+}
+
+void
+TTL_TMVAEvaluator::CreateTrainingSample(const std::string& sample,
+        ProPack* propack)
+{
+    TFile outfile(sample_filename.c_str(), "RECREATE");
+    outfile.cd();
+
+    TTree* sig_tree = new TTree("TreeS","TreeS");
+    TTree* bkg_tree = new TTree("TreeB","TreeB");
+    cout << "\tSame sample MVA" << std::endl;
+    FillTree(sig_tree, bkg_tree, propack->GetProcess(sample));
+    sig_tree->Write();
+    bkg_tree->Write();
+
+    cout << "\tSignal tree contains " << sig_tree->GetEntries() << " events." << endl;
+    cout << "\tBackground tree contains " << bkg_tree->GetEntries() << " events." << endl;
 }
 
 void
@@ -106,13 +125,17 @@ TTL_TMVAEvaluator::CreateTrainingSample(const std::string& signal, const std::st
 
     delete signalTree;
 
+    this->backgrounds.clear();
     for (const auto& bkg: Helper::SplitString(backgrounds)) {
         Process *proc = propack->GetProcess(bkg);
+        double weight = propack->GetPContainer()->Get(bkg)->GetCrossSection();
         string name = "TreeB_" + proc->GetShortName();
 
         TTree* backgroundTree = new TTree(name.c_str(), name.c_str());
         FillTree(backgroundTree, proc);
         backgroundTree->Write();
+
+        this->backgrounds[name] = weight;
 
         cout << "\tBackground tree contains " << backgroundTree->GetEntries() << " events." << endl;
 
@@ -127,20 +150,55 @@ TTL_TMVAEvaluator::FillTree(TTree *tree, const Process *process)
 
     TTLBranches* event = new TTLBranches(process->GetParams(), process->GetNtuplePaths());
 
-    vector< pair<int, int> > goodEventsForSignal = process->GetGoodEventsForSignal();
+    auto goodEventsForSignal = process->GetGoodEventsForSignal();
     for (unsigned int i = 0; i < goodEventsForSignal.size(); i++) {
-        event->GetEntry(goodEventsForSignal.at(i).first);
-        event->SetBestCombo(goodEventsForSignal.at(i).second);
-        unsigned int bestCombo = event->GetBestCombo();
-
-        FillVariables(event, bestCombo);
+        event->GetEntry(goodEventsForSignal.at(i).entry);
+        int combo = goodEventsForSignal[i].combos[0];
+        FillVariables(event, combo);
 
         tree->Fill();
     }
 }
 
 void
-TTL_TMVAEvaluator::TrainMVA(const std::string& backgrounds, ProPack *propack)
+TTL_TMVAEvaluator::FillTree(TTree *sig, TTree *bkg, const Process *process)
+{
+    SetupVariables(sig);
+    SetupVariables(bkg);
+
+    TTLBranches* event = new TTLBranches(process->GetParams(), process->GetNtuplePaths());
+
+    auto goodEventsForSignal = process->GetGoodEventsForSignal();
+    for (unsigned int i = 0; i < goodEventsForSignal.size(); i++) {
+        event->GetEntry(goodEventsForSignal.at(i).entry);
+
+        int combo = -1;
+        for (const auto& c: goodEventsForSignal[i].combos) {
+            if (event->IsGoodGenMatch(c)) {
+                combo = c;
+                break;
+            }
+        }
+
+        if (combo == -1)
+            continue;
+
+        for (unsigned int i = 0; i < event->TTL_NumCombos; ++i) {
+            FillVariables(event, i);
+
+            if (int(i) == combo)
+                sig->Fill();
+            else
+                bkg->Fill();
+        }
+    }
+
+    backgrounds.clear();
+    backgrounds["TreeB"] = 1.0;
+}
+
+void
+TTL_TMVAEvaluator::TrainMVA()
 {
     TMVA::gConfig().GetIONames().fWeightFileDir = basedir;
 
@@ -161,17 +219,14 @@ TTL_TMVAEvaluator::TrainMVA(const std::string& backgrounds, ProPack *propack)
     infile.GetObject("TreeS", stree);
     factory->AddSignalTree(stree, 1.);
 
-    for (const auto& bkg: Helper::SplitString(backgrounds)) {
+    for (const auto& bkg: backgrounds) {
         TTree *btree;
-        string name = "TreeB_" + bkg;
-        double weight = propack->GetPContainer()->Get(bkg)->GetCrossSection();
-
-        infile.GetObject(name.c_str(), btree);
+        infile.GetObject(bkg.first.c_str(), btree);
 
         if (btree->GetEntries() > 0)
-            factory->AddBackgroundTree(btree, weight);
+            factory->AddBackgroundTree(btree, bkg.second);
         else
-            cerr << "WARNING: skipping " << bkg << " for MVA training (no events)" << endl;
+            cerr << "WARNING: skipping " << bkg.first << " for MVA training (no events)" << endl;
     }
 
     factory->PrepareTrainingAndTestTree("", "", "SplitMode=Random:NormMode=NumEvents:!V");
@@ -181,9 +236,12 @@ TTL_TMVAEvaluator::TrainMVA(const std::string& backgrounds, ProPack *propack)
             // "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
     factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
             "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
-    // factory->BookMethod(TMVA::Types::kBDT, "BDT",
-            // "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
+    factory->BookMethod(TMVA::Types::kBDT, "BDT",
+            "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
+    factory->BookMethod( TMVA::Types::kBDT, "BDTG",
+            "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:NNodesMax=5" );
 
+    cerr << "TRAINING" << endl;
     factory->TrainAllMethods();
     factory->TestAllMethods();
     factory->EvaluateAllMethods();
@@ -197,7 +255,7 @@ void
 TTL_TMVAEvaluator::FillVariables(TTLBranches *event, const int combo)
 {
     try {
-        if (want_csr) {
+        if (rank > 0) {
             csr = event->GetComboSelectorResponse(combo);
         } else {
             csr = 0.;
@@ -280,7 +338,7 @@ float
 TTL_TMVAEvaluator::Evaluate(TTLBranches* event, int combo)
 {
     FillVariables(event, combo);
-    return tmvaReader->EvaluateMVA(method + " method");
+    return reader->EvaluateMVA(method + " method");
 }
 
 template<typename W, typename T>

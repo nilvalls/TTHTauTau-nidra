@@ -155,10 +155,23 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
             return e->GetTau1AntiMuonIndex(idx); });
     cutFlow.RegisterCut("T2_AntiMuonIndex", 1, [](TTLBranches *& e, const int& idx) -> float {
             return e->GetTau2AntiMuonIndex(idx); });
+
     cutFlow.RegisterCut("T1_IsolationIndex", 1, [](TTLBranches *& e, const int& idx) -> float {
             return e->GetTau1IsolationIndex(idx); });
     cutFlow.RegisterCut("T2_IsolationIndex", 1, [](TTLBranches *& e, const int& idx) -> float {
             return e->GetTau2IsolationIndex(idx); });
+    cutFlow.RegisterCut("T1_IsolationIndex3Hits", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return e->GetTau1IsolationIndex3Hits(idx); });
+    cutFlow.RegisterCut("T2_IsolationIndex3Hits", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return e->GetTau2IsolationIndex3Hits(idx); });
+    cutFlow.RegisterCut("T1_IsolationIndexMVA", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return e->GetTau1IsolationIndexMVA(idx); });
+    cutFlow.RegisterCut("T2_IsolationIndexMVA", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return e->GetTau2IsolationIndexMVA(idx); });
+    cutFlow.RegisterCut("T1_IsolationIndexMVA2", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return e->GetTau1IsolationIndexMVA2(idx); });
+    cutFlow.RegisterCut("T2_IsolationIndexMVA2", 1, [](TTLBranches *& e, const int& idx) -> float {
+            return e->GetTau2IsolationIndexMVA2(idx); });
     cutFlow.RegisterCut("T1_IsolationMVA2Raw", 1, [](TTLBranches *& e, const int& idx) -> float {
             return (*e->TTL_Tau1HPSbyIsolationMVA2raw)[idx]; });
     cutFlow.RegisterCut("T2_IsolationMVA2Raw", 1, [](TTLBranches *& e, const int& idx) -> float {
@@ -179,7 +192,7 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
             return TTL_TMVAEvaluator::gMVA ? TTL_TMVAEvaluator::gMVA->Evaluate(e, idx) : 0.; });
 
     mva = TTL_TMVAEvaluator::gMVA;
-    comboSelector = TTL_ComboSelector::gComboMVA;
+    comboSelector = TTL_TMVAEvaluator::gComboMVA;
 }
 
 // Default destructor
@@ -255,21 +268,7 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
 
         // Fill good event vectors for signal analysis
         if (combos.size() > 0) {
-            if (combos.size() > 1
-                    and params["selectComboBy"] == "mva"
-                    and not (params["comboSelectorProcess"] == iProcess.GetShortName() && iTrainComboSelectorSampler)) {
-                stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) {
-                            return comboSelector->Evaluate(event, a) > comboSelector->Evaluate(event, b);
-                        });
-            }
-            int best_combo = combos[0];
-
-            event->SetBestCombo(best_combo);
-            goodEventsForSignal.push_back(make_pair(jentry, best_combo));
-
-            if (params["comboSelectorProcess"] == iProcess.GetShortName() &&
-                    iTrainComboSelectorSampler)
-                TTL_ComboSelector::gComboMVA->FillTrees(event);
+            goodEventsForSignal.push_back(Process::Event(jentry, combos));
         }
 
         NOEanalyzed++;
