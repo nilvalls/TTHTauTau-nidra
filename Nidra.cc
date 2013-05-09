@@ -9,6 +9,57 @@
 using namespace std;
 
 void
+setup_mva(const string& prefix, const string& dir, const Config& cfg,
+        ProPack *proPack, bool make_trees, bool train)
+{
+    string method = cfg.pString(prefix + "method");
+    if (method.length() == 0)
+        return;
+
+    string basedir = cfg.pString(prefix + "dir");
+    if (basedir.length() == 0)
+        basedir = cfg.pString("bigDir") + "/" + dir;
+
+    ReMakeDir(basedir + "/");
+
+    map<string, string> setup;
+    for (const auto& m: Helper::SplitString(cfg.pString(prefix + "method")))
+        setup[m] = cfg.pString(prefix + "options" + m);
+
+    string signal = cfg.pString(prefix + "signal");
+    string background = cfg.pString(prefix + "background");
+    vector<string> vars = Helper::SplitString(cfg.pString(prefix + "variables"));
+
+    int rank = signal == background ? 0 : 1;
+    TTL_TMVAEvaluator *mva = new TTL_TMVAEvaluator(basedir, vars, rank);
+
+    if (make_trees) {
+        if (rank == 0)
+            mva->CreateTrainingSample(signal, proPack);
+        else
+            mva->CreateTrainingSample(signal, background, proPack);
+    }
+
+    if (train)
+        mva->TrainMVA(setup);
+
+    delete mva;
+
+    for (const auto& m: setup) {
+        mva = new TTL_TMVAEvaluator(basedir, vars, rank);
+        if (!mva->BookMVA(m.first)) {
+            delete mva;
+            mva = 0;
+        }
+
+        if (rank == 0)
+            TTL_TMVAEvaluator::gComboMVA[m.first] = mva;
+        else
+            TTL_TMVAEvaluator::gMVA[m.first] = mva;
+    }
+}
+
+void
 usage()
 {
     cerr << "usage: nidra [-acAkmnopPtT] configfile" << endl;
@@ -107,71 +158,8 @@ main(int argc, char **argv) {
     file.GetObject((params["propack_name"]).c_str(), proPack);
     file.Close();
 
-    std::string method = cfg.pString("comboSelectorMVAmethod");
-    if (method.length() > 0) {
-        std::string basedir = cfg.pString("comboSelectorMVAdir");
-        // FIXME this ugliness should disappear
-        if (basedir.length() == 0) {
-            basedir = cfg.pString("bigDir") + "/combos/";
-        }
-        // FIXME the trailing slash is a safety measure to _really_ create
-        // a directory
-        ReMakeDir(basedir + "/");
-
-        std::string method = cfg.pString("comboSelectorMVAmethod");
-        std::string options = cfg.pString("comboSelectorMVAoptions");
-        std::string sample = cfg.pString("comboSelectorProcess");
-        std::vector<std::string> vars = Helper::SplitString(cfg.pString("comboSelectorMVAvariables"));
-
-        TTL_TMVAEvaluator::gComboMVA = new TTL_TMVAEvaluator(basedir, method, options, vars, 0);
-
-        if (train_combo_mva or all) {
-            TTL_TMVAEvaluator::gComboMVA->CreateTrainingSample(sample, proPack);
-            TTL_TMVAEvaluator::gComboMVA->TrainMVA();
-        }
-
-        if (!TTL_TMVAEvaluator::gComboMVA->BookMVA()) {
-            cout << "Booking combo MVA failed!" << endl;
-            delete TTL_TMVAEvaluator::gComboMVA;
-            TTL_TMVAEvaluator::gComboMVA = 0;
-        } else {
-            cout << "Booked combo MVA" << endl;
-        }
-    }
-
-    method = cfg.pString("MVAmethod");
-    if (method.length() > 0) {
-        std::string basedir = cfg.pString("MVAdir");
-        // FIXME this ugliness should disappear
-        if (basedir.length() == 0) {
-            basedir = cfg.pString("bigDir") + "/tmva/";
-        }
-        // FIXME the trailing slash is a safety measure to _really_ create
-        // a directory
-        ReMakeDir(basedir + "/");
-
-        std::string method = cfg.pString("MVAmethod");
-        std::string options = cfg.pString("MVAoptions");
-        std::string signal = cfg.pString("MVAsignal");
-        std::string background = cfg.pString("MVAbackground");
-        std::vector<std::string> vars = Helper::SplitString(cfg.pString("MVAvariables"));
-
-        TTL_TMVAEvaluator::gMVA = new TTL_TMVAEvaluator(basedir, method, options, vars);
-
-        if (prep_train or all)
-            TTL_TMVAEvaluator::gMVA->CreateTrainingSample(signal, background, proPack);
-
-        if (train or all)
-            TTL_TMVAEvaluator::gMVA->TrainMVA();
-
-        if (!TTL_TMVAEvaluator::gMVA->BookMVA()) {
-            cout << "Booking final MVA failed!" << endl;
-            delete TTL_TMVAEvaluator::gMVA;
-            TTL_TMVAEvaluator::gMVA = 0;
-        } else {
-            cout << "Booked final MVA" << endl;
-        }
-    }
+    setup_mva("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all);
+    setup_mva("MVA", "tmva", cfg, proPack, prep_train || all, train || all);
 
     if (prep_plots or all) {
         PreparePlots();

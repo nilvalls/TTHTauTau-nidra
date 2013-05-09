@@ -8,10 +8,10 @@
 
 class TTL_TMVAEvaluator {
     public:
-        static TTL_TMVAEvaluator *gMVA;
-        static TTL_TMVAEvaluator *gComboMVA;
+        static std::map<std::string, TTL_TMVAEvaluator*> gMVA;
+        static std::map<std::string, TTL_TMVAEvaluator*> gComboMVA;
 
-        TTL_TMVAEvaluator(const std::string&, const std::string&, const std::string&, const std::vector<std::string>&, const int rnk=1);
+        TTL_TMVAEvaluator(const std::string&, const std::vector<std::string>&, const int rnk=1);
         virtual ~TTL_TMVAEvaluator();
 
         void CreateTrainingSample(const std::string&, ProPack*);
@@ -20,8 +20,8 @@ class TTL_TMVAEvaluator {
         void FillTree(TTree*, const Process*);
         void FillTree(TTree*, TTree*, const Process*);
         void FillVariables(TTLBranches*, const int);
-        virtual bool BookMVA();
-        virtual void TrainMVA();
+        virtual bool BookMVA(const string&);
+        virtual void TrainMVA(const map<string, string>&);
 
     protected:
         template<typename T> void SetupVariables(T*);
@@ -33,9 +33,8 @@ class TTL_TMVAEvaluator {
         TMVA::Reader* reader;
 
         std::string basedir;
-        std::vector<std::string> variables;
         std::string method;
-        std::string method_options;
+        std::vector<std::string> variables;
 
         int rank;
 
@@ -44,7 +43,6 @@ class TTL_TMVAEvaluator {
         std::string log_filename;
         std::string output_filename;
         std::string sample_filename;
-        std::string weight_filename;
 
         float csr;
         float HT;

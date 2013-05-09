@@ -22,7 +22,7 @@ parser.add_option("-s", "--disable-systematic", dest="nosys",
 parser.add_option("-b", "--btag-mode", dest="btag",
         help="set b-tag uncertainty treatment to MODE.  (Allowed "
         "values: off, rate, shape, category)", metavar="MODE",
-        default="category")
+        default="off")
 
 (opts, args) = parser.parse_args()
 
@@ -37,7 +37,7 @@ try:
 except:
     parser.error("invalid b-tag mode: " + opts.btag)
 
-invar = "OS/MVA"
+invar = "OS/FinalCFMlpANN"
 outvar = "CFMlpANN"
 
 of = r.TFile(ofilename, "RECREATE")
@@ -48,6 +48,8 @@ for c in categories:
     for d in glob.glob(pattern.format(c=cname)):
         new_cname = "TTL_" + cname
         syst = d.split(cname)[1]
+        if not (syst.lower().endswith("up") or syst.lower().endswith("down")):
+            syst = ""
         infile = r.TFile(os.path.join(d, 'nidra_rawHistos.root'))
         if not infile.IsOpen():
             print "Not processing", d

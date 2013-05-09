@@ -12,11 +12,12 @@ hContainer->Fill("Events", 0, weightFull);
 hContainer->Fill("MomentumRank", (*event->TTL_MomentumRank)[iCombo], weightFull);
 hContainer->Fill("MET", event->Ev_MET, weightFull);
 hContainer->Fill("HT", (*event->TTL_HT)[iCombo], weightFull);
-if (mva)
-    hContainer->Fill("MVA", mva->Evaluate(event, iCombo), weightFull);
-try {
-    hContainer->Fill("ComboSelectorResponse", event->GetComboSelectorResponse(iCombo), weightFull);
-} catch (...) {}
+if (auto mva = TTL_TMVAEvaluator::gMVA["CFMlpANN"])
+    hContainer->Fill("FinalCFMlpANN", mva->Evaluate(event, iCombo), weightFull);
+if (auto mva = TTL_TMVAEvaluator::gMVA["BDTG"])
+    hContainer->Fill("FinalBDTG", mva->Evaluate(event, iCombo), weightFull);
+if (auto mva = TTL_TMVAEvaluator::gComboMVA["BDT"])
+    hContainer->Fill("ComboBDT", mva->Evaluate(event, iCombo), weightFull);
 hContainer->Fill("SelectedComboRank", iCombo, weightFull);
 
 if(iPuWeight!=0){

@@ -2,7 +2,6 @@
 #define TTLPlotter_h
 
 #include "Branches.h"
-#include "TMVAEvaluator.h"
 #include "../Plotter.h"
 
 using namespace std;
@@ -16,7 +15,6 @@ class TTLPlotter : public Plotter {
 	protected:
 
 	private:
-		TTL_TMVAEvaluator*		mva;
 		void	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
 
 };

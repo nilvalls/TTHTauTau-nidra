@@ -19,20 +19,19 @@
 
 using namespace std;
 
-TTL_TMVAEvaluator* TTL_TMVAEvaluator::gMVA = 0;
-TTL_TMVAEvaluator* TTL_TMVAEvaluator::gComboMVA = 0;
+map<string, TTL_TMVAEvaluator*> TTL_TMVAEvaluator::gMVA;
+map<string, TTL_TMVAEvaluator*> TTL_TMVAEvaluator::gComboMVA;
 
 TTL_TMVAEvaluator::~TTL_TMVAEvaluator()
 {
     delete reader;
 }
 
-TTL_TMVAEvaluator::TTL_TMVAEvaluator(const std::string& dir, const std::string& mthd,
-        const std::string& opts, const std::vector<std::string>& vars, const int rnk) :
+TTL_TMVAEvaluator::TTL_TMVAEvaluator(const std::string& dir,
+        const std::vector<std::string>& vars, const int rnk) :
     basedir(dir),
+    method(),
     variables(vars),
-    method(mthd),
-    method_options(opts),
     rank(rnk)
 {
     reader = new TMVA::Reader( "!Color:Silent:!V" );
@@ -40,7 +39,6 @@ TTL_TMVAEvaluator::TTL_TMVAEvaluator(const std::string& dir, const std::string& 
     log_filename = basedir + "/tmva.log";
     output_filename = basedir + "/tmva.root";
     sample_filename = basedir + "/sample.root";
-    weight_filename = basedir + "/TMVAClassification_" + method + ".weights.xml";
 
     SetupVariables(reader);
 }
@@ -81,10 +79,13 @@ TTL_TMVAEvaluator::SetupVariables(T* obj)
 }
 
 bool
-TTL_TMVAEvaluator::BookMVA()
+TTL_TMVAEvaluator::BookMVA(const string& method)
 {
     using namespace boost::filesystem;
 
+    this->method = method;
+
+    string weight_filename = basedir + "/TMVAClassification_" + method + ".weights.xml";
     if (exists(path(weight_filename, &boost::filesystem::native))) {
         reader->BookMVA(method + " method", weight_filename);
         return true;
@@ -198,7 +199,7 @@ TTL_TMVAEvaluator::FillTree(TTree *sig, TTree *bkg, const Process *process)
 }
 
 void
-TTL_TMVAEvaluator::TrainMVA()
+TTL_TMVAEvaluator::TrainMVA(const map<string, string>& setup)
 {
     TMVA::gConfig().GetIONames().fWeightFileDir = basedir;
 
@@ -206,7 +207,7 @@ TTL_TMVAEvaluator::TrainMVA()
     // streambuf* old_buf = cout.rdbuf();
     // cout.rdbuf(tmp_out.rdbuf());
 
-    TFile outfile(output_filename.c_str(), "RECREATE");
+    TFile outfile(output_filename.c_str(), "UPDATE");
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
             "!V:Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
             //"!V:!Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
@@ -234,12 +235,14 @@ TTL_TMVAEvaluator::TrainMVA()
     // the following can be copied from TMVAClassification.C
     // factory->BookMethod(TMVA::Types::kCuts, "Cuts",
             // "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart");
-    factory->BookMethod(TMVA::Types::kCFMlpANN, "CFMlpANN",
-            "!H:!V:NCycles=2000:HiddenLayers=N+1,N"); // n_cycles:#nodes:#nodes:...
-    factory->BookMethod(TMVA::Types::kBDT, "BDT",
-            "!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning");
-    factory->BookMethod( TMVA::Types::kBDT, "BDTG",
-            "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:NNodesMax=5" );
+    for (const auto& m: setup) {
+        if (m.first.find("BDT") != string::npos)
+            factory->BookMethod(TMVA::Types::kBDT, m.first, m.second);
+        else if (m.first == "CFMlpANN")
+            factory->BookMethod(TMVA::Types::kCFMlpANN, m.first, m.second);
+        else
+            cerr << "ERROR: can't train " << m.first << endl;
+    }
 
     cerr << "TRAINING" << endl;
     factory->TrainAllMethods();
@@ -254,15 +257,12 @@ TTL_TMVAEvaluator::TrainMVA()
 void
 TTL_TMVAEvaluator::FillVariables(TTLBranches *event, const int combo)
 {
-    try {
-        if (rank > 0) {
-            csr = event->GetComboSelectorResponse(combo);
-        } else {
-            csr = 0.;
-        }
-    } catch (...) {
+    if (rank > 0 && gComboMVA["BDT"]) {
+        csr = gComboMVA["BDT"]->Evaluate(event, combo);
+    } else {
         csr = 0.;
     }
+
     HT = (*event->TTL_HT)[combo];
     Tau1Pt = (*event->TTL_Tau1Pt)[combo];
     Tau1Eta = abs((*event->TTL_Tau1Eta)[combo]);

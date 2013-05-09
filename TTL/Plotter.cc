@@ -6,20 +6,17 @@
 
 */
 
+#include "TMVAEvaluator.h"
 
-#define TTLPlotter_cxx
 #include "Plotter.h"
 
 using namespace std;
-
-#define AT __LINE__
 
 // Default destructor
 TTLPlotter::~TTLPlotter() {}
 
 // Constructor
 TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
-    mva = TTL_TMVAEvaluator::gMVA;
 	MakePlots(proPack);
 	SaveFile();
 }
@@ -110,7 +107,6 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 	iWeightCounter->q2Sys        		+= iQ2SysWeight;
 	iWeightCounter->jetCSV      		+= iJetCSVweight;
 	iWeightCounter->total++;
-	
 
 	#include "FillHistos.h"
 }

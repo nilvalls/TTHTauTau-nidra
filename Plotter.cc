@@ -6,12 +6,9 @@
 
 */
 
+#include "TTL/TMVAEvaluator.h"
+
 #include "Plotter.h"
-
-#define Plotter_cxx
-using namespace std;
-
-#define AT __LINE__
 
 // Default constructor
 Plotter::Plotter(){
@@ -97,7 +94,7 @@ void Plotter::MakePlots(Process* iProcess){
 	weightCounterForSignal.jetCSV           = 0;
 	weightCounterForSignal.total            = 0;
 
-	vector<pair<int,int> > goodEventsForSignal = iProcess->GetGoodEventsForSignal();
+    auto goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
 	cout << "\t>>> OS, filling good events (total " << goodEventsForSignal.size() << "): "; cout.flush();
 	stringstream goodEventsSS; goodEventsSS.str("");
@@ -109,9 +106,36 @@ void Plotter::MakePlots(Process* iProcess){
 			cout << goodEventsSS.str(); cout.flush();
 		}
 
-		event->GetEntry(goodEventsForSignal.at(i).first);
-		event->SetBestCombo(goodEventsForSignal.at(i).second);
-		FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
+        event->GetEntry(goodEventsForSignal.at(i).entry);
+
+        auto& combos = goodEventsForSignal[i].combos;
+        // std::cout << endl << "--- " << combos << endl;
+        // std::cout << "--- " << combos.size() << std::endl;
+        if (combos.size() > 1) {
+            if (params["selectComboBy"] == "mva") {
+                TTLBranches *e = dynamic_cast<TTLBranches*>(event);
+                stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
+                        // return TTL_TMVAEvaluator::gComboMVA->Evaluate(e, a) > TTL_TMVAEvaluator::gComboMVA->Evaluate(e, b);
+                        return TTL_TMVAEvaluator::gComboMVA["BDT"]->Evaluate(e, a) >
+                            TTL_TMVAEvaluator::gComboMVA["BDT"]->Evaluate(e, b);
+                        });
+            } else if (params["selectComboBy"] == "iso") {
+                TTLBranches *e = dynamic_cast<TTLBranches*>(event);
+                stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
+                        double score_a = (((*e->TTL_Tau1HPSbyIsolationMVA2raw)[a] + 1) *
+                            ((*e->TTL_Tau1HPSbyIsolationMVA2raw)[a] + 1) + ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[a] + 1) *
+                            ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[a] + 1));
+                        double score_b = (((*e->TTL_Tau1HPSbyIsolationMVA2raw)[b] + 1) *
+                            ((*e->TTL_Tau1HPSbyIsolationMVA2raw)[b] + 1) + ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[b] + 1) *
+                            ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[b] + 1));
+                        return score_a > score_b;
+                        });
+            }
+        }
+
+        event->SetBestCombo(combos[0]);
+
+        FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
 	}
 	cout << endl;
 

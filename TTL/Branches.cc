@@ -8,14 +8,12 @@
 using namespace std;
 
 // Default constructor
-TTLBranches::TTLBranches() : Branches(), comboSelector(0), conesize(.25), jetIndexCacheCombo(-1) {}
+TTLBranches::TTLBranches() : Branches(), conesize(.25), jetIndexCacheCombo(-1) {}
 
 TTLBranches::TTLBranches(
       map<string,string> const & iParams,
-      vector<string> const & iPath) : comboSelector(0), conesize(.25), jetIndexCacheCombo(-1) {
+      vector<string> const & iPath) : conesize(.25), jetIndexCacheCombo(-1) {
    SetUp(iParams, iPath);
-
-   comboSelector = TTL_TMVAEvaluator::gComboMVA;
 }
 
 // Default destructor
@@ -215,15 +213,6 @@ unsigned int TTLBranches::GetTau2MatchIndex(const unsigned int iCombo) const {
 	if(abs((*TTL_Tau2GenMatchId)[iCombo]) == 24){	return 7; } // W
 	if(abs((*TTL_Tau2GenMatchId)[iCombo]) == 25){	return 8; } // Higgs
 	return 1; // hadronic
-}
-
-float
-TTLBranches::GetComboSelectorResponse(const unsigned int idx)
-{
-    if (comboSelector)
-        return comboSelector->Evaluate(this, idx);
-    else
-        throw "No combo selection MVA defined!"; // TODO add exception class
 }
 
 unsigned int

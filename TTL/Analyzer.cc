@@ -189,10 +189,7 @@ TTLAnalyzer::TTLAnalyzer(map<string,string> const & iParams) : Analyzer(iParams)
     cutFlow.RegisterCut("MET", 1, [](TTLBranches *& e, const int& idx) -> float {
             return e->Ev_MET; });
     cutFlow.RegisterCut("MVA", 1, [](TTLBranches *& e, const int& idx) -> float {
-            return TTL_TMVAEvaluator::gMVA ? TTL_TMVAEvaluator::gMVA->Evaluate(e, idx) : 0.; });
-
-    mva = TTL_TMVAEvaluator::gMVA;
-    comboSelector = TTL_TMVAEvaluator::gComboMVA;
+            return TTL_TMVAEvaluator::gMVA["CFMlpANN"] ? TTL_TMVAEvaluator::gMVA["CFMlpANN"]->Evaluate(e, idx) : 0.; });
 }
 
 // Default destructor
