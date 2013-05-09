@@ -7,10 +7,9 @@
 
 using namespace std;
 
-CutFlow::Cut::Cut(const string n, CutFlow::Cut::val_f f, const int r, const float mn, const float mx, const double sig, const double qcd, bool bypass):
+CutFlow::Cut::Cut(const string n, CutFlow::Cut::val_f f, const int r, const float mn, const float mx, const double sig, bool bypass):
     name(n), GetVal(f), rank(r), min(mn), max(mx),
-    passedSignalEvents(sig), passedQCDEvents(qcd),
-    currentSignalResult(false), currentQCDResult(false),
+    passedSignalEvents(sig), currentSignalResult(false),
     skip(bypass)
 {
 }
@@ -77,12 +76,9 @@ CutFlow::CutFlow(CutFlow const & iCutFlow){
     cuts_to_consider = iCutFlow.GetCutsToConsider();
 
 	eventForSignalPassed	= false;
-	eventForQCDPassed		= false;
 	comboIsForSignal		= false;
-	comboIsForQCD			= false;
 
 	bestComboForSignal	= -1;
-	bestComboForQCD		= -1;
 }
 
 
@@ -91,12 +87,9 @@ CutFlow::~CutFlow(){}
 
 void CutFlow::Reset(){
 	eventForSignalPassed = false;
-	eventForQCDPassed    = false;
 	comboIsForSignal     = false;
-	comboIsForQCD        = false;
 
 	bestComboForSignal = -1;
-	bestComboForQCD    = -1;
 
     cuts.clear();
     name2idx.clear();
@@ -106,41 +99,29 @@ void CutFlow::Zero() {
     for (auto& c: cuts) {
         c.passedSignalEvents = 0;
         c.passedSignalCombos = 0;
-        c.passedQCDEvents = 0;
-        c.passedQCDCombos = 0;
     }
 
     eventForSignalPassed = false;
-    eventForQCDPassed    = false;
     comboIsForSignal     = false;
-    comboIsForQCD        = false;
 
     bestComboForSignal = -1;
-    bestComboForQCD    = -1;
 }
 
 int const CutFlow::size() const { return cuts.size(); }
 
-void CutFlow::InvertSignalAndQCD(){
-        // map<string, float>	temp = passedEventsForSignal;
-        // passedEventsForSignal	= passedEventsForQCD;
-        // passedEventsForQCD		= temp;
-        throw "not implemented";
-}
-
-void CutFlow::RegisterCut(string const name, int const rank,  double const iEventsForSignal, double const iEventsForQCD){
+void CutFlow::RegisterCut(string const name, int const rank,  double const iEventsForSignal){
     if (!(rank == 0 || 2 == rank)) {
         cerr << "ERROR: Cut named \"" << name << "\" is trying to be registered with rank " << rank << " but rank can only be 0 or 2." << endl;
         exit(1);
     }
     Cut new_cut(name, [](TTLBranches *& b, const int& idx) -> float { return 0.; },
-            rank, 0, 0, iEventsForSignal, iEventsForQCD);
+            rank, 0, 0, iEventsForSignal);
     cuts.push_back(new_cut);
     name2idx[name] = cuts.size() - 1;
 }
 
 void
-CutFlow::RegisterCut(const string name, const int rank, CutFlow::Cut::val_f f, bool bypass, const double sig, const double qcd)
+CutFlow::RegisterCut(const string name, const int rank, CutFlow::Cut::val_f f, bool bypass, const double sig)
 {
     auto res = cuts_to_consider.find(name);
     if (res == cuts_to_consider.end()) {
@@ -149,18 +130,21 @@ CutFlow::RegisterCut(const string name, const int rank, CutFlow::Cut::val_f f, b
     }
     // cout << "ENABLE " << name << ", " << rank << endl;
 
-    Cut new_cut(name, f, rank, res->second.first, res->second.second, sig, qcd, bypass);
+    Cut new_cut(name, f, rank, res->second.first, res->second.second, sig, bypass);
     cuts.push_back(new_cut);
     name2idx[name] = cuts.size() - 1;
 }
 
-void CutFlow::RegisterCutFromLast(string const iName, int const iRank, double const iFactorForSignal, double const iFactorForQCD){
-	RegisterCut(iName, iRank, iFactorForSignal*GetLastCountForSignal(), iFactorForQCD*GetLastCountForQCD());
+void
+CutFlow::RegisterCutFromLast(string const iName, int const iRank, double const iFactorForSignal)
+{
+    RegisterCut(iName, iRank, iFactorForSignal*GetLastCountForSignal());
 }
 
-void CutFlow::SetCutCounts(string const iName, double const iEventsForSignal, double const iEventsForQCD){
+void
+CutFlow::SetCutCounts(string const iName, double const iEventsForSignal)
+{
     cuts[name2idx[iName]].passedSignalEvents = iEventsForSignal;
-    cuts[name2idx[iName]].passedQCDEvents = iEventsForQCD;
 }
 
 bool
@@ -173,26 +157,21 @@ CutFlow::CheckCuts(TTLBranches *& b, const int& idx, const bool bypass)
 }
 
 // Reset counters relevant to the start of the event
-void CutFlow::StartOfEvent(){
-
-	bestComboForSignal	= -1;
-	bestComboForQCD		= -1;
-
-	eventForSignalPassed	= false;	
-	eventForQCDPassed		= false;	
+void
+CutFlow::StartOfEvent()
+{
+    bestComboForSignal	= -1;
+    eventForSignalPassed	= false;	
 
     for (auto& c: cuts) {
         c.passedSignalCombos = 0;
-        c.passedQCDCombos = 0;
         c.currentSignalResult = false;
-        c.currentQCDResult = false;
     }
 
-	signalComboLocked = false;
-	qcdComboLocked = false;
+    signalComboLocked = false;
 }
 
-// At the end of the event, loop over both combo counters (forSignal and forQCD) and check independently which combos have passed which cuts
+// At the end of the event, loop over combo counter and check independently which combos have passed which cuts
 void CutFlow::EndOfEvent(){
     // Loop over all the cuts
     for (auto& c: cuts) {
@@ -207,17 +186,8 @@ void CutFlow::EndOfEvent(){
         if (c.name == cuts.back().name)
             eventForSignalPassed = (c.passedSignalCombos > 0);
 
-        // If at least one combo for QCD has passed this cut, increase the event count in the "forQCD" cut map FOR THAT CUT only
-        if (c.passedQCDCombos > 0)
-            c.passedQCDEvents++;
-
-        // Wait for the last registered cut to determine the outcome of the event
-        if (c.name == cuts.back().name)
-            eventForQCDPassed = (c.passedQCDCombos > 0);
-
         // Reset combo counter
         c.passedSignalCombos = 0;
-        c.passedQCDCombos = 0;
     }
 }
 
@@ -236,10 +206,6 @@ float const CutFlow::GetPassedEventsForSignal(string const iCut) const {
     return cuts[name2idx.find(iCut)->second].passedSignalEvents;
 }
 
-float const CutFlow::GetPassedEventsForQCD(string const iCut) const {
-    return cuts[name2idx.find(iCut)->second].passedQCDEvents;
-}
-
 float const CutFlow::GetRelEffForSignal(string const iCut) const {
     const int idx = name2idx.find(iCut)->second;
     if (idx == 0)
@@ -254,16 +220,6 @@ float const CutFlow::GetCumEffForSignal(string const iCut) const {
     return cuts[idx].passedSignalEvents / cuts.front().passedSignalEvents;
 }
 
-float const CutFlow::GetRelEffForQCD(string const iCut) const {
-    const int idx = name2idx.find(iCut)->second;
-    return cuts[idx].passedQCDEvents / cuts[idx - 1].passedQCDEvents;
-}
-
-float const CutFlow::GetCumEffForQCD(string const iCut) const {
-    const int idx = name2idx.find(iCut)->second;
-    return cuts[idx].passedQCDEvents / cuts.front().passedQCDEvents;
-}
-
 // Check whether iValue is within range (useful for selection cuts)
 bool CutFlow::OutOfRange(float iValue, float iMin, float iMax){
 	return ((iValue < iMin) || (iMax < iValue));
@@ -274,7 +230,6 @@ string const CutFlow::GetLastCut() const{
 }
 
 double const CutFlow::GetLastCountForSignal() const { return  GetPassedEventsForSignal(GetLastCut()); }
-double const CutFlow::GetLastCountForQCD() const { return  GetPassedEventsForQCD(GetLastCut()); }
 
 void CutFlow::Add(CutFlow const & iCutFlow, float const iFactor){
     // Check the current cuts	
@@ -283,7 +238,6 @@ void CutFlow::Add(CutFlow const & iCutFlow, float const iFactor){
         cuts = iCutFlow.GetCuts();
         for (auto& c: cuts) {
             c.passedSignalEvents *= iFactor;
-            c.passedQCDEvents *= iFactor;
         }
     } else {
         // Else, first check that we have the same sizes
@@ -304,7 +258,6 @@ void CutFlow::Add(CutFlow const & iCutFlow, float const iFactor){
                 exit(1);
             } else {
                 cuts[i].passedSignalEvents += other_cuts[i].passedSignalEvents * iFactor;
-                cuts[i].passedQCDEvents += other_cuts[i].passedQCDEvents * iFactor;
             }
         }
     }
@@ -318,44 +271,20 @@ void CutFlow::BuildNormalizedCutFlow(CutFlow const * iCutFlow){
 
     vector<Cut> other_cuts = iCutFlow->GetCuts();
     double scaleFactorForSignal = 1.0;
-    double scaleFactorForQCD = 1.0;
 
     for (auto& c: other_cuts) {
         if (c.rank != 2)
             continue;
         scaleFactorForSignal *= iCutFlow->GetRelEffForSignal(c.name);
-        scaleFactorForQCD *= iCutFlow->GetRelEffForQCD(c.name);
     }
 
     for (auto& c: other_cuts) {
         if (c.rank == 2)
             continue;
         RegisterCut(c.name, c.rank, c.GetVal, c.skip,
-                scaleFactorForSignal * c.passedSignalEvents,
-                scaleFactorForQCD * c.passedQCDEvents);
+                scaleFactorForSignal * c.passedSignalEvents);
     }
 }
-
-void CutFlow::ApplyRosls(double const iRosls){
-    bool chargeProductApplied = name2idx.find("TT_ChargeProduct") != name2idx.end();
-    bool osRequested = false;
-    if (chargeProductApplied)
-        osRequested = (cuts[name2idx["TT_ChargeProduct"]].max == -1.0);
-
-    for (auto& c: cuts) {
-        string cutName = c.name;
-        if(!chargeProductApplied){  // Need both OS and LS: Scale by 1+Ros/ls
-            SetCutCounts(cutName, (1+iRosls)*GetPassedEventsForSignal(cutName), (1+iRosls)*GetPassedEventsForQCD(cutName));
-        }else if(osRequested){ // Need only OS: Scale by 1+Ros/ls before ChargeProduct cut and only by Ros/ls after
-            if(GetCutPosition(cutName) < GetCutPosition("TT_ChargeProduct")){ 
-                SetCutCounts(cutName, (iRosls)*GetPassedEventsForSignal(cutName), (1+iRosls)*GetPassedEventsForQCD(cutName));
-            }else{
-                SetCutCounts(cutName, (iRosls)*GetPassedEventsForSignal(cutName), (iRosls)*GetPassedEventsForQCD(cutName));
-            }
-        }
-    }
-}
-
 
 ClassImp(CutFlow)
 ClassImp(CutFlow::Cut)

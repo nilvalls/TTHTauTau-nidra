@@ -214,7 +214,7 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
     }
 
     cout << "\t>>> Starting loop... " << " " << nentries << " entries available: ";
-    cutFlow.SetCutCounts("nTuple making", nentries, nentries);
+    cutFlow.SetCutCounts("nTuple making", nentries);
 
     if (maxEvents <= 0 || maxEvents >= nentries) {
         cout << "Processing all of them..." << string(14,'.') << " ";
@@ -271,8 +271,8 @@ pair<double,double> TTLAnalyzer::Loop(Branches* iEvent, Process const & iProcess
         NOEanalyzed++;
     }
 
-    if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", NOEanalyzed, NOEanalyzed); }
-    cutFlow.SetCutCounts("TTL_AtLeastOneCombo", NOEwithAtLeastOneCombo, NOEwithAtLeastOneCombo);
+    if(atoi((params["maxEvents"]).c_str()) >= 0){ cutFlow.SetCutCounts("User event limit", NOEanalyzed); }
+    cutFlow.SetCutCounts("TTL_AtLeastOneCombo", NOEwithAtLeastOneCombo);
 
     //fout.close();
     result = make_pair(nentries, NOEanalyzed);

@@ -134,7 +134,6 @@ TLegend* Stamper::GetLegend(Process const * iSignal, Process const * iBackground
 	// Figure out how many rows we're going to have
 	int numberOfRows = 2;
 /*	if(iProPack->PrepareCollisions()){ numberOfRows++; }
-	if(iProPack->PrepareQCD()){ numberOfRows++; }
 	numberOfRows += iProPack->GetMCbackgrounds()->size();
 	numberOfRows += iProPack->GetSignals()->size();//*/
 
@@ -152,16 +151,7 @@ TLegend* Stamper::GetLegend(Process const * iSignal, Process const * iBackground
 	if(iProPack->PrepareCollisions()){
 		TH1 const * temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
 		result->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
-	}
-
-	// QCD comes next
-	if(iProPack->PrepareQCD()){
-		HWrapper * temp = new HWrapper(*iProPack->GetQCD()->GetAvailableHWrapper());
-		temp->SetFillStyle(1001,iProPack->GetQCD()->GetColor());
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),(iProPack->GetQCD()->GetLabelForLegend()).c_str(),"f");
-		delete temp;
-	}//*/
+	} */
 
 	// Then MC background
 	HWrapper* tempB = new HWrapper(*iBackground->GetAvailableHWrapper());

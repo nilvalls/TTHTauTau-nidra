@@ -40,9 +40,7 @@ class Process {
 
 	private:
         std::vector<Process::Event> goodEventsForSignal;
-        std::vector<pair<int, int> >	goodEventsForQCD;
 		HContainer				hContainerForSignal;
-		HContainer				hContainerForQCD;
 		CutFlow					cutFlow;
 		CutFlow					normalizedCutFlow;
 
@@ -66,14 +64,10 @@ class Process {
 		double NOEinNtuple;
 		double NOEanalyzed;
 		double NOEexpectedForSignal;
-		double NOEexpectedForQCD;
 
 		bool obtainedGoodEventsForSignal;
-		bool obtainedGoodEventsForQCD;
 		bool filledHistosForSignal;
-		bool filledHistosForQCD;
 		bool normalizedHistosForSignal;
-		bool normalizedHistosForQCD;
 		
         double relSysUncertainty;
 
@@ -116,9 +110,7 @@ class Process {
 		bool const			Analyzed() const;
 
         std::vector<Event> const GetGoodEventsForSignal() const;
-        std::vector<std::pair<int, int> > const 	GetGoodEventsForQCD() const;
 		void				SetHContainerForSignal(HContainer const &);
-		void				SetHContainerForQCD(HContainer const &);
 		void				SetCutFlow(CutFlow const &);
 		void				SetNormalizedCutFlow(CutFlow const &);
 		CutFlow *			GetCutFlow();
@@ -134,7 +126,6 @@ class Process {
 		string const		GetType() const;
 		bool const			CheckReality() const;
 		bool const			IsCollisions() const;
-		bool const			IsQCD() const;
 		bool const			IsMCbackground() const;
 		bool const			IsSignal() const;
 		bool const			IsMC() const;
@@ -145,25 +136,18 @@ class Process {
 		double const		GetBranchingRatio() const;
 		double const		GetOtherScaleFactor() const;
 		double const		GetNOEexpectedForSignal() const;
-		double const		GetNOEexpectedForQCD() const;
         double const        GetRelSysUncertainty() const;
 		bool const			ObtainedGoodEventsForSignal() const;
-		bool const			ObtainedGoodEventsForQCD() const;
 		bool const			FilledHistosForSignal() const;
-		bool const			FilledHistosForQCD() const;
 		bool const			NormalizedHistosForSignal() const;
-		bool const			NormalizedHistosForQCD() const;
 
 
 		HContainer *	GetHContainerForSignal();
-		HContainer *	GetHContainerForQCD();
 		HContainer const *	GetHContainerForSignal() const;
-		HContainer const *	GetHContainerForQCD() const;
 
 		HWrapper const *	GetAvailableHWrapper() const;
 		HWrapper const *	GetAvailableHWrapper(string const) const;
 		HWrapper const *	GetHistoForSignal(string const) const;
-		HWrapper const *	GetHistoForQCD(string const) const;
 
 		int const			GetNumberOfPlots() const;
 
@@ -173,7 +157,6 @@ class Process {
 		void				SetLineColor(int const);
 		void				SetLineWidth(int const);
 		void 				SetGoodEventsForSignal(const std::vector<Process::Event>&);
-		void 				SetGoodEventsForQCD(std::vector<std::pair<int, int> > const);
 		void				Add(Process*);
 
 		ClassDef(Process, 1);

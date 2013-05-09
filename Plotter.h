@@ -8,27 +8,15 @@
 #ifndef Plotter_h
 #define Plotter_h
 
-#include <TROOT.h>
-#include <TSystem.h>
-#include <TFile.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include "TCanvas.h"
-#include "Helper.h"
-#include "CutFlow.h"
-#include "Branches.h"
-#include "TTL/Branches.h"
-#include "Process.h"
-#include "ProPack.h"
-#include "Analyzer.h"
 #include "TPaveText.h"
-#include "Trigger.h"
-#include "TLegend.h"
-#include "TStyle.h"
-#include "RawHistoSaver.h"
 
-using namespace std;
+#include "TTL/Branches.h"
+#include "Analyzer.h"
+#include "Branches.h"
+#include "Helper.h"
+#include "ProPack.h"
+#include "Process.h"
+#include "Trigger.h"
 
 struct weightCounter{
 	double topPtCorrection;
@@ -81,13 +69,3 @@ class Plotter {
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

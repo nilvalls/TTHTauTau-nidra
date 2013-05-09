@@ -6,7 +6,12 @@
 
 */
 
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TSystem.h"
+
 #include "TTL/TMVAEvaluator.h"
+#include "RawHistoSaver.h"
 
 #include "Plotter.h"
 
@@ -54,7 +59,6 @@ void Plotter::MakePlots(ProPack* iProPack){
 
 	// Set analyzed flag in topoPack to true
 	iProPack->NormalizeToLumi();
-	iProPack->BuildQCD();
 	iProPack->SetAnalyzed();
 }
 
@@ -65,14 +69,13 @@ void Plotter::MakePlots(vector<Process>* iProcesses){
 	}
 }
 
-void Plotter::MakePlots(Process* iProcess){
-
-	// Set up two HContainers, one for signal and another for QCD analysis
-	HContainer hContainerForSignal, hContainerForQCD;
+void
+Plotter::MakePlots(Process* iProcess)
+{
+	HContainer hContainerForSignal;
 
 	// Book histos and place them in the process
 	BookHistos(&hContainerForSignal);
-	if(IsFlagThere("LS")){ BookHistos(&hContainerForQCD); }
 
 	// Instantiante Branches to read events more easily
 	Branches* event = NULL;
@@ -162,72 +165,19 @@ void Plotter::MakePlots(Process* iProcess){
 	}
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 
-	// Recover the good events for QCD and fill histos with them
-	weightCounter weightCounterForQCD;
-	weightCounterForQCD.topPtCorrection	= 0;
-	weightCounterForQCD.leptonCorrection	= 0;
-	weightCounterForQCD.puCorrection		= 0;
-	weightCounterForQCD.tau1Trigger			= 0;
-	weightCounterForQCD.tau2Trigger			= 0;
-	weightCounterForQCD.tauIdSys            = 0;
-	weightCounterForQCD.q2Sys               = 0;
-	weightCounterForQCD.jetCSV              = 0;
-	weightCounterForQCD.total				= 0;
-	vector<pair<int,int> > goodEventsForQCD = iProcess->GetGoodEventsForQCD();
-	double topPtSFEfficiencyForQCD		= 0;
-	double leptonSFEfficiencyForQCD		= 0;
-	double puEfficiencyForQCD			= 0;
-	double tau1TriggerEfficiencyForQCD	= 0;
-	double tau2TriggerEfficiencyForQCD	= 0;
-	double tauIdSysForQCD               = 0;
-    double q2SysForQCD                  = 0;
-    double jetCSVforQCD                  = 0;
-	if(IsFlagThere("LS")){
-		cout << "\t>>> LS, filling good events (total " << goodEventsForQCD.size() << "): "; cout.flush();
-		goodEventsSS.str("");
-		for(unsigned int i = 0; i < goodEventsForQCD.size(); i++){
-			if(i>0 && (i%10) == 0){
-				cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
-				goodEventsSS.str("");
-				goodEventsSS << i;
-				cout << goodEventsSS.str(); cout.flush();
-			}
-
-			event->GetEntry(goodEventsForQCD.at(i).first);
-			event->SetBestCombo(goodEventsForQCD.at(i).second);
-			FillHistos(&hContainerForQCD, event, iProcess->IsMC(), ditauTrigger, &weightCounterForQCD);
-		}
-		cout << endl;
-
-        if(weightCounterForQCD.total > 0){
-          topPtSFEfficiencyForQCD     = weightCounterForQCD.topPtCorrection/weightCounterForQCD.total;
-          leptonSFEfficiencyForQCD    = weightCounterForQCD.leptonCorrection/weightCounterForQCD.total;
-          puEfficiencyForQCD          = weightCounterForQCD.puCorrection/weightCounterForQCD.total;
-          tau1TriggerEfficiencyForQCD = weightCounterForQCD.tau1Trigger/weightCounterForQCD.puCorrection;
-          tau2TriggerEfficiencyForQCD = weightCounterForQCD.tau2Trigger/weightCounterForQCD.tau1Trigger;
-          tauIdSysForQCD              = weightCounterForQCD.tauIdSys/weightCounterForQCD.total;
-          q2SysForQCD                 = weightCounterForQCD.q2Sys/weightCounterForQCD.total;
-          jetCSVforQCD                 = weightCounterForQCD.jetCSV/weightCounterForQCD.total;
-        }
-		if(weightCounterForQCD.total > 0){
-			hContainerForQCD.ScaleErrorBy( sqrt(weightCounterForQCD.tau2Trigger/weightCounterForQCD.total) );
-		}
-		iProcess->SetHContainerForQCD(hContainerForQCD);
-	}
-
 	// Add postCuts
-	if(IsFlagThere("topPtSF") || IsFlagThere("topPtSFUp") || IsFlagThere("topPtSFDown")){ cutFlow->RegisterCut("topPt SF", 2, topPtSFEfficiencyForSignal*cutFlow->GetLastCountForSignal(), topPtSFEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
-	if(IsFlagThere("leptonSF")){ cutFlow->RegisterCut("Lepton SF", 2, leptonSFEfficiencyForSignal*cutFlow->GetLastCountForSignal(), leptonSFEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
-	if(IsFlagThere("PUcorr") || IsFlagThere("PUcorrUp") || IsFlagThere("PUcorrDown")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal(), puEfficiencyForQCD*cutFlow->GetLastCountForQCD()); }
-	if(IsFlagThere("qSquaredUp") || IsFlagThere("qSquaredDown")){ cutFlow->RegisterCut("Q^2 shift", 2, q2SysForSignal*cutFlow->GetLastCountForSignal(), q2SysForQCD*cutFlow->GetLastCountForQCD()); }
+	if(IsFlagThere("topPtSF") || IsFlagThere("topPtSFUp") || IsFlagThere("topPtSFDown")){ cutFlow->RegisterCut("topPt SF", 2, topPtSFEfficiencyForSignal*cutFlow->GetLastCountForSignal()); }
+	if(IsFlagThere("leptonSF")){ cutFlow->RegisterCut("Lepton SF", 2, leptonSFEfficiencyForSignal*cutFlow->GetLastCountForSignal()); }
+	if(IsFlagThere("PUcorr") || IsFlagThere("PUcorrUp") || IsFlagThere("PUcorrDown")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal()); }
+	if(IsFlagThere("qSquaredUp") || IsFlagThere("qSquaredDown")){ cutFlow->RegisterCut("Q^2 shift", 2, q2SysForSignal*cutFlow->GetLastCountForSignal()); }
 	if(IsFlagThere("trigger")){ 
-		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau1TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
-		cutFlow->RegisterCut("SL trigger", 2, tau2TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal(), tau2TriggerEfficiencyForQCD*cutFlow->GetLastCountForQCD()); 
+		cutFlow->RegisterCut("LL trigger", 2, tau1TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal()); 
+		cutFlow->RegisterCut("SL trigger", 2, tau2TriggerEfficiencyForSignal*cutFlow->GetLastCountForSignal()); 
 	}
 	if( IsFlagThere("eTauFakeUp") || IsFlagThere("jetTauFakeUp") || IsFlagThere("tauIdEffUp") 
         || IsFlagThere("eTauFakeDown") || IsFlagThere("jetTauFakeDown") || IsFlagThere("tauIdEffDown") ){ 
-      cutFlow->RegisterCut("tau ID sys ", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal(), tauIdSysForQCD*cutFlow->GetLastCountForQCD()); }
-	if(IsFlagThere("JetCSVWeight")) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal(), jetCSVforQCD*cutFlow->GetLastCountForQCD()); }
+      cutFlow->RegisterCut("tau ID sys ", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal()); }
+	if(IsFlagThere("JetCSVWeight")) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal()); }
 
 	delete event; event = NULL;
 
@@ -335,11 +285,6 @@ HWrapper const Plotter::GetBackgroundSum(ProPack const * iProPack, string const 
 			else{ buffer->Add(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
 		}
 	}
-	// Add QCD if we have it
-	if(iProPack->PrepareQCD()){
-		if(buffer == NULL){	buffer = new HWrapper(*(iProPack->GetQCD()->GetHistoForSignal(iName))); }
-		else{ buffer->Add(*(iProPack->GetQCD()->GetHistoForSignal(iName))); }
-	}
 
 	if(buffer == NULL){ cerr << "ERROR: requested sum of backgrounds for " << iName << " but result came out NULL" << endl; exit(1); }
 	HWrapper result = HWrapper(*buffer);
@@ -360,15 +305,6 @@ double const Plotter::GetMaximum(ProPack const * iProPack, string const iName, b
 		double thisMax = 0; 
 		if(iIncludeError){	thisMax = iProPack->GetCollisions()->GetHistoForSignal(iName)->GetMaximumWithError(); }	
 		else{				thisMax = iProPack->GetCollisions()->GetHistoForSignal(iName)->GetMaximum(); }	
-		if(thisMax > result){ result = thisMax; }
-	}
-
-		
-	// Check max y for QCD
-	if(iProPack->PrepareQCD()){
-		double thisMax = 0;
-		if(iIncludeError){	thisMax = iProPack->GetQCD()->GetHistoForSignal(iName)->GetMaximumWithError(); }	
-		else{				thisMax = iProPack->GetQCD()->GetHistoForSignal(iName)->GetMaximum(); }	
 		if(thisMax > result){ result = thisMax; }
 	}
 
@@ -402,12 +338,6 @@ double const Plotter::GetMaxIntegral(ProPack const * iProPack, string const iNam
 	// Check max y for collisions
 	if(iProPack->PrepareCollisions()){
 		double thisMax = iProPack->GetCollisions()->GetHistoForSignal(iName)->GetHisto()->Integral();	
-		if(thisMax > result){ result = thisMax; }
-	}
-
-	// Check max y for QCD
-	if(iProPack->PrepareQCD()){
-		double thisMax = iProPack->GetQCD()->GetHistoForSignal(iName)->GetHisto()->Integral();	
 		if(thisMax > result){ result = thisMax; }
 	}
 

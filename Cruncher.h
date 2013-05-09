@@ -27,8 +27,7 @@ class Cruncher {
 		Cruncher(map<string,string> const &);
 		virtual ~Cruncher();
 
-		void PrintEfficiencies(string const, string const, bool qcd=false);
-		void PrintEfficienciesForQCD(string const, string const);
+		void PrintEfficiencies(string const, string const);
 
 	private: 
 		map<string,string> params;

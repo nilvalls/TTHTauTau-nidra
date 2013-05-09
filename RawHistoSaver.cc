@@ -54,16 +54,12 @@ void RawHistoSaver::SaveRawHistos(vector<Process> const * iProcesses) const {
 	}
 }
 
-void RawHistoSaver::SaveRawHistos(Process const * iProcess) const {
-
-	// Set up two HContainers, one for signal and another for QCD analysis
-//	HContainer hContainerForSignal, hContainerForQCD;
-
+void
+RawHistoSaver::SaveRawHistos(Process const * iProcess) const
+{
 	file->cd();
 	TDirectory * processDir = file->mkdir(iProcess->GetShortName().c_str());
 	TDirectory * osDir		= processDir->mkdir("OS");
-	TDirectory * lsDir		= NULL;
-	if(IsFlagThere("LS")){ processDir->mkdir("LS"); }
 
 	// Loop over all the HWrappers and save each histo
 	vector<string> plotNames = iProcess->GetHContainerForSignal()->GetNames();
@@ -78,27 +74,12 @@ void RawHistoSaver::SaveRawHistos(Process const * iProcess) const {
 			TH1F * osHisto = new TH1F(*(TH1F*)(iProcess->GetHistoForSignal(plotName)->GetHisto()));
 			osHisto->SetName(plotName.c_str());
 			osHisto->Write();
-
-			if(IsFlagThere("LS")){
-				lsDir->cd();
-				TH1F * lsHisto = new TH1F(*(TH1F*)(iProcess->GetHistoForQCD(plotName)->GetHisto()));
-				lsHisto->SetName(plotName.c_str());
-				lsHisto->Write();
-			}
 		}else{
 			osDir->cd();	
 			TH2F * osHisto = new TH2F(*(TH2F*)(iProcess->GetHistoForSignal(plotName)->GetHisto()));
 			osHisto->SetMarkerStyle(1);
 			osHisto->SetName(plotName.c_str());
 			osHisto->Write();
-
-			if(IsFlagThere("LS")){
-				lsDir->cd();
-				TH2F * lsHisto = new TH2F(*(TH2F*)(iProcess->GetHistoForQCD(plotName)->GetHisto()));
-				lsHisto->SetMarkerStyle(1);
-				lsHisto->SetName(plotName.c_str());
-				lsHisto->Write();
-			}
 		}
 	}
 

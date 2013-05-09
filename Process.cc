@@ -13,7 +13,6 @@ using namespace std;
 Process::Process(){
 	analyzed			= false;
 	goodEventsForSignal.clear();
-	goodEventsForQCD.clear();
 	plot				= false;
 }
 
@@ -23,7 +22,6 @@ Process::Process(Process const & iProcess){
 	goodEventsForSignal				= iProcess.GetGoodEventsForSignal();
 
 	hContainerForSignal				= HContainer(*iProcess.GetHContainerForSignal());
-	hContainerForQCD				= HContainer(*iProcess.GetHContainerForQCD());
 	cutFlow							= CutFlow(*iProcess.GetCutFlow());
 	normalizedCutFlow				= CutFlow(*iProcess.GetNormalizedCutFlow());
 
@@ -46,15 +44,11 @@ Process::Process(Process const & iProcess){
 	NOEinNtuple						= iProcess.GetNOEinNtuple();
 	NOEanalyzed						= iProcess.GetNOEanalyzed();
 	NOEexpectedForSignal			= iProcess.GetNOEexpectedForSignal();
-	NOEexpectedForQCD				= iProcess.GetNOEexpectedForQCD();
 	plot							= iProcess.Plot();
 
 	obtainedGoodEventsForSignal		= iProcess.ObtainedGoodEventsForSignal();
-	obtainedGoodEventsForQCD		= iProcess.ObtainedGoodEventsForQCD();
 	filledHistosForSignal			= iProcess.FilledHistosForSignal();
-	filledHistosForQCD				= iProcess.FilledHistosForQCD();
 	normalizedHistosForSignal		= iProcess.NormalizedHistosForSignal();
-	normalizedHistosForQCD			= iProcess.NormalizedHistosForQCD();
 
 }
 
@@ -104,18 +98,11 @@ Process::Process(string const iShortName, map<string,string> const & iParams, Co
 	NOEinNtuple					= 0;
 	NOEanalyzed					= 0;
 	NOEexpectedForSignal		= 0;
-	NOEexpectedForQCD			= 0;
 	plot						= PlotProcess(shortName);
 
 	obtainedGoodEventsForSignal	= false;
-	obtainedGoodEventsForQCD	= false;
 	filledHistosForSignal		= false;
-	filledHistosForQCD			= false;
 	normalizedHistosForSignal	= false;
-	normalizedHistosForQCD		= false;
-
-
-
 }
 
 
@@ -141,20 +128,17 @@ void Process::Update(Process const * iProcess){
 	SetPlot(params);
 
 	normalizedHistosForSignal		= false;
-	normalizedHistosForQCD			= false;
 
 	// Update cutflow
-	cutFlow.SetCutCounts("Read from DS", iProcess->GetNOEinDS(), iProcess->GetNOEinDS());
-	cutFlow.SetCutCounts("skimming + PAT", iProcess->GetNoEreadByNUTter(), iProcess->GetNoEreadByNUTter());
+	cutFlow.SetCutCounts("Read from DS", iProcess->GetNOEinDS());
+	cutFlow.SetCutCounts("skimming + PAT", iProcess->GetNoEreadByNUTter());
 	
 }
 
 
 map<string, string> const Process::GetParams() const { return params; }
 void Process::SetHContainerForSignal(HContainer const & iHContainer){ hContainerForSignal = HContainer(iHContainer); }
-void Process::SetHContainerForQCD(HContainer const & iHContainer){ hContainerForQCD = HContainer(iHContainer); }
 vector<Process::Event> const Process::GetGoodEventsForSignal() const { return goodEventsForSignal; }
-vector<pair<int, int> > const Process::GetGoodEventsForQCD() const {	return goodEventsForQCD; }
 void Process::SetCutFlow(CutFlow const & iCutFlow){ cutFlow	= CutFlow(iCutFlow); }
 void Process::SetNormalizedCutFlow(CutFlow const & iCutFlow){ normalizedCutFlow	= CutFlow(iCutFlow); }
 void Process::SetNOEanalyzed(double const iEvents){ NOEanalyzed = iEvents; }
@@ -186,7 +170,6 @@ void Process::SetPlot(map<string,string> const & iParams){
 }
 
 bool const Process::IsCollisions() const { return ((type.compare("collisions")==0)); }
-bool const Process::IsQCD() const { return ((type.compare("qcd")==0)); }
 bool const Process::IsMCbackground() const { return ((type.compare("mcBackground")==0)); }
 bool const Process::IsSignal() const { return ((type.compare("signal")==0)); }
 bool const Process::CheckReality() const { return checkReality; }
@@ -201,14 +184,10 @@ double const Process::GetCrossSection() const{ return crossSection;}
 double const Process::GetBranchingRatio() const{ return branchingRatio;}
 double const Process::GetOtherScaleFactor() const{ return otherScaleFactor;}
 double const Process::GetNOEexpectedForSignal() const{ return NOEexpectedForSignal;}
-double const Process::GetNOEexpectedForQCD() const{ return NOEexpectedForQCD;}
 double const Process::GetRelSysUncertainty() const{ return relSysUncertainty;}
 bool const Process::ObtainedGoodEventsForSignal() const{ return obtainedGoodEventsForSignal;}
-bool const Process::ObtainedGoodEventsForQCD() const{ return obtainedGoodEventsForQCD;}
 bool const Process::FilledHistosForSignal() const{ return filledHistosForSignal;}
-bool const Process::FilledHistosForQCD() const{ return filledHistosForQCD;}
 bool const Process::NormalizedHistosForSignal() const{ return normalizedHistosForSignal;}
-bool const Process::NormalizedHistosForQCD() const{ return normalizedHistosForQCD;}
 
 
 void Process::SetShortName(string const iVal){ 
@@ -220,12 +199,9 @@ void Process::SetAnalyzed(){ analyzed = true; }
 bool const Process::Analyzed() const { return analyzed; }
 HContainer* Process::GetHContainerForSignal(){ 
 return &hContainerForSignal; }
-HContainer* Process::GetHContainerForQCD(){ return &hContainerForQCD; }
 HContainer const * Process::GetHContainerForSignal() const { return &hContainerForSignal; }
-HContainer const * Process::GetHContainerForQCD() const { return &hContainerForQCD; }
 
 HWrapper const * Process::GetHistoForSignal(string const iName) const { return (hContainerForSignal.Get(iName)); }
-HWrapper const * Process::GetHistoForQCD(string const iName) const { return (hContainerForQCD.Get(iName)); }
 
 bool const Process::IsStringThere(string iNeedle, string iHaystack) const {
 	string haystack = iHaystack;
@@ -256,11 +232,12 @@ void Process::SetFillColor(int const iVal){ hContainerForSignal.SetFillColor(iVa
 void Process::SetLineColor(int const iVal){ hContainerForSignal.SetLineColor(iVal); }
 void Process::SetLineWidth(int const iVal){ hContainerForSignal.SetLineWidth(iVal,color); }
 void Process::SetGoodEventsForSignal(const vector<Process::Event>& iVector){ goodEventsForSignal = iVector; }
-void Process::SetGoodEventsForQCD(vector<pair<int,int> > const iVector){ goodEventsForQCD = iVector; }
 
 
-void Process::NormalizeToLumi(double const iIntLumi){
-	if((!IsCollisions()) && (!normalizedHistosForSignal) && (!normalizedHistosForQCD)){
+void
+Process::NormalizeToLumi(double const iIntLumi)
+{
+	if ((!IsCollisions()) && (!normalizedHistosForSignal)) {
 		double NOElumi				= iIntLumi*crossSection*branchingRatio;
 		double NOEraw				= GetNOEinDS()*(GetNOEanalyzed()/(double)GetNOEinNtuple());	
 		double lumiNormalization	= NOElumi/NOEraw;
@@ -282,28 +259,24 @@ void Process::NormalizeToLumi(double const iIntLumi){
 			<< "\trelSysSuncertainty....." << relSysUncertainty*100 << "%" << "\n" << endl; //*/
 
 		ScaleBy(lumiNormalization);
-		GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, lumiNormalization, lumiNormalization);
+		GetCutFlow()->RegisterCutFromLast("Lumi norm", 2, lumiNormalization);
 
         hContainerForSignal.AddRelErrorInQuadrature(relSysUncertainty);
 	}
 	normalizedHistosForSignal	= true;
-	normalizedHistosForQCD		= true;
 }
 
 void Process::NormalizeToOne(){
 	NormalizeTo(1);
 	normalizedHistosForSignal	= true;
-	normalizedHistosForQCD		= true;
 }
 
 void Process::NormalizeTo(double const iNormalization){
 	hContainerForSignal.NormalizeTo(iNormalization);
-	hContainerForQCD.NormalizeTo(iNormalization);
 }
 
 void Process::ScaleBy(double const iScale){
 	hContainerForSignal.ScaleBy(iScale);
-	hContainerForQCD.ScaleBy(iScale);
 }
 
 void Process::BuildNormalizedCutFlow(){ normalizedCutFlow.BuildNormalizedCutFlow(&cutFlow); }
@@ -325,7 +298,6 @@ void Process::Add(Process* iProcess){
         ntuplePaths.push_back(p);
 	iProcess->GetHContainerForSignal();
 	hContainerForSignal.Add(*(iProcess->GetHContainerForSignal()));
-	hContainerForQCD.Add(*(iProcess->GetHContainerForQCD()));
 	cutFlow.Add(*(iProcess->GetCutFlow()));
 	normalizedCutFlow.Add(*(iProcess->GetNormalizedCutFlow()));
 }

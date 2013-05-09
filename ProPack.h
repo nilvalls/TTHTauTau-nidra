@@ -28,7 +28,6 @@ class ProPack : public TObject {
 	private:
 		map<string, string>	params;
 		Process			collisions;
-		Process			qcd;
 		vector<Process>	mcBackgrounds;
 		vector<Process>	signals;
 		PContainer		pContainer;
@@ -38,13 +37,11 @@ class ProPack : public TObject {
 		bool				normalizedToLumi;
 
 		bool                haveCollisions;
-		bool                haveQCD;
 		bool                haveMCbackgrounds;
 		bool                haveBackgrounds;
 		bool                haveSignals;
 
 		bool				prepareCollisions;
-		bool				prepareQCD;
 		bool				prepareMCbackgrounds;
 		bool				prepareSignals;
 
@@ -60,19 +57,16 @@ class ProPack : public TObject {
 
 		map<string,string> const 	GetParams() const;
 		Process const *				GetCollisions() const;
-		Process const *				GetQCD() const;
 		vector<Process> const *		GetMCbackgrounds() const;
 		vector<Process> const *		GetSignals() const;
 		PContainer const *			GetPContainer() const;
 
 		Process*					GetCollisions();
-		Process*					GetQCD();
 		vector<Process>*			GetMCbackgrounds();
 		vector<Process>*			GetSignals();
 		PContainer *				GetPContainer();
 
 		void						SetCollisions(Process&, const vector<string> iNtuplePath=vector<string>());
-		void						SetQCD(Process&);
 		void						AddMCbackground(Process&, const vector<string> iNtuplePath=vector<string>());
 		void						CombineAndRemoveMCbackgrounds(const vector<string>, const string, const string, const string, const int);
 		void						AddSignal(Process&, const vector<string> iNtuplePath=vector<string>());
@@ -80,10 +74,6 @@ class ProPack : public TObject {
 		bool const					HaveCollisions() const;
 		bool const					PrepareCollisions() const;
 		void 						PrepareCollisions(bool const);
-
-		bool const					HaveQCD() const;
-		bool const					PrepareQCD() const;
-		void						PrepareQCD(bool const);
 
 		bool const					HaveMCbackgrounds() const;
 		bool const					HaveMCbackground(const string);
@@ -97,7 +87,6 @@ class ProPack : public TObject {
 
 		double const				GetIntegratedLumiInInvPb() const;
 
-		void						BuildQCD();
 		bool const					Analyzed() const;
 		bool const					NormalizedToLumi() const;
 		void						SetAnalyzed();
@@ -105,7 +94,6 @@ class ProPack : public TObject {
 
 /*		// Cut flows
 		CutFlow 					GetCollisionsCutFlow() const;
-		CutFlow 					GetQCDCutFlow() const;
 		vector<CutFlow>				GetMCbackgroundsCutFlows() const;
 		vector<CutFlow>				GetSignalsCutFlows() const; //*/
 

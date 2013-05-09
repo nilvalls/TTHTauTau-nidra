@@ -39,20 +39,20 @@ Cruncher::~Cruncher(){
 	file->Close();
 }
 
-void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions, bool qcd){ 
-
+void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions)
+{
 	string output = "";
 	if(iFormat.compare("HTML")==0){
-		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".html");
+		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".html");
 		cout << "\tCalculating and printing numbers in HTML to: " << output << endl;
 	}else if(iFormat.compare("TEX")==0){
-		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".tex.txt");
+		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".tex.txt");
 		cout << "\tCalculating and printing numbers in TEX  to: " << output << endl;
 	}else if(iFormat.compare("TXT")==0){
-		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".txt");
+		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".txt");
 		cout << "\tCalculating and printing numbers in TXT  to: " << output << endl;
 	}else if(iFormat.compare("CSV")==0){
-		output = ((params["efficiency_output"])+ "efficiency" + (qcd ? "QCD" : "") + "_" + iOptions + ".csv.txt");
+		output = ((params["efficiency_output"])+ "efficiency_" + iOptions + ".csv.txt");
 		cout << "\tCalculating and printing numbers in CSV to: " << output << endl;
 	}else{
 		cout << "WARNING: Trying to print numbers in \"" << iFormat << "\" but this format is not valid." << endl;
@@ -142,22 +142,18 @@ void Cruncher::PrintEfficiencies(string const iFormat, string const iOptions, bo
                 cutflow = (*p)->GetNormalizedCutFlow();
             if (iOptions.find("e") != string::npos)
                 contents << line_middle << line_middle_e <<
-                    (qcd ? cutflow->GetPassedEventsForQCD(c.name) : cutflow->GetPassedEventsForSignal(c.name));
+                    cutflow->GetPassedEventsForSignal(c.name);
             if (iOptions.find("r") != string::npos)
                 contents << line_middle << line_middle_r << 100 * 
-                    (qcd ? cutflow->GetRelEffForQCD(c.name) : cutflow->GetRelEffForSignal(c.name));
+                    cutflow->GetRelEffForSignal(c.name);
             if (iOptions.find("c") != string::npos)
                 contents << line_middle << line_middle_c << 100 * 
-                    (qcd ? cutflow->GetCumEffForQCD(c.name) : cutflow->GetCumEffForSignal(c.name));
+                    cutflow->GetCumEffForSignal(c.name);
         }
         contents << line_end << endl;
     }
     contents << end;
     SaveToFile(contents.str(), output);
-}
-
-void Cruncher::PrintEfficienciesForQCD(string const iFormat, string const iOptions){ 
-    PrintEfficiencies(iFormat, iOptions, true);
 }
 
 bool Cruncher::IsOptionThere(string const opt, string const opts)

@@ -46,14 +46,14 @@ void Analyzer::SampleComboSelectorSampler(Process& iProcess){
 	Analyze(iProcess, true);
 }
 
-void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler){
-
+void Analyzer::Analyze(Process& iProcess, const bool iTrainComboSelectorSampler)
+{
 	//Reset();
 	cout << "\tNow analyzing " << iProcess.GetShortName() << endl;
 
 	cutFlow.Zero();
-	cutFlow.SetCutCounts("Read from DS", iProcess.GetNOEinDS(), iProcess.GetNOEinDS());
-	cutFlow.SetCutCounts("skimming + PAT", iProcess.GetNoEreadByNUTter(), iProcess.GetNoEreadByNUTter());
+	cutFlow.SetCutCounts("Read from DS", iProcess.GetNOEinDS());
+	cutFlow.SetCutCounts("skimming + PAT", iProcess.GetNoEreadByNUTter());
 	goodEventsForSignal.clear();
 
 	Branches* event = NULL;

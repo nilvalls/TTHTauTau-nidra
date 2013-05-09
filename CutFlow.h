@@ -15,16 +15,12 @@ class CutFlow {
         std::map< std::string, std::pair<float, float> > cuts_to_consider;
 
 		bool eventForSignalPassed;
-		bool eventForQCDPassed;
 
 		bool comboIsForSignal;
-		bool comboIsForQCD;		
 
 		bool signalComboLocked;
-		bool qcdComboLocked;
 
 		int bestComboForSignal;
-		int bestComboForQCD;
 
 		bool OutOfRange(float, float, float);
 
@@ -41,17 +37,14 @@ class CutFlow {
             float min;
             float max;
             float passedSignalCombos;
-            float passedQCDCombos;
             float passedSignalEvents;
-            float passedQCDEvents;
             bool currentSignalResult;
-            bool currentQCDResult;
             bool skip;
 
             bool Check(TTLBranches *b, const int, const bool bypass=false);
 
             Cut(const string n="", val_f=0, const int r=0, const float mn=0., const float mx=0.,
-                    const double sig=0., const double qcd=0., bool bypass=false);
+                    const double sig=0., bool bypass=false);
 
             ClassDef(CutFlow::Cut, 1);
         };
@@ -66,12 +59,11 @@ class CutFlow {
 
 		void Reset();
 		int const size() const;
-		void InvertSignalAndQCD();
 
-        void RegisterCut(string const, int const, double const sig=0., double const qcd=0.);
-        void RegisterCut(const string, const int, Cut::val_f, bool bypass=false, const double sig=0., const double qcd=0.);
-		void RegisterCutFromLast(string const, int const, double const, double const);
-		void SetCutCounts(string const, double const, double const);
+        void RegisterCut(string const, int const, double const sig=0.);
+        void RegisterCut(const string, const int, Cut::val_f, bool bypass=false, const double sig=0.);
+		void RegisterCutFromLast(string const, int const, double const);
+		void SetCutCounts(string const, double const);
 
         bool CheckCuts(TTLBranches*&, const int&, const bool bypass=false);
 		void StartOfEvent();
@@ -80,19 +72,14 @@ class CutFlow {
 		int const					GetCutRank(string const) const;
 		int const					GetCutPosition(string const) const;
 		float const					GetPassedEventsForSignal(string const) const;
-		float const					GetPassedEventsForQCD(string const) const;
 		float const					GetRelEffForSignal(string const) const;
-		float const					GetRelEffForQCD(string const) const;
 		float const					GetCumEffForSignal(string const) const;
-		float const					GetCumEffForQCD(string const) const;
 		string const				GetCutsToApply() const;
         inline std::map< std::string, std::pair<float, float> > GetCutsToConsider() const { return cuts_to_consider; };
 		string const				GetLastCut() const;
 		double const				GetLastCountForSignal() const;
-		double const				GetLastCountForQCD() const;
 		void						Add(CutFlow const &, float const iFactor=1.0);
 		void						BuildNormalizedCutFlow(CutFlow const *);
-		void						ApplyRosls(double const);
         void Zero();
 
     private:

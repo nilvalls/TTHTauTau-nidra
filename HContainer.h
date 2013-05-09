@@ -59,7 +59,6 @@ class HContainer{
 		void ScaleBy(double const);
 		void ScaleErrorBy(double const);
 		void AddRelErrorInQuadrature(double const);
-		void ApplyRosls(double const, CutFlow const *);
 		void Add(HContainer const &, double const iFactor=1.0);
 		void Positivize();
 

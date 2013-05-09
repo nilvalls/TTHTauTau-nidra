@@ -41,9 +41,6 @@ void Optimizer::MakePlots(ProPack * iProPack) {
 
 	Process* signal		= iProPack->GetProcess(params.find("signalToOptimize")->second);
 	Process* background	= iProPack->GetProcess(params.find("backgroundToOptimize")->second);
-	//MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
-	//Overlap2D(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
-	//MakeSoverB(&(iProPack->GetSignals()->at(0)), iProPack->GetQCD());
 
 	//MakeRightIntegratedSoverB(&(iProPack->GetSignals()->at(0)), &(iProPack->GetMCbackgrounds()->at(0)));
 	MakeRightIntegratedSoverB(signal, background);

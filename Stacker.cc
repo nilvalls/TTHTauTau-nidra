@@ -62,7 +62,6 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 	// Figure out what we have and what we don't
 	bool haveCollisions		= iProPack->PrepareCollisions();	
-	bool haveQCD			= iProPack->PrepareQCD();
 	bool haveMCbackgrounds	= iProPack->PrepareMCbackgrounds();
 	bool haveSignals		= iProPack->PrepareSignals();
 	bool stackSignals		= (params["stackSignals"].compare("true")==0);
@@ -143,7 +142,9 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
         // If we have backgrounds, make the stack and plot them first
 		THStack* stack = NULL;
-		if(haveQCD || haveMCbackgrounds){ stack = GetBackgroundStack(iProPack, plotName, maxY); } 
+		if (haveMCbackgrounds) {
+            stack = GetBackgroundStack(iProPack, plotName, maxY);
+        }
 
 		// Now draw the axis from scratch using the baseHisto
 		gPad->SetGrid(1,1);
@@ -349,10 +350,9 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 	// Figure out how many rows we're going to have
 	int numberOfRows = 0;
 	if(iProPack->PrepareCollisions()){ numberOfRows++; }
-	if(iProPack->PrepareQCD()){ numberOfRows++; }
 	numberOfRows += iProPack->GetMCbackgrounds()->size();
 	numberOfRows += iProPack->GetSignals()->size();
-	if(((iProPack->PrepareQCD()) || (iProPack->GetMCbackgrounds()->size() > 0)) && (params["showBackgroundError"].compare("true")==0)){ numberOfRows++; }
+	if ((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"].compare("true")==0)){ numberOfRows++; }
 
 	// Get legend sizes
 	float xLegend	= atof((params["xLegend"]).c_str());
@@ -370,20 +370,11 @@ TLegend* Stacker::GetLegend(ProPack const * iProPack){
 	}
 
 	// Background errors if we want them and have them
-	if(((iProPack->PrepareQCD()) || (iProPack->GetMCbackgrounds()->size() > 0)) && (params["showBackgroundError"].compare("true")==0)){
+	if((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"].compare("true")==0)){
 		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
 		temp->SetFillStyle(3004,kBlack);
 		temp->SetLineWidth(0);
 		result->AddEntry(temp->GetHisto(),"Bkg. err. ","f");
-	}
-
-	// QCD comes next
-	if(iProPack->PrepareQCD() && iProPack->GetQCD()->Plot()){
-		HWrapper * temp = new HWrapper(*iProPack->GetQCD()->GetAvailableHWrapper());
-		temp->SetFillStyle(1001,iProPack->GetQCD()->GetColor());
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),(iProPack->GetQCD()->GetLabelForLegend()).c_str(),"f");
-		delete temp;
 	}
 
 	// Then MC backgrounds in reverse order as in the vector
@@ -440,16 +431,6 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
 		}
 	}
 
-	// Then add QCD if we have it
-	if(iProPack->PrepareQCD()){
-		int color = iProPack->GetQCD()->GetColor();
-		HWrapper toAdd(*(iProPack->GetQCD()->GetHistoForSignal(iName)));
-		toAdd.SetFillStyle(1001,color);
-		toAdd.SetLineWidth(0,color);
-		toAdd.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
-		toAdd.GetHisto()->GetXaxis()->SetRangeUser(toAdd.GetMinXVis(), toAdd.GetMaxXVis());
-		result->Add((TH1F*)toAdd.GetHisto());
-	}
 	// Must call Draw before setting the options below
 	result->Draw("HIST");
 	result->GetXaxis()->SetRangeUser(refHisto.GetMinXVis(), refHisto.GetMaxXVis());
@@ -478,7 +459,7 @@ double const Stacker::GetMaximum(ProPack const * iProPack, string const iName, b
 	}
 
 	// Check max y for backgrounds
-	if(iProPack->PrepareQCD() || iProPack->PrepareMCbackgrounds()){
+	if (iProPack->PrepareMCbackgrounds()) {
 		double thisMax = 0;
 		if(iIncludeError){	thisMax = GetBackgroundSum(iProPack, iName).GetMaximumWithError(); }
 		else{				thisMax = GetBackgroundSum(iProPack, iName).GetMaximum(); }
@@ -492,7 +473,7 @@ double const Stacker::GetMaximum(ProPack const * iProPack, string const iName, b
 			double thisMax = iProPack->GetSignals()->at(s).GetHistoForSignal(iName)->GetMaximum();
 
 			// If we have backgrounds AND we want to stack the signals on them, account for that
-			if((iProPack->PrepareQCD() || iProPack->PrepareMCbackgrounds()) && stackSignals){
+			if (iProPack->PrepareMCbackgrounds() && stackSignals) {
 				thisMax += GetBackgroundSum(iProPack, iName).GetMaximum();
 			}
 

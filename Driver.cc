@@ -58,7 +58,6 @@ const Config ReadConfig(string iPath){
 	SetParam(theConfig, "histoList");
 	SetParam(theConfig, "cutsToApply");
 	SetParam(theConfig, "osls");
-	SetParam(theConfig, "QCDcolor");
 	SetParam(theConfig, "xLegend");
 	SetParam(theConfig, "yLegend");
 	SetParam(theConfig, "dxLegend");
