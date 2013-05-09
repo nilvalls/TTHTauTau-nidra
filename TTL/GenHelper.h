@@ -4,8 +4,6 @@
 #include "../Helper.h"
 #include "Branches.h"
 
-using namespace std;
-
 inline unsigned int NumGenTauHad(TTLBranches* iEvent){
 	unsigned int result = 0;
 
