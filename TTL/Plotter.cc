@@ -44,6 +44,14 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		if(IsFlagThere("PUcorr")){ iPuWeight = event->Ev_puWeight; }
 		if(IsFlagThere("PUcorrUp")){ iPuWeight = event->Ev_puWeightUp; }
 		if(IsFlagThere("PUcorrDown")){ iPuWeight = event->Ev_puWeightDown; }
+		if(IsFlagThere("PUcorr2012A")){ iPuWeight = event->Ev_puWeight2012A; }
+		if(IsFlagThere("PUcorr2012B")){ iPuWeight = event->Ev_puWeight2012B; }
+		if(IsFlagThere("PUcorr2012C")){ iPuWeight = event->Ev_puWeight2012C; }
+		if(IsFlagThere("PUcorr2012D")){ iPuWeight = event->Ev_puWeight2012D; }
+		if(IsFlagThere("PUcorr2012AB")){ iPuWeight = event->Ev_puWeight2012AB; }
+		if(IsFlagThere("PUcorr2012BC")){ iPuWeight = event->Ev_puWeight2012BC; }
+		if(IsFlagThere("PUcorr2012CD")){ iPuWeight = event->Ev_puWeight2012CD; }
+		if(IsFlagThere("PUcorr2012ABC")){ iPuWeight = event->Ev_puWeight2012ABC; }
         if(IsFlagThere("qSquaredUp")){ iQ2SysWeight = event->Ev_q2WeightUp; }
 		if(IsFlagThere("qSquaredDown")){ iQ2SysWeight = event->Ev_q2WeightDown; }
 		
