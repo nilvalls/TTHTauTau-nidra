@@ -349,6 +349,93 @@ topology_TTH_125 = [
     NoEreadByNUTter  = 19299
 ]
 
+topology_TTHTauTau_110 = [
+    sampleNumber     = 110
+    niceName         = ttHtautau(110)
+    labelForLegend   = t#bar{t}H(110) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_110
+    color            = 632
+    crossSection     = 0.1887
+    branchingRatio   = 0.0795
+    otherScaleFactor = 1
+    NOEinDS          = 992800
+    NoEreadByNUTter  = 88035
+]
+
+topology_TTHTauTau_110_real = [
+    sampleNumber     = 110
+    niceName         = ttHtautau(110)*
+    labelForLegend   = t#bar{t}H(110)* #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTHTauTau_110
+    color            = 414
+    crossSection     = 0.1887
+    branchingRatio   = 0.0795
+    otherScaleFactor = 1
+    NOEinDS          = 992800
+    NoEreadByNUTter  = 88035
+]
+
+topology_TTHTauTau_115 = [
+    sampleNumber     = 115
+    niceName         = ttHtautau(115)
+    labelForLegend   = t#bar{t}H(115) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_115
+    color            = 632
+    crossSection     = 0.1663
+    branchingRatio   = 0.0758
+    otherScaleFactor = 1
+    NOEinDS          = 997885
+    NoEreadByNUTter  = 91596
+]
+
+topology_TTHTauTau_115_real = [
+    sampleNumber     = 115
+    niceName         = ttHtautau(115)*
+    labelForLegend   = t#bar{t}H(115)* #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTHTauTau_115
+    color            = 414
+    crossSection     = 0.1663
+    branchingRatio   = 0.0758
+    otherScaleFactor = 1
+    NOEinDS          = 997885
+    NoEreadByNUTter  = 91596
+]
+
+topology_TTHTauTau_120 = [
+    sampleNumber     = 120
+    niceName         = ttHtautau(120)
+    labelForLegend   = t#bar{t}H(120) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_120
+    color            = 632
+    crossSection     = 0.1470
+    branchingRatio   = 0.0704
+    otherScaleFactor = 1
+    NOEinDS          = 990172
+    NoEreadByNUTter  = 93546
+]
+
+topology_TTHTauTau_120_real = [
+    sampleNumber     = 120
+    niceName         = ttHtautau(120)*
+    labelForLegend   = t#bar{t}H(120)* #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTHTauTau_120
+    color            = 414
+    crossSection     = 0.1470
+    branchingRatio   = 0.0704
+    otherScaleFactor = 1
+    NOEinDS          = 990172
+    NoEreadByNUTter  = 93546
+]
+
 topology_TTHTauTau_125 = [
     sampleNumber     = 125
     niceName         = ttHtautau(125)
@@ -356,8 +443,8 @@ topology_TTHTauTau_125 = [
     type             = signal
     ntuplePath       = TTHTauTau_125
     color            = 632
-    crossSection     = 0.0082
-    branchingRatio   = 1
+    crossSection     = 0.1302
+    branchingRatio   = 0.0632
     otherScaleFactor = 1
     NOEinDS          = 1000000
     NoEreadByNUTter  = 96805
@@ -371,9 +458,96 @@ topology_TTHTauTau_125_real = [
     checkReality     = true
     ntuplePath       = TTHTauTau_125
     color            = 414
-    crossSection     = 0.0082
-    branchingRatio   = 1
+    crossSection     = 0.1302
+    branchingRatio   = 0.0632
     otherScaleFactor = 1
     NOEinDS          = 1000000
     NoEreadByNUTter  = 96805
+]
+
+topology_TTHTauTau_130 = [
+    sampleNumber     = 130
+    niceName         = ttHtautau(130)
+    labelForLegend   = t#bar{t}H(130) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_130
+    color            = 632
+    crossSection     = 0.1157
+    branchingRatio   = 0.0545
+    otherScaleFactor = 1
+    NOEinDS          = 812456
+    NoEreadByNUTter  = 80747
+]
+
+topology_TTHTauTau_130_real = [
+    sampleNumber     = 130
+    niceName         = ttHtautau(130)*
+    labelForLegend   = t#bar{t}H(130)* #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTHTauTau_130
+    color            = 414
+    crossSection     = 0.1157
+    branchingRatio   = 0.0545
+    otherScaleFactor = 1
+    NOEinDS          = 812456
+    NoEreadByNUTter  = 80747
+]
+
+topology_TTHTauTau_135 = [
+    sampleNumber     = 135
+    niceName         = ttHtautau(135)
+    labelForLegend   = t#bar{t}H(135) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_135
+    color            = 632
+    crossSection     = 0.1031
+    branchingRatio   = 0.0449
+    otherScaleFactor = 1
+    NOEinDS          = 997996
+    NoEreadByNUTter  = 101565
+]
+
+topology_TTHTauTau_135_real = [
+    sampleNumber     = 135
+    niceName         = ttHtautau(135)*
+    labelForLegend   = t#bar{t}H(135)* #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTHTauTau_135
+    color            = 414
+    crossSection     = 0.1031
+    branchingRatio   = 0.0449
+    otherScaleFactor = 1
+    NOEinDS          = 997996
+    NoEreadByNUTter  = 101565
+]
+
+topology_TTHTauTau_140 = [
+    sampleNumber     = 140
+    niceName         = ttHtautau(140)
+    labelForLegend   = t#bar{t}H(140) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_140
+    color            = 632
+    crossSection     = 0.09207
+    branchingRatio   = 0.0352
+    otherScaleFactor = 1
+    NOEinDS          = 982801
+    NoEreadByNUTter  = 102664
+]
+
+topology_TTHTauTau_140_real = [
+    sampleNumber     = 140
+    niceName         = ttHtautau(140)*
+    labelForLegend   = t#bar{t}H(140)* #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    checkReality     = true
+    ntuplePath       = TTHTauTau_140
+    color            = 414
+    crossSection     = 0.09207
+    branchingRatio   = 0.0352
+    otherScaleFactor = 1
+    NOEinDS          = 982801
+    NoEreadByNUTter  = 102664
 ]
