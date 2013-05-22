@@ -6,53 +6,47 @@
 
 */
 
-#include "TemplateContainer.h"
-
-#include "math.h"
-#include "TFile.h"
+#include <cmath>
 #include <stdlib.h>
 
-#include "boost/filesystem/operations.hpp"
+// #include "boost/filesystem/operations.hpp"
+
+#include "TemplateContainer.h"
 
 using namespace std;
 
-#define AT __LINE__
-
 // Default constructor
 TemplateContainer::TemplateContainer(): storageFile(0) {
-	cout << "WARNING: Using default constructor of TemplateContainer." << endl;
+    cout << "WARNING: Using default constructor of TemplateContainer." << endl;
 }
 
 // Default destructor
-TemplateContainer::~TemplateContainer(){
-   
+TemplateContainer::~TemplateContainer()
+{
     if( storageFile != NULL ) {
         //cout << "Closing storage file" << endl;
         storageFile->Close();
     }
-    
+
     TString removeCmd = "rm -f ";
     removeCmd += storageFile->GetName();
     system(removeCmd);
 }
 
-TemplateContainer::TemplateContainer(map<string,string>const & iParams): storageFile(0) {
-	
+TemplateContainer::TemplateContainer(map<string,string>const & iParams): storageFile(0)
+{
     params = iParams;
-    
-    TString storageFileName(".storage_");
-    storageFileName += params["analysisTag"];
-    storageFileName += ".root";
-    storageFile = new TFile(storageFileName,"RECREATE");
+
+    TString fn = ".storage_" + params["analysisTag"] + ".root";
+    storageFile = new TFile(fn.ReplaceAll("/", "_"), "RECREATE");
 
     // parse systematics configuration
     map<string,Config*> sysConfigs;
     Config* sysCfg = NULL;
     if (params.find("systematicsFile") != params.end()) {
-        
         string systematicsFile = params.find("systematicsFile")->second;
-        
-        using namespace boost::filesystem;
+
+        // using namespace boost::filesystem;
 
         // If additional systematics are not defined locally, look in nidra's
         // directory
@@ -61,7 +55,7 @@ TemplateContainer::TemplateContainer(map<string,string>const & iParams): storage
         //    path epath = system_complete(lpath);
         //    systematicsFile = epath.string();
         //}
-        
+
         //cout << "Using systematics file at: " << endl << systematicsFile << endl;
 
         sysCfg = new Config(systematicsFile);
@@ -81,15 +75,16 @@ TemplateContainer::TemplateContainer(map<string,string>const & iParams): storage
             cout << "Missing 'fullFilePath' parameter for systematic " << sysName << "...skipping!" << endl; 
             continue;
         }
-        TFile* file = NULL;
-        file = new TFile(fileName.c_str());
-        if( file == NULL ) {
+
+        TFile file(fileName.c_str());
+        if (!file.IsOpen()) {
             cout << "File " << fileName << " can not be opened! Skipping '" << sysName << "' systematic..." << endl;
             continue;
         }
-        ProPack* proPack = NULL;
-        proPack = (ProPack*)file->Get((params["propack_name"]).c_str());
-        if( proPack == NULL ) {
+
+        ProPack* proPack = 0;
+        file.GetObject((params["propack_name"]).c_str(), proPack);
+        if (!proPack) {
             cout << "Can't get ProPack from file " << fileName << " for '" << sysName << "' systematic...skipping!" << endl;
             continue;
         }
@@ -100,25 +95,21 @@ TemplateContainer::TemplateContainer(map<string,string>const & iParams): storage
         for( vector<string>::const_iterator plotNameIt = plotNames.begin(); plotNameIt != plotNames.end(); ++plotNameIt) {
             backgroundSums.insert(pair<string,TH1*>(*plotNameIt,GetSumOfBackgroundTemplates(*plotNameIt,proPack)));
         }
-        
+
         // Fill and store struct
-        if((sysName.find("up") != string::npos) || (sysName.find("Up") != string::npos)) {
+        if ((sysName.find("up") != string::npos) || (sysName.find("Up") != string::npos)) {
             string sysNameStripped = sysName.substr(0,sysName.size()-2);
             shifts[sysNameStripped].bgSumsUp = backgroundSums;
-        }
-        if((sysName.find("down") != string::npos) || (sysName.find("Down") != string::npos)) {
+        } else if((sysName.find("down") != string::npos) || (sysName.find("Down") != string::npos)) {
             string sysNameStripped = sysName.substr(0,sysName.size()-4);
             shifts[sysNameStripped].bgSumsDown = backgroundSums;
+        } else {
+            cerr << "Can't determine systematics in file " << fileName << endl;
         }
-        
-        // Close input ROOT file
-        file->Close();
-        delete file;
     }
 
-    if( sysCfg!=NULL ) {
+    if (!sysCfg)
         delete sysCfg;
-    }
 }
 
 float TemplateContainer::GetAbsoluteErrorUp(string variableName, int iBin, float centralBinContent) {
