@@ -335,8 +335,50 @@ topology_ttPlusZ = [
     NoEreadByNUTter  = 4610
 ]
 
+topology_TTH_110 = [
+    sampleNumber     = 9110
+    niceName         = ttH(110)
+    labelForLegend   = t#bar{t}H(110) 
+    type             = signal
+    ntuplePath       = TTH_110
+    color            = 221
+    crossSection     = 0.1887
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 977880
+    NoEreadByNUTter  = 16791
+]
+
+topology_TTH_115 = [
+    sampleNumber     = 9115
+    niceName         = ttH(115)
+    labelForLegend   = t#bar{t}H(115) 
+    type             = signal
+    ntuplePath       = TTH_115
+    color            = 221
+    crossSection     = 0.1887
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000 
+    NoEreadByNUTter  = 17008
+]
+
+topology_TTH_120 = [
+    sampleNumber     = 9120
+    niceName         = ttH(120)
+    labelForLegend   = t#bar{t}H(120) 
+    type             = signal
+    ntuplePath       = TTH_120
+    color            = 221
+    crossSection     = 0.1470
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 999508
+    NoEreadByNUTter  = 18293
+]
+
 topology_TTH_125 = [
-    sampleNumber     = 125
+    sampleNumber     = 9125
     niceName         = ttH(125)
     labelForLegend   = t#bar{t}H(125) 
     type             = signal
@@ -349,8 +391,50 @@ topology_TTH_125 = [
     NoEreadByNUTter  = 19299
 ]
 
+topology_TTH_130 = [
+    sampleNumber     = 9130
+    niceName         = ttH(130)
+    labelForLegend   = t#bar{t}H(130) 
+    type             = signal
+    ntuplePath       = TTH_130
+    color            = 221
+    crossSection     = 0.1157
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 933970
+    NoEreadByNUTter  = 19100
+]
+
+topology_TTH_135 = [
+    sampleNumber     = 9135
+    niceName         = ttH(135)
+    labelForLegend   = t#bar{t}H(135) 
+    type             = signal
+    ntuplePath       = TTH_135
+    color            = 221
+    crossSection     = 0.1031
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 996800
+    NoEreadByNUTter  = 21887
+]
+
+topology_TTH_140 = [
+    sampleNumber     = 9140
+    niceName         = ttH(140)
+    labelForLegend   = t#bar{t}H(140) 
+    type             = signal
+    ntuplePath       = TTH_140
+    color            = 221
+    crossSection     = 0.09207
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = 23310
+]
+
 topology_TTHTauTau_110 = [
-    sampleNumber     = 110
+    sampleNumber     = 7110
     niceName         = ttHtautau(110)
     labelForLegend   = t#bar{t}H(110) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -364,7 +448,7 @@ topology_TTHTauTau_110 = [
 ]
 
 topology_TTHTauTau_110_real = [
-    sampleNumber     = 110
+    sampleNumber     = 7110
     niceName         = ttHtautau(110)*
     labelForLegend   = t#bar{t}H(110)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -379,7 +463,7 @@ topology_TTHTauTau_110_real = [
 ]
 
 topology_TTHTauTau_115 = [
-    sampleNumber     = 115
+    sampleNumber     = 7115
     niceName         = ttHtautau(115)
     labelForLegend   = t#bar{t}H(115) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -393,7 +477,7 @@ topology_TTHTauTau_115 = [
 ]
 
 topology_TTHTauTau_115_real = [
-    sampleNumber     = 115
+    sampleNumber     = 7115
     niceName         = ttHtautau(115)*
     labelForLegend   = t#bar{t}H(115)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -408,7 +492,7 @@ topology_TTHTauTau_115_real = [
 ]
 
 topology_TTHTauTau_120 = [
-    sampleNumber     = 120
+    sampleNumber     = 7120
     niceName         = ttHtautau(120)
     labelForLegend   = t#bar{t}H(120) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -422,7 +506,7 @@ topology_TTHTauTau_120 = [
 ]
 
 topology_TTHTauTau_120_real = [
-    sampleNumber     = 120
+    sampleNumber     = 7120
     niceName         = ttHtautau(120)*
     labelForLegend   = t#bar{t}H(120)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -437,7 +521,7 @@ topology_TTHTauTau_120_real = [
 ]
 
 topology_TTHTauTau_125 = [
-    sampleNumber     = 125
+    sampleNumber     = 7125
     niceName         = ttHtautau(125)
     labelForLegend   = t#bar{t}H(125) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -451,7 +535,7 @@ topology_TTHTauTau_125 = [
 ]
 
 topology_TTHTauTau_125_real = [
-    sampleNumber     = 125
+    sampleNumber     = 7125
     niceName         = ttHtautau(125)*
     labelForLegend   = t#bar{t}H(125)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -466,7 +550,7 @@ topology_TTHTauTau_125_real = [
 ]
 
 topology_TTHTauTau_130 = [
-    sampleNumber     = 130
+    sampleNumber     = 7130
     niceName         = ttHtautau(130)
     labelForLegend   = t#bar{t}H(130) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -480,7 +564,7 @@ topology_TTHTauTau_130 = [
 ]
 
 topology_TTHTauTau_130_real = [
-    sampleNumber     = 130
+    sampleNumber     = 7130
     niceName         = ttHtautau(130)*
     labelForLegend   = t#bar{t}H(130)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -495,7 +579,7 @@ topology_TTHTauTau_130_real = [
 ]
 
 topology_TTHTauTau_135 = [
-    sampleNumber     = 135
+    sampleNumber     = 7135
     niceName         = ttHtautau(135)
     labelForLegend   = t#bar{t}H(135) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -509,7 +593,7 @@ topology_TTHTauTau_135 = [
 ]
 
 topology_TTHTauTau_135_real = [
-    sampleNumber     = 135
+    sampleNumber     = 7135
     niceName         = ttHtautau(135)*
     labelForLegend   = t#bar{t}H(135)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -524,7 +608,7 @@ topology_TTHTauTau_135_real = [
 ]
 
 topology_TTHTauTau_140 = [
-    sampleNumber     = 140
+    sampleNumber     = 7140
     niceName         = ttHtautau(140)
     labelForLegend   = t#bar{t}H(140) #rightarrow #tau_{h} #tau_{h}
     type             = signal
@@ -538,7 +622,7 @@ topology_TTHTauTau_140 = [
 ]
 
 topology_TTHTauTau_140_real = [
-    sampleNumber     = 140
+    sampleNumber     = 7140
     niceName         = ttHtautau(140)*
     labelForLegend   = t#bar{t}H(140)* #rightarrow #tau_{h} #tau_{h}
     type             = signal
