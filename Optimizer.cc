@@ -6,16 +6,17 @@
 
 */
 
+#include "TFile.h"
+#include "TLegend.h"
+#include "TStyle.h"
+
 #include "Optimizer.h"
-
-#define Optimizer_cxx
-using namespace std;
-
-#define AT __LINE__
 
 #define NON_INTEGRATED 0
 #define INTEGRATED_FROM_LEFT 1
 #define INTEGRATED_FROM_RIGHT 2
+
+using namespace std;
 
 // Constructor
 Optimizer::Optimizer(map<string,string> const & iParams){

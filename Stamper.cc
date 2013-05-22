@@ -6,12 +6,13 @@
 
 */
 
+#include "TFile.h"
+#include "TLegend.h"
+#include "TStyle.h"
+
 #include "Stamper.h"
 
-#define Stamper_cxx
 using namespace std;
-
-#define AT __LINE__
 
 // Default constructor
 Stamper::Stamper(map<string,string> const & iParams){
@@ -221,4 +222,3 @@ double const Stamper::GetMaximum(ProPack const * iProPack, string const iName, b
 	
 	return result;
 }
-
