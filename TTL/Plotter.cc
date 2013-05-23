@@ -6,7 +6,7 @@
 
 */
 
-#include "TMVAEvaluator.h"
+#include "MVABase.h"
 
 #include "Plotter.h"
 

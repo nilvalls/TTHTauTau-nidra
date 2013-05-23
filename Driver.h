@@ -23,7 +23,6 @@
 #include "Process.h"
 #include "ProPack.h"
 
-#include "Analyzer.h"
 #include "Cruncher.h"
 #include "Combiner.h"
 #include "RootFileMaker.h"
@@ -32,7 +31,6 @@
 #include "Stamper.h"
 #include "Optimizer.h"
 
-#include "TTL/Analyzer.h"
 #include "TTL/Plotter.h"
 
 #ifndef Driver_h

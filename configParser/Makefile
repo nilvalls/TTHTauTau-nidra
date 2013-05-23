@@ -3,10 +3,8 @@
 #######################################
 
 #
-CXX           = g++
-CXXFLAGS      = -g -Wall -fPIC
-LD            = g++
-LDFLAGS       = -g
+CXXFLAGS      = -g -Wall -fPIC -pg
+LDFLAGS       = -g -pg
 SOFLAGS       = -shared
 
 libconfigParser: config.o log.o

@@ -28,8 +28,9 @@ GLIBS          = $(filter-out -lNew, $(NGLIBS))
 NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.HWrapper.o .HContainer.o .HMath.o .Helper.o .CutFlow.o \
 		.Process.o .PContainer.o .ProPack.o \
-		.Branches.o .Analyzer.o .Plotter.o \
-		.TTLBranches.o .TTLAnalyzer.o .TTLPlotter.o .TTL_TMVAEvaluator.o \
+		.Branches.o .Plotter.o \
+		.MVABase.o \
+		.TTLBranches.o .TTLBranches_cuts.o .TTLPlotter.o .TTLMVABase.o \
 		.Combiner.o \
 		.Stacker.o .Stamper.o .Optimizer.o \
 		.Trigger.o .Cruncher.o \
@@ -64,14 +65,14 @@ configParser/libconfigParser.so: configParser/config.h
 .TTLBranches.o: TTL/Branches.cc TTL/Branches.h TTL/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTL/Branches.cc -o $@
 
-.TTLAnalyzer.o: TTL/Analyzer.cc TTL/Analyzer.h TTL/Branches_*.h Analyzer.cc Analyzer.h Helper.h
-	$(CXX) $(CXXFLAGS) -c TTL/Analyzer.cc -o  $@
+.TTLBranches_cuts.o: TTL/Branches.cc TTL/Branches.h TTL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/Branches_cuts.cc -o $@
 
 .TTLPlotter.o: TTL/Plotter.cc TTL/Plotter.h TTL/FillHistos.h TTL/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTL/Plotter.cc -o $@
 
-.TTL_TMVAEvaluator.o: TTL/TMVAEvaluator.cc TTL/TMVAEvaluator.h TTL/Branches_*.h Helper.h
-	$(CXX) $(CXXFLAGS) -c TTL/TMVAEvaluator.cc -o $@
+.TTLMVABase.o: TTL/MVABase.cc TTL/MVABase.h TTL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TTL/MVABase.cc -o $@
 
 ########################
 ###      Global      ###

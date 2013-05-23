@@ -8,26 +8,26 @@
 #ifndef Stacker_h
 #define Stacker_h
 
-#include "Plotter.h"
-#include "THStack.h"
-#include "HWrapper.h"
-#include "TemplateContainer.h"
 #include "TGraphAsymmErrors.h"
+#include "THStack.h"
+#include "TLegend.h"
 
+#include "HWrapper.h"
+#include "Plotter.h"
+#include "TemplateContainer.h"
 
 class Stacker : public Plotter {
-
 	public:
 		Stacker(std::map<std::string,std::string> const &, bool includeShapeSystematics = false);
 		virtual ~Stacker();
-		void MakePlots(ProPack const *) ;
+		void MakePlots(ProPack *) ;
 
 	private: 
         std::map<std::string,std::string> params;
         TFile*             stacksFile;
         TemplateContainer* templateContainer;
 
-        TLegend*		GetLegend(ProPack const *);
+        TLegend*		GetLegend(ProPack const *, const float);
         THStack*		GetBackgroundStack(ProPack const *, std::string const, double const) const;
         double const	GetMaximum(ProPack const *, std::string const, bool const) const;
         double const	GetMaximum(ProPack const *, std::string const) const;
@@ -37,17 +37,6 @@ class Stacker : public Plotter {
                         AddAsymmShapeSystematicErrors(HWrapper& bg, std::string plot);
 
         float minY;
-
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

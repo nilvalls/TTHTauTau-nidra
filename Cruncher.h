@@ -16,9 +16,6 @@
 #include <sstream>
 #include "CutFlow.h"
 #include "ProPack.h"
-#include "Analyzer.h"
-
-using namespace std;
 
 class Cruncher {
 

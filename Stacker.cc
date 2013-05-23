@@ -6,11 +6,18 @@
 
 */
 
-#include "Stacker.h"
+#include "boost/lexical_cast.hpp"
+
 #include "TCanvas.h"
-#include "TSystem.h"
+#include "TFile.h"
+#include "TFrame.h"
 #include "TH1F.h"
+#include "TStyle.h"
+#include "TSystem.h"
+
 #include "HContainer.h"
+#include "Helper.h"
+#include "Stacker.h"
 
 using namespace std;
 
@@ -55,7 +62,12 @@ Stacker::~Stacker(){
 }
 
 // Function to make the plots
-void Stacker::MakePlots(ProPack const * iProPack) {
+void Stacker::MakePlots(ProPack * iProPack) {
+    for (auto& p: *iProPack->GetMCbackgrounds())
+        p.SetPlot(params);
+    for (auto& p: *iProPack->GetSignals())
+        p.SetPlot(params);
+    iProPack->GetCollisions()->SetPlot(params);
 
 	// Draw horizontal error bars
  	gStyle->SetErrorX(0.5);
@@ -91,7 +103,7 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		}
 
 		// Get some generic information
-		double maxY = max(1.2*GetMaximumWithError(iProPack, plotName),0.1);
+		double maxY = max(1.35 * GetMaximumWithError(iProPack, plotName),0.1);
 		HWrapper baseHisto((iProPack->GetAvailableHWrapper(plotName))); baseHisto.ScaleBy(0);
 		subdir = baseHisto.GetSubDir();
 
@@ -114,13 +126,13 @@ void Stacker::MakePlots(ProPack const * iProPack) {
             canvas->GetPad(2)->SetPad(padding, padding, 1-padding, yDivide-padding);
             canvas->GetPad(2)->SetBottomMargin(bottomMargin);
             canvas->GetPad(2)->SetGrid(1,1);
-            
+
             canvas->cd(1);
         } else {
             canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
         }
-		baseHisto.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
-	
+        baseHisto.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
+
         // Get background and signal sums 
         HWrapper backgroundSum;
         if(haveMCbackgrounds) 
@@ -133,7 +145,6 @@ void Stacker::MakePlots(ProPack const * iProPack) {
         TGraphAsymmErrors* absBackgroundErr = NULL;
         TGraphAsymmErrors* relBackgroundErr = NULL;
         if(templateContainer != NULL) {
-            
             // asymmetric errors
             pair<TGraphAsymmErrors*,TGraphAsymmErrors*> backgroundErr = AddAsymmShapeSystematicErrors(backgroundSum,plotName);
             absBackgroundErr = backgroundErr.first;
@@ -190,6 +201,10 @@ void Stacker::MakePlots(ProPack const * iProPack) {
                     continue;
 
 				HWrapper* toDraw = new HWrapper(*signalHistos.Get(name));
+                try {
+                    using boost::lexical_cast;
+                    toDraw->ScaleBy(lexical_cast<float>(params["signalScale"]));
+                } catch (...) {};
 				toDraw->SetFillStyle(0);	
 				toDraw->SetLineWidth(3, proc->GetColor());
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
@@ -207,19 +222,19 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 		}
 
 		// Finally plot the collisions if we have them
-		if(haveCollisions){ 
-			if(!iProPack->GetCollisions()->Plot()){ continue; }
+		if (haveCollisions && iProPack->GetCollisions()->Plot()) {
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
 			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 			if(collisionsHisto.GetHisto()->Integral()>0){ collisionsHisto.GetHisto()->Draw("EPsame"); }
 		}	
 
+
 		// Redraw the axes so they stay on top of everthing...
 		baseHisto.GetHisto()->Draw("AXISsame");
 
 		// Take care of the legend
-		GetLegend(iProPack)->Draw();
+		GetLegend(iProPack, baseHisto.GetHisto()->GetTickLength())->Draw();
 
 		// Take care of plot info
 		GetPlotText(params.find("plotText")->second)->Draw();
@@ -339,69 +354,125 @@ void Stacker::MakePlots(ProPack const * iProPack) {
 
 	// Print done
 	cout << "\r\033[K" << flush;
-
 }
 
+TLegend*
+Stacker::GetLegend(ProPack const * iProPack, const float tick_length)
+{
+    using boost::lexical_cast;
 
+    int n_items = 0;
+    int n_cols = 1;
+    try {
+        n_cols = lexical_cast<int>(params["colLegend"]);
+    } catch (...) {}
 
+    n_items += iProPack->GetMCbackgrounds()->size();
+    if ((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"] == "true"))
+        n_items++;
 
-TLegend* Stacker::GetLegend(ProPack const * iProPack){
+    int bkg_skip = 0;
+    int sig_skip = 0;
 
-	// Figure out how many rows we're going to have
-	int numberOfRows = 0;
-	if(iProPack->PrepareCollisions()){ numberOfRows++; }
-	numberOfRows += iProPack->GetMCbackgrounds()->size();
-	numberOfRows += iProPack->GetSignals()->size();
-	if ((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"].compare("true")==0)){ numberOfRows++; }
+    int n_rows = ceil(float(n_items) / n_cols);
+    int bkg_mod = n_items % n_rows;
+    if (bkg_mod > 1) {
+        bkg_skip = n_cols - bkg_mod;
+        n_items += bkg_skip;
+    }
 
-	// Get legend sizes
-	float xLegend	= atof((params["xLegend"]).c_str());
-	float yLegend	= atof((params["yLegend"]).c_str());
-	float dxLegend	= atof((params["dxLegend"]).c_str());
-	//float dyLegend	= atof((params["dyLegend"]).c_str());
-	float dyLegend	= 0.035*numberOfRows;
-	TLegend* result = new TLegend(xLegend-dxLegend, yLegend-dyLegend, xLegend, yLegend, NULL, "brNDC");
+    if (iProPack->PrepareCollisions() && iProPack->GetCollisions()->Plot())
+        n_items++;
 
+    n_rows = ceil(float(n_items) / n_cols);
+    int sig_mod = n_items % n_rows;
+    int n_signals = iProPack->GetSignals()->size();
+    if ((sig_mod + n_signals) % n_cols > 0) {
+        sig_skip = n_cols - sig_mod;
+        n_items += sig_skip;
+    }
 
-	// Collisions come first
-	if(iProPack->PrepareCollisions() && iProPack->GetCollisions()->Plot()){
-		TH1 const * temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
-		result->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
-	}
+    n_items += iProPack->GetSignals()->size();
+    n_rows = ceil(float(n_items) / n_cols);
 
-	// Background errors if we want them and have them
-	if((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"].compare("true")==0)){
-		HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
-		temp->SetFillStyle(3004,kBlack);
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),"Bkg. err. ","f");
-	}
+    if (n_items < n_cols)
+        n_cols = n_items;
 
-	// Then MC backgrounds in reverse order as in the vector
-	for(int b = iProPack->GetMCbackgrounds()->size()-1; b >= 0; b--){
-		if(!iProPack->GetMCbackgrounds()->at(b).Plot()){ continue; }
-		HWrapper * temp = new HWrapper(*iProPack->GetMCbackgrounds()->at(b).GetAvailableHWrapper());
-		temp->SetFillStyle(1001,iProPack->GetMCbackgrounds()->at(b).GetColor());
-		temp->SetLineWidth(0);
-		result->AddEntry(temp->GetHisto(),(iProPack->GetMCbackgrounds()->at(b).GetLabelForLegend()).c_str(),"f");
-	}
+    float x1Legend = lexical_cast<float>(params["x1Legend"]);
+    float x2Legend = lexical_cast<float>(params["x2Legend"]);
+    float yLegend = lexical_cast<float>(params["yLegend"]);
+    float dxLegend = lexical_cast<float>(params["dxLegend"]) * n_cols;
+    float dyLegend = lexical_cast<float>(params["dyLegend"]) * n_rows;
 
-	// Finally signals also in reverse order as in the vector
-	for(int s = iProPack->GetSignals()->size()-1; s >= 0; s--){
-		if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
-		HWrapper * temp = new HWrapper(*iProPack->GetSignals()->at(s).GetAvailableHWrapper());
-		temp->SetFillStyle(0,0);
-		temp->SetLineWidth(3,iProPack->GetSignals()->at(s).GetColor());
-		result->AddEntry(temp->GetHisto(),(iProPack->GetSignals()->at(s).GetLabelForLegend()).c_str(),"l");
-	}
+    x1Legend = gPad->GetLeftMargin() + tick_length;
+    x2Legend = 1.0 - gPad->GetRightMargin() - tick_length;
+    yLegend = 1.0 - gPad->GetTopMargin() - 0.001;
 
-	// Set some legend parameters
-	result->SetBorderSize(1);
-	result->SetFillColor(kWhite);
-	result->SetFillStyle(1001);
+    TLegend* leg = new TLegend(x1Legend, yLegend - dyLegend, x2Legend, yLegend, NULL, "brNDC");
+    leg->SetNColumns(n_cols);
 
-	return result;
+    for (unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); ++b) {
+        if (!iProPack->GetMCbackgrounds()->at(b).Plot())
+            continue;
+        HWrapper * temp = new HWrapper(*iProPack->GetMCbackgrounds()->at(b).GetAvailableHWrapper());
+        temp->SetFillStyle(1001,iProPack->GetMCbackgrounds()->at(b).GetColor());
+        temp->SetLineWidth(0);
+        leg->AddEntry(temp->GetHisto(),(iProPack->GetMCbackgrounds()->at(b).GetLabelForLegend()).c_str(),"f");
+    }
 
+    if (bkg_mod == 1) {
+        if (iProPack->PrepareCollisions() && iProPack->GetCollisions()->Plot()) {
+            TH1 const * temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
+            leg->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
+        }
+
+        if ((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"].compare("true")==0)) {
+            HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
+            temp->SetFillStyle(3004,kBlack);
+            temp->SetLineWidth(0);
+            leg->AddEntry(temp->GetHisto(),"Bkg. err. ","f");
+        }
+    } else {
+        if ((iProPack->GetMCbackgrounds()->size() > 0) && (params["showBackgroundError"].compare("true")==0)) {
+            HWrapper * temp = new HWrapper(GetBackgroundSum(iProPack, iProPack->GetAvailableHWrapper().GetName()));
+            temp->SetFillStyle(3004,kBlack);
+            temp->SetLineWidth(0);
+            leg->AddEntry(temp->GetHisto(),"Bkg. err. ","f");
+        }
+
+        for (int i = 0; i < bkg_skip; ++i)
+            leg->AddEntry((TObject*) 0, "", "");
+
+        if (iProPack->PrepareCollisions() && iProPack->GetCollisions()->Plot()) {
+            TH1 const * temp = iProPack->GetCollisions()->GetAvailableHWrapper()->GetHisto();
+            leg->AddEntry(temp,(iProPack->GetCollisions()->GetLabelForLegend()).c_str(),"lep");
+        }
+    }
+
+    for (int i = 0; i < sig_skip; ++i)
+        leg->AddEntry((TObject*) 0, "", "");
+
+    string sig_add("");
+    try {
+        int scale = lexical_cast<int>(params["signalScale"]);
+        ostringstream s("");
+        s << " (#times " << scale << ")";
+        sig_add = s.str();
+    } catch (...) {};
+
+    for(int s = iProPack->GetSignals()->size()-1; s >= 0; s--){
+        if(!iProPack->GetSignals()->at(s).Plot()){ continue; }
+        HWrapper * temp = new HWrapper(*iProPack->GetSignals()->at(s).GetAvailableHWrapper());
+        temp->SetFillStyle(0,0);
+        temp->SetLineWidth(3,iProPack->GetSignals()->at(s).GetColor());
+        leg->AddEntry(temp->GetHisto(),(iProPack->GetSignals()->at(s).GetLabelForLegend() + sig_add).c_str(),"l");
+    }
+
+    leg->SetBorderSize(0);
+    leg->SetFillColor(0);
+    // leg->SetFillStyle(1001);
+
+    return leg;
 }
 
 // Make background stack
@@ -493,21 +564,26 @@ void Stacker::AddShapeSystematicErrors(HWrapper& backgroundSum, string plotName 
     }    
 }
 // must use TGraphAsymmErrors class to draw asymmetric error bars
-pair<TGraphAsymmErrors*,TGraphAsymmErrors*> Stacker::AddAsymmShapeSystematicErrors(HWrapper& backgroundSum, string plotName) {
-   
+pair<TGraphAsymmErrors*, TGraphAsymmErrors*>
+Stacker::AddAsymmShapeSystematicErrors(HWrapper& backgroundSum, string plotName)
+{
+    float sum_err_up = 0.;
+    float sum_err_down = 0.;
     // NOTE: bin 0 for TH1's is the underflow bin
     // so bin n for the TGraph corresponds to bin n+1 for the TH1
     TH1F* backgroundSumHisto = (TH1F*)backgroundSum.GetHisto();
     TGraphAsymmErrors* backgroundErrAbs = new TGraphAsymmErrors(backgroundSumHisto);
     TGraphAsymmErrors* backgroundErrRel = new TGraphAsymmErrors(backgroundSumHisto);
     for( int iBin = 0; iBin < backgroundErrAbs->GetN(); iBin++ ) {
-       
         float binContent = backgroundSumHisto->GetBinContent(iBin+1);
         float binError = backgroundSumHisto->GetBinError(iBin+1);
         // Get errors from shape systematics
         float errorUpAbs = templateContainer->GetAbsoluteErrorUp(plotName,iBin+1,binContent);
         float errorDownAbs = templateContainer->GetAbsoluteErrorDown(plotName,iBin+1,binContent);
-        
+
+        sum_err_up += errorUpAbs;
+        sum_err_down += errorDownAbs;
+
         // Add rate systematics and statistical errors
         float errorUpRel = 0;
         float errorDownRel = 0;
@@ -534,6 +610,11 @@ pair<TGraphAsymmErrors*,TGraphAsymmErrors*> Stacker::AddAsymmShapeSystematicErro
         backgroundErrRel->SetPointEYlow(iBin,errorDownRel);
         backgroundErrRel->SetPointEYhigh(iBin,errorUpRel);
     }
+
+    if (plotName == "Events")
+        std::cout << plotName << " integral: " << backgroundSumHisto->Integral()
+            << " +" << sum_err_up << ", -" << sum_err_down << std::endl;
+
     pair<TGraphAsymmErrors*,TGraphAsymmErrors*> errPair(backgroundErrAbs,backgroundErrRel);
     return errPair;
 }

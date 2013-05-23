@@ -335,6 +335,34 @@ topology_ttPlusZ = [
     NoEreadByNUTter  = %ttPlusZ%
 ]
 
+topology_TTH_115 = [
+    sampleNumber     = 115
+    niceName         = ttH(115)
+    labelForLegend   = t#bar{t}H(115) 
+    type             = signal
+    ntuplePath       = TTH_115
+    color            = 221
+    crossSection     = 0.1302
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 995697
+    NoEreadByNUTter  = %TTH_115%
+]
+
+topology_TTH_120 = [
+    sampleNumber     = 120
+    niceName         = ttH(120)
+    labelForLegend   = t#bar{t}H(120) 
+    type             = signal
+    ntuplePath       = TTH_120
+    color            = 221
+    crossSection     = 0.1302
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 995697
+    NoEreadByNUTter  = %TTH_120%
+]
+
 topology_TTH_125 = [
     sampleNumber     = 125
     niceName         = ttH(125)
@@ -349,6 +377,48 @@ topology_TTH_125 = [
     NoEreadByNUTter  = %TTH_125%
 ]
 
+topology_TTH_130 = [
+    sampleNumber     = 130
+    niceName         = ttH(130)
+    labelForLegend   = t#bar{t}H(130) 
+    type             = signal
+    ntuplePath       = TTH_130
+    color            = 221
+    crossSection     = 0.1302
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 995697
+    NoEreadByNUTter  = %TTH_130%
+]
+
+topology_TTHTauTau_115 = [
+    sampleNumber     = 115
+    niceName         = ttHtautau(115)
+    labelForLegend   = t#bar{t}H(115) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_115
+    color            = 632
+    crossSection     = 0.0082
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = %TTHTauTau_115%
+]
+
+topology_TTHTauTau_120 = [
+    sampleNumber     = 120
+    niceName         = ttHtautau(120)
+    labelForLegend   = t#bar{t}H(120) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_120
+    color            = 632
+    crossSection     = 0.0082
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = %TTHTauTau_120%
+]
+
 topology_TTHTauTau_125 = [
     sampleNumber     = 125
     niceName         = ttHtautau(125)
@@ -361,6 +431,20 @@ topology_TTHTauTau_125 = [
     otherScaleFactor = 1
     NOEinDS          = 1000000
     NoEreadByNUTter  = %TTHTauTau_125%
+]
+
+topology_TTHTauTau_130 = [
+    sampleNumber     = 130
+    niceName         = ttHtautau(130)
+    labelForLegend   = t#bar{t}H(130) #rightarrow #tau_{h} #tau_{h}
+    type             = signal
+    ntuplePath       = TTHTauTau_130
+    color            = 632
+    crossSection     = 0.0082
+    branchingRatio   = 1
+    otherScaleFactor = 1
+    NOEinDS          = 1000000
+    NoEreadByNUTter  = %TTHTauTau_130%
 ]
 
 topology_TTHTauTau_125_real = [

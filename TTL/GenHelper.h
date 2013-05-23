@@ -17,13 +17,13 @@ inline unsigned int NumGenTauHad(TTLBranches* iEvent){
 inline unsigned int GetNumberOfGenHadTausFromH(TTLBranches* iEvent){
 	unsigned int result = 0;
 	for(unsigned int g = 0; g < iEvent->GT_ParentId->size(); g++){
-	//	cout << g << " " << iEvent->GT_ToHadrons->at(g) << " " << iEvent->GT_ParentId->at(g) << endl;
+	//	std::cout << g << " " << iEvent->GT_ToHadrons->at(g) << " " << iEvent->GT_ParentId->at(g) << std::endl;
 		if(iEvent->GT_ToHadrons->at(g) && iEvent->GT_ParentId->at(g) == 25){ result++; }
 	}
-	if( result != 2){ cout << "Num: " << result << endl;
+	if( result != 2){ std::cout << "Num: " << result << std::endl;
 		for(unsigned int g = 0; g < iEvent->GT_ParentId->size(); g++){
-			cout << "is had: " << iEvent->GT_ToHadrons->at(g) << "is ele: " << iEvent->GT_ToElectron->at(g) <<
-				 " is mu: " << iEvent->GT_ToMuon->at(g) << "\tparentId" <<  iEvent->GT_ParentId->at(g) << endl;
+			std::cout << "is had: " << iEvent->GT_ToHadrons->at(g) << "is ele: " << iEvent->GT_ToElectron->at(g) <<
+				 " is mu: " << iEvent->GT_ToMuon->at(g) << "\tparentId" <<  iEvent->GT_ParentId->at(g) << std::endl;
 		}
 	
 	}
@@ -34,10 +34,10 @@ inline unsigned int GetNumberOfGenHadTausFromHWithinDeltaR(TTLBranches* iEvent, 
 	unsigned int result = 0;
 	for(unsigned int g = 0; g < iEvent->GT_ParentId->size(); g++){
 		if(iEvent->GT_ToHadrons->at(g) && iEvent->GT_ParentId->at(g) == 25){
-			cout << "checking" << endl;
+			std::cout << "checking" << std::endl;
 			for(unsigned int r = 0; r < iEvent->TTL_NumCombos; r++){
-				cout << "DeltaR1: " << DeltaR(iEvent->TTL_Tau1Eta->at(0), iEvent->TTL_Tau1Phi->at(0), iEvent->GT_Eta->at(g), iEvent->GT_Phi->at(g) ); 
-				cout << "\tDeltaR2: " << DeltaR(iEvent->TTL_Tau2Eta->at(r), iEvent->TTL_Tau2Phi->at(r), iEvent->GT_Eta->at(g), iEvent->GT_Phi->at(g) ) << endl;
+				std::cout << "DeltaR1: " << DeltaR(iEvent->TTL_Tau1Eta->at(0), iEvent->TTL_Tau1Phi->at(0), iEvent->GT_Eta->at(g), iEvent->GT_Phi->at(g) ); 
+				std::cout << "\tDeltaR2: " << DeltaR(iEvent->TTL_Tau2Eta->at(r), iEvent->TTL_Tau2Phi->at(r), iEvent->GT_Eta->at(g), iEvent->GT_Phi->at(g) ) << std::endl;
 			if(r==0&&DeltaR(iEvent->TTL_Tau1Eta->at(0), iEvent->TTL_Tau1Phi->at(0), iEvent->GT_Eta->at(g), iEvent->GT_Phi->at(g) )<iDeltaR){ result++; break; }
 				if(DeltaR(iEvent->TTL_Tau2Eta->at(r), iEvent->TTL_Tau2Phi->at(r), iEvent->GT_Eta->at(g), iEvent->GT_Phi->at(g) )<iDeltaR){ result++; break; }
 			}
@@ -57,7 +57,7 @@ inline unsigned int Tau1Reality(TTLBranches* iEvent, unsigned int iCombo){
 			if(			iEvent->GT_ToHadrons->at(t)		){ return 1; }
 			else if(	iEvent->GT_ToElectron->at(t)	){ return 2; }
 			else if(	iEvent->GT_ToMuon->at(t)		){ return 3; }
-			else{ cerr << "ERROR: GTau not going to hadrons, electron or muon" << endl; exit(1); }
+			else{ std::cerr << "ERROR: GTau not going to hadrons, electron or muon" << std::endl; exit(1); }
 		}
 	}
 
@@ -74,7 +74,7 @@ inline unsigned int Tau2Reality(TTLBranches* iEvent, unsigned int iCombo){
 			if(			iEvent->GT_ToHadrons->at(t)		){ return 1; }
 			else if(	iEvent->GT_ToElectron->at(t)	){ return 2; }
 			else if(	iEvent->GT_ToMuon->at(t)		){ return 3; }
-			else{ cerr << "ERROR: GTau not going to hadrons, electron or muon" << endl; exit(1); }
+			else{ std::cerr << "ERROR: GTau not going to hadrons, electron or muon" << std::endl; exit(1); }
 		}
 	}
 	return 0;
@@ -127,7 +127,7 @@ inline double MinGenTau2DeltaR(TTLBranches* iEvent, unsigned int iCombo){
 }
 
 inline int GetTau1ParentPDGid(TTLBranches* iEvent, unsigned int iCombo){
-cout << "test" << endl;
+std::cout << "test" << std::endl;
 
 	double minDeltaR	= 999;
 	int tempParentPDGid	= 0;
@@ -138,13 +138,13 @@ cout << "test" << endl;
 		double genEta = iEvent->GT_Eta->at(g);
 		double genPhi = iEvent->GT_Phi->at(g);
 		double currentDeltaR = DeltaR(recoEta, recoPhi, genEta, genPhi);
-		cout << "currentDeltaR: " << currentDeltaR << endl;
+		std::cout << "currentDeltaR: " << currentDeltaR << std::endl;
 		if(currentDeltaR < minDeltaR){
 			minDeltaR = currentDeltaR;
 			tempParentPDGid = iEvent->GT_ParentId->at(g);
 		}
 	}
-	cout << tempParentPDGid << endl;
+	std::cout << tempParentPDGid << std::endl;
 
 	if(minDeltaR < 0.25){ return tempParentPDGid; }
 	return 0;

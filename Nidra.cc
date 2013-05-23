@@ -1,12 +1,36 @@
 #include <unistd.h>
 
+#include "TTL/Branches.h"
+#include "TTL/MVABase.h"
 #include "Driver.cc"
 #include "Helper.h"
-#include "TTL/Analyzer.h"
-#include "TTL/TMVAEvaluator.h"
 
-#define Nidra_cxx
+#include "Nidra.h"
+
 using namespace std;
+
+void
+Nidra::Combine(ProPack& pack)
+{
+    pack.CombineAndRemoveMCbackgrounds(
+            {"TTbar_Hadronic", "TTbar_SemiLept", "TTbar_FullLept"},
+            "TTbar", "t + tbar", "t #bar{t}", 870);
+    pack.CombineAndRemoveMCbackgrounds(
+            {"ZplusJets_LowMass", "ZplusOneJet", "ZplusTwoJets", "ZplusThreeJets", "ZplusFourJets"},
+            "Zjets", "Z + jets", "Z + jets", 5);
+    pack.CombineAndRemoveMCbackgrounds(
+            {"WW", "WZ", "ZZ"},
+            "DiBoson", "DiBoson", "DiBoson", 3);
+    pack.CombineAndRemoveMCbackgrounds(
+            {"singleTopSch", "singleTopBarSch", "singleTopTch", "singleTopBarTch", "singleTopPlusW", "singleTopBarPlusW"},
+            "SingleTop", "Single t/tbar", "single t/#bar{t}", 4);
+    pack.CombineAndRemoveMCbackgrounds(
+            {"ttPlusW", "ttPlusZ"},
+            "ttWZ", "ttbar + W/Z", "t#bar{t} + W/Z", 880);
+    pack.CombineAndRemoveMCbackgrounds(
+            {"WplusOneJet", "WplusTwoJets", "WplusThreeJets", "WplusFourJets"},
+            "Wjets", "W + jets", "W + jets", 810);
+}
 
 void
 setup_mva(const string& prefix, const string& dir, const Config& cfg,
@@ -31,7 +55,7 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
     vector<string> vars = Helper::SplitString(cfg.pString(prefix + "variables"));
 
     int rank = signal == background ? 0 : 1;
-    TTL_TMVAEvaluator *mva = new TTL_TMVAEvaluator(basedir, vars, rank);
+    MVABase *mva = new TTL::MVABase(basedir, vars, rank);
 
     if (make_trees) {
         if (rank == 0)
@@ -40,22 +64,24 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
             mva->CreateTrainingSample(signal, background, proPack);
     }
 
-    if (train)
+    if (train) {
+        cout << "Training " << prefix << endl;
         mva->TrainMVA(setup);
+    }
 
     delete mva;
 
     for (const auto& m: setup) {
-        mva = new TTL_TMVAEvaluator(basedir, vars, rank);
+        mva = new TTL::MVABase(basedir, vars, rank);
         if (!mva->BookMVA(m.first)) {
             delete mva;
             mva = 0;
         }
 
         if (rank == 0)
-            TTL_TMVAEvaluator::gComboMVA[m.first] = mva;
+            MVABase::gComboMVA[m.first] = mva;
         else
-            TTL_TMVAEvaluator::gMVA[m.first] = mva;
+            MVABase::gMVA[m.first] = mva;
     }
 }
 
@@ -70,7 +96,7 @@ int
 main(int argc, char **argv) {
     bool all = false;
     bool train_combo_mva = false;
-    bool analyze = false;
+    bool do_analyze = false;
     bool crunch = false;
     bool prep_train = false;
     bool prep_plots = false;
@@ -87,7 +113,7 @@ main(int argc, char **argv) {
                 train_combo_mva = true;
                 break;
             case 'a':
-                analyze = true;
+                do_analyze = true;
                 break;
             case 'A':
                 all = true;
@@ -141,14 +167,17 @@ main(int argc, char **argv) {
     // fist copy config, then analyze
     BackUpConfigFile(argv[0], GetParam("webDir"));
 
-    if (analyze or all) {
-        Analyze();
+    if (do_analyze or all) {
+        for (auto& p: *(proPack->GetPContainer()->GetContainer())) {
+            Nidra::Analyze<TTLBranches>(p.second, cfg.pString("cutsToApply"),
+                    cfg.pString("treeName"), atoi(cfg.pString("maxEvents").c_str()));
+        }
+        rootFileMaker.MakeFile(proPack, params["process_file"]);
+        DistributeProcesses();
     } else {
         // copy current config to output directory
         BackUpConfigFile(argv[0], GetParam("webDir"));
     }
-
-    DistributeProcesses();
 
     if (proPack)
         delete proPack;
@@ -162,6 +191,7 @@ main(int argc, char **argv) {
     setup_mva("MVA", "tmva", cfg, proPack, prep_train || all, train || all);
 
     if (prep_plots or all) {
+        DistributeProcesses();
         PreparePlots();
         CombineProcesses();
     }

@@ -6,7 +6,6 @@
 
 #include "boost/filesystem/operations.hpp"
 
-#define Driver_cxx
 using namespace std;
 
 // Perform some initialization tasks
@@ -59,9 +58,13 @@ const Config ReadConfig(string iPath){
 	SetParam(theConfig, "cutsToApply");
 	SetParam(theConfig, "osls");
 	SetParam(theConfig, "xLegend");
+	SetParam(theConfig, "x1Legend");
+	SetParam(theConfig, "x2Legend");
 	SetParam(theConfig, "yLegend");
 	SetParam(theConfig, "dxLegend");
 	SetParam(theConfig, "dyLegend");
+    SetParam(theConfig, "colLegend");
+    SetParam(theConfig, "signalScale");
 	SetParam(theConfig, "showBackgroundError");
 	SetParam(theConfig, "stackSignals");
 	SetParam(theConfig, "doRatioPlot");
@@ -86,14 +89,6 @@ const Config ReadConfig(string iPath){
 	// Set some additional internal parameters
 	SetParam("process_file",string(GetParam("bigDir")+"nidra_ditau.root"));
 
-    if (params["comboSelectorMVAdir"].length() == 0) {
-        params["comboSelectorMVAdir"] = params["bigDir"] + "/combos/";
-    }
-    ReMakeDir(params["comboSelectorMVAdir"]);
-	SetParam("comboSelectorMVAweights",string(GetParam("comboSelectorMVAdir") + "/TMVAClassification_" + GetParam("comboSelectorMVAmethod") + ".weights.xml"));
-	SetParam("comboSelector_file",string(GetParam("bigDir")+"/tmva.root"));
-	SetParam("comboSelector_sample",string(GetParam("bigDir")+"/comboSelector_trainingSample.root"));
-
 	SetParam("goodEvents_file",string(GetParam("bigDir")+"goodEvents.root"));
 	SetParam("stacks_output",string(GetParam("webDir")+"stacks/"));
 	SetParam("stamps_output",string(GetParam("webDir")+"stamps/"));
@@ -105,26 +100,6 @@ const Config ReadConfig(string iPath){
 	SetParam("stackedHisto_file",string(GetParam("bigDir")+"nidra_stackedHistos.root"));
 
     return theConfig;
-}
-
-void Analyze(){
-	NewSection(stopwatch);
-	Print(CYAN,">>>>>>>> Analyzing events...");
-
-	// Set up analyzer with global paramaters
-	Analyzer* analyzer = NULL;
-	
-	string channel = GetParam("channel");
-	if(channel == "TTL"){	analyzer = new TTLAnalyzer(params); }
-	else{	assert(GetParam("channel") == "TTL");		}
-
-	// Pass topopack to analyzer to analyze
-	analyzer->AnalyzeAll(*proPack);
-
-	// Save analyzed ProPack to a root file
-	rootFileMaker.MakeFile(proPack, GetParam("process_file"));
-	delete analyzer; analyzer = NULL;
-	Print(GREEN," done!");
 }
 
 void DistributeProcesses(){
@@ -333,7 +308,6 @@ void NewSection(TStopwatch & iStopWatch){
 
 
 void BuildProPack(string iPath){
-
 	Config theConfig(iPath);
 
 	// Build the topopack from the info in the config file
@@ -399,12 +373,3 @@ void BuildProPack(string iPath){
     if (topocfg != NULL)
         delete topocfg;
 }
-
-bool const IsStringThere(string iNeedle, string iHaystack){
-	string haystack = iHaystack;
-	string needle = iNeedle;
-	bool const result = ((haystack.find(needle) < haystack.length()));
-	return result;
-}
-
-

@@ -8,66 +8,43 @@
 #ifndef Branches_h
 #define Branches_h
 
-#include <TROOT.h>
-#include <math.h>
 #include <map>
+#include <string>
 #include <vector>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <utility>
-#include <stdlib.h>
+
 #include "TChain.h"
-#include "TFile.h"
 
-
-
-using namespace std;
+#include "CutFlow.h"
 
 class Branches {
-
-	public:
-
 	protected:
-		map<string,string>		params;
+        void SetUp(std::map<std::string,std::string> const &, std::vector<std::string> const &);
+        virtual void Null() = 0;
+        virtual void Delete() = 0;
+        virtual void Clear() = 0;
+        virtual void SetBranchAddresses() = 0;
+        virtual void SetChain(TChain*);
+
+        std::map<std::string,std::string>		params;
 		TChain* fChain;
-		Int_t	fCurrent;
-
-	private:
-		int					bestCombo;
-
-
-	protected:
-		void				SetUp(map<string,string> const &, vector<string> const &);
-		virtual void		Null();
-		virtual void		Delete();
-		virtual void		Clear();
-		virtual Long64_t	LoadTree(Long64_t entry);
-		virtual void		SetBranchAddresses();
-		virtual void		SetChain(TChain*);
-        virtual bool IsGoodGenMatch(const int&) const = 0;
-
-	public:
-		void	Init();
-		virtual void	GetEntry(double);
-		Long64_t GetEntries();
 
 	public:
 		Branches();
-		virtual ~Branches();
-	
+        Branches(const std::string&, const std::vector<std::string>&);
+		~Branches();
+
+		void	Init();
+		virtual void	GetEntry(double);
+		Long64_t GetEntries();
+        virtual unsigned int GetNCombos() = 0;
+        virtual bool IsGoodGenMatch(const int&) const = 0;
+        virtual void RegisterCuts(CutFlow&) = 0;
+
 		void				SetBestCombo(int);
 		unsigned int const	GetBestCombo() const;
+
+    private:
+        int bestCombo;
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

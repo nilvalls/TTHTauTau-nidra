@@ -15,7 +15,7 @@ CutFlow::Cut::Cut(const string n, CutFlow::Cut::val_f f, const int r, const floa
 }
 
 bool
-CutFlow::Cut::Check(TTLBranches *b, const int idx, const bool bypass)
+CutFlow::Cut::Check(Branches *b, const int idx, const bool bypass)
 {
     float val = GetVal(b, idx);
     // if (rank == 1)
@@ -114,7 +114,7 @@ void CutFlow::RegisterCut(string const name, int const rank,  double const iEven
         cerr << "ERROR: Cut named \"" << name << "\" is trying to be registered with rank " << rank << " but rank can only be 0 or 2." << endl;
         exit(1);
     }
-    Cut new_cut(name, [](TTLBranches *& b, const int& idx) -> float { return 0.; },
+    Cut new_cut(name, [](Branches *b, const int& idx) -> float { return 0.; },
             rank, 0, 0, iEventsForSignal);
     cuts.push_back(new_cut);
     name2idx[name] = cuts.size() - 1;
@@ -148,7 +148,7 @@ CutFlow::SetCutCounts(string const iName, double const iEventsForSignal)
 }
 
 bool
-CutFlow::CheckCuts(TTLBranches *& b, const int& idx, const bool bypass)
+CutFlow::CheckCuts(Branches *b, const int& idx, const bool bypass)
 {
     for (auto& c: cuts)
         if (c.rank == 1 && !c.Check(b, idx, bypass))

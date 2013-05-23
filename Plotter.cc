@@ -10,7 +10,7 @@
 #include "TPad.h"
 #include "TSystem.h"
 
-#include "TTL/TMVAEvaluator.h"
+#include "TTL/MVABase.h"
 #include "RawHistoSaver.h"
 
 #include "Plotter.h"
@@ -80,7 +80,7 @@ Plotter::MakePlots(Process* iProcess)
 	// Instantiante Branches to read events more easily
 	Branches* event = NULL;
 	string channel = params["channel"];
-	if (channel == "TTL"){ event = new TTLBranches(params, iProcess->GetNtuplePaths()); }
+	if (channel == "TTL"){ event = new TTLBranches(params["treeName"], iProcess->GetNtuplePaths()); }
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
@@ -118,9 +118,8 @@ Plotter::MakePlots(Process* iProcess)
             if (params["selectComboBy"] == "mva") {
                 TTLBranches *e = dynamic_cast<TTLBranches*>(event);
                 stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
-                        // return TTL_TMVAEvaluator::gComboMVA->Evaluate(e, a) > TTL_TMVAEvaluator::gComboMVA->Evaluate(e, b);
-                        return TTL_TMVAEvaluator::gComboMVA["BDT"]->Evaluate(e, a) >
-                            TTL_TMVAEvaluator::gComboMVA["BDT"]->Evaluate(e, b);
+                        return MVABase::gComboMVA["BDT"]->Evaluate(e, a) >
+                            MVABase::gComboMVA["BDT"]->Evaluate(e, b);
                         });
             } else if (params["selectComboBy"] == "iso") {
                 TTLBranches *e = dynamic_cast<TTLBranches*>(event);

@@ -1,30 +1,26 @@
-#include <fstream>
+#include "TFile.h"
 
-#include "TMVAEvaluator.h"
 #include "GenHelper.h"
-
 #include "Branches.h"
 
 using namespace std;
 
 // Default constructor
-TTLBranches::TTLBranches() : Branches(), conesize(.25), jetIndexCacheCombo(-1) {}
-
-TTLBranches::TTLBranches(
-      map<string,string> const & iParams,
-      vector<string> const & iPath) : conesize(.25), jetIndexCacheCombo(-1) {
-   SetUp(iParams, iPath);
+TTLBranches::TTLBranches() : Branches(), conesize(.25), jetIndexCacheCombo(-1) {
+    Null();
 }
 
-// Default destructor
-TTLBranches::~TTLBranches(){
-
-	if(fChain != NULL){ fChain->ResetBranchAddresses(); }
-	if(fChain != NULL){ delete (fChain->GetCurrentFile()); }
-	delete fChain; fChain = NULL;
-
-	Delete();
+TTLBranches::TTLBranches(const std::string& tree_name, const vector<string>& paths) :
+        Branches(tree_name, paths), conesize(.25), jetIndexCacheCombo(-1)
+{
 	Null();
+	SetBranchAddresses();
+}
+
+TTLBranches::~TTLBranches()
+{
+    Delete();
+    Null();
 }
 
 void TTLBranches::Null(){

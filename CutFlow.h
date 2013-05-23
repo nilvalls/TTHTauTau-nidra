@@ -1,13 +1,13 @@
 #ifndef CutFlow_h
 #define CutFlow_h
 
-#include <iostream>
-
 #include <climits>
+#include <iostream>
 #include <map>
+#include <string>
 #include <vector>
 
-#include "TTL/Branches.h"
+class Branches;
 
 class CutFlow {
 	private:
@@ -15,11 +15,8 @@ class CutFlow {
         std::map< std::string, std::pair<float, float> > cuts_to_consider;
 
 		bool eventForSignalPassed;
-
 		bool comboIsForSignal;
-
 		bool signalComboLocked;
-
 		int bestComboForSignal;
 
 		bool OutOfRange(float, float, float);
@@ -27,11 +24,9 @@ class CutFlow {
 //*/
 	public :
         struct Cut {
-            // typedef decltype([](TTLBranches*, const int) -> float { return 0.; }) val_f;
-            // typedef std::function<float (TTLBranches*, const int&)> val_f;
-            typedef float (*val_f)(TTLBranches*&, const int&);
+            typedef float (*val_f)(Branches*, const int&);
 
-            string name;
+            std::string name;
             val_f GetVal;
             int rank;
             float min;
@@ -41,50 +36,50 @@ class CutFlow {
             bool currentSignalResult;
             bool skip;
 
-            bool Check(TTLBranches *b, const int, const bool bypass=false);
+            bool Check(Branches*, const int, const bool bypass=false);
 
-            Cut(const string n="", val_f=0, const int r=0, const float mn=0., const float mx=0.,
+            Cut(const std::string n="", val_f=0, const int r=0, const float mn=0., const float mx=0.,
                     const double sig=0., bool bypass=false);
 
             ClassDef(CutFlow::Cut, 1);
         };
 
-        inline vector<CutFlow::Cut> GetCuts() const { return cuts; };
+        inline std::vector<CutFlow::Cut> GetCuts() const { return cuts; };
 
 		// Default constructor
 		CutFlow();
 		CutFlow(CutFlow const &);
-		CutFlow(string);
+		CutFlow(std::string);
 		virtual ~CutFlow();
 
 		void Reset();
 		int const size() const;
 
-        void RegisterCut(string const, int const, double const sig=0.);
-        void RegisterCut(const string, const int, Cut::val_f, bool bypass=false, const double sig=0.);
-		void RegisterCutFromLast(string const, int const, double const);
-		void SetCutCounts(string const, double const);
+        void RegisterCut(std::string const, int const, double const sig=0.);
+        void RegisterCut(const std::string, const int, Cut::val_f, bool bypass=false, const double sig=0.);
+		void RegisterCutFromLast(std::string const, int const, double const);
+		void SetCutCounts(std::string const, double const);
 
-        bool CheckCuts(TTLBranches*&, const int&, const bool bypass=false);
+        bool CheckCuts(Branches*, const int&, const bool bypass=false);
 		void StartOfEvent();
 		void EndOfEvent();
 
-		int const					GetCutRank(string const) const;
-		int const					GetCutPosition(string const) const;
-		float const					GetPassedEventsForSignal(string const) const;
-		float const					GetRelEffForSignal(string const) const;
-		float const					GetCumEffForSignal(string const) const;
-		string const				GetCutsToApply() const;
+		int const					GetCutRank(std::string const) const;
+		int const					GetCutPosition(std::string const) const;
+		float const					GetPassedEventsForSignal(std::string const) const;
+		float const					GetRelEffForSignal(std::string const) const;
+		float const					GetCumEffForSignal(std::string const) const;
+        std::string const			GetCutsToApply() const;
         inline std::map< std::string, std::pair<float, float> > GetCutsToConsider() const { return cuts_to_consider; };
-		string const				GetLastCut() const;
+        std::string const			GetLastCut() const;
 		double const				GetLastCountForSignal() const;
 		void						Add(CutFlow const &, float const iFactor=1.0);
 		void						BuildNormalizedCutFlow(CutFlow const *);
         void Zero();
 
     private:
-        vector<CutFlow::Cut> cuts;
-        map<string ,int> name2idx;
+        std::vector<CutFlow::Cut> cuts;
+        std::map<std::string ,int> name2idx;
 
 		ClassDef(CutFlow, 1);
 };

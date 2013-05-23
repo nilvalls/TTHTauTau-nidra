@@ -54,7 +54,7 @@ Config::Config(string configFile, char** envp) {
 				Config* newGroup = new Config(name, debugInfo);
 				groupStack.front()->groups[name] = newGroup;
 				groupStack.push_front(newGroup);
-				groupsVec.push_back(make_pair<string,Config*>(name, newGroup));
+				groupsVec.push_back(make_pair(name, newGroup));
 			} else {
 				for (list<Config*>::reverse_iterator i = groupStack.rbegin(); i != groupStack.rend(); ++i) {
 					(*i)->symbolExpand(value);
