@@ -1,10 +1,22 @@
 #!/usr/bin/env python
+
 import ROOT
 import copy
 
+clone = {
+        # 'ttH115': ['ttH110'],
+        # 'ttH130': ['ttH135', 'ttH140'],
+        }
+
 samples = {
         'data_obs': ['Collisions'],
+        'ttH110': ['TTHTauTau_110'],
+        'ttH115': ['TTHTauTau_115'],
+        'ttH120': ['TTHTauTau_120'],
         'ttH125': ['TTHTauTau_125'],
+        'ttH130': ['TTHTauTau_130'],
+        'ttH135': ['TTHTauTau_135'],
+        'ttH140': ['TTHTauTau_140'],
         'diboson': ['WW','WZ','ZZ'],
         'singlet': ['singleTopSch', 'singleTopBarSch', 'singleTopTch', 'singleTopBarTch', 'singleTopPlusW', 'singleTopBarPlusW'],
         'ttbar': ['TTbar_Hadronic', 'TTbar_SemiLept', 'TTbar_FullLept'],
@@ -31,7 +43,7 @@ def copy_histos(infile, outfile, invar, outvar, mod_string=None):
         if key in mod_string:
             mod_string = mod_string.replace(key, val)
 
-    for (new_name, ss) in samples.items():
+    for (outsample, ss) in samples.items():
         try:
             base_histo = infile.Get(ss[0] + '/' + invar)
 
@@ -43,10 +55,18 @@ def copy_histos(infile, outfile, invar, outvar, mod_string=None):
                     print "Could not find " + s
                     pass
 
-            new_name += '_' + outvar + '_' + mod_string
+            new_name = outsample + '_' + outvar + '_' + mod_string
             base_histo.SetName(new_name)
             outfile.WriteObject(base_histo, new_name)
             print "Saved", new_name, "with", base_histo.Integral(), "events"
+
+            if outsample in clone:
+                for clonesample in clone[outsample]:
+                    name = new_name.replace(outsample, clonesample)
+                    base_histo.SetName(name)
+                    outfile.WriteObject(base_histo, name)
+                    print "Saved", name, "with", base_histo.Integral(), "events"
+
         except:
             print "Could not find " + ss[0]
             pass
@@ -54,42 +74,74 @@ def copy_histos(infile, outfile, invar, outvar, mod_string=None):
 if __name__ == "__main__":
     ROOT.gROOT.SetBatch()
 
+    import glob
     import optparse
     import os.path
+    import re
+    import sys
 
     parser = optparse.OptionParser(usage="%prog [options] path")
-    parser.add_option("-i", "--input-variable", dest="invar",
-            help="use VAR as input variable", metavar="VAR",
-            default="OS/VisibleMass_TT")
-    parser.add_option("-o", "--output-variable", dest="outvar",
-            help="use VAR as output variable", metavar="VAR",
-            default="VisMass")
-    parser.add_option("-j", "--jets", dest="jets",
-            help="input has NUM jets", metavar="NUM",
-            default=4)
-    parser.add_option("-t", "--tags", dest="tags",
-            help="input has NUM tags", metavar="NUM",
-            default=2)
+    parser.add_option("-c", "--category", dest="cat",
+            help="input is classified as category CAT",
+            metavar="CAT", default=None)
+    parser.add_option("-v", "--variables", dest="vars",
+            help="use VARS to transform variables.  This is a "
+            "comma-separated string, containing invar=outvar pairs.",
+            metavar="VARS", default="OS/VisibleMass_TT=VisMass")
+    parser.add_option("-o", "--output-file", dest="ofile",
+            help="use FILE as output file", metavar="FILE",
+            default="taus.root")
+    parser.add_option("-p", "--pattern", dest="pattern",
+            help="use PATTERN to identify category and systematic "
+            "(requires two groups)", metavar="PATTERN",
+            default=r"([0-9](?:-[0-9]|\+)?n?b_[0-9](?:-[0-9]|\+)?n?b)(?:_(.*(?:[Uu]p|[Dd]own)))?")
     parser.add_option("-s", "--systematics", dest="sys",
             help="systematic of type SYS", metavar="SYS",
             default=None)
     (opts, args) = parser.parse_args()
 
-    if len(args) != 1:
+    if len(args) < 1:
         parser.error("need to specify input path")
 
-    if opts.sys is not None:
-        sys = "_" + opts.sys.replace("up", "Up").replace("down", "Down")
-        for (key, val) in sys_rename.items():
-            if key in sys:
-                sys = sys.replace(key, val)
-    else:
-        sys = ""
+    if len(args) != 1 and opts.cat or opts.sys:
+        parser.error("can only specify category and/or systematics for one input directory")
 
-    mod_string = 'TTL_j{j}_t{t}{s}'.format(j=opts.jets, t=opts.tags, s=opts.sys)
+    vars = map(lambda s: s.split("="), opts.vars.split(","))
 
-    infile = ROOT.TFile(os.path.join(args[0], 'nidra_rawHistos.root'))
-    outfile = ROOT.TFile(mod_string + '.root', 'RECREATE')
-    outfile.cd()
+    reg = re.compile(opts.pattern)
 
-    copy_histos(infile, outfile, opts.invar, opts.outvar, opts.sys)
+    outfile = ROOT.TFile(opts.ofile, 'RECREATE')
+    for f in args:
+        m = reg.search(f)
+        if not m and not opts.cat:
+            sys.stderr.write("file {f} does not match pattern!\n".format(f=f))
+            continue
+
+        print "Processing", f
+
+        if opts.cat is not None:
+            cat = opts.cat
+        else:
+            cat = "TTL_" + m.group(1)
+
+        if opts.sys is not None:
+            sys = opts.sys
+        elif m.group(2):
+            sys = m.group(2)
+        else:
+            sys = None
+
+        if sys:
+            sys = "_" + sys.replace("up", "Up").replace("down", "Down")
+            for (key, val) in sys_rename.items():
+                if key in sys:
+                    sys = sys.replace(key, val)
+        else:
+            sys = ""
+
+        mod_string = '{c}{s}'.format(c=cat, s=sys)
+
+        infile = ROOT.TFile(os.path.join(f, 'nidra_rawHistos.root'))
+        outfile.cd()
+        for (ivar, ovar) in vars:
+            copy_histos(infile, outfile, ivar, ovar, mod_string)
