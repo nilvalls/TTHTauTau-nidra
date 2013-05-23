@@ -8,6 +8,7 @@
 
 require 'erb'
 require 'ftools'
+require 'optparse'
 
 template = ERB.new <<END_OF_TEMPLATE
 <html>
@@ -17,10 +18,31 @@ template = ERB.new <<END_OF_TEMPLATE
       a { color: #000; text-decoration: none; }
       body { background-color: #002b36; }
       img { margin-bottom: 5px; }
-      .card {
-        width: 400px; float: left; margin: .5em; 
-        background-color: #FFF; border-radius: 5px;
+      table {
+        border-spacing: .5em;
+        cell-spacing: .5em;
       }
+      table div.rotated {
+        position: relative;
+        -moz-transform: rotate(-90deg);
+        -webkit-transform: rotate(-90deg); 
+        text-align: left;
+        writing-mode:tb-rl;
+        white-space: nowrap;
+      }
+      table td, table th {
+        background-color: #fff;
+        border: 5px solid #fff; border-radius: 5px;
+        text-align: center;
+        vertical align: bottom;
+        #  padding: 5px;
+      }
+      .card {
+        width: <%=@matrix ? 100 : 300%>px; margin: .5em; 
+        float: left;
+        background-color: #fff; border-radius: 5px;
+      }
+      .diag { border: 5px solid #F00; }
       .log { display: inline; }
       .norm { display: inline; }
       .opt {
@@ -30,7 +52,7 @@ template = ERB.new <<END_OF_TEMPLATE
         border-bottom: 2px solid #002b36; border-radius: 0px;
       }
       .pic {
-        width: 400px;
+        width: <%=@matrix ? 100 : 300%>px; margin: .5em; 
       }
       p.caption {
         font-family: sans-serif; font-size: 15pt; font-weight: bold;
@@ -39,11 +61,45 @@ template = ERB.new <<END_OF_TEMPLATE
     </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script>
+      (function ($) {
+        $.fn.rotateTableCellContent = function (options) {
+        /*
+        Version 1.0
+        7/2011
+        Written by David Votrubec (davidjs.com) and
+        Michal Tehnik (@Mictech) for ST-Software.com
+        */
+       
+              var cssClass = ((options) ? options.className : false) || "vertical";
+       
+              var cellsToRotate = $('.' + cssClass, this);
+       
+              var betterCells = [];
+              cellsToRotate.each(function () {
+                  var cell = $(this)
+                , newText = cell.text()
+                , height = cell.height()
+                , width = cell.width()
+                , newDiv = $('<div>', { height: width, width: height })
+                , newInnerDiv = $('<div>', { text: newText, 'class': 'rotated' });
+
+                  newInnerDiv.css('-moz-transform-origin', (width / 2) + 'px ' + (width / 2) + 'px');
+                  newDiv.append(newInnerDiv);
+       
+                  betterCells.push(newDiv);
+              });
+       
+              cellsToRotate.each(function (i) {
+                  $(this).html(betterCells[i]);
+              });
+          };
+      })(jQuery);
+ 
       $(document).ready(function(){
-        for (var i = 1; i <= 5; ++i) {
-          $("<option value='" + i + "'>" + i + "00px</option>").appendTo("#tsize");
+        for (var i = 1; i <= 5; i += .5) {
+          $("<option value='" + i + "'>" + i * 100 + "px</option>").appendTo("#tsize");
         }
-        $("#tsize").val(4);
+        $("#tsize").val(<%=@matrix ? 1 : 3%>);
         $("#tsize").change(function(){
           $(".pic").css({"width": "" + $(this).val() * 100 + "px"});
           $(".caption").css({"font-size": "" + 4 * $(this).val() + "pt"});
@@ -62,6 +118,7 @@ template = ERB.new <<END_OF_TEMPLATE
             $(".norm").hide();
           }
         });
+        $('.matrix').rotateTableCellContent({className: 'rot'});
       })
     </script>
   </head>
@@ -73,23 +130,61 @@ template = ERB.new <<END_OF_TEMPLATE
       <label>Size:&nbsp;<select id='tsize'></select></label>
     </div>
     <p style="height:2em"></p>
-    <%Dir.entries(@arg).sort.each do |f|
+    <%
+      last_y_cut = nil
+      last_x_cut = nil
+      if @matrix
+        fs = Dir.entries(@dir).sort.select { |i| i =~ /_log\.png$/ }
+        fs = fs[0,Math.sqrt(fs.size).round].collect { |i| i.split('__')[1] }
+        %> <table class="matrix"> <tr> <td colspan="2" rowspan="2"> <td colspan="<%=fs.size%>">plotted</td> </tr><tr> <%
+        fs.each do |i|
+          %><td><%=i%></td><%
+        end
+        %></tr><tr><td rowspan="<%=fs.size%>"><span class="rot">removed</span><%
+      end
+      Dir.entries(@dir).sort.each do |f|
         next if /\.png$/ !~ f
-        c = (/_log\./ =~ f) ? "log" : "norm"%>
+        y_cut, x_cut = f.split('__')
+        if @matrix and x_cut != last_x_cut
+          %> </td> <%
+        end
+        if @matrix and y_cut != last_y_cut
+          unless last_y_cut.nil?
+            %></tr><tr><%
+          end
+          %><td> <span class="rot"><%=y_cut%></span> </td><%
+          last_y_cut = y_cut
+        end
+        if @matrix and x_cut != last_x_cut
+          m = 'class="diag"' if x_cut == y_cut
+          %> <td <%=m%>> <%
+          last_x_cut = x_cut
+        end
+        c = (/_log\./ =~ f) ? "log" : "norm"
+        if @matrix%>
+          <a href=<%=f%>><img src="<%=f%>" class="pic <%=c%>"/></a>
+      <%else%>
       <a href=<%=f%>>
         <div class="<%=c%> card pic">
           <p class="caption"><%=f%></p>
           <img src="<%=f%>" class="pic"/>
         </div>
       </a>
+      <%end
+      end
+      if @matrix%>
+      </td>
+      </tr>
+      </table>
     <%end%>
   </body>
 </html>
 END_OF_TEMPLATE
 
 class Arg
-  def initialize(arg)
-    @arg = arg
+  def initialize(dir, matrix=false)
+    @dir = dir
+    @matrix = matrix
   end
 
   def get_binding
@@ -97,16 +192,24 @@ class Arg
   end
 end
 
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "usage: mk_index [options]"
+  opts.on("-m", "--matrix", "Create a N-1 matrix") { |v|
+    options[:matrix] = v
+  }
+end.parse!
+
 args = ARGV.length == 0 ? ["."] : ARGV
-args.each {|dir|
+args.each do |dir|
   next unless File.directory?(dir)
   begin
     fn = File.catname("index.html", dir)
     f = open(fn, "w")
-    f.write(template.result(binding=Arg.new(dir).get_binding))
+    f.write(template.result(binding=Arg.new(dir, options[:matrix]).get_binding))
     f.close()
     puts "created #{fn}"
   rescue Exception => e
     puts "can't process #{dir}: #{e.message}"
   end
-}
+end
