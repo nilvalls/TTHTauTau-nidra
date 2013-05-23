@@ -10,22 +10,21 @@ if len(sys.argv) == 1:
     sys.exit(1)
 
 # match filename to extract no. of btags and non-tags
-fpattern = re.compile(r'(\d+\+?)nb_(\d+)b')
-altfpattern = re.compile(r'(\d+)b_(\d+\+?)nb')
+nbtags = re.compile(r'(\d+(?:-\d|\+)?)nb')
+btags = re.compile(r'(\d+(?:-\d|\+)?)b')
 
 proc_map = None
 proc_order = None
 
 for f in sys.argv[1:]:
-    m = fpattern.search(f)
-    if not m:
-        m = altfpattern.search(f)
-        if not m:
-            sys.stderr('File does not match expected pattern: {f}\n'.format(f=f))
-            sys.exit(1)
-        cat = list(reversed(m.groups()))
-    else:
-        cat = m.groups()
+    m_nb = nbtags.search(f)
+    m_b = btags.search(f)
+
+    if not m_nb or not m_b:
+        sys.stderr('File does not match expected pattern: {f}\n'.format(f=f))
+        sys.exit(1)
+
+    cat = (m_nb.group(1), m_b.group(1))
 
     lines = map(str.strip, open(f).readlines())
     procs = lines[0].split(',')[1:]
