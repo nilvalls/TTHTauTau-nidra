@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import os
+import ROOT as r
+import sys
+
+f = r.TFile(sys.argv[1])
+stub = sys.argv[2]
+
+skip = []
+if stub.startswith("TTL"):
+    skip = ["TLL", "TT"]
+
+clear = open(stub + "_clear.h", "w")
+decl = open(stub + "_declarations.h", "w")
+delt = open(stub + "_delete.h", "w")
+null = open(stub + "_null.h", "w")
+addr = open(stub + "_setBranchAddress.h", "w")
+
+tpl = f.Get("makeNtuple/TTbarHTauTau")
+for bn in tpl.GetListOfBranches():
+    name = bn.GetName()
+    cls = bn.GetClassName()
+    ptr = False
+
+    start = name.split("_", 1)[0]
+    if start in skip:
+        continue
+
+    if cls.startswith("vector"):
+        cls = "std::" + cls + "*"
+        ptr = True
+    elif cls == "":
+        cls = tpl.GetLeaf(name).GetTypeName()
+
+    if ptr:
+        clear.write("    {n}->clear();\n".format(n=name))
+        delt.write("    delete {n};\n".format(n=name))
+    else:
+        clear.write("    {n} = 0;\n".format(n=name))
+
+    decl.write("    {c} {n};\n".format(c=cls, n=name))
+    null.write("    {n} = 0;\n".format(n=name))
+    addr.write("    fChain->SetBranchAddress(\"{n}\", &{n});\n".format(n=name))
