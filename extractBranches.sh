@@ -93,7 +93,7 @@ function getDeclare(){
 	typeOfBranch=`getType "$branch"`
 	vector=`echo $typeOfBranch | grep "vector<"`
 	if [ ! -z "$vector" ]; then
-		echo "	$typeOfBranch* $branch;"
+		echo "	std::$typeOfBranch* $branch;"
 	else
 		echo "	$typeOfBranch $branch;"
 	fi
