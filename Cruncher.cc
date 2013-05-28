@@ -31,6 +31,11 @@ Cruncher::Cruncher(map<string,string>const & iParams){
 	proPack = ((ProPack*)file->Get((params["propack_name"]).c_str()));
 	processes = proPack->GetProcesses();
 
+    for (auto& p: *proPack->GetMCbackgrounds())
+        p.SetPlot(params);
+    for (auto& p: *proPack->GetSignals())
+        p.SetPlot(params);
+    proPack->GetCollisions()->SetPlot(params);
 }
 
 // Default destructor
