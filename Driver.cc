@@ -79,6 +79,8 @@ const Config ReadConfig(string iPath){
 	SetParam(theConfig, "tauIdEffSys");
 	SetParam(theConfig, "saveStackedHistos");
 	SetParam(theConfig, "systematicsFile");
+	
+	SetParam(theConfig, "MVAvariables");
 
 	// Print out some info about the output dirs, etc
 	cout << "\n\t"; PrintURL(GetParam("webDir"));
@@ -127,6 +129,39 @@ void DistributeProcesses(){
 
 	file->Close();
 	delete file;
+
+	Print(GREEN," done!");
+}
+
+void MakeTreeForCorrelations(){
+	NewSection(stopwatch);
+	Print(CYAN,">>>>>>>> Making trees for correlation studies...");
+
+	// Open up file with proPack
+	Long_t *id,*size,*flags,*mt; id=NULL; size=NULL;flags=NULL;mt=NULL;
+	bool badFile = gSystem->GetPathInfo(GetParam("process_file").c_str(),id,size,flags,mt);
+	if(badFile){ cerr << "ERROR: trying to fill plots but proPack file does not exist. Please run the event analysis first" << endl; exit(1); }
+	TFile* file = new TFile(GetParam("process_file").c_str(), "READ");
+	file->cd();
+	proPack = (ProPack*)file->Get(GetParam("propack_name").c_str());
+
+	// Set up fake MVA to make trees for correlation plots
+	string dir = GetParam("webDir") + "/summaryTrees/";
+	ReMakeDir(dir);
+    vector<string> vars = Helper::SplitString(GetParam("MVAvariables"));
+    MVABase *fakeMVA = new TTL::MVABase(dir, vars, 0);
+
+	// Set up MVA evaluator to get event score
+	MVABase *mvaEvaluator = NULL;
+		 if(MVABase::gMVA.find("CFMlpANN")	!= MVABase::gMVA.end()){ mvaEvaluator = MVABase::gMVA["CFMlpANN"];	}
+	else if(MVABase::gMVA.find("BDTG")		!= MVABase::gMVA.end()){ mvaEvaluator = MVABase::gMVA["BDTG"];		}
+
+	// Loop over all processes and create a file/tree for each
+	for (const auto &p: (proPack->GetPContainer()->GetProcesses())){	fakeMVA->CreateCorrelationsTree(p->GetShortName(), proPack, mvaEvaluator); }
+
+	delete fakeMVA, file;
+
+	/****/
 
 	Print(GREEN," done!");
 }

@@ -41,6 +41,7 @@ MVABase::MVABase(const std::string& dir,
     log_filename = basedir + "/tmva.log";
     output_filename = basedir + "/tmva.root";
     sample_filename = basedir + "/sample.root";
+    correlations_filename = basedir + "/summaryTree_";
 }
 
 bool
@@ -57,6 +58,22 @@ MVABase::BookMVA(const string& method)
         return true;
     }
     return false;
+}
+
+void
+MVABase::CreateCorrelationsTree(const std::string& sample,
+        ProPack* propack,
+		MVABase* iMVA
+		)
+{
+	cout << "\tProcessing '" << sample << "'..." << endl;
+    TFile outfile((correlations_filename + sample + ".root").c_str(), "RECREATE");
+    outfile.cd();
+
+    TTree* tree = new TTree("summaryTree","summaryTree");
+    FillCorrelationsTree(tree, propack->GetProcess(sample), iMVA);
+    tree->Write();
+
 }
 
 void
@@ -107,6 +124,24 @@ MVABase::CreateTrainingSample(const std::string& signal, const std::string& back
         cout << "\tBackground tree contains " << backgroundTree->GetEntries() << " events." << endl;
 
         delete backgroundTree;
+    }
+}
+
+
+void
+MVABase::FillCorrelationsTree(TTree *tree, const Process *process, MVABase *iMVA)
+{
+    SetupCorrelationsVariables(tree);
+
+    Branches *event = GetBranches(process);
+
+    auto goodEventsForSignal = process->GetGoodEventsForSignal();
+    for (unsigned int i = 0; i < goodEventsForSignal.size(); i++) {
+        event->GetEntry(goodEventsForSignal.at(i).entry);
+        int combo = goodEventsForSignal[i].combos[0];
+        FillCorrelationsVariables(event, combo, process, iMVA);
+
+        tree->Fill();
     }
 }
 

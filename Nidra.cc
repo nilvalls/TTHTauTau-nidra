@@ -58,10 +58,11 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
     MVABase *mva = new TTL::MVABase(basedir, vars, rank);
 
     if (make_trees) {
-        if (rank == 0)
-            mva->CreateTrainingSample(signal, proPack);
-        else
-            mva->CreateTrainingSample(signal, background, proPack);
+		if (rank == 0){
+			mva->CreateTrainingSample(signal, proPack);
+		}else{
+			mva->CreateTrainingSample(signal, background, proPack);
+		}
     }
 
     if (train) {
@@ -88,7 +89,7 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
 void
 usage()
 {
-    cerr << "usage: nidra [-acAkmnopPtT] configfile" << endl;
+    cerr << "usage: nidra [-acArkmnopPtT] configfile" << endl;
     exit(1);
 }
 
@@ -99,6 +100,7 @@ main(int argc, char **argv) {
     bool do_analyze = false;
     bool crunch = false;
     bool prep_train = false;
+    bool create_corr = false;
     bool prep_plots = false;
     bool train = false;
     bool stack = false;
@@ -107,7 +109,7 @@ main(int argc, char **argv) {
     bool optim = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "aAcksmnopPtT")) != -1) {
+    while ((opt = getopt(argc, argv, "aAcrksmnopPtT")) != -1) {
         switch (opt) {
             case 'c':
                 train_combo_mva = true;
@@ -129,6 +131,9 @@ main(int argc, char **argv) {
                 break;
             case 'o':
                 optim = true;
+                break;
+            case 'r':
+                create_corr = true;
                 break;
             case 'p':
                 prep_plots = true;
@@ -179,6 +184,7 @@ main(int argc, char **argv) {
         BackUpConfigFile(argv[0], GetParam("webDir"));
     }
 
+
     if (proPack)
         delete proPack;
 
@@ -190,10 +196,18 @@ main(int argc, char **argv) {
     setup_mva("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all);
     setup_mva("MVA", "tmva", cfg, proPack, prep_train || all, train || all);
 
-    if (prep_plots or all) {
+
+    if (prep_plots or create_corr or all) {
         DistributeProcesses();
-        PreparePlots();
-        CombineProcesses();
+
+		if (create_corr or all){
+			MakeTreeForCorrelations();
+		}
+
+		if (prep_plots or all){
+			PreparePlots();
+			CombineProcesses();
+		}
     }
 
     if (stack or all)

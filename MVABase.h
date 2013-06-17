@@ -17,10 +17,13 @@ class MVABase {
 
         void CreateTrainingSample(const std::string&, ProPack*);
         void CreateTrainingSample(const std::string&, const std::string&, ProPack*);
+        void CreateCorrelationsTree(const std::string&, ProPack*, MVABase*);
         float Evaluate(Branches*, int);
         void FillTree(TTree*, const Process*);
         void FillTree(TTree*, TTree*, const Process*);
+        void FillCorrelationsTree(TTree*, const Process*, MVABase*);
         virtual void FillVariables(Branches*, const int) = 0;
+        virtual void FillCorrelationsVariables(Branches*, const int, const Process*, MVABase*) = 0;
         bool BookMVA(const string&);
         void TrainMVA(const map<string, string>&);
 
@@ -29,6 +32,7 @@ class MVABase {
         virtual void SetupVariables(TMVA::Factory*) = 0;
         virtual void SetupVariables(TMVA::Reader*) = 0;
         virtual void SetupVariables(TTree*) = 0;
+        virtual void SetupCorrelationsVariables(TTree*) = 0;
 
         template<typename W, typename T> void AddVariableConditionally(W*, const string&, const char&, T&);
         template<typename T> void AddVariable(TMVA::Factory*, const string&, const char&, T&);
@@ -48,6 +52,7 @@ class MVABase {
         std::string log_filename;
         std::string output_filename;
         std::string sample_filename;
+        std::string correlations_filename;
 };
 
 template<typename W, typename T>

@@ -47,6 +47,13 @@ void PContainer::clear(){ container.clear(); }
 map<string, Process>::const_iterator PContainer::begin() const { return (container.begin()); }
 map<string, Process>::const_iterator PContainer::end() const { return (container.end()); }
 
+vector<Process*> PContainer::GetProcesses(){
+	vector<Process*> result; result.clear();
+	for(map<string,Process>::iterator p = container.begin(); p != container.end(); p++){
+		result.push_back(&(p->second));
+	}
+	return result;
+}
 
 vector<Process*> PContainer::GetCollisionProcesses(){
 	vector<Process*> result; result.clear();
@@ -73,6 +80,9 @@ vector<Process*> PContainer::GetSignalProcesses(){
 }
 
 
+int PContainer::GetNumberOfProcesses(){
+	return container.size();
+}
 
 int PContainer::GetNumberOfCollisionProcesses(){
 	int result = 0;

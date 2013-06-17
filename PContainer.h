@@ -43,10 +43,12 @@ class PContainer{
 		map<string, Process>::const_iterator begin() const;
 		map<string, Process>::const_iterator end() const;
 
+		int								GetNumberOfProcesses();
 		int								GetNumberOfCollisionProcesses();
 		int								GetNumberOfMCbackgroundProcesses();
 		int								GetNumberOfSignalProcesses();
 
+		vector<Process*>				GetProcesses();
 		vector<Process*>				GetCollisionProcesses();
 		vector<Process*>				GetMCbackgroundProcesses();
 		vector<Process*>				GetSignalProcesses();

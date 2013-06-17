@@ -48,12 +48,13 @@ using namespace std;
 	// ========== Function declarations ========== //
 
 	void			Initialize(int, char**);
-    const Config ReadConfig(string);
+    const Config	ReadConfig(string);
 	void			TrainComboSelectorSampler();
 	void			Analyze();
 	void			DistributeProcesses();
 	void			CrunchNumbers();
 	void			PreparePlots();
+	void			MakeTreeForCorrelations();
 	void			PlotStacks();
 	void			PlotStacksWithShapeSystematics();
 	void			PlotStamps();

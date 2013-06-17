@@ -14,12 +14,14 @@ namespace TTL {
             MVABase(const std::string&, const std::vector<std::string>&, const int rnk=1);
 
             virtual void FillVariables(Branches*, const int);
+            virtual void FillCorrelationsVariables(Branches*, const int, const Process*, ::MVABase*);
 
         protected:
             virtual Branches* GetBranches(const Process*);
             virtual void SetupVariables(TMVA::Factory*);
             virtual void SetupVariables(TMVA::Reader*);
             virtual void SetupVariables(TTree*);
+            virtual void SetupCorrelationsVariables(TTree*);
             template<typename T> void SetupVariablesT(T*);
 
             float csr;
@@ -52,6 +54,16 @@ namespace TTL {
             float LeadingJetSubleadingJetMass;
             float LeadingJetPt;
             float SubLeadingJetPt;
+
+			float Xsec;
+			unsigned int nGen;
+			float weight;
+			float topPtWgt;
+			float lepTotalSF;
+			float triggerSF;
+			float csvWgtlf;
+			float csvWgthf;
+            float MVAoutput;
     };
 }
 

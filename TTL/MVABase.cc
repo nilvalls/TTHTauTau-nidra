@@ -34,6 +34,23 @@ TTL::MVABase::SetupVariables(TTree* t)
     SetupVariablesT(t);
 }
 
+void
+TTL::MVABase::SetupCorrelationsVariables(TTree* t)
+{
+	TTL::MVABase::SetupVariablesT(t);
+
+	// Needed for correlation plots
+    AddVariable(t, "MVAoutput", 'F', MVAoutput);
+    AddVariable(t, "Xsec", 'F', Xsec);
+	AddVariable(t, "nGen", 'I', nGen);
+	AddVariable(t, "weight", 'F', weight);
+	AddVariable(t, "topPtWgt", 'F', topPtWgt);
+	AddVariable(t, "lepTotalSF", 'F', lepTotalSF);
+	AddVariable(t, "triggerSF", 'F', triggerSF);
+	AddVariable(t, "csvWgtlf", 'F', csvWgtlf);
+	AddVariable(t, "csvWgthf", 'F', csvWgthf);
+}
+
 template<typename T> void
 TTL::MVABase::SetupVariablesT(T* obj)
 {
@@ -67,6 +84,24 @@ TTL::MVABase::SetupVariablesT(T* obj)
     AddVariableConditionally(obj, "LeadingJetPt", 'F', LeadingJetPt);
     AddVariableConditionally(obj, "SubLeadingJetPt", 'F', SubLeadingJetPt);
     AddVariableConditionally(obj, "DitauVisibleMass", 'F', DitauVisibleMass);
+}
+
+void
+TTL::MVABase::FillCorrelationsVariables(Branches *branches, const int combo, const Process* iProcess, ::MVABase* iMVA)
+{
+	FillVariables(branches, combo);
+
+	TTLBranches* event = (TTLBranches*)branches;
+
+	Xsec			= iProcess->GetCrossSection() * iProcess->GetBranchingRatio();
+	nGen			= iProcess->GetNOEinDS();
+	weight			= event->Ev_puWeight;
+	topPtWgt		= event->Ev_topPtWeight;
+	lepTotalSF		= event->TTL_LeptonEventWeight->at(combo);
+	triggerSF		= 1;
+	csvWgtlf		= event->TTL_CSVeventWeight->at(combo);
+	csvWgthf		= 1;
+	MVAoutput		= iMVA->Evaluate(event, combo);
 }
 
 void
