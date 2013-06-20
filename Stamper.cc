@@ -11,6 +11,9 @@
 #include "TStyle.h"
 
 #include "Stamper.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+#include "TSystem.h"
 
 using namespace std;
 

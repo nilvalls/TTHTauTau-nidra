@@ -16,6 +16,7 @@
 #include "ProPack.h"
 #include "Process.h"
 #include "Trigger.h"
+#include "TLatex.h"
 
 struct weightCounter{
 	double topPtCorrection;
@@ -62,6 +63,7 @@ class Plotter {
 		double const		GetMaximumWithError(ProPack const *, string const) const;//*/
 		double const		GetMaxIntegral(ProPack const *, string const) const;
 		TPaveText *			GetPlotText(const string);
+		TLatex *			GetPlotTextLatex(const string);
 		virtual void SaveCanvas(TCanvas const *, string const, string const) const;
 		virtual void SaveCanvasLog(TCanvas*, string, string, bool, bool, bool, int iPad = 0);
 

@@ -73,8 +73,10 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
     delete mva;
 
     for (const auto& m: setup) {
+        cout << "reading MVA: " << m.first << " from " << basedir << endl;
         mva = new TTL::MVABase(basedir, vars, rank);
         if (!mva->BookMVA(m.first)) {
+            cout << "Couln't find MVA: " << m.first << " in " << basedir << endl; 
             delete mva;
             mva = 0;
         }

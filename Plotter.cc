@@ -283,7 +283,9 @@ HWrapper const Plotter::GetBackgroundSum(ProPack const * iProPack, string const 
 			if(buffer == NULL){	buffer = new HWrapper(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
 			else{ buffer->Add(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName))); }
 		}
-	}
+	} else {
+        cout << "iProPack->HaveMCbackgrounds() is false" << endl;
+    }
 
 	if(buffer == NULL){ cerr << "ERROR: requested sum of backgrounds for " << iName << " but result came out NULL" << endl; exit(1); }
 	HWrapper result = HWrapper(*buffer);
@@ -384,6 +386,18 @@ TPaveText * Plotter::GetPlotText(const string iString){
 
 		return plotInfo;
 
+}
+
+TLatex* Plotter::GetPlotTextLatex(const string iString){
+
+    TString info("lepton + jets + #tau_{h} #tau_{h}, CMS Preliminary, #sqrt{s} = 8 TeV, L = 19.5 fb^{-1}");
+
+    TLatex* CMSInfoLatex = new TLatex(0.17, 0.96, info);
+    CMSInfoLatex->SetNDC();
+    CMSInfoLatex->SetTextFont(42);
+    CMSInfoLatex->SetTextSize(0.035);
+
+    return CMSInfoLatex;
 }
 
 bool const

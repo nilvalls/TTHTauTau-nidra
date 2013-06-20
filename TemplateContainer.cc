@@ -36,7 +36,6 @@ TemplateContainer::~TemplateContainer()
 TemplateContainer::TemplateContainer(map<string,string>const & iParams): storageFile(0)
 {
     params = iParams;
-
     TString fn = ".storage_" + params["analysisTag"] + ".root";
     storageFile = new TFile(fn.ReplaceAll("/", "_"), "RECREATE");
 
@@ -150,19 +149,22 @@ TH1* TemplateContainer::GetSumOfBackgroundTemplates(string variableName, ProPack
 	TH1* buffer = NULL;
     
 	// Add each MC background if we have them
+    //cout << proPack->GetMCbackgrounds()->size() << " backgrounds in propack" << endl;
 	if(proPack->HaveMCbackgrounds()){
 		for(unsigned int b = 0; b < proPack->GetMCbackgrounds()->size(); b++){
-			if(!proPack->GetMCbackgrounds()->at(b).Plot())
-                continue; 
+			//if(!proPack->GetMCbackgrounds()->at(b).Plot())
+            //    continue; 
 			if(buffer == NULL) {
                 buffer = (TH1*)proPack->GetMCbackgrounds()->at(b).GetHistoForSignal(variableName)->GetHisto()->Clone(); 
             } else {
                 buffer->Add(proPack->GetMCbackgrounds()->at(b).GetHistoForSignal(variableName)->GetHisto()); 
             }
 		}
-	}
+	} else {
+        cout << "proPack->HaveMCbackgrounds() is false for " << variableName << endl;
+    }
 
-	if(buffer == NULL){ cerr << "ERROR: requested sum of backgrounds for " << variableName << " but result came out NULL" << endl; exit(1); }
+	if(buffer == NULL){ cerr << "ERROR --> [TemplateContainer::GetSumOfBackgroundTemplates]: requested sum of backgrounds for " << variableName << " but result came out NULL" << endl; exit(1); }
 
     return buffer;
 }

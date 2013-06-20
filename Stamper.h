@@ -9,9 +9,7 @@
 #define Stamper_h
 
 #include "Plotter.h"
-#include "THStack.h"
-#include "TCanvas.h"
-#include "TSystem.h"
+#include "TLegend.h"
 
 using namespace std;
 

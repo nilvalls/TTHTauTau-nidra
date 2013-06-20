@@ -49,7 +49,7 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.push_back("TTbar_Hadronic");
 	backgrounds.push_back("TTbar_SemiLept");
 	backgrounds.push_back("TTbar_FullLept");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", 870);	
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", kRed+1);	
 
 	backgrounds.clear();
 	backgrounds.push_back("ZplusJets_LowMass");
@@ -57,13 +57,13 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.push_back("ZplusTwoJets");
 	backgrounds.push_back("ZplusThreeJets");
 	backgrounds.push_back("ZplusFourJets");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Zjets", "Z + jets", "Z + jets", 5);	
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Zjets", "Z + jets", "Z + jets", kGreen+2);	
 
 	backgrounds.clear();
 	backgrounds.push_back("WW");
 	backgrounds.push_back("WZ");
 	backgrounds.push_back("ZZ");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"DiBoson", "DiBoson", "DiBoson", 3);	
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"DiBoson", "WW, WZ, ZZ", "WW, WZ, ZZ", kCyan);	
 
 	backgrounds.clear();
 	backgrounds.push_back("singleTopSch");
@@ -72,18 +72,18 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.push_back("singleTopBarTch");
 	backgrounds.push_back("singleTopPlusW");
 	backgrounds.push_back("singleTopBarPlusW");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"SingleTop", "Single t/tbar", "single t/#bar{t}", 4);	
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"SingleTop", "Single t/tbar", "single t/#bar{t}", kMagenta);	
 
 	backgrounds.clear();
 	backgrounds.push_back("ttPlusW");
 	backgrounds.push_back("ttPlusZ");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"ttWZ", "ttbar + W/Z", "t#bar{t} + W/Z", 880);
+    iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"ttWZ", "ttbar + W/Z", "t#bar{t} + W/Z", kBlue-10);
 
 	backgrounds.clear();
 	backgrounds.push_back("WplusOneJet");
 	backgrounds.push_back("WplusTwoJets");
 	backgrounds.push_back("WplusThreeJets");
 	backgrounds.push_back("WplusFourJets");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Wjets", "W + jets", "W + jets", 810);
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds,"Wjets", "W + jets", "W + jets", kAzure+1);
 }
 

@@ -17,6 +17,16 @@ samples = {
         'ttH130': ['TTH_130'],
         'ttH135': ['TTH_135'],
         'ttH140': ['TTH_140'],
+        #'ttH110': ['TTHTauTau_110_real'],
+        #'ttH115': ['TTHTauTau_115_real'],
+        #'ttH120': ['TTHTauTau_120_real'],
+        #'ttH125': ['TTHTauTau_125_real'],
+        #'ttH130': ['TTHTauTau_130_real'],
+        #'ttH135': ['TTHTauTau_135_real'],
+        #'ttH140': ['TTHTauTau_140_real'],
+        #'ttV' : ['ttPlusZ','ttPlusW'],
+        'ttbarW': ['ttPlusW'],
+        'ttbarZ': ['ttPlusZ'],
         'diboson': ['WW','WZ','ZZ'],
         'singlet': ['singleTopSch', 'singleTopBarSch', 'singleTopTch', 'singleTopBarTch', 'singleTopPlusW', 'singleTopBarPlusW'],
         'ttbar': ['TTbar_Hadronic', 'TTbar_SemiLept', 'TTbar_FullLept'],
@@ -114,7 +124,8 @@ if __name__ == "__main__":
     for f in args:
         m = reg.search(f)
         if not m and not opts.cat:
-            sys.stderr.write("file {f} does not match pattern!\n".format(f=f))
+            #sys.stderr.write("file {0} does not match pattern!\n".format(f))
+            print "file {0} does not match pattern!\n".format(f)
             continue
 
         print "Processing", f

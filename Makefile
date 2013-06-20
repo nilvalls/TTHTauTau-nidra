@@ -7,8 +7,8 @@ ROOTGLIBS     = $(shell $(ROOTSYS)/bin/root-config --glibs)
 #######################################
 
 #  CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic -pg
+CXXFLAGS      = -g -fPIC -std=c++0x
 #  CXXFLAGS      = -g -fPIC -std=c++0x -Wall -pedantic
-CXXFLAGS      = -O2 -fPIC -std=c++0x -Wall -pedantic
 #  LDFLAGS       = -g -lboost_filesystem -pg
 #  LDFLAGS       = -g -lboost_filesystem
 LDFLAGS       = -O2 -lboost_filesystem

@@ -11,6 +11,10 @@
 #include "TStyle.h"
 
 #include "Optimizer.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TLegend.h"
+#include "TStyle.h"
 
 #define NON_INTEGRATED 0
 #define INTEGRATED_FROM_LEFT 1

@@ -28,7 +28,7 @@ class Stacker : public Plotter {
         TemplateContainer* templateContainer;
 
         TLegend*		GetLegend(ProPack const *, const float);
-        THStack*		GetBackgroundStack(ProPack const *, std::string const, double const) const;
+        THStack*		GetBackgroundStack(ProPack const *, std::string const, double const, bool) const;
         double const	GetMaximum(ProPack const *, std::string const, bool const) const;
         double const	GetMaximum(ProPack const *, std::string const) const;
         double const	GetMaximumWithError(ProPack const *, std::string const) const;

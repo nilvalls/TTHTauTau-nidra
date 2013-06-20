@@ -16,6 +16,8 @@
 
 #include "CutFlow.h"
 
+using namespace std;   
+
 class Branches {
 	protected:
         void SetUp(std::map<std::string,std::string> const &, std::vector<std::string> const &);

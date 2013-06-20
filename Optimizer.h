@@ -4,8 +4,6 @@
 #include "Plotter.h"
 #include "Process.h"
 #include "ProPack.h"
-#include "TCanvas.h"
-#include "TSystem.h"
 
 #include "TH1F.h"
 #include "HMath.h"

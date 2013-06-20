@@ -35,8 +35,8 @@ class HWrapper{
 		TH2F	histo2;
 		bool	isTH2F;
 		bool	isTH1F;
-		float	xbins[100];
-		string	xbinLabels[100];
+		float	xbins[1000];
+		string	xbinLabels[1000];
 		float	xMinVis;
 		float	xMaxVis;
 		float	yMinVis;

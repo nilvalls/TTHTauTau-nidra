@@ -43,6 +43,7 @@ if(IsFlagThere("PUcorr")){
 }
 hContainer->Fill("ChargeProduct_TT", ((*event->TTL_Tau1Charge)[iCombo] * (*event->TTL_Tau2Charge)[iCombo]), weightFull);
 
+
 // Taus ============================================================================================================================
 hContainer->Fill("NumTaus", event->TTL_NumTaus, weightFull);
 hContainer->Fill("VisibleMass_TT", (*event->TTL_DitauVisibleMass)[iCombo], weightFull);
@@ -99,6 +100,12 @@ hContainer->Fill("AntiMuonIndex2_T1", event->GetTau1AntiMuonIndex2(iCombo), weig
 hContainer->Fill("AntiMuonIndex2_T2", event->GetTau2AntiMuonIndex2(iCombo), weightFull);
 hContainer->Fill("Match_T1", event->GetTau1MatchIndex(iCombo), weightFull);
 hContainer->Fill("Match_T2", event->GetTau2MatchIndex(iCombo), weightFull);
+hContainer->Fill("DitauVisibleMass_TT", (*event->TT_DitauVisibleMass)[iCombo], weightFull);
+hContainer->Fill("ZcoordDiff_TT", abs((*event->TTL_Tau2LTvz)[iCombo] - (*event->TTL_Tau1LTvz)[iCombo]), weightFull);
+for (unsigned int i = 0, c = 0; c < 2 and i < event->TT_Tau1Pt->size(); i++) {
+    hContainer->Fill("ZcoordDiff_TTall", abs((*event->TT_Tau2LTvz)[i] - (*event->TT_Tau1LTvz)[i]), weightFull);
+}
+    
 
 // Lepton ============================================================================================================================
 hContainer->Fill("Pt_L", (*event->TTL_LeptonPt)[iCombo], weightFull);
@@ -174,3 +181,7 @@ hContainer->Fill("NumCleanCSVMnonBtags", (*event->TTL_NumCleanNonCSVMbtagJets)[i
 hContainer->Fill("NumCleanCSVTnonBtags", (*event->TTL_NumCleanNonCSVTbtagJets)[iCombo], weightFull);
 hContainer->Fill("NumCleanCSVnonHTauJets", ((*event->TTL_NumCleanNonCSVMbtagJets)[iCombo] + (*event->TTL_NumCleanCSVMbtagJets)[iCombo]), weightFull);
 hContainer->Fill("NumInclusiveJets", ((*event->TTL_NumCleanNonCSVMbtagJets)[iCombo] + (*event->TTL_NumCleanCSVMbtagJets)[iCombo]) + 2, weightFull);
+
+//  --- correlation plots ---
+
+//hContainer->Fill("",, weightFull);
