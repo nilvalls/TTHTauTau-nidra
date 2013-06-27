@@ -332,7 +332,8 @@ void Stacker::MakePlots(ProPack * iProPack) {
             ratioErr->SetMarkerStyle(8);
             ratioErr->SetLineWidth(2);
             // Draw the ratio points + errors on top of the background MC uncertainty
-            ratioErr->Draw("P SAME");
+            if (iProPack->GetCollisions()->Plot())
+                ratioErr->Draw("P SAME");
             // Draw a good axis
             hRatio->Draw("AXIS SAME");
             
