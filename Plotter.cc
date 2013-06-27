@@ -97,6 +97,9 @@ Plotter::MakePlots(Process* iProcess)
 	weightCounterForSignal.jetCSV           = 0;
 	weightCounterForSignal.total            = 0;
 
+    int events_w_taus = 0;
+    int events_wo_taus = 0;
+
     auto goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
 	cout << "\t>>> OS, filling good events (total " << goodEventsForSignal.size() << "): "; cout.flush();
@@ -138,8 +141,15 @@ Plotter::MakePlots(Process* iProcess)
         event->SetBestCombo(combos[0]);
 
         FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
+
+        if (((TTLBranches*)event)->GT_NumGenTaus > 0)
+            ++events_w_taus;
+        else
+            ++events_wo_taus;
 	}
 	cout << endl;
+
+    cout << iProcess->GetShortName() << "\ttaus: " << events_w_taus << "\tno taus: " << events_wo_taus << endl;
 
 	double topPtSFEfficiencyForSignal     = 0;
 	double leptonSFEfficiencyForSignal    = 0;
@@ -176,7 +186,9 @@ Plotter::MakePlots(Process* iProcess)
 	if( IsFlagThere("eTauFakeUp") || IsFlagThere("jetTauFakeUp") || IsFlagThere("tauIdEffUp") 
         || IsFlagThere("eTauFakeDown") || IsFlagThere("jetTauFakeDown") || IsFlagThere("tauIdEffDown") ){ 
       cutFlow->RegisterCut("tau ID sys ", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal()); }
-	if(IsFlagThere("JetCSVWeight")) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal()); }
+
+    string flags = params.find("flags")->second;
+	if (flags.find("CSVeventWeight") != string::npos) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal()); }
 
 	delete event; event = NULL;
 
@@ -390,12 +402,12 @@ TPaveText * Plotter::GetPlotText(const string iString){
 
 TLatex* Plotter::GetPlotTextLatex(const string iString){
 
-    TString info("lepton + jets + #tau_{h} #tau_{h}, CMS Preliminary, #sqrt{s} = 8 TeV, L = 19.5 fb^{-1}");
+    TString info("#tau_{h} #tau_{h} " + iString + ", CMS Preliminary, #sqrt{s} = 8 TeV, L = 19.5 fb^{-1}");
 
     TLatex* CMSInfoLatex = new TLatex(0.17, 0.96, info);
     CMSInfoLatex->SetNDC();
     CMSInfoLatex->SetTextFont(42);
-    CMSInfoLatex->SetTextSize(0.035);
+    CMSInfoLatex->SetTextSize(0.033);
 
     return CMSInfoLatex;
 }
