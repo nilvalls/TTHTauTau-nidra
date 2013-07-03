@@ -97,8 +97,8 @@ Plotter::MakePlots(Process* iProcess)
 	weightCounterForSignal.jetCSV           = 0;
 	weightCounterForSignal.total            = 0;
 
-    int events_w_taus = 0;
-    int events_wo_taus = 0;
+    double events_w_taus = 0.;
+    double events_wo_taus = 0.;
 
     auto goodEventsForSignal = iProcess->GetGoodEventsForSignal();
 	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
@@ -140,12 +140,12 @@ Plotter::MakePlots(Process* iProcess)
 
         event->SetBestCombo(combos[0]);
 
-        FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
+        double weight = FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
 
         if (((TTLBranches*)event)->GT_NumGenTaus > 0)
-            ++events_w_taus;
+            events_w_taus += weight;
         else
-            ++events_wo_taus;
+            events_wo_taus += weight;
 	}
 	cout << endl;
 
@@ -246,11 +246,6 @@ void Plotter::LoopOverHistoCfgFile(const string iPath, HContainer* iHContainer){
 			}
 		}
 
-}
-
-// Fill the histograms with the event passed
-void Plotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter){
-	cerr << "Calling FillHistos(...) from " << __FILE__ << " is not allowed. It must be called from a derived class." << endl; exit(1);
 }
 
 // Save canvas

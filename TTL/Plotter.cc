@@ -22,7 +22,9 @@ TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
 }
 
 // Fill the histograms with the event passed
-void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter){
+double
+TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter)
+{
 	HContainer* hContainer = iHContainer;
 	TTLBranches* event = (TTLBranches*)iEvent;
 	int iCombo = event->GetBestCombo();
@@ -68,6 +70,14 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 		if(IsFlagThere("CSVeventWeightHFStats2up")){ iJetCSVweight = event->TTL_CSVeventWeightHFStats2up->at(iCombo); }
 		if(IsFlagThere("CSVeventWeightLFStats2down")){ iJetCSVweight = event->TTL_CSVeventWeightLFStats2down->at(iCombo); }
 		if(IsFlagThere("CSVeventWeightLFStats2up")){ iJetCSVweight = event->TTL_CSVeventWeightLFStats2up->at(iCombo); }
+        if (IsFlagThere("CSVeventWeightCErr1up"))
+            iJetCSVweight = event->TTL_CSVeventWeightCErr1up->at(iCombo);
+        if (IsFlagThere("CSVeventWeightCErr1down"))
+            iJetCSVweight = event->TTL_CSVeventWeightCErr1down->at(iCombo);
+        if (IsFlagThere("CSVeventWeightCErr2up"))
+            iJetCSVweight = event->TTL_CSVeventWeightCErr2up->at(iCombo);
+        if (IsFlagThere("CSVeventWeightCErr2down"))
+            iJetCSVweight = event->TTL_CSVeventWeightCErr2down->at(iCombo);
 		
         if(IsFlagThere("trigger")){ 
 			iTau1TriggerWeight = iTrigger->GetWeightFromFunc(event->TTL_Tau1Pt->at(event->GetBestCombo()));
@@ -117,5 +127,7 @@ void TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool cons
 	iWeightCounter->total++;
 
 	#include "FillHistos.h"
+
+    return weightFull;
 }
 

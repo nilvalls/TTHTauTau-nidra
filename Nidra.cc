@@ -34,7 +34,7 @@ Nidra::Combine(ProPack& pack)
 
 void
 setup_mva(const string& prefix, const string& dir, const Config& cfg,
-        ProPack *proPack, bool make_trees, bool train)
+        ProPack *proPack, bool make_trees, bool train, int rank)
 {
     string method = cfg.pString(prefix + "method");
     if (method.length() == 0)
@@ -54,15 +54,14 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
     string background = cfg.pString(prefix + "background");
     vector<string> vars = Helper::SplitString(cfg.pString(prefix + "variables"));
 
-    int rank = signal == background ? 0 : 1;
     MVABase *mva = new TTL::MVABase(basedir, vars, rank);
 
     if (make_trees) {
-		if (rank == 0){
-			mva->CreateTrainingSample(signal, proPack);
-		}else{
-			mva->CreateTrainingSample(signal, background, proPack);
-		}
+        if (rank == 0) {
+            mva->CreateTrainingSample(signal, proPack);
+        } else {
+            mva->CreateTrainingSample(signal, background, proPack);
+        }
     }
 
     if (train) {
@@ -195,21 +194,22 @@ main(int argc, char **argv) {
     file.GetObject((params["propack_name"]).c_str(), proPack);
     file.Close();
 
-    setup_mva("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all);
-    setup_mva("MVA", "tmva", cfg, proPack, prep_train || all, train || all);
+    proPack->DistributeProcesses();
+    setup_mva("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all, 0);
+    setup_mva("MVA", "tmva", cfg, proPack, prep_train || all, train || all, 1);
 
 
     if (prep_plots or create_corr or all) {
         DistributeProcesses();
 
-		if (create_corr or all){
-			MakeTreeForCorrelations();
-		}
+        if (create_corr or all) {
+            MakeTreeForCorrelations();
+        }
 
-		if (prep_plots or all){
-			PreparePlots();
-			CombineProcesses();
-		}
+        if (prep_plots or all) {
+            PreparePlots();
+            CombineProcesses();
+        }
     }
 
     if (stack or all)

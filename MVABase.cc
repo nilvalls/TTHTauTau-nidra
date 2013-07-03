@@ -36,7 +36,8 @@ MVABase::MVABase(const std::string& dir,
     variables(vars),
     rank(rnk)
 {
-    reader = new TMVA::Reader("!Color:Silent:!V");
+    // reader = new TMVA::Reader("!Color:Silent:!V");
+    reader = new TMVA::Reader("!Color:!V");
 
     log_filename = basedir + "/tmva.log";
     output_filename = basedir + "/tmva.root";
@@ -193,13 +194,14 @@ MVABase::TrainMVA(const map<string, string>& setup)
 {
     TMVA::gConfig().GetIONames().fWeightFileDir = basedir;
 
-    // ofstream tmp_out(log_filename);
-    // streambuf* old_buf = cout.rdbuf();
-    // cout.rdbuf(tmp_out.rdbuf());
+    ofstream tmp_out(log_filename);
+    streambuf* old_buf = cout.rdbuf();
+    cout.rdbuf(tmp_out.rdbuf());
 
     TFile outfile(output_filename.c_str(), "RECREATE");
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", &outfile,
-            "!V:Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
+            // "!V:Silent:Transformations=I;D;P;G,D:AnalysisType=Classification");
+            "!V:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
     SetupVariables(factory);
 
@@ -243,7 +245,7 @@ MVABase::TrainMVA(const map<string, string>& setup)
 
     delete factory;
 
-    // cout.rdbuf(old_buf);
+    cout.rdbuf(old_buf);
 }
 
 float

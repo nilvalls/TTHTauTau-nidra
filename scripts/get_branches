@@ -4,12 +4,14 @@ import os
 import ROOT as r
 import sys
 
+r.gROOT.SetBatch()
+
 f = r.TFile(sys.argv[1])
 stub = sys.argv[2]
 
 skip = []
 if stub.startswith("TTL"):
-    skip = ["TLL", "TT"]
+    skip = ["TLL"]
 
 clear = open(stub + "_clear.h", "w")
 decl = open(stub + "_declarations.h", "w")

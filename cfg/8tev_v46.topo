@@ -10,7 +10,7 @@ topology_Collisions = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 560717449
-    NoEreadByNUTter  = %data%
+    NoEreadByNUTter  = 75220
 ]
 
 topology_TTbar_Hadronic = [
@@ -24,7 +24,7 @@ topology_TTbar_Hadronic = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 31223821
-    NoEreadByNUTter  = %TTbar_Hadronic%
+    NoEreadByNUTter  = 272
 ]
 
 topology_TTbar_SemiLept = [
@@ -38,7 +38,7 @@ topology_TTbar_SemiLept = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 25424818
-    NoEreadByNUTter  = %TTbar_SemiLept%
+    NoEreadByNUTter  = 382402
 ]
 
 topology_TTbar_FullLept = [
@@ -52,7 +52,7 @@ topology_TTbar_FullLept = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 12119013
-    NoEreadByNUTter  = %TTbar_FullLept%
+    NoEreadByNUTter  = 414800
 ]
 
 topology_WplusOneJet = [
@@ -66,7 +66,7 @@ topology_WplusOneJet = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 23141598
-    NoEreadByNUTter  = %WplusOneJet%
+    NoEreadByNUTter  = 57
 ]
 
 topology_WplusTwoJets = [
@@ -80,7 +80,7 @@ topology_WplusTwoJets = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 34044921
-    NoEreadByNUTter  = %WplusTwoJets%
+    NoEreadByNUTter  = 2136
 ]
 
 topology_WplusThreeJets = [
@@ -94,7 +94,7 @@ topology_WplusThreeJets = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 15539503
-    NoEreadByNUTter  = %WplusThreeJets%
+    NoEreadByNUTter  = 3329
 ]
 
 topology_WplusFourJets = [
@@ -108,7 +108,7 @@ topology_WplusFourJets = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 13382803
-    NoEreadByNUTter  = %WplusFourJets%
+    NoEreadByNUTter  = 8055
 ]
 
 topology_WW = [
@@ -122,7 +122,7 @@ topology_WW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 10000431
-    NoEreadByNUTter  = %WW%
+    NoEreadByNUTter  = 2228
 ]
 
 topology_WZ = [
@@ -136,7 +136,7 @@ topology_WZ = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 10000283
-    NoEreadByNUTter  = %WZ%
+    NoEreadByNUTter  = 2613
 ]
 
 topology_ZZ = [
@@ -150,7 +150,7 @@ topology_ZZ = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 9799908
-    NoEreadByNUTter  = %ZZ%
+    NoEreadByNUTter  = 3998
 ]
 
 topology_ZplusOneJet = [
@@ -164,7 +164,7 @@ topology_ZplusOneJet = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 24045248
-    NoEreadByNUTter  = %ZplusOneJet%
+    NoEreadByNUTter  = 2250
 ]
 
 topology_ZplusTwoJets = [
@@ -178,7 +178,7 @@ topology_ZplusTwoJets = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 2352304
-    NoEreadByNUTter  = %ZplusTwoJets%
+    NoEreadByNUTter  = 1018
 ]
 
 topology_ZplusThreeJets = [
@@ -192,7 +192,7 @@ topology_ZplusThreeJets = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 11015445
-    NoEreadByNUTter  = %ZplusThreeJets%
+    NoEreadByNUTter  = 11343
 ]
 
 topology_ZplusFourJets = [
@@ -206,7 +206,7 @@ topology_ZplusFourJets = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 6402827
-    NoEreadByNUTter  = %ZplusFourJets%
+    NoEreadByNUTter  = 15156
 ]
 
 topology_ZplusJets_LowMass = [
@@ -220,7 +220,7 @@ topology_ZplusJets_LowMass = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 37835275
-    NoEreadByNUTter  = %ZplusJets_LowMass%
+    NoEreadByNUTter  = 50
 ]
 
 topology_singleTopPlusW = [
@@ -234,7 +234,7 @@ topology_singleTopPlusW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 497658
-    NoEreadByNUTter  = %singleTopPlusW%
+    NoEreadByNUTter  = 3438
 ]
 
 topology_singleTopBarPlusW = [
@@ -248,7 +248,7 @@ topology_singleTopBarPlusW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 493460
-    NoEreadByNUTter  = %singleTopBarPlusW%
+    NoEreadByNUTter  = 3429
 ]
 
 topology_singleTopSch = [
@@ -262,7 +262,7 @@ topology_singleTopSch = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 259961
-    NoEreadByNUTter  = %singleTopSch%
+    NoEreadByNUTter  = 243
 ]
 
 topology_singleTopBarSch = [
@@ -276,7 +276,7 @@ topology_singleTopBarSch = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 139974
-    NoEreadByNUTter  = %singleTopBarSch%
+    NoEreadByNUTter  = 136
 ]
 
 topology_singleTopTch = [
@@ -290,7 +290,7 @@ topology_singleTopTch = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 3758227
-    NoEreadByNUTter  = %singleTopTch%
+    NoEreadByNUTter  = 2763
 ]
 
 topology_singleTopBarTch = [
@@ -304,7 +304,7 @@ topology_singleTopBarTch = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1935072
-    NoEreadByNUTter  = %singleTopBarTch%
+    NoEreadByNUTter  = 1650
 ]
 
 topology_ttPlusW = [
@@ -318,7 +318,7 @@ topology_ttPlusW = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 196046
-    NoEreadByNUTter  = %ttPlusW%
+    NoEreadByNUTter  = 4746
 ]
 
 topology_ttPlusZ = [
@@ -332,7 +332,7 @@ topology_ttPlusZ = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 210160
-    NoEreadByNUTter  = %ttPlusZ%
+    NoEreadByNUTter  = 4610
 ]
 
 topology_TTH_110 = [
@@ -346,7 +346,7 @@ topology_TTH_110 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 977880
-    NoEreadByNUTter  = %TTH_110%
+    NoEreadByNUTter  = 16791
 ]
 
 topology_TTH_115 = [
@@ -360,7 +360,7 @@ topology_TTH_115 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1000000 
-    NoEreadByNUTter  = %TTH_115%
+    NoEreadByNUTter  = 17008
 ]
 
 topology_TTH_120 = [
@@ -374,7 +374,7 @@ topology_TTH_120 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 999508
-    NoEreadByNUTter  = %TTH_120%
+    NoEreadByNUTter  = 18293
 ]
 
 topology_TTH_125 = [
@@ -388,7 +388,7 @@ topology_TTH_125 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 995697
-    NoEreadByNUTter  = %TTH_125%
+    NoEreadByNUTter  = 19299
 ]
 
 topology_TTH_130 = [
@@ -402,7 +402,7 @@ topology_TTH_130 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 933970
-    NoEreadByNUTter  = %TTH_130%
+    NoEreadByNUTter  = 19100
 ]
 
 topology_TTH_135 = [
@@ -416,7 +416,7 @@ topology_TTH_135 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 996800
-    NoEreadByNUTter  = %TTH_135%
+    NoEreadByNUTter  = 21887
 ]
 
 topology_TTH_140 = [
@@ -430,7 +430,7 @@ topology_TTH_140 = [
     branchingRatio   = 1
     otherScaleFactor = 1
     NOEinDS          = 1000000
-    NoEreadByNUTter  = %TTH_140%
+    NoEreadByNUTter  = 23310
 ]
 
 topology_TTHTauTau_110 = [
@@ -444,7 +444,7 @@ topology_TTHTauTau_110 = [
     branchingRatio   = 0.0795
     otherScaleFactor = 1
     NOEinDS          = 992800
-    NoEreadByNUTter  = %TTHTauTau_110%
+    NoEreadByNUTter  = 88035
 ]
 
 topology_TTHTauTau_110_real = [
@@ -459,7 +459,7 @@ topology_TTHTauTau_110_real = [
     branchingRatio   = 0.0795
     otherScaleFactor = 1
     NOEinDS          = 992800
-    NoEreadByNUTter  = %TTHTauTau_110%
+    NoEreadByNUTter  = 88035
 ]
 
 topology_TTHTauTau_115 = [
@@ -473,7 +473,7 @@ topology_TTHTauTau_115 = [
     branchingRatio   = 0.0758
     otherScaleFactor = 1
     NOEinDS          = 997885
-    NoEreadByNUTter  = %TTHTauTau_115%
+    NoEreadByNUTter  = 91596
 ]
 
 topology_TTHTauTau_115_real = [
@@ -488,7 +488,7 @@ topology_TTHTauTau_115_real = [
     branchingRatio   = 0.0758
     otherScaleFactor = 1
     NOEinDS          = 997885
-    NoEreadByNUTter  = %TTHTauTau_115%
+    NoEreadByNUTter  = 91596
 ]
 
 topology_TTHTauTau_120 = [
@@ -502,7 +502,7 @@ topology_TTHTauTau_120 = [
     branchingRatio   = 0.0704
     otherScaleFactor = 1
     NOEinDS          = 990172
-    NoEreadByNUTter  = %TTHTauTau_120%
+    NoEreadByNUTter  = 91596
 ]
 
 topology_TTHTauTau_120_real = [
@@ -517,7 +517,7 @@ topology_TTHTauTau_120_real = [
     branchingRatio   = 0.0704
     otherScaleFactor = 1
     NOEinDS          = 990172
-    NoEreadByNUTter  = %TTHTauTau_120%
+    NoEreadByNUTter  = 91596
 ]
 
 topology_TTHTauTau_125 = [
@@ -531,7 +531,7 @@ topology_TTHTauTau_125 = [
     branchingRatio   = 0.0632
     otherScaleFactor = 1
     NOEinDS          = 1000000
-    NoEreadByNUTter  = %TTHTauTau_125%
+    NoEreadByNUTter  = 96805
 ]
 
 topology_TTHTauTau_125_real = [
@@ -546,7 +546,7 @@ topology_TTHTauTau_125_real = [
     branchingRatio   = 0.0632
     otherScaleFactor = 1
     NOEinDS          = 1000000
-    NoEreadByNUTter  = %TTHTauTau_125%
+    NoEreadByNUTter  = 96805
 ]
 topology_TTHTauTau_130 = [
     sampleNumber     = 7130
@@ -559,7 +559,7 @@ topology_TTHTauTau_130 = [
     branchingRatio   = 0.0545
     otherScaleFactor = 1
     NOEinDS          = 812456
-    NoEreadByNUTter  = %TTHTauTau_130%
+    NoEreadByNUTter  = 80747
 ]
 
 topology_TTHTauTau_130_real = [
@@ -574,7 +574,7 @@ topology_TTHTauTau_130_real = [
     branchingRatio   = 0.0545
     otherScaleFactor = 1
     NOEinDS          = 812456
-    NoEreadByNUTter  = %TTHTauTau_130%
+    NoEreadByNUTter  = 80747
 ]
 
 topology_TTHTauTau_135 = [
@@ -588,7 +588,7 @@ topology_TTHTauTau_135 = [
     branchingRatio   = 0.0449
     otherScaleFactor = 1
     NOEinDS          = 997996
-    NoEreadByNUTter  = %TTHTauTau_135%
+    NoEreadByNUTter  = 101565
 ]
 
 topology_TTHTauTau_135_real = [
@@ -603,7 +603,7 @@ topology_TTHTauTau_135_real = [
     branchingRatio   = 0.0449
     otherScaleFactor = 1
     NOEinDS          = 997996
-    NoEreadByNUTter  = %TTHTauTau_135%
+    NoEreadByNUTter  = 101565
 ]
 
 topology_TTHTauTau_140 = [
@@ -617,7 +617,7 @@ topology_TTHTauTau_140 = [
     branchingRatio   = 0.0352
     otherScaleFactor = 1
     NOEinDS          = 982801
-    NoEreadByNUTter  = %TTHTauTau_140%
+    NoEreadByNUTter  = 102664
 ]
 
 topology_TTHTauTau_140_real = [
@@ -632,5 +632,5 @@ topology_TTHTauTau_140_real = [
     branchingRatio   = 0.0352
     otherScaleFactor = 1
     NOEinDS          = 982801
-    NoEreadByNUTter  = %TTHTauTau_140%
+    NoEreadByNUTter  = 102664
 ]

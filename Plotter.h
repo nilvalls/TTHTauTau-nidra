@@ -40,7 +40,7 @@ class Plotter {
 		void PrintEfficiencies(string const, string const);
 
 	protected:
-		virtual void	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
+		virtual double	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *) {};
 		Trigger*		ditauTrigger;
 		void			SaveFile();
 		virtual void	MakePlots(ProPack*);

@@ -100,11 +100,12 @@ hContainer->Fill("AntiMuonIndex2_T1", event->GetTau1AntiMuonIndex2(iCombo), weig
 hContainer->Fill("AntiMuonIndex2_T2", event->GetTau2AntiMuonIndex2(iCombo), weightFull);
 hContainer->Fill("Match_T1", event->GetTau1MatchIndex(iCombo), weightFull);
 hContainer->Fill("Match_T2", event->GetTau2MatchIndex(iCombo), weightFull);
-hContainer->Fill("DitauVisibleMass_TT", (*event->TT_DitauVisibleMass)[iCombo], weightFull);
-hContainer->Fill("ZcoordDiff_TT", abs((*event->TTL_Tau2LTvz)[iCombo] - (*event->TTL_Tau1LTvz)[iCombo]), weightFull);
-for (unsigned int i = 0, c = 0; c < 2 and i < event->TT_Tau1Pt->size(); i++) {
-    hContainer->Fill("ZcoordDiff_TTall", abs((*event->TT_Tau2LTvz)[i] - (*event->TT_Tau1LTvz)[i]), weightFull);
-}
+// For Z-peak studies use:
+// hContainer->Fill("DitauVisibleMass_TT", (*event->TT_DitauVisibleMass)[iCombo], weightFull);
+// hContainer->Fill("ZcoordDiff_TT", abs((*event->TTL_Tau2LTvz)[iCombo] - (*event->TTL_Tau1LTvz)[iCombo]), weightFull);
+// for (unsigned int i = 0, c = 0; c < 2 and i < event->TT_Tau1Pt->size(); i++) {
+    // hContainer->Fill("ZcoordDiff_TTall", abs((*event->TT_Tau2LTvz)[i] - (*event->TT_Tau1LTvz)[i]), weightFull);
+// }
     
 
 // Lepton ============================================================================================================================
