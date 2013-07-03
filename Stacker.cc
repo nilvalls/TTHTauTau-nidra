@@ -255,8 +255,8 @@ void Stacker::MakePlots(ProPack * iProPack) {
             // Get variable range 
             // (can be tricky when visible ranges are specified, still not completely correct)
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
-            float xMin = backgroundSum.GetMinXVis();
-            float xMax = backgroundSum.GetMaxXVis();
+            float xMin = max(baseHisto.GetMinXVis(), float(baseHisto.GetHisto()->GetXaxis()->GetXmin()));
+            float xMax = min(baseHisto.GetMaxXVis(), float(baseHisto.GetHisto()->GetXaxis()->GetXmax()));
 
             // Get data/MC ratio
             TH1F* hData = (TH1F*)collisionsHisto.GetHisto();
@@ -280,6 +280,9 @@ void Stacker::MakePlots(ProPack * iProPack) {
             
             // Use hRatio only for axes; use errors (see below) to plots points 
             hRatio->GetYaxis()->SetRangeUser(minY,ratioPlotMax);
+            TString s(hRatio->GetXaxis()->GetTitle());
+            s.ReplaceAll("BDTG", "BDT");
+            hRatio->GetXaxis()->SetTitle(s.Data());
             hRatio->Draw("AXIS");
             
             // Get symmetric errors on MC background 
@@ -336,13 +339,15 @@ void Stacker::MakePlots(ProPack * iProPack) {
                 ratioErr->Draw("P SAME");
             // Draw a good axis
             hRatio->Draw("AXIS SAME");
-            
+
             // Make line at 1
+            // gPad->Range(0, minY, 1, maxY);
+            // canvas->Range(0, minY, 1, maxY);
+            cout << baseHisto.GetXTitle() << " " << xMin << endl;
             TLine line;
-            line.SetLineColor(1);
+            line.SetLineColor(kBlack);
             line.SetLineWidth(2);
-            line.DrawLine(xMin,1,xMax,1);
-           
+            line.DrawLine(xMin, 1, xMax, 1);
         }
 		// Save canvas
 		SaveCanvas(canvas, params["stacks_output"]+subdir, plotName);
