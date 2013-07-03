@@ -140,7 +140,7 @@ Plotter::MakePlots(Process* iProcess)
 
         event->SetBestCombo(combos[0]);
 
-        double weight = FillHistos(&hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
+        double weight = FillHistos(iProcess->GetShortName(), &hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
 
         if (((TTLBranches*)event)->GT_NumGenTaus > 0)
             events_w_taus += weight;
@@ -159,6 +159,7 @@ Plotter::MakePlots(Process* iProcess)
  	double tauIdSysForSignal              = 0;
  	double q2SysForSignal                 = 0;
  	double jetCSVforSignal                = 0;
+    double br_sf = 0;
 	if(weightCounterForSignal.total > 0){
 		topPtSFEfficiencyForSignal     = weightCounterForSignal.topPtCorrection/weightCounterForSignal.total;
 		leptonSFEfficiencyForSignal    = weightCounterForSignal.leptonCorrection/weightCounterForSignal.total;
@@ -168,6 +169,7 @@ Plotter::MakePlots(Process* iProcess)
 		tauIdSysForSignal              = weightCounterForSignal.tauIdSys/weightCounterForSignal.total;
 		q2SysForSignal                 = weightCounterForSignal.q2Sys/weightCounterForSignal.total;
 		jetCSVforSignal                = weightCounterForSignal.jetCSV/weightCounterForSignal.total;
+        br_sf = weightCounterForSignal.bf_sf / weightCounterForSignal.total;
 	}
 	if(weightCounterForSignal.total > 0){
 		hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
@@ -189,6 +191,8 @@ Plotter::MakePlots(Process* iProcess)
 
     string flags = params.find("flags")->second;
 	if (flags.find("CSVeventWeight") != string::npos) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal()); }
+    if (IsFlagThere("brSF"))
+        cutFlow->RegisterCut("BR corr.", 2, br_sf * cutFlow->GetLastCountForSignal());
 
 	delete event; event = NULL;
 

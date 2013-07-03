@@ -1,4 +1,4 @@
-float weightFull = iLeptonWeight * iPuWeight * iTau1TriggerWeight * iTau2TriggerWeight * iTauIdSysWeight * iQ2SysWeight * iTopPtWeight * iJetCSVweight;
+float weightFull = iLeptonWeight * iPuWeight * iTau1TriggerWeight * iTau2TriggerWeight * iTauIdSysWeight * iQ2SysWeight * iTopPtWeight * iJetCSVweight * bf_weight;
 float weightTrigger = iTau1TriggerWeight * iTau2TriggerWeight;
 float weightTau1 = iPuWeight * iTau1TriggerWeight;
 float weightTau2 = iPuWeight * iTau1TriggerWeight;

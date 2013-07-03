@@ -23,7 +23,7 @@ TTLPlotter::TTLPlotter(map<string,string>const & iParams):Plotter(iParams){
 
 // Fill the histograms with the event passed
 double
-TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter)
+TTLPlotter::FillHistos(const std::string& name, HContainer* iHContainer, Branches* iEvent, bool const iIsMC, Trigger const * iTrigger, weightCounter* iWeightCounter)
 {
 	HContainer* hContainer = iHContainer;
 	TTLBranches* event = (TTLBranches*)iEvent;
@@ -37,8 +37,16 @@ TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIs
     float iTauIdSysWeight       = 1.0;
     float iQ2SysWeight          = 1.0;
     float iJetCSVweight         = 1.0;
+    float bf_weight = 1.0; // to correct branching fraction in inclusive MC
 
 	if(iIsMC){
+        if (IsFlagThere("brSF") and name.find("TTH_") != std::string::npos) {
+            unsigned int matches = 0;
+            for (const auto& id: *dynamic_cast<TTLBranches*>(iEvent)->GT_ParentId)
+                matches += (abs(id) == 25);
+            bf_weight = (matches == 2) ? 0.0632 / 0.0722 : (1 - 0.0632) / (1 - 0.0722);
+        }
+
 		if(IsFlagThere("topPtSF")){		iTopPtWeight	= event->Ev_topPtWeight;	}
 		if(IsFlagThere("topPtSFUp")){	iTopPtWeight	= event->Ev_topPtWeightUp;	}
 		if(IsFlagThere("topPtSFDown")){	iTopPtWeight	= event->Ev_topPtWeightDown;}
@@ -124,6 +132,7 @@ TTLPlotter::FillHistos(HContainer* iHContainer, Branches* iEvent, bool const iIs
 	iWeightCounter->tauIdSys    		+= iTauIdSysWeight;
 	iWeightCounter->q2Sys        		+= iQ2SysWeight;
 	iWeightCounter->jetCSV      		+= iJetCSVweight;
+    iWeightCounter->bf_sf += bf_weight;
 	iWeightCounter->total++;
 
 	#include "FillHistos.h"

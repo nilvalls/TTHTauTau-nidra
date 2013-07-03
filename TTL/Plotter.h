@@ -15,7 +15,7 @@ class TTLPlotter : public Plotter {
 	protected:
 
 	private:
-        virtual double FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
+        virtual double FillHistos(const std::string&, HContainer*, Branches*, bool const, Trigger const *, weightCounter *);
 
 };
 

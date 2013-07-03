@@ -27,6 +27,7 @@ struct weightCounter{
     double tauIdSys;
     double q2Sys;
     double jetCSV;
+    double bf_sf;
 	double total;
 };
 
@@ -40,7 +41,7 @@ class Plotter {
 		void PrintEfficiencies(string const, string const);
 
 	protected:
-		virtual double	FillHistos(HContainer*, Branches*, bool const, Trigger const *, weightCounter *) {};
+		virtual double	FillHistos(const std::string&, HContainer*, Branches*, bool const, Trigger const *, weightCounter *) {};
 		Trigger*		ditauTrigger;
 		void			SaveFile();
 		virtual void	MakePlots(ProPack*);
