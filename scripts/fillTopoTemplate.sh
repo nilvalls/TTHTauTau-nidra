@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
   echo ""
-  echo usage: fillTopoTemplate.sh SKIM
+  echo usage: fillTopoTemplate.sh USER SKIM
   echo "   where SKIM is 'vXX'"
   echo ""
   echo Output is written to tmp.topo
@@ -11,10 +11,11 @@ then
   exit
 fi
 
-skim=$1
+user=$1
+skim=$2
 cp $CMSSW_BASE/src/TTHTauTau/Analysis/nidra/cfg/8tev_template.topo tmp.topo
 eventsInData=0
-for dir in `/bin/ls -d /store/user/jkolb/data/ntuples/${skim}/2012/*`
+for dir in `/bin/ls -d /store/user/${user}/data/ntuples/${skim}/2012/*`
 do
   events=`python ~jkolb/Public/tools/countEventsInNUTs.py $dir | awk '{print $5}'`
   sample=`echo $dir | awk -F'/' '{print $9}' | sed 's/_Summer12//'`
