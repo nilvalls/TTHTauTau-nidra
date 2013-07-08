@@ -343,11 +343,15 @@ void Stacker::MakePlots(ProPack * iProPack) {
             // Make line at 1
             // gPad->Range(0, minY, 1, maxY);
             // canvas->Range(0, minY, 1, maxY);
-            cout << baseHisto.GetXTitle() << " " << xMin << endl;
+            // cout << baseHisto.GetXTitle() << " " << xMin << endl;
             TLine line;
             line.SetLineColor(kBlack);
             line.SetLineWidth(2);
-            line.DrawLine(xMin, 1, xMax, 1);
+            // line.DrawLine(xMin, 1, xMax, 1);
+            float lx1 = gPad->GetLeftMargin();
+            float lx2 = 1 - gPad->GetRightMargin();
+            float ly = gPad->GetBottomMargin() + 0.4 * (1 - gPad->GetBottomMargin() - gPad->GetTopMargin());
+            line.DrawLineNDC(lx1, ly, lx2, ly);
         }
 		// Save canvas
 		SaveCanvas(canvas, params["stacks_output"]+subdir, plotName);
