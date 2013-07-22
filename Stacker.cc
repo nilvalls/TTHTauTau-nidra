@@ -270,7 +270,7 @@ void Stacker::MakePlots(ProPack * iProPack) {
             hRatio->GetXaxis()->SetRangeUser(xMin,xMax);
 
             // Fix sizes and locations
-            hRatio->GetYaxis()->SetTitle("Data/MC");
+            hRatio->GetYaxis()->SetTitle("Obs/Exp");
             hRatio->GetYaxis()->CenterTitle();
             hRatio->GetYaxis()->SetTitleSize(0.15);
             hRatio->GetYaxis()->SetTitleOffset(0.4);

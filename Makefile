@@ -31,6 +31,7 @@ NOBJS= .Driver.o libNidra.so configParser/libconfigParser.so \
 		.Branches.o .Plotter.o \
 		.MVABase.o \
 		.TTLBranches.o .TTLBranches_cuts.o .TTLPlotter.o .TTLMVABase.o \
+		.TLLBranches.o .TLLBranches_cuts.o .TLLPlotter.o .TLLMVABase.o \
 		.Combiner.o \
 		.Stacker.o .Stamper.o .Optimizer.o \
 		.Trigger.o .Cruncher.o \
@@ -73,6 +74,19 @@ configParser/libconfigParser.so: configParser/config.h
 
 .TTLMVABase.o: TTL/MVABase.cc TTL/MVABase.h TTL/Branches_*.h Helper.h
 	$(CXX) $(CXXFLAGS) -c TTL/MVABase.cc -o $@
+
+### TLL
+.TLLBranches.o: TLL/Branches.cc TLL/Branches.h TLL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TLL/Branches.cc -o $@
+
+.TLLBranches_cuts.o: TLL/Branches.cc TLL/Branches.h TLL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TLL/Branches_cuts.cc -o $@
+
+.TLLPlotter.o: TLL/Plotter.cc TLL/Plotter.h TLL/FillHistos.h TLL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TLL/Plotter.cc -o $@
+
+.TLLMVABase.o: TLL/MVABase.cc TLL/MVABase.h TLL/Branches_*.h Helper.h
+	$(CXX) $(CXXFLAGS) -c TLL/MVABase.cc -o $@
 
 ########################
 ###      Global      ###

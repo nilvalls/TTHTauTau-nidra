@@ -4,6 +4,9 @@
 #include "Driver.h"
 #include "Helper.h"
 
+#include "TTL/MVABase.h"
+#include "TLL/MVABase.h"
+
 #include "boost/filesystem/operations.hpp"
 
 using namespace std;
@@ -149,7 +152,12 @@ void MakeTreeForCorrelations(){
 	string dir = GetParam("webDir") + "/summaryTrees/";
 	ReMakeDir(dir);
     vector<string> vars = Helper::SplitString(GetParam("MVAvariables"));
-    MVABase *fakeMVA = new TTL::MVABase(dir, vars, 0);
+    MVABase *fakeMVA = NULL;
+
+	string channel = GetParam("channel");
+	if(channel == "TTL"){		fakeMVA = new TTL::MVABase(dir, vars, 0); }
+	else if(channel == "TLL"){	fakeMVA = new TLL::MVABase(dir, vars, 0); }
+	else{	assert(GetParam("channel") == "TTL or TLL");		}
 
 	// Set up MVA evaluator to get event score
 	MVABase *mvaEvaluator = NULL;
@@ -175,7 +183,8 @@ void PreparePlots(){
 	
 	string channel = GetParam("channel");
 	if(channel == "TTL"){	plotter = new TTLPlotter(params); }
-	else{	assert(GetParam("channel") == "TTL");		}
+	else if(channel == "TLL"){	plotter = new TLLPlotter(params); }
+	else{	assert(GetParam("channel") == "TTL or TLL");		}
 
 	delete plotter; plotter = NULL;
 	Print(GREEN," done!");

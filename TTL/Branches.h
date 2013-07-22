@@ -23,6 +23,7 @@ class TTLBranches : public Branches {
         inline virtual unsigned int GetNCombos() { return TTL_NumCombos; };
         virtual bool IsGoodGenMatch(const int&) const;
         virtual void RegisterCuts(CutFlow&);
+        virtual unsigned int GetNumCombos();
 
         // Get index (excluding taus) of jet in J_ branches (which include taus)
         unsigned int GetJetIndex(const int, const unsigned int);

@@ -298,6 +298,7 @@ void ProPack::NormalizeToLumi(){
 		}
 	}
 
+
 	normalizedToLumi = true;
 
 }

@@ -28,7 +28,8 @@ Nidra::Analyze(Process& proc, const std::string& cuts, const std::string& tree_n
     cflow.RegisterCut("nTuple making", 0);
     if (limit >= 0)
         cflow.RegisterCut("User event limit", 0);
-    cflow.RegisterCut("TTL_AtLeastOneCombo", 0);
+	cflow.RegisterCut("AtLeastOneCombo", 0);
+
 
     cflow.SetCutCounts("Read from DS", proc.GetNOEinDS());
     cflow.SetCutCounts("skimming + PAT", proc.GetNoEreadByNUTter());
@@ -79,20 +80,18 @@ Nidra::Analyze(Process& proc, const std::string& cuts, const std::string& tree_n
         }
         event->GetEntry(jentry);
 
-        if (event->TTL_NumCombos > 0)
+        if (event->GetNumCombos() > 0)
             NOEwithAtLeastOneCombo++;
 
         // Inform cflow that a new event is starting
         cflow.StartOfEvent();
 
         vector<int> combos;
-        for (unsigned int i = 0; i < event->TTL_NumCombos; ++i) {
-            float comboMass = (*event->TTL_DitauVisibleMass)[i];
-            if( comboMass <= 0 ){ cout << "WARNING: ditauMass < 0!" << endl;  continue; }
+		for (unsigned int i = 0; i < event->GetNumCombos(); ++i) {
+			if (cflow.CheckCuts(event, i, !checkReality))
+				combos.push_back(i);
+		}
 
-            if (cflow.CheckCuts(event, i, !checkReality))
-                combos.push_back(i);
-        }
 
         // Fill good event vectors for signal analysis
         if (combos.size() > 0) {
@@ -105,7 +104,7 @@ Nidra::Analyze(Process& proc, const std::string& cuts, const std::string& tree_n
     if (limit >= 0)
         cflow.SetCutCounts("User event limit", NOEanalyzed);
 
-    cflow.SetCutCounts("TTL_AtLeastOneCombo", NOEwithAtLeastOneCombo);
+	cflow.SetCutCounts("AtLeastOneCombo", NOEwithAtLeastOneCombo);
 
     cout << endl;
 

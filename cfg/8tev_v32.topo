@@ -352,13 +352,13 @@ topology_TTH_125 = [
 topology_TTHTauTau_125 = [
     sampleNumber     = 125
     niceName         = ttHtautau(125)
-    labelForLegend   = t#bar{t}H(125) #rightarrow #tau_{h} #tau_{h}
+    labelForLegend   = 200 x t#bar{t}H(125)#tau#tau 
     type             = signal
     ntuplePath       = TTHTauTau_125
     color            = 632
     crossSection     = 0.0082
     branchingRatio   = 1
-    otherScaleFactor = 1
+    otherScaleFactor = 200
     NOEinDS          = 1000000
     NoEreadByNUTter  = 75082
 ]

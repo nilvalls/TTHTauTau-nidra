@@ -11,6 +11,7 @@
 #include "TPaveText.h"
 
 #include "TTL/Branches.h"
+#include "TLL/Branches.h"
 #include "Branches.h"
 #include "Helper.h"
 #include "ProPack.h"
@@ -21,7 +22,10 @@
 struct weightCounter{
 	double topPtCorrection;
 	double leptonCorrection;
+	double lepton1Correction;
+	double lepton2Correction;
 	double puCorrection;
+	double tauTrigger;
 	double tau1Trigger;
 	double tau2Trigger;
     double tauIdSys;

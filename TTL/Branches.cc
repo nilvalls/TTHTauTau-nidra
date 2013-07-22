@@ -227,3 +227,5 @@ TTLBranches::GetJetIndex(const int idx, const unsigned int num)
     }
     return jetIndexCache.at(num);
 }
+
+unsigned int TTLBranches::GetNumCombos(){ return TTL_NumCombos; }
