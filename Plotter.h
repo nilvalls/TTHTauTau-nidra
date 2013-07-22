@@ -45,7 +45,7 @@ class Plotter {
 		void PrintEfficiencies(string const, string const);
 
 	protected:
-		virtual double	FillHistos(const std::string&, HContainer*, Branches*, bool const, Trigger const *, weightCounter *) {};
+		virtual double	FillHistos(const std::string&, HContainer*, Branches*, bool const, Trigger const *, weightCounter *){};
 		Trigger*		ditauTrigger;
 		void			SaveFile();
 		virtual void	MakePlots(ProPack*);

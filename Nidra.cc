@@ -1,7 +1,9 @@
 #include <unistd.h>
 
 #include "TTL/Branches.h"
-#include "TTL/MVABase.h"
+#include "TTL/Branches.h"
+#include "TLL/MVABase.h"
+#include "TLL/MVABase.h"
 #include "Driver.cc"
 #include "Helper.h"
 
@@ -32,6 +34,7 @@ Nidra::Combine(ProPack& pack)
             "Wjets", "W + jets", "W + jets", 810);
 }
 
+template<typename T>
 void
 setup_mva(const string& prefix, const string& dir, const Config& cfg,
         ProPack *proPack, bool make_trees, bool train, int rank)
@@ -54,7 +57,7 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
     string background = cfg.pString(prefix + "background");
     vector<string> vars = Helper::SplitString(cfg.pString(prefix + "variables"));
 
-    MVABase *mva = new TTL::MVABase(basedir, vars, rank);
+    MVABase *mva = new T(basedir, vars, rank);
 
     if (make_trees) {
         if (rank == 0) {
@@ -73,7 +76,7 @@ setup_mva(const string& prefix, const string& dir, const Config& cfg,
 
     for (const auto& m: setup) {
         cout << "reading MVA: " << m.first << " from " << basedir << endl;
-        mva = new TTL::MVABase(basedir, vars, rank);
+        mva = new T(basedir, vars, rank);
         if (!mva->BookMVA(m.first)) {
             cout << "Couln't find MVA: " << m.first << " in " << basedir << endl; 
             delete mva;
@@ -173,10 +176,18 @@ main(int argc, char **argv) {
     // fist copy config, then analyze
     BackUpConfigFile(argv[0], GetParam("webDir"));
 
+	string channel = GetParam("channel");
     if (do_analyze or all) {
         for (auto& p: *(proPack->GetPContainer()->GetContainer())) {
-            Nidra::Analyze<TTLBranches>(p.second, cfg.pString("cutsToApply"),
-                    cfg.pString("treeName"), atoi(cfg.pString("maxEvents").c_str()));
+
+			if(channel == "TTL"){
+					Nidra::Analyze<TTLBranches>(p.second, cfg.pString("cutsToApply"),
+							cfg.pString("treeName"), atoi(cfg.pString("maxEvents").c_str()));
+			}else if(channel == "TLL"){
+					Nidra::Analyze<TLLBranches>(p.second, cfg.pString("cutsToApply"),
+							cfg.pString("treeName"), atoi(cfg.pString("maxEvents").c_str()));
+			}else{	assert(GetParam("channel") == "TTL or TLL");		}
+
         }
         rootFileMaker.MakeFile(proPack, params["process_file"]);
         DistributeProcesses();
@@ -194,9 +205,14 @@ main(int argc, char **argv) {
     file.GetObject((params["propack_name"]).c_str(), proPack);
     file.Close();
 
+	if(channel == "TTL"){
+		setup_mva<TTL::MVABase>("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all, 0);
+		setup_mva<TTL::MVABase>("MVA", "tmva", cfg, proPack, prep_train || all, train || all, 1);
+	}else if(channel == "TLL"){
+		setup_mva<TLL::MVABase>("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all, 0);
+		setup_mva<TLL::MVABase>("MVA", "tmva", cfg, proPack, prep_train || all, train || all, 1);
+	}else{	assert(GetParam("channel") == "TTL or TLL");		}
     proPack->DistributeProcesses();
-    setup_mva("comboSelectorMVA", "combos", cfg, proPack, train_combo_mva || all, train_combo_mva || all, 0);
-    setup_mva("MVA", "tmva", cfg, proPack, prep_train || all, train || all, 1);
 
 
     if (prep_plots or create_corr or all) {

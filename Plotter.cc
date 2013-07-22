@@ -80,22 +80,26 @@ Plotter::MakePlots(Process* iProcess)
 	// Instantiante Branches to read events more easily
 	Branches* event = NULL;
 	string channel = params["channel"];
-	if (channel == "TTL"){ event = new TTLBranches(params["treeName"], iProcess->GetNtuplePaths()); }
+		 if (channel == "TTL"){ event = new TTLBranches(params["treeName"], iProcess->GetNtuplePaths()); }
+	else if (channel == "TLL"){ event = new TLLBranches(params["treeName"], iProcess->GetNtuplePaths()); }
 
 	// Get preexisting cutflow to potentially add cuts
 	CutFlow* cutFlow = iProcess->GetCutFlow();
 
 	// Recover the good events for signal and fill histos with them
 	weightCounter weightCounterForSignal;
-	weightCounterForSignal.topPtCorrection  = 0;
-	weightCounterForSignal.leptonCorrection = 0;
-	weightCounterForSignal.puCorrection     = 0;
-	weightCounterForSignal.tau1Trigger      = 0;
-	weightCounterForSignal.tau2Trigger      = 0;
-	weightCounterForSignal.tauIdSys         = 0;
-	weightCounterForSignal.q2Sys            = 0;
-	weightCounterForSignal.jetCSV           = 0;
-	weightCounterForSignal.total            = 0;
+	weightCounterForSignal.topPtCorrection   = 0;
+	weightCounterForSignal.leptonCorrection  = 0;
+	weightCounterForSignal.lepton1Correction = 0;
+	weightCounterForSignal.lepton2Correction = 0;
+	weightCounterForSignal.puCorrection      = 0;
+	weightCounterForSignal.tauTrigger        = 0;
+	weightCounterForSignal.tau1Trigger       = 0;
+	weightCounterForSignal.tau2Trigger       = 0;
+	weightCounterForSignal.tauIdSys          = 0;
+	weightCounterForSignal.q2Sys             = 0;
+	weightCounterForSignal.jetCSV            = 0;
+	weightCounterForSignal.total             = 0;
 
     double events_w_taus = 0.;
     double events_wo_taus = 0.;
@@ -104,55 +108,86 @@ Plotter::MakePlots(Process* iProcess)
 	cout << "\n\tNow filling histos for " << iProcess->GetShortName() << endl;
 	cout << "\t>>> OS, filling good events (total " << goodEventsForSignal.size() << "): "; cout.flush();
 	stringstream goodEventsSS; goodEventsSS.str("");
-	for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
-		if(i>0 && (i%10) == 0){
-			cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
-			goodEventsSS.str("");
-			goodEventsSS << i;
-			cout << goodEventsSS.str(); cout.flush();
+
+	if (channel == "TTL"){
+		for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
+			if(i>0 && (i%10) == 0){
+				cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
+				goodEventsSS.str("");
+				goodEventsSS << i;
+				cout << goodEventsSS.str(); cout.flush();
+			}
+
+			event->GetEntry(goodEventsForSignal.at(i).entry);
+
+			auto& combos = goodEventsForSignal[i].combos;
+			// std::cout << endl << "--- " << combos << endl;
+			// std::cout << "--- " << combos.size() << std::endl;
+			if (combos.size() > 1) {
+				if (params["selectComboBy"] == "mva") {
+					TTLBranches *e = dynamic_cast<TTLBranches*>(event);
+					stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
+							return MVABase::gComboMVA["BDT"]->Evaluate(e, a) >
+								MVABase::gComboMVA["BDT"]->Evaluate(e, b);
+							});
+				} else if (params["selectComboBy"] == "iso") {
+					TTLBranches *e = dynamic_cast<TTLBranches*>(event);
+					stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
+							double score_a = (((*e->TTL_Tau1HPSbyIsolationMVA2raw)[a] + 1) *
+								((*e->TTL_Tau1HPSbyIsolationMVA2raw)[a] + 1) + ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[a] + 1) *
+								((*e->TTL_Tau2HPSbyIsolationMVA2raw)[a] + 1));
+							double score_b = (((*e->TTL_Tau1HPSbyIsolationMVA2raw)[b] + 1) *
+								((*e->TTL_Tau1HPSbyIsolationMVA2raw)[b] + 1) + ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[b] + 1) *
+								((*e->TTL_Tau2HPSbyIsolationMVA2raw)[b] + 1));
+							return score_a > score_b;
+							});
+				}
+			}
+
+			event->SetBestCombo(combos[0]);
+
+			double weight = FillHistos(iProcess->GetShortName(), &hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
+			if (((TLLBranches*)event)->GT_NumGenTaus > 0){	events_w_taus += weight;	}
+			else{											events_wo_taus += weight;	}
 		}
+	}else if (channel == "TLL"){
+		for(unsigned int i = 0; i < goodEventsForSignal.size(); i++){
+			if(i>0 && (i%10) == 0){
+				cout << string((goodEventsSS.str()).length(),'\b') << string((goodEventsSS.str()).length(),' ') << string((goodEventsSS.str()).length(),'\b'); cout.flush();
+				goodEventsSS.str("");
+				goodEventsSS << i;
+				cout << goodEventsSS.str(); cout.flush();
+			}
 
-        event->GetEntry(goodEventsForSignal.at(i).entry);
+			event->GetEntry(goodEventsForSignal.at(i).entry);
 
-        auto& combos = goodEventsForSignal[i].combos;
-        // std::cout << endl << "--- " << combos << endl;
-        // std::cout << "--- " << combos.size() << std::endl;
-        if (combos.size() > 1) {
-            if (params["selectComboBy"] == "mva") {
-                TTLBranches *e = dynamic_cast<TTLBranches*>(event);
-                stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
-                        return MVABase::gComboMVA["BDT"]->Evaluate(e, a) >
-                            MVABase::gComboMVA["BDT"]->Evaluate(e, b);
-                        });
-            } else if (params["selectComboBy"] == "iso") {
-                TTLBranches *e = dynamic_cast<TTLBranches*>(event);
-                stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
-                        double score_a = (((*e->TTL_Tau1HPSbyIsolationMVA2raw)[a] + 1) *
-                            ((*e->TTL_Tau1HPSbyIsolationMVA2raw)[a] + 1) + ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[a] + 1) *
-                            ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[a] + 1));
-                        double score_b = (((*e->TTL_Tau1HPSbyIsolationMVA2raw)[b] + 1) *
-                            ((*e->TTL_Tau1HPSbyIsolationMVA2raw)[b] + 1) + ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[b] + 1) *
-                            ((*e->TTL_Tau2HPSbyIsolationMVA2raw)[b] + 1));
-                        return score_a > score_b;
-                        });
-            }
-        }
+			auto& combos = goodEventsForSignal[i].combos;
+			// std::cout << endl << "--- " << combos << endl;
+			// std::cout << "--- " << combos.size() << std::endl;
+			if (combos.size() > 1) {
+				if (params["selectComboBy"] == "iso") {
+					TLLBranches *e = dynamic_cast<TLLBranches*>(event);
+					stable_sort(combos.begin(), combos.end(), [&](const int a, const int b) -> bool {
+							double score_a = (*e->TLL_TauHPSbyIsolationMVA2raw)[a];
+							double score_b = (*e->TLL_TauHPSbyIsolationMVA2raw)[b];
+							return score_a > score_b;
+							});
+				}
+			}
 
-        event->SetBestCombo(combos[0]);
+			event->SetBestCombo(combos[0]);
 
-        double weight = FillHistos(iProcess->GetShortName(), &hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
-
-        if (((TTLBranches*)event)->GT_NumGenTaus > 0)
-            events_w_taus += weight;
-        else
-            events_wo_taus += weight;
+			double weight = FillHistos(iProcess->GetShortName(), &hContainerForSignal, event, iProcess->IsMC(), ditauTrigger, &weightCounterForSignal);
+			if (((TLLBranches*)event)->GT_NumGenTaus > 0){	events_w_taus += weight;	}
+			else{											events_wo_taus += weight;	}
+		}
 	}
 	cout << endl;
 
-    cout << iProcess->GetShortName() << "\ttaus: " << events_w_taus << "\tno taus: " << events_wo_taus << endl;
-
 	double topPtSFEfficiencyForSignal     = 0;
 	double leptonSFEfficiencyForSignal    = 0;
+	double lepton1SFEfficiencyForSignal   = 0;
+	double lepton2SFEfficiencyForSignal   = 0;
 	double puEfficiencyForSignal          = 0;
 	double tau1TriggerEfficiencyForSignal = 0;
 	double tau2TriggerEfficiencyForSignal = 0;
@@ -160,9 +195,12 @@ Plotter::MakePlots(Process* iProcess)
  	double q2SysForSignal                 = 0;
  	double jetCSVforSignal                = 0;
     double br_sf = 0;
+
 	if(weightCounterForSignal.total > 0){
 		topPtSFEfficiencyForSignal     = weightCounterForSignal.topPtCorrection/weightCounterForSignal.total;
 		leptonSFEfficiencyForSignal    = weightCounterForSignal.leptonCorrection/weightCounterForSignal.total;
+		lepton1SFEfficiencyForSignal   = weightCounterForSignal.lepton1Correction/weightCounterForSignal.total;
+		lepton2SFEfficiencyForSignal   = weightCounterForSignal.lepton2Correction/weightCounterForSignal.total;
 		puEfficiencyForSignal          = weightCounterForSignal.puCorrection/weightCounterForSignal.total;
 		tau1TriggerEfficiencyForSignal = weightCounterForSignal.tau1Trigger/weightCounterForSignal.puCorrection;
 		tau2TriggerEfficiencyForSignal = weightCounterForSignal.tau2Trigger/weightCounterForSignal.tau1Trigger;
@@ -171,14 +209,17 @@ Plotter::MakePlots(Process* iProcess)
 		jetCSVforSignal                = weightCounterForSignal.jetCSV/weightCounterForSignal.total;
         br_sf = weightCounterForSignal.bf_sf / weightCounterForSignal.total;
 	}
-	if(weightCounterForSignal.total > 0){
+	/*if(weightCounterForSignal.total > 0){
 		hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
-	}
+	}//*/
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 
 	// Add postCuts
 	if(IsFlagThere("topPtSF") || IsFlagThere("topPtSFUp") || IsFlagThere("topPtSFDown")){ cutFlow->RegisterCut("topPt SF", 2, topPtSFEfficiencyForSignal*cutFlow->GetLastCountForSignal()); }
-	if(IsFlagThere("leptonSF")){ cutFlow->RegisterCut("Lepton SF", 2, leptonSFEfficiencyForSignal*cutFlow->GetLastCountForSignal()); }
+	if(IsFlagThere("leptonSF")){
+		cutFlow->RegisterCut("Lepton1 SF", 2, lepton1SFEfficiencyForSignal*cutFlow->GetLastCountForSignal());
+		cutFlow->RegisterCut("Lepton2 SF", 2, lepton2SFEfficiencyForSignal*cutFlow->GetLastCountForSignal());
+	}
 	if(IsFlagThere("PUcorr") || IsFlagThere("PUcorrUp") || IsFlagThere("PUcorrDown")){ cutFlow->RegisterCut("PU reweighing", 2, puEfficiencyForSignal*cutFlow->GetLastCountForSignal()); }
 	if(IsFlagThere("qSquaredUp") || IsFlagThere("qSquaredDown")){ cutFlow->RegisterCut("Q^2 shift", 2, q2SysForSignal*cutFlow->GetLastCountForSignal()); }
 	if(IsFlagThere("trigger")){ 
@@ -188,7 +229,7 @@ Plotter::MakePlots(Process* iProcess)
 	if( IsFlagThere("eTauFakeUp") || IsFlagThere("jetTauFakeUp") || IsFlagThere("tauIdEffUp") 
         || IsFlagThere("eTauFakeDown") || IsFlagThere("jetTauFakeDown") || IsFlagThere("tauIdEffDown") ){ 
       cutFlow->RegisterCut("tau ID sys ", 2, tauIdSysForSignal*cutFlow->GetLastCountForSignal()); }
-
+	if(IsFlagThere("JetCSVWeight")) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal()); }
     string flags = params.find("flags")->second;
 	if (flags.find("CSVeventWeight") != string::npos) { cutFlow->RegisterCut("jet CSV wt.", 2, jetCSVforSignal*cutFlow->GetLastCountForSignal()); }
     if (IsFlagThere("brSF"))
