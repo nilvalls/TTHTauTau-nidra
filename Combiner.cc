@@ -49,7 +49,7 @@ void Combiner::Combine(ProPack * iProPack){
 	backgrounds.push_back("TTbar_Hadronic");
 	backgrounds.push_back("TTbar_SemiLept");
 	backgrounds.push_back("TTbar_FullLept");
-	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", kRed+1);	
+	iProPack->CombineAndRemoveMCbackgrounds(backgrounds, "TTbar", "t + tbar", "t #bar{t}", kRed-7);	
 
 	backgrounds.clear();
 	backgrounds.push_back("ZplusJets_LowMass");

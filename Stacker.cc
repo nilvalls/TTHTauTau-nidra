@@ -105,7 +105,7 @@ void Stacker::MakePlots(ProPack * iProPack) {
 		}
 
 		// Get some generic information
-		double maxY = max(1.3 * GetMaximumWithError(iProPack, plotName),0.1);
+		double maxY = max(1.15 * GetMaximumWithError(iProPack, plotName),0.1);
 		HWrapper baseHisto((iProPack->GetAvailableHWrapper(plotName))); baseHisto.ScaleBy(0);
 		subdir = baseHisto.GetSubDir();
 
@@ -114,20 +114,27 @@ void Stacker::MakePlots(ProPack * iProPack) {
 
 		TCanvas* canvas = NULL;
         // magic numbers for data/MC ratio plotting
-        float padding      = 0.0001;
-        float yDivide      = 0.25;
-        float ratioPlotMax = 2.5;
-        float bottomMargin = 0.35;
+        float padding      = 1e-5;
+        float yDivide      = 0.3;
+        float ratioPlotMax = 2.3;
+        float bottomMargin = 0.3;
         float smallNumber  = 0.0001;
         if( doRatioPlot ) {
             minY = 0.002;
-            canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 1000); 
+            canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 600, 700); 
             canvas->Divide(1,2);
-            canvas->GetPad(1)->SetPad(0+padding, yDivide + padding, 1 - padding, 1 - padding);
-            canvas->GetPad(1)->SetTopMargin(0.065);
-            canvas->GetPad(1)->SetBottomMargin(0);
-            canvas->GetPad(2)->SetPad(padding, padding, 1-padding, yDivide-padding);
+            canvas->GetPad(1)->SetPad(padding, yDivide + padding, 1 - padding, 1 - padding);
+            canvas->GetPad(1)->SetTopMargin(0.1);
+            canvas->GetPad(1)->SetBottomMargin(padding);
+            canvas->GetPad(1)->SetRightMargin(.05);
+            canvas->GetPad(1)->SetLeftMargin(.11);
+
+            canvas->GetPad(2)->SetPad(padding, padding, 1 - padding, yDivide - padding);
+            canvas->GetPad(2)->SetTopMargin(padding);
             canvas->GetPad(2)->SetBottomMargin(bottomMargin);
+            canvas->GetPad(2)->SetRightMargin(.05);
+            canvas->GetPad(2)->SetLeftMargin(.11);
+            canvas->GetPad(2)->SetTickx();
             //canvas->GetPad(2)->SetGrid(1,1);
 
             canvas->cd(1);
@@ -135,6 +142,12 @@ void Stacker::MakePlots(ProPack * iProPack) {
             canvas = new TCanvas(plotName.c_str(), plotName.c_str(), 800, 800); canvas->cd();
         }
         baseHisto.GetHisto()->GetYaxis()->SetRangeUser(minY,maxY);
+
+        baseHisto.GetHisto()->GetYaxis()->SetTitleSize(0.05);
+        baseHisto.GetHisto()->GetYaxis()->SetTitleOffset(1.1);
+        baseHisto.GetHisto()->GetYaxis()->SetTitleFont(62);
+        baseHisto.GetHisto()->GetYaxis()->SetLabelSize(.04);
+        baseHisto.GetHisto()->GetYaxis()->SetLabelFont(62);
 
         // Get background and signal sums 
         HWrapper backgroundSum;
@@ -211,7 +224,7 @@ void Stacker::MakePlots(ProPack * iProPack) {
                     toDraw->ScaleBy(lexical_cast<float>(params["signalScale"]));
                 } catch (...) {};
 				toDraw->SetFillStyle(0);
-				toDraw->SetLineWidth(3, proc->GetColor());
+                toDraw->SetLineWidth(4, kBlue + 2); //proc->GetColor());
 				toDraw->GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 
 				// If we want the signals on top of the stack, add the background sum
@@ -230,9 +243,10 @@ void Stacker::MakePlots(ProPack * iProPack) {
 		if (haveCollisions && iProPack->GetCollisions()->Plot()) {
 			HWrapper collisionsHisto = HWrapper(*iProPack->GetCollisions()->GetHContainerForSignal()->Get(plotName));
 			collisionsHisto.SetMarkerStyle(20);
+            collisionsHisto.GetHisto()->SetMarkerSize(1);
 			collisionsHisto.GetHisto()->GetYaxis()->SetRangeUser(minY, maxY);
 			if(collisionsHisto.GetHisto()->Integral()>0){ 
-                collisionsHisto.GetHisto()->SetLineWidth(2); 
+                collisionsHisto.GetHisto()->SetLineWidth(4); 
                 collisionsHisto.GetHisto()->Draw("E1Psame"); 
             }
 		}	
@@ -242,11 +256,18 @@ void Stacker::MakePlots(ProPack * iProPack) {
 		baseHisto.GetHisto()->Draw("AXISsame");
 
 		// Take care of the legend
-		GetLegend(iProPack, baseHisto.GetHisto()->GetTickLength())->Draw();
+        // GetLegend(iProPack, baseHisto.GetHisto()->GetTickLength())->Draw();
 
 		// Take care of plot info
 		//GetPlotText(params.find("plotText")->second)->Draw();
-		GetPlotTextLatex(params.find("plotText")->second)->Draw();
+        // GetPlotTextLatex(params.find("plotText")->second)->Draw();
+        TLatex tex;
+        tex.SetNDC();
+        tex.SetTextFont(42);
+        tex.SetTextSize(0.05);
+        tex.DrawLatex(.42, .84, ("Lep + #tau_{h}#tau_{h} " + params.find("plotText")->second).c_str());
+        tex.SetTextSize(0.055);
+        tex.DrawLatex(0.14, 0.91, "CMS Preliminary         #sqrt{s} = 8 TeV, L = 19.5 fb^{-1}");
 
         // If requested, do data/MC ratio plot
         if( doRatioPlot ) {
@@ -270,16 +291,24 @@ void Stacker::MakePlots(ProPack * iProPack) {
             hRatio->GetXaxis()->SetRangeUser(xMin,xMax);
 
             // Fix sizes and locations
-            hRatio->GetYaxis()->SetTitle("Obs/Exp");
+            hRatio->GetYaxis()->SetTitle("Data/MC");
+            hRatio->GetYaxis()->SetTitleSize(0.1);
+            hRatio->GetYaxis()->SetTitleOffset(0.45);
             hRatio->GetYaxis()->CenterTitle();
-            hRatio->GetYaxis()->SetTitleSize(0.15);
-            hRatio->GetYaxis()->SetTitleOffset(0.4);
-            hRatio->GetYaxis()->SetLabelSize(0.08);
-            hRatio->GetXaxis()->SetTitleSize(0.15);
-            hRatio->GetXaxis()->SetLabelSize(0.1);
+            hRatio->GetYaxis()->SetLabelSize(0.1);
+            hRatio->GetYaxis()->SetTitleFont(62);
+            hRatio->GetYaxis()->SetLabelFont(62);
+            hRatio->GetYaxis()->SetNdivisions(50404);
+
+            hRatio->GetXaxis()->SetLabelOffset(0.02);
+            hRatio->GetXaxis()->SetLabelSize(0.12);
+            hRatio->GetXaxis()->SetLabelFont(62);
+            hRatio->GetXaxis()->SetTitleSize(0.14);
+            hRatio->GetXaxis()->SetTitleOffset(0.9);
+            hRatio->GetXaxis()->SetTitleFont(62);
             
             // Use hRatio only for axes; use errors (see below) to plots points 
-            hRatio->GetYaxis()->SetRangeUser(minY,ratioPlotMax);
+            hRatio->GetYaxis()->SetRangeUser(0,ratioPlotMax);
             TString s(hRatio->GetXaxis()->GetTitle());
             s.ReplaceAll("BDTG", "BDT");
             hRatio->GetXaxis()->SetTitle(s.Data());
@@ -331,9 +360,9 @@ void Stacker::MakePlots(ProPack * iProPack) {
                     ratioErr->SetPoint(iBin,xCoordinateValue,999);
                 }
             }
-            ratioErr->SetMarkerSize(1.);
-            ratioErr->SetMarkerStyle(8);
-            ratioErr->SetLineWidth(2);
+            // ratioErr->SetMarkerSize(1.);
+            ratioErr->SetMarkerStyle(0);
+            ratioErr->SetLineWidth(4);
             // Draw the ratio points + errors on top of the background MC uncertainty
             if (iProPack->GetCollisions()->Plot())
                 ratioErr->Draw("P SAME");
@@ -346,11 +375,11 @@ void Stacker::MakePlots(ProPack * iProPack) {
             // cout << baseHisto.GetXTitle() << " " << xMin << endl;
             TLine line;
             line.SetLineColor(kBlack);
-            line.SetLineWidth(2);
+            line.SetLineWidth(1);
             // line.DrawLine(xMin, 1, xMax, 1);
             float lx1 = gPad->GetLeftMargin();
             float lx2 = 1 - gPad->GetRightMargin();
-            float ly = gPad->GetBottomMargin() + 0.4 * (1 - gPad->GetBottomMargin() - gPad->GetTopMargin());
+            float ly = gPad->GetBottomMargin() + (1 / ratioPlotMax) * (1 - gPad->GetBottomMargin() - gPad->GetTopMargin());
             line.DrawLineNDC(lx1, ly, lx2, ly);
         }
 		// Save canvas
@@ -432,7 +461,7 @@ Stacker::GetLegend(ProPack const * iProPack, const float tick_length)
     yLegend = 1.0 - gPad->GetTopMargin() - 0.001;
 
     TLegend* leg = new TLegend(x1Legend, yLegend - dyLegend, x2Legend, yLegend, NULL, "brNDC");
-    leg->SetTextFont(42);
+    // leg->SetTextFont(42);
     leg->SetTextSize(0.035);
     leg->SetNColumns(n_cols);
 
@@ -520,6 +549,8 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
             for( auto it = iProPack->GetMCbackgrounds()->rbegin(); it != iProPack->GetMCbackgrounds()->rend(); ++it){
                 if(!it->Plot()){ continue; }
                 int color = it->GetColor();
+                if (it->GetShortName() == "TTbar")
+                    color = kRed - 7;
                 HWrapper toAdd(*(it->GetHistoForSignal(iName)));
                 toAdd.SetFillStyle(1001,color);
                 toAdd.SetLineWidth(0,color);
@@ -531,6 +562,8 @@ THStack * Stacker::GetBackgroundStack(ProPack const * iProPack, string const iNa
             for(unsigned int b = 0; b < iProPack->GetMCbackgrounds()->size(); b++){
                 if(!iProPack->GetMCbackgrounds()->at(b).Plot()){ continue; }
                 int color = iProPack->GetMCbackgrounds()->at(b).GetColor();
+                if (iProPack->GetMCbackgrounds()->at(b).GetShortName() == "TTbar")
+                    color = kRed - 7;
                 HWrapper toAdd(*(iProPack->GetMCbackgrounds()->at(b).GetHistoForSignal(iName)));
                 toAdd.SetFillStyle(1001,color);
                 toAdd.SetLineWidth(0,color);

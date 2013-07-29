@@ -26,7 +26,7 @@ void Initialize() {
 	params.clear();
 
 	// Set up nice plot style
-	setTDRStyle();
+    setTDRStyle();
 
 	// Supress ROOT warnings
 	gErrorIgnoreLevel = kError;

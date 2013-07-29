@@ -85,7 +85,7 @@ void setTDRStyle() {
 	tdrStyle->SetOptFile(0);
 	tdrStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
 	tdrStyle->SetStatColor(kWhite);
-	tdrStyle->SetStatFont(42);
+    // tdrStyle->SetStatFont(42);
 	tdrStyle->SetStatFontSize(0.025);
 	tdrStyle->SetStatTextColor(1);
 	tdrStyle->SetStatFormat("6.4g");
@@ -104,7 +104,7 @@ void setTDRStyle() {
 
 	// For the Global title:
 	tdrStyle->SetOptTitle(0);    // 0=No Title
-	tdrStyle->SetTitleFont(42);
+    // tdrStyle->SetTitleFont(42);
 	tdrStyle->SetTitleColor(1);
 	tdrStyle->SetTitleTextColor(1);
 	tdrStyle->SetTitleFillColor(10);
@@ -118,7 +118,7 @@ void setTDRStyle() {
 
 	// For the axis titles:
 	tdrStyle->SetTitleColor(1, "XYZ");
-	tdrStyle->SetTitleFont(42, "XYZ");
+    // tdrStyle->SetTitleFont(42, "XYZ");
 	tdrStyle->SetTitleSize(0.06, "XYZ");
 	// tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
 	// tdrStyle->SetTitleYSize(Float_t size = 0.02);
@@ -128,10 +128,10 @@ void setTDRStyle() {
 
 	// For the axis labels:
 	tdrStyle->SetLabelColor(1, "XYZ");
-	tdrStyle->SetLabelFont(42, "XYZ");
+    // tdrStyle->SetLabelFont(42, "XYZ");
 	tdrStyle->SetLabelOffset(0.007, "XYZ");
-	tdrStyle->SetLabelSize(0.05, "XY");
-	tdrStyle->SetLabelSize(0.5, "Z");
+    // tdrStyle->SetLabelSize(0.05, "XY");
+    tdrStyle->SetLabelSize(0.5, "Z");
 
 	// For the axis:
 	tdrStyle->SetAxisColor(1, "XYZ");
@@ -139,7 +139,7 @@ void setTDRStyle() {
 	tdrStyle->SetTickLength(0.03, "XYZ");
 	tdrStyle->SetNdivisions(510, "XYZ");
 	tdrStyle->SetPadTickX(0);  // 0=Text labels (and tics) only on bottom, 1=Text labels on top and bottom
-	tdrStyle->SetPadTickY(1);
+    // tdrStyle->SetPadTickY(1);
 
 	// Change for log plots:
 	tdrStyle->SetOptLogx(0);
