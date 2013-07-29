@@ -99,6 +99,7 @@ Plotter::MakePlots(Process* iProcess)
 	weightCounterForSignal.tauIdSys          = 0;
 	weightCounterForSignal.q2Sys             = 0;
 	weightCounterForSignal.jetCSV            = 0;
+    weightCounterForSignal.bf_sf = 0;
 	weightCounterForSignal.total             = 0;
 
     double events_w_taus = 0.;
@@ -209,9 +210,13 @@ Plotter::MakePlots(Process* iProcess)
 		jetCSVforSignal                = weightCounterForSignal.jetCSV/weightCounterForSignal.total;
         br_sf = weightCounterForSignal.bf_sf / weightCounterForSignal.total;
 	}
-	/*if(weightCounterForSignal.total > 0){
-		hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
-	}//*/
+	if(weightCounterForSignal.total > 0){
+        hContainerForSignal.ScaleErrorBy( sqrt(weightCounterForSignal.tau2Trigger/weightCounterForSignal.total) );
+        // ^^ This is outdated... tau2Trigger weight is the sum of squared
+        // pu weights... and we don't even use trigger weights
+        // Cheap replacement for calling Sumw2() on every histogram?
+        hContainerForSignal.ScaleErrorBy(1.);
+	}
 	iProcess->SetHContainerForSignal(hContainerForSignal);
 
 	// Add postCuts
